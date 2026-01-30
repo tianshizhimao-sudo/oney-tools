@@ -15,6 +15,72 @@
       document.head.appendChild(script);
     }
     function initGooglePlaces() { window.googlePlacesReady = true; }
+    
+    // ===== TIER SYSTEM =====
+    const TIERS = {
+      lite: { name: 'Lite', color: '#64748B', features: ['basic_inputs', 'preview'] },
+      standard: { name: 'Standard', color: '#2ECC85', price: '$49', features: ['basic_inputs', 'preview', 'pdf_export', 'multiple_securities', 'servicing'] },
+      pro: { name: 'Pro', color: '#FFD700', price: '$149', features: ['basic_inputs', 'preview', 'pdf_export', 'multiple_securities', 'servicing', 'templates', 'api', 'multi_deal'] }
+    };
+    
+    function detectTier() {
+      const params = new URLSearchParams(window.location.search);
+      const urlTier = params.get('tier');
+      const storedLicense = localStorage.getItem('cpp_license');
+      
+      // Check URL parameter first
+      if (urlTier && TIERS[urlTier]) return urlTier;
+      
+      // Check stored license
+      if (storedLicense) {
+        try {
+          const license = JSON.parse(storedLicense);
+          if (license.tier && TIERS[license.tier] && license.expires > Date.now()) {
+            return license.tier;
+          }
+        } catch (e) {}
+      }
+      
+      return 'lite'; // Default to free
+    }
+    
+    function hasFeature(feature) {
+      return TIERS[window.currentTier]?.features.includes(feature);
+    }
+    
+    function requireFeature(feature, featureName) {
+      if (!hasFeature(feature)) {
+        showUpgradeModal(featureName);
+        return false;
+      }
+      return true;
+    }
+    
+    function showUpgradeModal(featureName) {
+      document.getElementById('upgradeFeatureName').textContent = featureName || 'This feature';
+      document.getElementById('upgradeModal').classList.add('open');
+    }
+    
+    function closeUpgradeModal() {
+      document.getElementById('upgradeModal').classList.remove('open');
+    }
+    
+    function activateLicense() {
+      const key = document.getElementById('licenseKeyInput').value.trim();
+      // Simple validation - in production, verify with server
+      if (key.startsWith('STD-')) {
+        localStorage.setItem('cpp_license', JSON.stringify({ tier: 'standard', expires: Date.now() + 365*24*60*60*1000 }));
+        location.reload();
+      } else if (key.startsWith('PRO-')) {
+        localStorage.setItem('cpp_license', JSON.stringify({ tier: 'pro', expires: Date.now() + 365*24*60*60*1000 }));
+        location.reload();
+      } else {
+        alert('Invalid license key. Please check and try again.');
+      }
+    }
+    
+    // Initialize tier on load
+    window.currentTier = detectTier();
   </script>
   <style>
     :root {
@@ -28,6 +94,158 @@
       --text: #1E293B; --muted: #64748B;
       --radius: 12px; --radius-sm: 8px;
     }
+    
+    /* Tier Banner */
+    .tier-banner {
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tier-banner.lite { background: linear-gradient(90deg, #f1f5f9, #e2e8f0); }
+    .tier-banner.standard { background: linear-gradient(90deg, #d1fae5, #a7f3d0); }
+    .tier-banner.pro { background: linear-gradient(90deg, #fef3c7, #fde68a); }
+    .tier-badge {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .tier-badge.lite { background: #64748B; color: white; }
+    .tier-badge.standard { background: #2ECC85; color: white; }
+    .tier-badge.pro { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; }
+    .tier-upgrade-btn {
+      padding: 6px 14px;
+      background: var(--gold);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tier-upgrade-btn:hover { filter: brightness(1.1); }
+    
+    /* Locked Feature */
+    .locked-feature {
+      position: relative;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    .locked-feature::after {
+      content: '🔒 Upgrade to unlock';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .locked-overlay {
+      position: relative;
+    }
+    .locked-overlay::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.7);
+      z-index: 10;
+      cursor: pointer;
+    }
+    
+    /* Upgrade Modal */
+    .upgrade-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .upgrade-modal-overlay.open { display: flex; }
+    .upgrade-modal {
+      background: white;
+      border-radius: 16px;
+      max-width: 500px;
+      width: 90%;
+      overflow: hidden;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+    }
+    .upgrade-modal-header {
+      padding: 20px 24px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: white;
+    }
+    .upgrade-modal-header h3 { font-size: 18px; margin-bottom: 4px; }
+    .upgrade-modal-header p { font-size: 13px; opacity: 0.9; }
+    .upgrade-modal-body { padding: 24px; }
+    .upgrade-tiers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .upgrade-tier {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .upgrade-tier:hover { border-color: var(--gold); }
+    .upgrade-tier.recommended { border-color: var(--gold); background: var(--gold-light); }
+    .upgrade-tier h4 { font-size: 16px; margin-bottom: 4px; }
+    .upgrade-tier .price { font-size: 28px; font-weight: 800; color: var(--gold-dark); }
+    .upgrade-tier .price span { font-size: 14px; font-weight: 400; color: var(--muted); }
+    .upgrade-tier ul { list-style: none; text-align: left; margin-top: 12px; font-size: 12px; }
+    .upgrade-tier ul li { padding: 4px 0; color: var(--muted); }
+    .upgrade-tier ul li::before { content: '✓ '; color: var(--success); }
+    .upgrade-modal-footer {
+      padding: 16px 24px;
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
+    }
+    .license-input-group {
+      display: flex;
+      gap: 8px;
+    }
+    .license-input-group input {
+      flex: 1;
+      padding: 10px 14px;
+      font-size: 13px;
+    }
+    .license-input-group button {
+      padding: 10px 20px;
+      background: var(--navy);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .upgrade-modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      opacity: 0.8;
+    }
+    .upgrade-modal-close:hover { opacity: 1; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; font-size: 13px; }
     
@@ -152,6 +370,57 @@
   </style>
 </head>
 <body>
+
+<!-- Tier Banner -->
+<div class="tier-banner" id="tierBanner">
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <span class="tier-badge" id="tierBadge">LITE</span>
+    <span id="tierMessage">Free version - Limited features</span>
+  </div>
+  <button class="tier-upgrade-btn" onclick="showUpgradeModal()" id="upgradeBtn">⚡ Upgrade</button>
+</div>
+
+<!-- Upgrade Modal -->
+<div class="upgrade-modal-overlay" id="upgradeModal">
+  <div class="upgrade-modal" style="position: relative;">
+    <button class="upgrade-modal-close" onclick="closeUpgradeModal()">×</button>
+    <div class="upgrade-modal-header">
+      <h3>🔓 Unlock <span id="upgradeFeatureName">Full Features</span></h3>
+      <p>Upgrade to access all Credit Paper Pro features</p>
+    </div>
+    <div class="upgrade-modal-body">
+      <div class="upgrade-tiers">
+        <a href="https://gumroad.com/l/credit-paper-standard" target="_blank" class="upgrade-tier" style="text-decoration: none; color: inherit;">
+          <h4>Standard</h4>
+          <div class="price">$49 <span>one-time</span></div>
+          <ul>
+            <li>Full input fields</li>
+            <li>PDF export</li>
+            <li>Multiple securities</li>
+            <li>Servicing entities</li>
+          </ul>
+        </a>
+        <a href="https://gumroad.com/l/credit-paper-pro" target="_blank" class="upgrade-tier recommended" style="text-decoration: none; color: inherit;">
+          <h4>Pro ⭐</h4>
+          <div class="price">$149 <span>one-time</span></div>
+          <ul>
+            <li>Everything in Standard</li>
+            <li>Deal templates</li>
+            <li>Multi-deal support</li>
+            <li>Priority support</li>
+          </ul>
+        </a>
+      </div>
+    </div>
+    <div class="upgrade-modal-footer">
+      <p style="font-size: 12px; color: var(--muted); margin-bottom: 10px;">Already have a license key?</p>
+      <div class="license-input-group">
+        <input type="text" id="licenseKeyInput" placeholder="Enter license key (e.g. STD-XXXX-XXXX)">
+        <button onclick="activateLicense()">Activate</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="app">
   <aside class="sidebar">
@@ -1138,6 +1407,58 @@ function resetAll() {
   localStorage.removeItem('creditPaperProV3');
   location.reload();
 }
+
+// ===== TIER INITIALIZATION =====
+function initTierSystem() {
+  const tier = window.currentTier;
+  const banner = document.getElementById('tierBanner');
+  const badge = document.getElementById('tierBadge');
+  const message = document.getElementById('tierMessage');
+  const upgradeBtn = document.getElementById('upgradeBtn');
+  
+  // Update banner appearance
+  banner.className = 'tier-banner ' + tier;
+  badge.className = 'tier-badge ' + tier;
+  badge.textContent = TIERS[tier].name.toUpperCase();
+  
+  if (tier === 'lite') {
+    message.textContent = 'Free version — PDF export & some features locked';
+  } else if (tier === 'standard') {
+    message.textContent = 'Standard — Full features unlocked';
+    upgradeBtn.textContent = '⭐ Upgrade to Pro';
+  } else if (tier === 'pro') {
+    message.textContent = 'Pro — All features unlocked';
+    upgradeBtn.style.display = 'none';
+  }
+  
+  // Apply feature restrictions for Lite tier
+  if (tier === 'lite') {
+    // Lock PDF export button
+    const pdfBtn = document.querySelector('button[onclick*="exportPDF"]');
+    if (pdfBtn) {
+      pdfBtn.onclick = function(e) {
+        e.preventDefault();
+        showUpgradeModal('PDF Export');
+      };
+      pdfBtn.style.opacity = '0.6';
+      pdfBtn.title = '🔒 Upgrade to unlock PDF export';
+    }
+    
+    // Add upgrade prompts to certain sections
+    const lockedSections = document.querySelectorAll('[data-pro-feature]');
+    lockedSections.forEach(section => {
+      section.classList.add('locked-overlay');
+      section.addEventListener('click', function(e) {
+        if (e.target.closest('.locked-overlay')) {
+          showUpgradeModal(section.dataset.proFeature);
+        }
+      });
+    });
+  }
+}
+
+// Run on page load
+document.addEventListener('DOMContentLoaded', initTierSystem);
 </script>
 </body>
 </html>
