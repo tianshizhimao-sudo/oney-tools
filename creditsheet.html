@@ -24,8 +24,17 @@
     };
     
     function detectTier() {
-      // CreditSheet is always Lite tier
-      // For full features, use Credit Paper Pro
+      // Check for activated license first
+      const storedLicense = localStorage.getItem('cpp_license');
+      if (storedLicense) {
+        try {
+          const license = JSON.parse(storedLicense);
+          if (license.tier && TIERS[license.tier] && license.expires > Date.now()) {
+            return license.tier;
+          }
+        } catch (e) {}
+      }
+      // Default to lite for CreditSheet
       return 'lite';
     }
     
