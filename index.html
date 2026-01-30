@@ -3,116 +3,452 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Oney & Co — Tools</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>Commercial Investment Tools — Oney & Co</title>
+  <meta name="description" content="Professional loan assessment tools for Australian commercial property investors and mortgage brokers.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><path d='M0-38A38 38 0 1 0 0-37.99' fill='none' stroke='url(%23g)' stroke-width='8' stroke-linecap='round' stroke-dasharray='227 12'/><path d='M0-45L0-52' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --gold: #D4A853;
-      --gold-dark: #B8860B;
-      --gold-light: #F5ECD7;
-      --navy: #1E293B;
-      --bg: #F8FAFC;
-      --card: #FFFFFF;
-      --border: #E2E8F0;
-      --muted: #64748B;
+      --bg: #0a0a0a;
+      --card: #141414;
+      --border: #262626;
+      --primary: #1FAD73;
+      --primary-light: #2ECC85;
+      --primary-lighter: #4ADE94;
+      --success: #2ECC85;
+      --warning: #ffc107;
+      --text: #ffffff;
+      --text-muted: #a3a3a3;
     }
+    
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { 
-      font-family: 'Inter', system-ui, sans-serif; 
-      background: var(--bg); 
-      color: var(--navy); 
-      min-height: 100vh;
-      padding: 40px 20px;
+    
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
     }
-    .container { max-width: 900px; margin: 0 auto; }
     
-    .header { text-align: center; margin-bottom: 50px; }
-    .logo-svg { width: 180px; margin-bottom: 16px; }
-    .tagline { color: var(--muted); font-size: 16px; }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
     
-    .tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    /* Nav */
+    nav {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+    }
     
-    .tool-card {
+    .nav-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .nav-logo svg {
+      height: 40px;
+      width: auto;
+    }
+    
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+    
+    .nav-link:hover {
+      color: var(--primary-light);
+    }
+    
+    /* Hero */
+    .hero {
+      padding: 100px 0 80px;
+      text-align: center;
+      background: linear-gradient(180deg, rgba(31, 173, 115, 0.08) 0%, transparent 100%);
+    }
+    
+    .hero-badge {
+      display: inline-block;
+      background: rgba(31, 173, 115, 0.15);
+      color: var(--primary-light);
+      padding: 8px 16px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 24px;
+    }
+    
+    h1 {
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #fff 0%, var(--primary-light) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .hero-subtitle {
+      font-size: 20px;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 40px;
+    }
+    
+    /* Products */
+    .products {
+      padding: 80px 0;
+    }
+    
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 32px;
+    }
+    
+    .product-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 40px;
+      position: relative;
+      transition: all 0.3s;
+    }
+    
+    .product-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(31, 173, 115, 0.15);
+    }
+    
+    .product-card.featured {
+      border-color: var(--primary);
+      background: linear-gradient(180deg, rgba(31, 173, 115, 0.08) 0%, var(--card) 100%);
+    }
+    
+    .product-badge {
+      position: absolute;
+      top: -12px;
+      right: 24px;
+      background: var(--primary);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .product-badge.free {
+      background: var(--success);
+      color: #000;
+    }
+    
+    .product-name {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .product-tagline {
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+    
+    .product-price {
+      font-size: 40px;
+      font-weight: 800;
+      margin-bottom: 24px;
+    }
+    
+    .product-price span {
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+    
+    .feature-list {
+      list-style: none;
+      margin-bottom: 32px;
+    }
+    
+    .feature-list li {
+      padding: 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 15px;
+    }
+    
+    .feature-list li::before {
+      content: "✓";
+      color: var(--success);
+      font-weight: 600;
+    }
+    
+    .feature-list li.disabled {
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+    
+    .feature-list li.disabled::before {
+      content: "✗";
+      color: var(--text-muted);
+    }
+    
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 16px 24px;
+      border-radius: 100px;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: center;
+      text-decoration: none;
+      transition: all 0.2s;
+      cursor: pointer;
+      border: none;
+    }
+    
+    .btn-primary {
+      background: var(--primary-light);
+      color: #0a0a0a;
+    }
+    
+    .btn-primary:hover {
+      background: var(--primary-lighter);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(31, 173, 115, 0.3);
+    }
+    
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    
+    .btn-secondary:hover {
+      border-color: var(--primary);
+      color: var(--primary-light);
+    }
+    
+    /* Features */
+    .features {
+      padding: 80px 0;
+      border-top: 1px solid var(--border);
+    }
+    
+    .section-title {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 48px;
+    }
+    
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+    }
+    
+    .feature-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 28px;
-      transition: all 0.2s;
-      text-decoration: none;
-      color: inherit;
-      display: block;
-    }
-    .tool-card:hover {
-      border-color: var(--gold);
-      box-shadow: 0 8px 30px rgba(212, 168, 83, 0.15);
-      transform: translateY(-2px);
-    }
-    .tool-icon { font-size: 32px; margin-bottom: 12px; }
-    .tool-name { font-size: 18px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
-    .tool-desc { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
-    .tool-badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 10px;
-      font-weight: 600;
-      text-transform: uppercase;
-    }
-    .badge-free { background: #D1FAE5; color: #059669; }
-    .badge-beta { background: var(--gold-light); color: var(--gold-dark); }
-    .badge-pro { background: #DBEAFE; color: #2563EB; }
-    
-    .footer {
+      padding: 24px;
       text-align: center;
-      margin-top: 60px;
-      padding-top: 30px;
-      border-top: 1px solid var(--border);
-      color: var(--muted);
-      font-size: 13px;
+      transition: all 0.3s;
     }
-    .footer a { color: var(--gold-dark); }
+    
+    .feature-card:hover {
+      border-color: var(--primary);
+    }
+    
+    .feature-icon {
+      font-size: 40px;
+      margin-bottom: 16px;
+    }
+    
+    .feature-card h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    
+    .feature-card p {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    
+    /* CTA */
+    .cta {
+      padding: 80px 0;
+      text-align: center;
+      background: linear-gradient(180deg, transparent 0%, rgba(31, 173, 115, 0.08) 100%);
+    }
+    
+    .cta h2 {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+    
+    .cta p {
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+    
+    .cta .btn {
+      display: inline-block;
+      width: auto;
+      padding: 16px 48px;
+    }
+    
+    /* Footer */
+    footer {
+      padding: 40px 0;
+      text-align: center;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    
+    footer a {
+      color: var(--primary-light);
+      text-decoration: none;
+    }
+    
+    @media (max-width: 768px) {
+      h1 { font-size: 32px; }
+      .hero { padding: 60px 0 40px; }
+      .products, .features, .cta { padding: 60px 0; }
+    }
   </style>
 </head>
 <body>
-  <div class="container">
-    <header class="header">
-      <svg class="logo-svg" viewBox="0 0 190 90" xmlns="http://www.w3.org/2000/svg">
-        <defs><linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#D4A853"/><stop offset="100%" style="stop-color:#B8860B"/></linearGradient></defs>
-        <g transform="translate(38, 45)"><path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#goldGrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/><path d="M0 -38 L0 -44" stroke="url(#goldGrad)" stroke-width="5" stroke-linecap="round"/></g>
-        <text x="32" y="50" font-family="Inter, Arial" font-size="26" font-weight="600" fill="#1E293B">ney</text>
-        <text x="77" y="50" font-family="Inter, Arial" font-size="20" fill="url(#goldGrad)">&amp;</text>
-        <text x="94" y="50" font-family="Inter, Arial" font-size="26" font-weight="600" fill="#1E293B">co</text>
-      </svg>
-      <p class="tagline">Commercial Finance Tools</p>
-    </header>
-    
-    <div class="tools-grid">
-      <a href="credit-paper-pro.html" class="tool-card">
-        <div class="tool-icon">📋</div>
-        <div class="tool-name">Credit Paper Pro</div>
-        <div class="tool-desc">Generate professional credit papers for commercial finance deals. Includes 3C analysis, risk assessment, and lender recommendations.</div>
-        <span class="tool-badge badge-beta">Beta</span>
-      </a>
-      
-      <a href="commercial-investment-calculator.html" class="tool-card">
-        <div class="tool-icon">🏢</div>
-        <div class="tool-name">Commercial Investment Calculator</div>
-        <div class="tool-desc">Analyse commercial property investments. Calculate yields, LVR, ICR, DSCR and cash flow projections.</div>
-        <span class="tool-badge badge-free">Free</span>
-      </a>
-      
-      <a href="specialised-lending-calculator.html" class="tool-card">
-        <div class="tool-icon">🎯</div>
-        <div class="tool-name">Specialised Lending Calculator</div>
-        <div class="tool-desc">MLL calculations for specialised securities including childcare, service stations, hotels, and more.</div>
-        <span class="tool-badge badge-free">Free</span>
-      </a>
+  <nav>
+    <div class="container">
+      <div class="nav-inner">
+        <a href="https://oneyco.com.au" class="nav-logo">
+          <svg viewBox="0 0 190 90" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs>
+            <g transform="translate(38, 45)"><path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#greenGrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/><path d="M0 -38 L0 -44" stroke="url(#greenGrad)" stroke-width="5" stroke-linecap="round"/></g>
+            <text x="32" y="50" font-family="Inter, Arial" font-size="26" font-weight="600" fill="#FFFFFF">ney</text>
+            <text x="77" y="50" font-family="Inter, Arial" font-size="20" fill="url(#greenGrad)">&amp;</text>
+            <text x="94" y="50" font-family="Inter, Arial" font-size="26" font-weight="600" fill="#FFFFFF">co</text>
+          </svg>
+        </a>
+        <a href="https://oneyco.com.au" class="nav-link">← Back to main site</a>
+      </div>
     </div>
-    
-    <footer class="footer">
-      <p>© 2026 Oney & Co — Commercial Finance</p>
+  </nav>
+
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge">🇦🇺 Built for Australian Brokers</div>
+      <h1>Commercial Investment Tools</h1>
+      <p class="hero-subtitle">Professional loan assessment tools for commercial property investors and mortgage brokers. Quick, accurate, and designed by industry experts.</p>
+    </div>
+  </section>
+  
+  <section class="products">
+    <div class="container">
+      <div class="products-grid">
+        
+        <!-- Free Version -->
+        <div class="product-card">
+          <span class="product-badge free">FREE</span>
+          <h2 class="product-name">Commercial Investment Lite</h2>
+          <p class="product-tagline">Basic LVR & ICR calculator</p>
+          <div class="product-price">$0 <span>forever</span></div>
+          <ul class="feature-list">
+            <li>LVR calculation</li>
+            <li>ICR calculation</li>
+            <li>Single property</li>
+            <li>Basic property types</li>
+            <li>Copy results</li>
+            <li class="disabled">Multiple properties</li>
+            <li class="disabled">Ownership structures</li>
+            <li class="disabled">PDF export</li>
+          </ul>
+          <a href="#free-download" class="btn btn-secondary">Download Free</a>
+        </div>
+        
+        <!-- Standard Version -->
+        <div class="product-card featured">
+          <span class="product-badge">POPULAR</span>
+          <h2 class="product-name">Commercial Investment Standard</h2>
+          <p class="product-tagline">Professional assessment tool</p>
+          <div class="product-price">$49 <span>one-time</span></div>
+          <ul class="feature-list">
+            <li>Everything in Free, plus:</li>
+            <li>Multiple properties</li>
+            <li>Ownership structures (Trust, SMSF, etc)</li>
+            <li>ATO Tax Position check</li>
+            <li>Custom LVR/ICR thresholds</li>
+            <li>Lease details & options</li>
+            <li>Interest rate buffer</li>
+            <li>PDF export</li>
+            <li>Address verification</li>
+          </ul>
+          <a href="https://gumroad.com/l/commercial-investment-standard" class="btn btn-primary">Buy Now — $49</a>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="features">
+    <div class="container">
+      <h2 class="section-title">Why Choose Our Tools?</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🏦</div>
+          <h3>Built by Bankers</h3>
+          <p>Designed by a former Big 4 bank BDM with 8+ years in commercial lending.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🇦🇺</div>
+          <h3>Australian Focus</h3>
+          <p>LVR policies, ownership structures, and ATO considerations specific to Australia.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📱</div>
+          <h3>Works Anywhere</h3>
+          <p>Mobile-friendly PWA. Use on phone, tablet, or desktop — even offline.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>5-Minute Assessment</h3>
+          <p>Quick and professional. No training required.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💰</div>
+          <h3>One-Time Purchase</h3>
+          <p>No subscriptions. No hidden fees. Yours forever.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔒</div>
+          <h3>Privacy First</h3>
+          <p>Runs locally in your browser. Your data never leaves your device.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <section class="cta">
+    <div class="container">
+      <h2>Ready to streamline your assessments?</h2>
+      <p>Join brokers and investors who trust our tools for quick, accurate analysis.</p>
+      <a href="https://gumroad.com/l/commercial-investment-standard" class="btn btn-primary">Get Started — $49</a>
+    </div>
+  </section>
+  
+  <footer>
+    <div class="container">
+      <p>© 2026 <a href="https://oneyco.com.au">Oney & Co</a>. All rights reserved.</p>
       <p style="margin-top: 8px;">Questions? <a href="mailto:hello@oneyco.com.au">hello@oneyco.com.au</a></p>
-    </footer>
-  </div>
+    </div>
+  </footer>
 </body>
 </html>
