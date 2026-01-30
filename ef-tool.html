@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Equipment Finance Calculator — Compare loan structures and calculate repayments">
+  <title>EF Tool — Equipment Finance Calculator</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><path d='M0-38A38 38 0 1 0 0-37.99' fill='none' stroke='url(%23g)' stroke-width='8' stroke-linecap='round' stroke-dasharray='227 12'/><path d='M0-45L0-52' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --card: #141414;
+      --card-hover: #1a1a1a;
+      --border: #262626;
+      --primary: #1FAD73;
+      --primary-light: #2ECC85;
+      --primary-glow: rgba(31, 173, 115, 0.25);
+      --secondary: #4ADE94;
+      --success: #2ECC85;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --info: #60a5fa;
+      --text: #ffffff;
+      --text-muted: #a3a3a3;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0 0 100px 0;
+    }
+    .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+    
+    /* Header */
+    header { text-align: center; padding: 30px 0 10px; }
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 16px;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--primary-light); }
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .tagline { color: var(--text-muted); font-size: 14px; margin-top: 8px; }
+    
+    /* Cards */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title span { font-size: 16px; }
+    
+    /* Form Elements */
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+    input, select {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-family: inherit;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    select { cursor: pointer; }
+    
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    
+    /* Toggle Buttons */
+    .toggle-group {
+      display: flex;
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 4px;
+      border: 1px solid var(--border);
+    }
+    .toggle-btn {
+      flex: 1;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .toggle-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+    .toggle-btn:hover:not(.active) {
+      color: var(--text);
+    }
+    
+    /* Structure Cards */
+    .structure-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .structure-card {
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .structure-card:hover {
+      border-color: var(--primary);
+    }
+    .structure-card.active {
+      border-color: var(--primary);
+      background: rgba(31, 173, 115, 0.1);
+    }
+    .structure-card .icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    .structure-card .name {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .structure-card .desc {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    
+    /* Info Box */
+    .info-box {
+      background: rgba(31, 173, 115, 0.1);
+      border: 1px solid rgba(31, 173, 115, 0.3);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: var(--primary-light);
+      margin-top: 12px;
+    }
+    .info-box.warning {
+      background: rgba(251, 191, 36, 0.1);
+      border-color: rgba(251, 191, 36, 0.3);
+      color: var(--warning);
+    }
+    
+    /* Results */
+    .results-card {
+      background: linear-gradient(135deg, var(--card), var(--card-hover));
+      border: 2px solid var(--primary);
+      box-shadow: 0 0 40px var(--primary-glow);
+    }
+    
+    .result-hero {
+      text-align: center;
+      padding: 24px;
+      background: var(--bg);
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    .result-hero-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .result-hero-value {
+      font-size: 48px;
+      font-weight: 800;
+      color: var(--primary-light);
+    }
+    .result-hero-sub {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .result-item {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .result-item.full { grid-column: span 2; }
+    .result-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .result-value {
+      font-size: 22px;
+      font-weight: 700;
+    }
+    .result-value.success { color: var(--success); }
+    .result-value.warning { color: var(--warning); }
+    .result-value.info { color: var(--info); }
+    
+    /* Comparison Table */
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+    .comparison-table th,
+    .comparison-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .comparison-table th {
+      color: var(--text-muted);
+      font-weight: 500;
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+    .comparison-table td:not(:first-child) {
+      text-align: right;
+    }
+    .comparison-table th:not(:first-child) {
+      text-align: right;
+    }
+    .comparison-table tr.highlight td {
+      color: var(--primary-light);
+      font-weight: 600;
+    }
+    
+    /* Tax Summary */
+    .tax-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .tax-item {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .tax-item .label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .tax-item .value {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .tax-item .note {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 16px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px var(--primary-glow);
+    }
+    .btn-secondary {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover {
+      border-color: var(--primary);
+    }
+    
+    /* Checkbox */
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 12px 0;
+    }
+    .checkbox-group input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--primary);
+    }
+    .checkbox-group label {
+      margin: 0;
+      cursor: pointer;
+    }
+    
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    footer a { color: var(--primary-light); text-decoration: none; }
+    
+    /* Responsive */
+    @media (max-width: 600px) {
+      .row, .row-3 { grid-template-columns: 1fr; }
+      .structure-grid { grid-template-columns: 1fr; }
+      .result-grid { grid-template-columns: 1fr; }
+      .result-item.full { grid-column: span 1; }
+      .tax-grid { grid-template-columns: 1fr; }
+      .result-hero-value { font-size: 36px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="index.html" class="back-link">← Back to Tools</a>
+      <div class="logo">EF Tool</div>
+      <div class="tagline">Equipment Finance Calculator</div>
+    </header>
+    
+    <!-- Asset Details -->
+    <div class="card">
+      <div class="card-title"><span>🚜</span> Asset Details</div>
+      
+      <div class="form-group">
+        <label>Asset Type</label>
+        <select id="assetType">
+          <option value="vehicle">Motor Vehicle</option>
+          <option value="truck">Truck / Heavy Vehicle</option>
+          <option value="trailer">Trailer</option>
+          <option value="construction">Construction Equipment</option>
+          <option value="agriculture">Agricultural Equipment</option>
+          <option value="manufacturing">Manufacturing Equipment</option>
+          <option value="medical">Medical Equipment</option>
+          <option value="it">IT Equipment / Software</option>
+          <option value="office">Office Equipment / Fitout</option>
+          <option value="other">Other Equipment</option>
+        </select>
+      </div>
+      
+      <div class="row">
+        <div class="form-group">
+          <label>Asset Condition</label>
+          <div class="toggle-group">
+            <button class="toggle-btn active" data-value="new" onclick="setCondition('new')">New</button>
+            <button class="toggle-btn" data-value="used" onclick="setCondition('used')">Used</button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Asset Age (if used)</label>
+          <select id="assetAge" disabled>
+            <option value="0">N/A (New)</option>
+            <option value="1">0-2 years</option>
+            <option value="2">2-5 years</option>
+            <option value="3">5-10 years</option>
+            <option value="4">10+ years</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="form-group">
+          <label>Purchase Price (ex GST)</label>
+          <input type="text" id="purchasePrice" placeholder="$100,000" oninput="formatCurrency(this); calculate()">
+        </div>
+        <div class="form-group">
+          <label>GST (10%)</label>
+          <input type="text" id="gstAmount" placeholder="$10,000" disabled>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Total Price (inc GST)</label>
+        <input type="text" id="totalPrice" placeholder="$110,000" disabled style="font-weight: 700; font-size: 18px;">
+      </div>
+    </div>
+    
+    <!-- Finance Structure -->
+    <div class="card">
+      <div class="card-title"><span>📋</span> Finance Structure</div>
+      
+      <div class="structure-grid">
+        <div class="structure-card active" onclick="setStructure('chattel')">
+          <div class="icon">📄</div>
+          <div class="name">Chattel Mortgage</div>
+          <div class="desc">Own from day 1</div>
+        </div>
+        <div class="structure-card" onclick="setStructure('lease')">
+          <div class="icon">📑</div>
+          <div class="name">Finance Lease</div>
+          <div class="desc">Rent to own</div>
+        </div>
+        <div class="structure-card" onclick="setStructure('rental')">
+          <div class="icon">🔄</div>
+          <div class="name">Rental / Operating</div>
+          <div class="desc">Return at end</div>
+        </div>
+      </div>
+      
+      <div class="info-box" id="structureInfo">
+        <strong>Chattel Mortgage:</strong> You own the asset immediately. Claim GST upfront. Interest and depreciation are tax deductible. Most common for ABN holders.
+      </div>
+    </div>
+    
+    <!-- Loan Terms -->
+    <div class="card">
+      <div class="card-title"><span>⚙️</span> Loan Terms</div>
+      
+      <div class="row-3">
+        <div class="form-group">
+          <label>Deposit</label>
+          <input type="text" id="deposit" placeholder="$0" value="$0" oninput="formatCurrency(this); calculate()">
+        </div>
+        <div class="form-group">
+          <label>Term (months)</label>
+          <select id="term" onchange="calculate()">
+            <option value="12">12 months</option>
+            <option value="24">24 months</option>
+            <option value="36">36 months</option>
+            <option value="48" selected>48 months</option>
+            <option value="60">60 months</option>
+            <option value="72">72 months</option>
+            <option value="84">84 months</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Interest Rate (p.a.)</label>
+          <input type="text" id="interestRate" placeholder="8.5%" value="8.5%" oninput="calculate()">
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="form-group">
+          <label>Balloon / Residual (%)</label>
+          <select id="balloonPercent" onchange="updateBalloon(); calculate()">
+            <option value="0">0% (Fully Amortised)</option>
+            <option value="10">10%</option>
+            <option value="20">20%</option>
+            <option value="30" selected>30%</option>
+            <option value="40">40%</option>
+            <option value="50">50%</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Balloon Amount</label>
+          <input type="text" id="balloonAmount" placeholder="$30,000" disabled>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>Repayment Frequency</label>
+        <div class="toggle-group">
+          <button class="toggle-btn" data-value="weekly" onclick="setFrequency('weekly')">Weekly</button>
+          <button class="toggle-btn" data-value="fortnightly" onclick="setFrequency('fortnightly')">Fortnightly</button>
+          <button class="toggle-btn active" data-value="monthly" onclick="setFrequency('monthly')">Monthly</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Borrower Details -->
+    <div class="card">
+      <div class="card-title"><span>👤</span> Borrower Details</div>
+      
+      <div class="row">
+        <div class="form-group">
+          <label>ABN Age</label>
+          <select id="abnAge" onchange="calculate()">
+            <option value="0">No ABN</option>
+            <option value="1">0-6 months</option>
+            <option value="2">6-12 months</option>
+            <option value="3">1-2 years</option>
+            <option value="4" selected>2+ years</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>GST Registered</label>
+          <div class="toggle-group">
+            <button class="toggle-btn active" data-value="yes" onclick="setGstRegistered('yes')">Yes</button>
+            <button class="toggle-btn" data-value="no" onclick="setGstRegistered('no')">No</button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="checkbox-group">
+        <input type="checkbox" id="instantWriteOff" checked onchange="calculate()">
+        <label for="instantWriteOff">Eligible for Instant Asset Write-Off ($20,000 threshold)</label>
+      </div>
+    </div>
+    
+    <!-- Calculate Button -->
+    <button class="btn btn-primary" onclick="calculate()" style="margin-bottom: 16px;">
+      Calculate Repayments
+    </button>
+    
+    <!-- Results -->
+    <div class="card results-card" id="resultsCard" style="display: none;">
+      <div class="card-title"><span>📊</span> Repayment Summary</div>
+      
+      <div class="result-hero">
+        <div class="result-hero-label">Your Repayment</div>
+        <div class="result-hero-value" id="repaymentAmount">$0</div>
+        <div class="result-hero-sub" id="repaymentFreq">per month</div>
+      </div>
+      
+      <div class="result-grid">
+        <div class="result-item">
+          <div class="result-label">Finance Amount</div>
+          <div class="result-value" id="financeAmount">$0</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Total Interest</div>
+          <div class="result-value warning" id="totalInterest">$0</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Total Repayments</div>
+          <div class="result-value" id="totalRepayments">$0</div>
+        </div>
+        <div class="result-item">
+          <div class="result-label">Balloon Payment</div>
+          <div class="result-value info" id="balloonPayment">$0</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Tax Benefits -->
+    <div class="card" id="taxCard" style="display: none;">
+      <div class="card-title"><span>💰</span> Tax Benefits (Estimated)</div>
+      
+      <div class="tax-grid">
+        <div class="tax-item">
+          <div class="label">GST Claimable</div>
+          <div class="value success" id="gstClaimable">$0</div>
+          <div class="note" id="gstNote">Upfront claim</div>
+        </div>
+        <div class="tax-item">
+          <div class="label">Interest Deduction</div>
+          <div class="value" id="interestDeduction">$0</div>
+          <div class="note">Over loan term</div>
+        </div>
+        <div class="tax-item">
+          <div class="label">Depreciation</div>
+          <div class="value" id="depreciationDeduction">$0</div>
+          <div class="note" id="depNote">Per year (approx)</div>
+        </div>
+      </div>
+      
+      <div class="info-box" id="writeOffInfo" style="margin-top: 16px;">
+        <strong>Instant Asset Write-Off:</strong> Assets under $20,000 may be fully deductible in the year of purchase.
+      </div>
+    </div>
+    
+    <!-- Comparison -->
+    <div class="card" id="comparisonCard" style="display: none;">
+      <div class="card-title"><span>⚖️</span> Structure Comparison</div>
+      
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Chattel</th>
+            <th>Lease</th>
+            <th>Rental</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Monthly Payment</td>
+            <td id="cmpChattelPmt">$0</td>
+            <td id="cmpLeasePmt">$0</td>
+            <td id="cmpRentalPmt">$0</td>
+          </tr>
+          <tr>
+            <td>Total Cost</td>
+            <td id="cmpChattelTotal">$0</td>
+            <td id="cmpLeaseTotal">$0</td>
+            <td id="cmpRentalTotal">$0</td>
+          </tr>
+          <tr>
+            <td>GST Claim</td>
+            <td>Upfront</td>
+            <td>Monthly</td>
+            <td>Monthly</td>
+          </tr>
+          <tr>
+            <td>Ownership</td>
+            <td>Immediate</td>
+            <td>At end</td>
+            <td>Never</td>
+          </tr>
+          <tr class="highlight">
+            <td>Best For</td>
+            <td>Most ABNs</td>
+            <td>Cash flow</td>
+            <td>Short term</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <!-- Actions -->
+    <div class="row" style="margin-top: 16px;">
+      <button class="btn btn-secondary" onclick="copyResults()">📋 Copy Results</button>
+      <button class="btn btn-secondary" onclick="resetForm()">🔄 Reset</button>
+    </div>
+    
+    <footer>
+      <p>© 2026 <a href="https://oneyco.com.au">Oney & Co</a></p>
+      <p style="margin-top: 8px;">Calculations are estimates only. Actual rates and terms may vary.</p>
+    </footer>
+  </div>
+  
+  <script>
+    // State
+    let state = {
+      condition: 'new',
+      structure: 'chattel',
+      frequency: 'monthly',
+      gstRegistered: 'yes'
+    };
+    
+    // Helpers
+    function parseCurrency(str) {
+      if (!str) return 0;
+      return parseFloat(str.replace(/[^0-9.-]/g, '')) || 0;
+    }
+    
+    function formatCurrency(input) {
+      let value = parseCurrency(input.value);
+      if (value > 0) {
+        input.value = '$' + value.toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      }
+    }
+    
+    function formatMoney(num) {
+      return '$' + num.toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+    
+    // Setters
+    function setCondition(val) {
+      state.condition = val;
+      document.querySelectorAll('[data-value="new"], [data-value="used"]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.value === val);
+      });
+      document.getElementById('assetAge').disabled = (val === 'new');
+      if (val === 'new') document.getElementById('assetAge').value = '0';
+      calculate();
+    }
+    
+    function setStructure(val) {
+      state.structure = val;
+      document.querySelectorAll('.structure-card').forEach(card => {
+        card.classList.remove('active');
+      });
+      event.currentTarget.classList.add('active');
+      
+      // Update info box
+      const infoBox = document.getElementById('structureInfo');
+      const infos = {
+        chattel: '<strong>Chattel Mortgage:</strong> You own the asset immediately. Claim GST upfront. Interest and depreciation are tax deductible. Most common for ABN holders.',
+        lease: '<strong>Finance Lease:</strong> You lease the asset with option to buy at end. GST claimed monthly. Entire lease payment is tax deductible. Good for cash flow management.',
+        rental: '<strong>Operating Lease / Rental:</strong> Rent the asset and return at end. 100% tax deductible payments. Best for short-term needs or rapidly depreciating assets.'
+      };
+      infoBox.innerHTML = infos[val];
+      calculate();
+    }
+    
+    function setFrequency(val) {
+      state.frequency = val;
+      document.querySelectorAll('[data-value="weekly"], [data-value="fortnightly"], [data-value="monthly"]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.value === val);
+      });
+      calculate();
+    }
+    
+    function setGstRegistered(val) {
+      state.gstRegistered = val;
+      document.querySelectorAll('[data-value="yes"], [data-value="no"]').forEach(btn => {
+        if (btn.closest('.form-group')?.querySelector('label')?.textContent.includes('GST')) {
+          btn.classList.toggle('active', btn.dataset.value === val);
+        }
+      });
+      calculate();
+    }
+    
+    function updateBalloon() {
+      const price = parseCurrency(document.getElementById('purchasePrice').value);
+      const balloonPercent = parseFloat(document.getElementById('balloonPercent').value) || 0;
+      const balloon = price * (balloonPercent / 100);
+      document.getElementById('balloonAmount').value = formatMoney(balloon);
+    }
+    
+    // Calculate
+    function calculate() {
+      const price = parseCurrency(document.getElementById('purchasePrice').value);
+      if (price <= 0) {
+        document.getElementById('resultsCard').style.display = 'none';
+        document.getElementById('taxCard').style.display = 'none';
+        document.getElementById('comparisonCard').style.display = 'none';
+        return;
+      }
+      
+      // GST
+      const gst = price * 0.1;
+      const totalPrice = price + gst;
+      document.getElementById('gstAmount').value = formatMoney(gst);
+      document.getElementById('totalPrice').value = formatMoney(totalPrice);
+      
+      // Loan params
+      const deposit = parseCurrency(document.getElementById('deposit').value);
+      const term = parseInt(document.getElementById('term').value);
+      const rate = parseFloat(document.getElementById('interestRate').value.replace('%', '')) / 100;
+      const balloonPercent = parseFloat(document.getElementById('balloonPercent').value) / 100;
+      
+      // Finance amount (Chattel = ex GST, Lease = inc GST)
+      let financeAmount;
+      if (state.structure === 'chattel') {
+        financeAmount = price - deposit;
+      } else {
+        financeAmount = totalPrice - deposit;
+      }
+      
+      const balloon = price * balloonPercent;
+      document.getElementById('balloonAmount').value = formatMoney(balloon);
+      
+      // PMT calculation
+      const monthlyRate = rate / 12;
+      const n = term;
+      const pv = financeAmount;
+      const fv = balloon;
+      
+      // PMT = (PV * r - FV * r / ((1+r)^n - 1)) / (1 - (1+r)^-n)
+      // Simplified with balloon:
+      let monthlyPayment;
+      if (monthlyRate === 0) {
+        monthlyPayment = (pv - fv) / n;
+      } else {
+        const factor = Math.pow(1 + monthlyRate, n);
+        monthlyPayment = (pv * monthlyRate * factor - fv * monthlyRate) / (factor - 1);
+      }
+      
+      // Frequency conversion
+      let payment, freqLabel;
+      switch (state.frequency) {
+        case 'weekly':
+          payment = monthlyPayment * 12 / 52;
+          freqLabel = 'per week';
+          break;
+        case 'fortnightly':
+          payment = monthlyPayment * 12 / 26;
+          freqLabel = 'per fortnight';
+          break;
+        default:
+          payment = monthlyPayment;
+          freqLabel = 'per month';
+      }
+      
+      const totalRepayments = monthlyPayment * term + balloon;
+      const totalInterest = totalRepayments - financeAmount;
+      
+      // Update results
+      document.getElementById('repaymentAmount').textContent = formatMoney(Math.round(payment));
+      document.getElementById('repaymentFreq').textContent = freqLabel;
+      document.getElementById('financeAmount').textContent = formatMoney(financeAmount);
+      document.getElementById('totalInterest').textContent = formatMoney(Math.round(totalInterest));
+      document.getElementById('totalRepayments').textContent = formatMoney(Math.round(totalRepayments));
+      document.getElementById('balloonPayment').textContent = formatMoney(balloon);
+      
+      // Tax benefits
+      const gstClaimable = state.gstRegistered === 'yes' ? gst : 0;
+      const annualDepreciation = price / (term / 12); // Simple straight-line
+      const instantWriteOff = document.getElementById('instantWriteOff').checked && price <= 20000;
+      
+      document.getElementById('gstClaimable').textContent = formatMoney(gstClaimable);
+      document.getElementById('gstNote').textContent = state.structure === 'chattel' ? 'Upfront claim' : 'Claimed monthly';
+      document.getElementById('interestDeduction').textContent = formatMoney(Math.round(totalInterest));
+      
+      if (instantWriteOff) {
+        document.getElementById('depreciationDeduction').textContent = formatMoney(price);
+        document.getElementById('depNote').textContent = 'Full write-off Year 1';
+        document.getElementById('writeOffInfo').innerHTML = '<strong>✅ Instant Asset Write-Off applies!</strong> This asset may be fully deductible in the year of purchase.';
+        document.getElementById('writeOffInfo').classList.remove('warning');
+      } else {
+        document.getElementById('depreciationDeduction').textContent = formatMoney(Math.round(annualDepreciation));
+        document.getElementById('depNote').textContent = 'Per year (approx)';
+        document.getElementById('writeOffInfo').innerHTML = '<strong>Depreciation:</strong> Asset will be depreciated over its effective life. Consult your accountant for exact deductions.';
+        document.getElementById('writeOffInfo').classList.add('warning');
+      }
+      
+      // Comparison calculations
+      const calcPmt = (pv, balloon) => {
+        if (monthlyRate === 0) return (pv - balloon) / n;
+        const factor = Math.pow(1 + monthlyRate, n);
+        return (pv * monthlyRate * factor - balloon * monthlyRate) / (factor - 1);
+      };
+      
+      const chattelPmt = calcPmt(price - deposit, balloon);
+      const leasePmt = calcPmt(totalPrice - deposit, balloon);
+      const rentalPmt = calcPmt(totalPrice - deposit, 0) * 1.05; // Operating lease typically 5% higher
+      
+      document.getElementById('cmpChattelPmt').textContent = formatMoney(Math.round(chattelPmt));
+      document.getElementById('cmpLeasePmt').textContent = formatMoney(Math.round(leasePmt));
+      document.getElementById('cmpRentalPmt').textContent = formatMoney(Math.round(rentalPmt));
+      
+      document.getElementById('cmpChattelTotal').textContent = formatMoney(Math.round(chattelPmt * term + balloon));
+      document.getElementById('cmpLeaseTotal').textContent = formatMoney(Math.round(leasePmt * term + balloon));
+      document.getElementById('cmpRentalTotal').textContent = formatMoney(Math.round(rentalPmt * term));
+      
+      // Show results
+      document.getElementById('resultsCard').style.display = 'block';
+      document.getElementById('taxCard').style.display = 'block';
+      document.getElementById('comparisonCard').style.display = 'block';
+    }
+    
+    function copyResults() {
+      const price = parseCurrency(document.getElementById('purchasePrice').value);
+      const payment = document.getElementById('repaymentAmount').textContent;
+      const freq = document.getElementById('repaymentFreq').textContent;
+      const structure = state.structure.charAt(0).toUpperCase() + state.structure.slice(1);
+      const term = document.getElementById('term').value;
+      const rate = document.getElementById('interestRate').value;
+      const balloon = document.getElementById('balloonPercent').value;
+      
+      const text = `Equipment Finance Quote
+━━━━━━━━━━━━━━━━━━
+Asset: ${document.getElementById('assetType').selectedOptions[0].text}
+Price: ${formatMoney(price)} (ex GST)
+Structure: ${structure} Mortgage
+Term: ${term} months
+Rate: ${rate}
+Balloon: ${balloon}%
+
+Repayment: ${payment} ${freq}
+Total Interest: ${document.getElementById('totalInterest').textContent}
+━━━━━━━━━━━━━━━━━━
+Generated by Oney & Co EF Tool`;
+      
+      navigator.clipboard.writeText(text);
+      alert('Results copied to clipboard!');
+    }
+    
+    function resetForm() {
+      document.getElementById('purchasePrice').value = '';
+      document.getElementById('deposit').value = '$0';
+      document.getElementById('term').value = '48';
+      document.getElementById('interestRate').value = '8.5%';
+      document.getElementById('balloonPercent').value = '30';
+      document.getElementById('gstAmount').value = '';
+      document.getElementById('totalPrice').value = '';
+      document.getElementById('balloonAmount').value = '';
+      setCondition('new');
+      setStructure('chattel');
+      setFrequency('monthly');
+      setGstRegistered('yes');
+      document.getElementById('resultsCard').style.display = 'none';
+      document.getElementById('taxCard').style.display = 'none';
+      document.getElementById('comparisonCard').style.display = 'none';
+    }
+    
+    // Init
+    document.addEventListener('DOMContentLoaded', () => {
+      // Set initial active states
+      document.querySelector('.structure-card').classList.add('active');
+    });
+  </script>
+</body>
+</html>
