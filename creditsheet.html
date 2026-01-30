@@ -51,16 +51,25 @@
     }
     
     function activateLicense() {
-      const key = document.getElementById('licenseKeyInput').value.trim();
-      // Simple validation - in production, verify with server
-      if (key.startsWith('STD-')) {
-        localStorage.setItem('cpp_license', JSON.stringify({ tier: 'standard', expires: Date.now() + 365*24*60*60*1000 }));
-        location.reload();
-      } else if (key.startsWith('PRO-')) {
-        localStorage.setItem('cpp_license', JSON.stringify({ tier: 'pro', expires: Date.now() + 365*24*60*60*1000 }));
+      const key = document.getElementById('licenseKeyInput').value.trim().toUpperCase();
+      const tierSelect = document.getElementById('licenseTierSelect');
+      const selectedTier = tierSelect ? tierSelect.value : 'standard';
+      
+      // Validate Gumroad license key format: XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX
+      const gumroadPattern = /^[A-F0-9]{8}-[A-F0-9]{8}-[A-F0-9]{8}-[A-F0-9]{8}$/;
+      
+      if (gumroadPattern.test(key)) {
+        // Valid Gumroad key format
+        localStorage.setItem('cpp_license', JSON.stringify({ 
+          tier: selectedTier, 
+          key: key,
+          activatedAt: Date.now(),
+          expires: Date.now() + 365*24*60*60*1000 
+        }));
+        alert('✅ License activated! Enjoy Credit Paper ' + selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1) + '!');
         location.reload();
       } else {
-        alert('Invalid license key. Please check and try again.');
+        alert('❌ Invalid license key format.\n\nPlease enter your Gumroad license key in this format:\nXXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX');
       }
     }
     
@@ -399,8 +408,12 @@
     </div>
     <div class="upgrade-modal-footer">
       <p style="font-size: 12px; color: var(--muted); margin-bottom: 10px;">Already have a license key?</p>
-      <div class="license-input-group">
-        <input type="text" id="licenseKeyInput" placeholder="Enter license key (e.g. STD-XXXX-XXXX)">
+      <div class="license-input-group" style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <input type="text" id="licenseKeyInput" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX" style="flex: 2; min-width: 200px;">
+        <select id="licenseTierSelect" style="padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: white;">
+          <option value="standard">Standard</option>
+          <option value="pro">Pro</option>
+        </select>
         <button onclick="activateLicense()">Activate</button>
       </div>
     </div>
