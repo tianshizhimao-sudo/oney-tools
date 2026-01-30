@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Specialised Lending Lite — Free</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --card: #1a1a2e;
+      --border: #2a2a4a;
+      --primary: #00d9a5;
+      --primary-glow: rgba(0, 217, 165, 0.3);
+      --success: #00d9a5;
+      --warning: #ffc107;
+      --danger: #ff6b6b;
+      --text: #ffffff;
+      --text-muted: #8888aa;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0 0 100px 0; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    header { text-align: center; padding: 30px 0 20px; }
+    .logo { font-size: 24px; font-weight: 700; background: linear-gradient(135deg, #00d9a5, #6c5ce7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .tagline { color: var(--text-muted); font-size: 14px; margin-top: 8px; }
+    .badge { display: inline-block; background: var(--success); color: #000; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-top: 8px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+    .card-title { font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+    input, select { width: 100%; padding: 14px 16px; font-size: 16px; font-family: inherit; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; color: var(--text); }
+    input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .result-card { border: 1px solid var(--primary); box-shadow: 0 0 30px var(--primary-glow); }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .metric { text-align: center; padding: 16px; background: var(--bg); border-radius: 12px; }
+    .metric-value { font-size: 20px; font-weight: 700; }
+    .metric-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+    .metric.pass .metric-value { color: var(--success); }
+    .metric.fail .metric-value { color: var(--danger); }
+    .final-box { text-align: center; padding: 24px; background: linear-gradient(135deg, rgba(0,217,165,0.1), rgba(108,92,231,0.1)); border-radius: 12px; }
+    .final-label { font-size: 14px; color: var(--text-muted); }
+    .final-value { font-size: 36px; font-weight: 700; color: var(--primary); }
+    .btn { width: 100%; padding: 16px; font-size: 16px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; }
+    .btn-primary { background: linear-gradient(135deg, #00d9a5, #00b894); color: #000; }
+    .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); margin-top: 12px; }
+    .btn-upgrade { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; margin-top: 12px; }
+    .upgrade-box { background: rgba(108,92,231,0.1); border: 1px solid #6c5ce7; border-radius: 16px; padding: 20px; margin: 20px 0; text-align: center; }
+    .upgrade-box h3 { color: #a29bfe; margin-bottom: 8px; }
+    .upgrade-box p { color: var(--text-muted); font-size: 13px; margin-bottom: 16px; }
+    .hidden { display: none; }
+    .footer { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 12px; }
+    .footer a { color: var(--primary); text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">Specialised Lending Lite</div>
+      <div class="tagline">Quick MLL Calculator</div>
+      <div class="badge">FREE</div>
+    </header>
+    
+    <div id="step1">
+      <div class="card">
+        <div class="card-title">🏢 Business Type</div>
+        <div class="form-group">
+          <label>Industry</label>
+          <select id="industry">
+            <option value="financial-planning">Financial Planning</option>
+            <option value="finance-broker">Finance Broker</option>
+            <option value="accounting">Accounting</option>
+            <option value="legal">Legal Services</option>
+          </select>
+        </div>
+        <div class="info-box" style="background: rgba(108,92,231,0.1); border: 1px solid #6c5ce7; border-radius: 12px; padding: 12px; font-size: 13px; color: var(--text-muted);">
+          💡 Real Estate / Rent Roll available in Standard version
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">💰 Financial Data</div>
+        <div class="form-group">
+          <label>EBIT (Earnings Before Interest & Tax)</label>
+          <input type="text" id="ebit" placeholder="e.g., 500,000" inputmode="numeric" onkeyup="formatNumber(this)">
+        </div>
+        <div class="form-group">
+          <label>Annual Recurring Revenue (ARR)</label>
+          <input type="text" id="arr" placeholder="e.g., 1,200,000" inputmode="numeric" onkeyup="formatNumber(this)">
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">🏦 Loan Details</div>
+        <div class="row">
+          <div class="form-group">
+            <label>Proposed Loan</label>
+            <input type="text" id="loanAmount" placeholder="e.g., 800,000" inputmode="numeric" onkeyup="formatNumber(this)">
+          </div>
+          <div class="form-group">
+            <label>Interest Rate %</label>
+            <input type="number" id="interestRate" value="7.00" step="0.01">
+          </div>
+        </div>
+      </div>
+      
+      <button class="btn btn-primary" onclick="calculate()">Calculate MLL</button>
+    </div>
+    
+    <div id="step2" class="hidden">
+      <div class="card result-card">
+        <div class="card-title">📊 Results</div>
+        
+        <div class="metrics">
+          <div class="metric" id="m1">
+            <div class="metric-value" id="v1">--</div>
+            <div class="metric-label">ICR Test</div>
+          </div>
+          <div class="metric" id="m2">
+            <div class="metric-value" id="v2">--</div>
+            <div class="metric-label">Revenue Test</div>
+          </div>
+          <div class="metric" id="m3">
+            <div class="metric-value" id="v3">--</div>
+            <div class="metric-label">Gearing Test</div>
+          </div>
+        </div>
+        
+        <div class="final-box">
+          <div class="final-label">Maximum Lending Limit</div>
+          <div class="final-value" id="finalMLL">$0</div>
+        </div>
+      </div>
+      
+      <div class="upgrade-box">
+        <h3>🚀 Want More Features?</h3>
+        <p>Upgrade for: Real Estate / Rent Roll, Partner Remuneration, Property Count Test, PDF Export, and more!</p>
+        <button class="btn btn-upgrade" onclick="window.open('https://oneyco.com.au/tools/specialised-lending', '_blank')">Upgrade to Standard — $49</button>
+      </div>
+      
+      <button class="btn btn-primary" onclick="copyResults()">📋 Copy Results</button>
+      <button class="btn btn-secondary" onclick="reset()">🔄 New Assessment</button>
+    </div>
+    
+    <footer class="footer">
+      <p>Made by <a href="https://oneyco.com.au">Oney & Co</a></p>
+      <p style="margin-top: 8px;">Free version — <a href="#">Upgrade for more features</a></p>
+    </footer>
+  </div>
+  
+  <script>
+    function formatNumber(input) {
+      let value = input.value.replace(/,/g, '').replace(/[^0-9]/g, '');
+      if (value) input.value = parseInt(value).toLocaleString();
+    }
+    
+    function parseNum(str) {
+      return parseFloat((str || '').replace(/,/g, '')) || 0;
+    }
+    
+    function calculate() {
+      const industry = document.getElementById('industry').value;
+      const ebit = parseNum(document.getElementById('ebit').value);
+      const arr = parseNum(document.getElementById('arr').value);
+      const loanAmount = parseNum(document.getElementById('loanAmount').value);
+      const rate = parseFloat(document.getElementById('interestRate').value) || 7;
+      
+      // Simplified: use EBIT as EBITAPR for lite version
+      const ebitapr = ebit;
+      const annualInterest = loanAmount * (rate / 100);
+      
+      // Test 1: ICR
+      const test1Limit = ebitapr / 2.5 / (rate / 100);
+      const test1Pass = loanAmount <= test1Limit;
+      
+      // Test 2: Revenue (1.75x ARR for all in lite)
+      const test2Limit = arr * 1.75;
+      const test2Pass = loanAmount <= test2Limit;
+      
+      // Test 3: Gearing (3.5x EBITAPR)
+      const test3Limit = ebitapr * 3.5;
+      const test3Pass = loanAmount <= test3Limit;
+      
+      const finalMLL = Math.min(test1Limit, test2Limit, test3Limit);
+      
+      // Update UI
+      document.getElementById('v1').textContent = '$' + Math.round(test1Limit / 1000) + 'k';
+      document.getElementById('v2').textContent = '$' + Math.round(test2Limit / 1000) + 'k';
+      document.getElementById('v3').textContent = '$' + Math.round(test3Limit / 1000) + 'k';
+      document.getElementById('m1').className = 'metric ' + (test1Pass ? 'pass' : 'fail');
+      document.getElementById('m2').className = 'metric ' + (test2Pass ? 'pass' : 'fail');
+      document.getElementById('m3').className = 'metric ' + (test3Pass ? 'pass' : 'fail');
+      document.getElementById('finalMLL').textContent = '$' + Math.round(finalMLL).toLocaleString();
+      
+      window.lastCalc = { industry, ebit, arr, loanAmount, rate, test1Limit, test2Limit, test3Limit, finalMLL };
+      
+      document.getElementById('step1').classList.add('hidden');
+      document.getElementById('step2').classList.remove('hidden');
+    }
+    
+    function reset() {
+      document.querySelectorAll('input').forEach(i => i.value = '');
+      document.getElementById('interestRate').value = '7.00';
+      document.getElementById('step1').classList.remove('hidden');
+      document.getElementById('step2').classList.add('hidden');
+    }
+    
+    function copyResults() {
+      const c = window.lastCalc;
+      if (!c) return;
+      const text = `SPECIALISED LENDING — MLL (Lite)
+Industry: ${c.industry}
+EBIT: $${c.ebit.toLocaleString()}
+ARR: $${c.arr.toLocaleString()}
+Proposed Loan: $${c.loanAmount.toLocaleString()}
+
+MLL: $${Math.round(c.finalMLL).toLocaleString()}
+
+Generated by Specialised Lending Lite (Free)
+oneyco.com.au`;
+      navigator.clipboard.writeText(text).then(() => alert('Copied!'));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Oney & Co — Tools</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #D4A853;
+      --gold-dark: #B8860B;
+      --gold-light: #F5ECD7;
+      --navy: #1E293B;
+      --bg: #F8FAFC;
+      --card: #FFFFFF;
+      --border: #E2E8F0;
+      --muted: #64748B;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { 
+      font-family: 'Inter', system-ui, sans-serif; 
+      background: var(--bg); 
+      color: var(--navy); 
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .container { max-width: 900px; margin: 0 auto; }
+    
+    .header { text-align: center; margin-bottom: 50px; }
+    .logo-svg { width: 180px; margin-bottom: 16px; }
+    .tagline { color: var(--muted); font-size: 16px; }
+    
+    .tools-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    
+    .tool-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .tool-card:hover {
+      border-color: var(--gold);
+      box-shadow: 0 8px 30px rgba(212, 168, 83, 0.15);
+      transform: translateY(-2px);
+    }
+    .tool-icon { font-size: 32px; margin-bottom: 12px; }
+    .tool-name { font-size: 18px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+    .tool-desc { font-size: 13px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
+    .tool-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .badge-free { background: #D1FAE5; color: #059669; }
+    .badge-beta { background: var(--gold-light); color: var(--gold-dark); }
+    .badge-pro { background: #DBEAFE; color: #2563EB; }
+    
+    .footer {
+      text-align: center;
+      margin-top: 60px;
+      padding-top: 30px;
+      border-top: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .footer a { color: var(--gold-dark); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <svg class="logo-svg" viewBox="0 0 190 90" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#D4A853"/><stop offset="100%" style="stop-color:#B8860B"/></linearGradient></defs>
+        <g transform="translate(38, 45)"><path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#goldGrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/><path d="M0 -38 L0 -44" stroke="url(#goldGrad)" stroke-width="5" stroke-linecap="round"/></g>
+        <text x="32" y="50" font-family="Inter, Arial" font-size="26" font-weight="600" fill="#1E293B">ney</text>
+        <text x="77" y="50" font-family="Inter, Arial" font-size="20" fill="url(#goldGrad)">&amp;</text>
+        <text x="94" y="50" font-family="Inter, Arial" font-size="26" font-weight="600" fill="#1E293B">co</text>
+      </svg>
+      <p class="tagline">Commercial Finance Tools</p>
+    </header>
+    
+    <div class="tools-grid">
+      <a href="credit-paper-pro.html" class="tool-card">
+        <div class="tool-icon">📋</div>
+        <div class="tool-name">Credit Paper Pro</div>
+        <div class="tool-desc">Generate professional credit papers for commercial finance deals. Includes 3C analysis, risk assessment, and lender recommendations.</div>
+        <span class="tool-badge badge-beta">Beta</span>
+      </a>
+      
+      <a href="commercial-investment-calculator.html" class="tool-card">
+        <div class="tool-icon">🏢</div>
+        <div class="tool-name">Commercial Investment Calculator</div>
+        <div class="tool-desc">Analyse commercial property investments. Calculate yields, LVR, ICR, DSCR and cash flow projections.</div>
+        <span class="tool-badge badge-free">Free</span>
+      </a>
+      
+      <a href="specialised-lending-calculator.html" class="tool-card">
+        <div class="tool-icon">🎯</div>
+        <div class="tool-name">Specialised Lending Calculator</div>
+        <div class="tool-desc">MLL calculations for specialised securities including childcare, service stations, hotels, and more.</div>
+        <span class="tool-badge badge-free">Free</span>
+      </a>
+    </div>
+    
+    <footer class="footer">
+      <p>© 2026 Oney & Co — Commercial Finance</p>
+      <p style="margin-top: 8px;">Questions? <a href="mailto:hello@oneyco.com.au">hello@oneyco.com.au</a></p>
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1a1a2e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Commercial Investment Lite — Free loan assessment tool for Australian brokers">
+  <title>Commercial Investment Lite — Free</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f1a;
+      --card: #1a1a2e;
+      --card-hover: #252540;
+      --border: #2a2a4a;
+      --primary: #6c5ce7;
+      --primary-glow: rgba(108, 92, 231, 0.3);
+      --success: #00d9a5;
+      --warning: #ffc107;
+      --danger: #ff6b6b;
+      --text: #ffffff;
+      --text-muted: #8888aa;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0 0 100px 0;
+    }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    header { text-align: center; padding: 30px 0 20px; }
+    .logo {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .tagline { color: var(--text-muted); font-size: 14px; margin-top: 8px; }
+    .badge-free {
+      display: inline-block;
+      background: var(--success);
+      color: #000;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 8px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+    input, select {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-family: inherit;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .result-card {
+      background: linear-gradient(135deg, var(--card), var(--card-hover));
+      border: 1px solid var(--primary);
+      box-shadow: 0 0 30px var(--primary-glow);
+    }
+    .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .metric { text-align: center; padding: 16px; background: var(--bg); border-radius: 12px; }
+    .metric-value { font-size: 32px; font-weight: 700; margin-bottom: 4px; }
+    .metric-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; }
+    .metric.pass .metric-value { color: var(--success); }
+    .metric.warn .metric-value { color: var(--warning); }
+    .metric.fail .metric-value { color: var(--danger); }
+    .status-bar {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 12px; border-radius: 12px; font-weight: 600; margin-top: 16px;
+    }
+    .status-bar.pass { background: rgba(0, 217, 165, 0.15); color: var(--success); }
+    .status-bar.warn { background: rgba(255, 193, 7, 0.15); color: var(--warning); }
+    .status-bar.fail { background: rgba(255, 107, 107, 0.15); color: var(--danger); }
+    .btn {
+      width: 100%; padding: 16px; font-size: 16px; font-weight: 600;
+      font-family: inherit; border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-primary { background: linear-gradient(135deg, #6c5ce7, #a29bfe); color: white; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px var(--primary-glow); }
+    .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); margin-top: 12px; }
+    .btn-upgrade {
+      background: linear-gradient(135deg, #ffc107, #ff9800);
+      color: #000;
+      margin-top: 12px;
+    }
+    .upgrade-banner {
+      background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
+      border: 1px solid var(--warning);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .upgrade-banner h3 { color: var(--warning); margin-bottom: 8px; }
+    .upgrade-banner p { color: var(--text-muted); font-size: 13px; }
+    .hidden { display: none; }
+    .footer { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 12px; }
+    .footer a { color: var(--primary); text-decoration: none; }
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--card); border-top: 1px solid var(--border);
+      padding: 12px 20px; padding-bottom: calc(12px + env(safe-area-inset-bottom));
+      display: flex; justify-content: space-around;
+    }
+    .nav-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      background: none; border: none; color: var(--text-muted); font-size: 12px;
+      cursor: pointer; padding: 8px 16px; border-radius: 12px; transition: all 0.2s;
+    }
+    .nav-btn.active { color: var(--primary); background: var(--primary-glow); }
+    .nav-btn span:first-child { font-size: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">Commercial Investment Lite</div>
+      <div class="tagline">Quick Loan Assessment Tool</div>
+      <div class="badge-free">FREE VERSION</div>
+    </header>
+    
+    <div id="step1">
+      <div class="card">
+        <div class="card-title">📋 Loan Details</div>
+        <div class="form-group">
+          <label>Loan Amount (AUD)</label>
+          <input type="text" id="loanAmount" placeholder="e.g., 500,000" inputmode="numeric" onkeyup="formatNumber(this)">
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Interest Rate %</label>
+            <input type="number" id="interestRate" placeholder="6.50" step="0.01" value="6.50" inputmode="decimal">
+          </div>
+          <div class="form-group">
+            <label>Property Type</label>
+            <select id="propType">
+              <option value="residential">Residential</option>
+              <option value="commercial">Commercial</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">🏠 Security</div>
+        <div class="form-group">
+          <label>Property Value (AUD)</label>
+          <input type="text" id="propValue" placeholder="e.g., 800,000" inputmode="numeric" onkeyup="formatNumber(this)">
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">💰 Income (Annual)</div>
+        <div class="form-group">
+          <label>Net Rental Income p.a.</label>
+          <input type="text" id="rentalIncome" placeholder="e.g., 50,000" inputmode="numeric" onkeyup="formatNumber(this)">
+        </div>
+      </div>
+      
+      <button class="btn btn-primary" onclick="calculate()">Calculate</button>
+    </div>
+    
+    <div id="step2" class="hidden">
+      <div class="card result-card">
+        <div class="card-title">📊 Results</div>
+        <div class="metrics">
+          <div class="metric" id="lvrMetric">
+            <div class="metric-value" id="lvrValue">--</div>
+            <div class="metric-label">LVR</div>
+          </div>
+          <div class="metric" id="icrMetric">
+            <div class="metric-value" id="icrValue">--</div>
+            <div class="metric-label">ICR</div>
+          </div>
+        </div>
+        <div id="statusBar" class="status-bar pass">
+          <span id="statusText">Meets criteria</span>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">📝 Summary</div>
+        <div id="summaryContent" style="font-size: 14px; line-height: 1.8; color: var(--text-muted);"></div>
+      </div>
+      
+      <div class="upgrade-banner">
+        <h3>🚀 Want More Features?</h3>
+        <p>Upgrade to Standard for: Multiple properties, Ownership structures, ATO checks, PDF export, Custom thresholds, and more!</p>
+        <button class="btn btn-upgrade" onclick="window.open('https://oneyco.com.au/tools/commercial-investment-standard', '_blank')">Upgrade to Standard — $49</button>
+      </div>
+      
+      <button class="btn btn-primary" onclick="copyResults()">📋 Copy Results</button>
+      <button class="btn btn-secondary" onclick="reset()">🔄 New Assessment</button>
+    </div>
+    
+    <footer class="footer">
+      <p>Made by <a href="https://oneyco.com.au">Oney & Co</a></p>
+      <p style="margin-top: 8px;">Free version. <a href="https://oneyco.com.au/tools/commercial-investment-standard">Upgrade for more features</a></p>
+    </footer>
+  </div>
+  
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="showStep(1)"><span>📝</span><span>Input</span></button>
+    <button class="nav-btn" onclick="showStep(2)"><span>📊</span><span>Results</span></button>
+    <button class="nav-btn" onclick="showInfo()"><span>ℹ️</span><span>Info</span></button>
+  </nav>
+  
+  <script>
+    function formatNumber(input) {
+      let value = input.value.replace(/,/g, '').replace(/[^0-9]/g, '');
+      if (value) input.value = parseInt(value).toLocaleString();
+    }
+    
+    function parseNum(str) {
+      return parseFloat((str || '').replace(/,/g, '')) || 0;
+    }
+    
+    function calculate() {
+      const loan = parseNum(document.getElementById('loanAmount').value);
+      const rate = parseFloat(document.getElementById('interestRate').value) || 6.5;
+      const propType = document.getElementById('propType').value;
+      const propValue = parseNum(document.getElementById('propValue').value);
+      const income = parseNum(document.getElementById('rentalIncome').value);
+      
+      if (!loan || !propValue) {
+        alert('Please enter loan amount and property value');
+        return;
+      }
+      
+      const lvr = (loan / propValue) * 100;
+      const annualInterest = loan * (rate / 100);
+      const icr = annualInterest > 0 ? income / annualInterest : 0;
+      
+      const lvrCap = propType === 'commercial' ? 70 : 80;
+      const lvrStatus = lvr > lvrCap ? 'fail' : lvr > (lvrCap - 10) ? 'warn' : 'pass';
+      const icrStatus = icr >= 1.5 ? 'pass' : icr >= 1.2 ? 'warn' : 'fail';
+      const overall = (lvrStatus === 'fail' || icrStatus === 'fail') ? 'fail' : 
+                      (lvrStatus === 'warn' || icrStatus === 'warn') ? 'warn' : 'pass';
+      
+      document.getElementById('lvrValue').textContent = lvr.toFixed(1) + '%';
+      document.getElementById('icrValue').textContent = icr.toFixed(2) + 'x';
+      document.getElementById('lvrMetric').className = 'metric ' + lvrStatus;
+      document.getElementById('icrMetric').className = 'metric ' + icrStatus;
+      document.getElementById('statusBar').className = 'status-bar ' + overall;
+      document.getElementById('statusText').textContent = 
+        overall === 'pass' ? '✓ Meets criteria' : 
+        overall === 'warn' ? '⚠ Review required' : '✗ Does not meet criteria';
+      
+      document.getElementById('summaryContent').innerHTML = `
+        <p><strong>Loan:</strong> $${loan.toLocaleString()}</p>
+        <p><strong>Property:</strong> $${propValue.toLocaleString()} (${propType === 'commercial' ? 'Commercial' : 'Residential'})</p>
+        <p><strong>Interest Rate:</strong> ${rate}%</p>
+        <p><strong>Annual Interest:</strong> $${Math.round(annualInterest).toLocaleString()}</p>
+        <p><strong>Rental Income:</strong> $${income.toLocaleString()} p.a.</p>
+        <hr style="border-color: var(--border); margin: 12px 0;">
+        <p><strong>LVR:</strong> ${lvr.toFixed(1)}% (Cap: ${lvrCap}%)</p>
+        <p><strong>ICR:</strong> ${icr.toFixed(2)}x (Min: 1.50x)</p>
+      `;
+      
+      window.lastResult = { loan, propValue, propType, rate, annualInterest, income, lvr, icr, lvrCap };
+      showStep(2);
+    }
+    
+    function showStep(step) {
+      document.getElementById('step1').classList.toggle('hidden', step !== 1);
+      document.getElementById('step2').classList.toggle('hidden', step !== 2);
+      document.querySelectorAll('.nav-btn').forEach((b, i) => b.classList.toggle('active', i === step - 1));
+    }
+    
+    function reset() {
+      document.querySelectorAll('input').forEach(i => i.value = '');
+      document.getElementById('interestRate').value = '6.50';
+      showStep(1);
+    }
+    
+    function copyResults() {
+      const r = window.lastResult;
+      if (!r) return;
+      const text = `COMMERCIAL INVESTMENT ASSESSMENT (Lite)
+=====================================
+Loan: $${r.loan.toLocaleString()}
+Property: $${r.propValue.toLocaleString()} (${r.propType})
+Interest Rate: ${r.rate}%
+Annual Interest: $${Math.round(r.annualInterest).toLocaleString()}
+Rental Income: $${r.income.toLocaleString()} p.a.
+
+LVR: ${r.lvr.toFixed(1)}% (Cap: ${r.lvrCap}%)
+ICR: ${r.icr.toFixed(2)}x (Min: 1.50x)
+=====================================
+Generated by Commercial Investment Lite (Free)
+oneyco.com.au`;
+      navigator.clipboard.writeText(text).then(() => alert('Copied!'));
+    }
+    
+    function showInfo() {
+      alert(`Commercial Investment Lite (Free)
+
+Basic LVR & ICR calculator for Australian property investors.
+
+LVR Caps:
+• Residential: 80%
+• Commercial: 70%
+
+ICR Minimum: 1.50x
+
+Upgrade to Standard ($49) for:
+• Multiple properties
+• Ownership structures
+• ATO tax position check
+• PDF export
+• Custom thresholds
+• Lease details
+
+© Oney & Co`);
+    }
+  </script>
+</body>
+</html>

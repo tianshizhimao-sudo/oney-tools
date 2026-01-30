@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Credit Paper Pro V3 — Oney & Co</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --gold: #D4A853; --gold-dark: #B8860B; --gold-light: #F5ECD7;
+      --navy: #1E293B; --navy-light: #334155;
+      --bg: #F8FAFC; --card: #FFFFFF; --border: #E2E8F0;
+      --success: #059669; --success-light: #D1FAE5;
+      --warning: #D97706; --warning-light: #FEF3C7;
+      --danger: #DC2626; --danger-light: #FEE2E2;
+      --info: #2563EB; --info-light: #DBEAFE;
+      --text: #1E293B; --muted: #64748B;
+      --radius: 12px; --radius-sm: 8px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; font-size: 13px; }
+    
+    .app { display: grid; grid-template-columns: 440px 1fr; min-height: 100vh; }
+    .sidebar { background: var(--card); border-right: 1px solid var(--border); padding: 16px; overflow-y: auto; height: 100vh; position: sticky; top: 0; }
+    .main { padding: 24px 32px; }
+    
+    .logo-container { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+    .logo-svg { width: 100px; height: auto; }
+    .app-title { font-size: 12px; color: var(--muted); }
+    .app-title strong { display: block; color: var(--navy); font-size: 14px; }
+    
+    .section { margin-bottom: 16px; }
+    .section-title { font-size: 10px; font-weight: 700; color: var(--gold-dark); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--gold), transparent); }
+    
+    label { display: block; font-size: 11px; color: var(--muted); margin-bottom: 3px; font-weight: 500; }
+    input, select, textarea { width: 100%; padding: 8px 10px; font-size: 12px; font-family: inherit; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold-light); }
+    textarea { min-height: 60px; resize: vertical; }
+    input[type="number"] { -moz-appearance: textfield; }
+    input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    .row-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; }
+    .form-group { margin-bottom: 8px; }
+    .helper { font-size: 10px; color: var(--muted); margin-top: 2px; font-style: italic; line-height: 1.4; }
+    .hint-box { font-size: 10px; color: var(--muted); margin-top: 4px; padding: 6px 8px; background: var(--bg); border-radius: 4px; line-height: 1.4; }
+    .note-box { background: var(--info-light); border: 1px solid var(--info); border-radius: var(--radius-sm); padding: 8px 10px; font-size: 11px; color: var(--info); margin: 8px 0; }
+    .warning-box { background: var(--warning-light); border: 1px solid var(--warning); border-radius: var(--radius-sm); padding: 8px 10px; font-size: 11px; color: var(--warning); margin: 8px 0; }
+    .danger-box { background: var(--danger-light); border: 1px solid var(--danger); border-radius: var(--radius-sm); padding: 8px 10px; font-size: 11px; color: var(--danger); margin: 8px 0; }
+    
+    .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .chip { padding: 4px 9px; font-size: 10px; border-radius: 14px; cursor: pointer; background: var(--bg); border: 1px solid var(--border); color: var(--muted); transition: all 0.15s; font-weight: 500; }
+    .chip:hover { border-color: var(--gold); color: var(--text); }
+    .chip.active { background: var(--gold); border-color: var(--gold); color: white; text-decoration: underline; font-weight: 600; }
+    .chip.warning { background: var(--warning-light); border-color: var(--warning); color: var(--warning); }
+    .chip.warning.active { background: var(--warning); color: white; text-decoration: underline; }
+    .chip.danger { background: var(--danger-light); border-color: var(--danger); color: var(--danger); }
+    .chip.danger.active { background: var(--danger); color: white; text-decoration: underline; }
+    
+    .btn { padding: 8px 14px; font-size: 11px; font-weight: 600; border-radius: var(--radius-sm); cursor: pointer; border: none; transition: all 0.15s; display: inline-flex; align-items: center; gap: 5px; }
+    .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-dark)); color: white; }
+    .btn-primary:hover { filter: brightness(1.1); }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-ghost:hover { background: var(--bg); border-color: var(--gold); }
+    .btn-sm { padding: 5px 8px; font-size: 10px; }
+    .actions { display: flex; gap: 5px; flex-wrap: wrap; }
+    
+    .item-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px; margin-bottom: 8px; }
+    .item-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .item-card-title { font-size: 11px; font-weight: 600; color: var(--navy); }
+    .item-card .remove-btn { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 14px; padding: 2px 5px; border-radius: 4px; }
+    .item-card .remove-btn:hover { background: var(--danger-light); }
+    .entity-badge { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 600; margin-left: 6px; }
+    .entity-badge.borrower { background: var(--gold-light); color: var(--gold-dark); }
+    .entity-badge.guarantor { background: var(--info-light); color: var(--info); }
+    
+    .sub-options { margin-left: 12px; margin-top: 8px; padding: 8px; background: var(--gold-light); border-radius: var(--radius-sm); }
+    .sub-options label { color: var(--navy); }
+    
+    .tabs { display: flex; gap: 2px; margin-bottom: 12px; background: var(--bg); padding: 3px; border-radius: var(--radius-sm); flex-wrap: wrap; }
+    .tab { flex: 1; min-width: 55px; padding: 6px 6px; font-size: 10px; font-weight: 500; border-radius: 6px; cursor: pointer; background: transparent; border: none; color: var(--muted); text-align: center; transition: all 0.15s; }
+    .tab.active { background: white; color: var(--gold-dark); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
+    /* Preview */
+    .preview { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); max-width: 800px; }
+    .preview-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 3px solid var(--gold); }
+    .preview-logo-svg { width: 120px; }
+    .preview-meta { text-align: right; }
+    .preview-title { font-size: 18px; font-weight: 700; color: var(--navy); }
+    .preview-subtitle { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .preview-date { font-size: 11px; color: var(--muted); margin-top: 6px; }
+    
+    .preview h2 { font-size: 11px; color: var(--gold-dark); text-transform: uppercase; letter-spacing: 1px; margin: 24px 0 12px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+    .preview h3 { font-size: 12px; color: var(--navy); margin: 14px 0 6px; font-weight: 600; }
+    .preview p { font-size: 12px; margin-bottom: 6px; color: var(--navy-light); }
+    .preview ul { font-size: 12px; margin: 8px 0; padding-left: 20px; color: var(--navy-light); }
+    .preview li { margin-bottom: 4px; }
+    .preview table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 11px; }
+    .preview th, .preview td { border: 1px solid var(--border); padding: 8px 10px; text-align: left; }
+    .preview th { background: var(--gold-light); font-weight: 600; color: var(--navy); }
+    .preview .highlight-warning { background: var(--warning-light); padding: 1px 4px; border-radius: 3px; }
+    .preview .highlight-danger { background: var(--danger-light); padding: 1px 4px; border-radius: 3px; font-weight: 600; }
+    
+    .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0; }
+    .metric-box { background: linear-gradient(135deg, var(--bg), white); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; text-align: center; }
+    .metric-label { font-size: 9px; color: var(--muted); margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .metric-value { font-size: 18px; font-weight: 700; }
+    .metric-value.ok { color: var(--success); }
+    .metric-value.warn { color: var(--warning); }
+    .metric-value.fail { color: var(--danger); }
+    .metric-sub { font-size: 9px; color: var(--muted); margin-top: 1px; }
+    
+    .risk-badge { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; }
+    .risk-low { background: var(--success-light); color: var(--success); }
+    .risk-medium { background: var(--info-light); color: var(--info); }
+    .risk-high { background: var(--warning-light); color: var(--warning); }
+    .risk-critical { background: var(--danger-light); color: var(--danger); }
+    
+    .deal-breaker { background: linear-gradient(135deg, var(--danger-light), #FFF5F5); border: 2px solid var(--danger); border-radius: var(--radius); padding: 14px; margin-bottom: 16px; }
+    .deal-breaker-title { font-weight: 700; color: var(--danger); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; font-size: 12px; }
+    .deal-breaker-list { list-style: none; font-size: 11px; padding-left: 0; }
+    .deal-breaker-list li { padding: 3px 0 3px 20px; position: relative; }
+    .deal-breaker-list li::before { content: '⚠️'; position: absolute; left: 0; font-size: 10px; }
+    
+    .preview-footer { margin-top: 30px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 10px; color: var(--muted); }
+    
+    @media print {
+      .sidebar { display: none !important; }
+      .app { display: block !important; }
+      .main { padding: 0 !important; }
+      .preview { box-shadow: none !important; border: none !important; padding: 16px !important; }
+    }
+    @media (max-width: 1000px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: relative; height: auto; max-height: 60vh; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo-container">
+      <svg class="logo-svg" viewBox="0 0 190 90" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#D4A853"/><stop offset="100%" style="stop-color:#B8860B"/></linearGradient></defs>
+        <g transform="translate(38, 45)"><path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#goldGrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/><path d="M0 -38 L0 -44" stroke="url(#goldGrad)" stroke-width="5" stroke-linecap="round"/></g>
+        <text x="32" y="50" font-family="Inter, Arial" font-size="26" font-weight="600" fill="#1E293B">ney</text>
+        <text x="77" y="50" font-family="Inter, Arial" font-size="20" fill="url(#goldGrad)">&amp;</text>
+        <text x="94" y="50" font-family="Inter, Arial" font-size="26" font-weight="600" fill="#1E293B">co</text>
+      </svg>
+      <div class="app-title"><strong>Credit Paper Pro</strong>Commercial Finance</div>
+    </div>
+    
+    <div class="actions" style="margin-bottom: 12px;">
+      <button class="btn btn-ghost btn-sm" onclick="saveDraft()">💾 Save</button>
+      <button class="btn btn-ghost btn-sm" onclick="loadDraft()">📂 Load</button>
+      <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨️ Print</button>
+      <button class="btn btn-ghost btn-sm" onclick="resetAll()">🔄 Reset</button>
+    </div>
+    
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('basic')">Basic</div>
+      <div class="tab" onclick="switchTab('facility')">Facility</div>
+      <div class="tab" onclick="switchTab('servicing')">Servicing</div>
+      <div class="tab" onclick="switchTab('security')">Security</div>
+      <div class="tab" onclick="switchTab('tenants')">Tenants</div>
+      <div class="tab" onclick="switchTab('risk')">Risk</div>
+    </div>
+    
+    <!-- TAB: BASIC -->
+    <div id="tab-basic" class="tab-content active">
+      <!-- Transaction Type -->
+      <div class="section">
+        <div class="section-title">Transaction Type</div>
+        <div class="chips" id="txnTypeChips">
+          <span class="chip active" data-value="acquisition" onclick="selectTxnType(this)">Acquisition</span>
+          <span class="chip" data-value="refinance" onclick="selectTxnType(this)">Refinance</span>
+          <span class="chip" data-value="construction" onclick="selectTxnType(this)">Construction</span>
+          <span class="chip" data-value="working-capital" onclick="selectTxnType(this)">Working Capital</span>
+          <span class="chip" data-value="equipment" onclick="selectTxnType(this)">Equipment</span>
+          <span class="chip" data-value="other" onclick="selectTxnType(this)">Other</span>
+        </div>
+        <div id="txnSubOptions"></div>
+      </div>
+      
+      <!-- Entities -->
+      <div class="section">
+        <div class="section-title">Entity(ies)</div>
+        <div class="helper" style="margin-bottom:8px;">List all related entities: borrowing entities, individual guarantors, corporate guarantors</div>
+        <div id="entitiesContainer"></div>
+        <button class="btn btn-ghost btn-sm" onclick="addEntity()">+ Add Entity</button>
+      </div>
+      
+      <!-- Target Lender -->
+      <div class="section">
+        <div class="section-title">Target Lender</div>
+        <select id="targetLender" onchange="updatePreview()">
+          <option value="major">Major Bank (NAB, CBA, WBC, ANZ)</option>
+          <option value="second">Second Tier (Macquarie, BOQ, Suncorp)</option>
+          <option value="non-bank">Non-Bank (La Trobe, Thinktank, Liberty)</option>
+          <option value="private">Private / Financer</option>
+        </select>
+      </div>
+    </div>
+    
+    <!-- TAB: FACILITY -->
+    <div id="tab-facility" class="tab-content">
+      <div class="section">
+        <div class="section-title">Facility Structure</div>
+        <div class="helper" style="margin-bottom:8px;">Group facilities by borrowing entity. Select the borrower first, then add facilities.</div>
+        <div id="facilityGroupsContainer"></div>
+        <button class="btn btn-ghost btn-sm" onclick="addFacilityGroup()">+ Add Borrowing Entity Facilities</button>
+      </div>
+    </div>
+    
+    <!-- TAB: SERVICING -->
+    <div id="tab-servicing" class="tab-content">
+      <div class="section">
+        <div class="section-title">Servicing (Per Entity)</div>
+        <div class="note-box">💡 Indicative servicing calculator will be integrated in future updates. External calculator results can be linked.</div>
+        <div id="servicingContainer"></div>
+        <button class="btn btn-ghost btn-sm" onclick="addServicingEntity()">+ Add Borrowing/Related Entity</button>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">Household Financial Position</div>
+        <div class="form-group">
+          <label>Include Household A/L Analysis?</label>
+          <div class="chips">
+            <span class="chip" id="householdYes" onclick="toggleHousehold(true)">Yes</span>
+            <span class="chip" id="householdNo" onclick="toggleHousehold(false)">No</span>
+          </div>
+        </div>
+        <div id="householdSection" style="display:none;">
+          <div class="form-group">
+            <label>Individual/Household Financial Position</label>
+            <textarea id="householdPosition" rows="4" placeholder="Summarise personal assets, liabilities, and surplus..."></textarea>
+            <div class="hint-box">Many major banks still assess personal affordability. Include key individuals' asset/liability position if relevant to the application.</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-group" style="margin-top: 12px;">
+        <label>Overall Position (Optional - if calculated externally)</label>
+        <div class="row-3">
+          <div class="form-group"><label>Surplus $</label><input type="text" id="overallSurplus" placeholder="e.g. 150,000"></div>
+          <div class="form-group"><label>ICR</label><input type="text" id="overallICR" placeholder="e.g. 2.1x"></div>
+          <div class="form-group"><label>DSCR</label><input type="text" id="overallDSCR" placeholder="e.g. 1.3x"></div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- TAB: SECURITY -->
+    <div id="tab-security" class="tab-content">
+      <div class="section">
+        <div class="section-title">Security Properties</div>
+        <div id="securitiesContainer"></div>
+        <button class="btn btn-ghost btn-sm" onclick="addSecurity()">+ Add Security</button>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">Security Structure Proposal</div>
+        <div class="form-group">
+          <label>How should securities be linked to the facilities?</label>
+          <textarea id="securityLinkageProposal" rows="3" placeholder="e.g., Property A to individually secure Facility 1; Properties B & C cross-secured for Facility 2..."></textarea>
+          <div class="hint-box">Describe whether securities should be individually secured to specific facilities or cross-collateralised across the borrowing group.</div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title">Additional Security Structure</div>
+        <div class="chips" id="secStructureChips">
+          <span class="chip" onclick="toggleChip(this)">1st Ranking Mortgage</span>
+          <span class="chip" onclick="toggleChip(this)">2nd Ranking Mortgage</span>
+          <span class="chip" onclick="toggleChip(this)">GSA Offered</span>
+          <span class="chip" onclick="toggleChip(this)">Cross-Collateral</span>
+        </div>
+        <div class="form-group" style="margin-top: 8px;">
+          <label>Guarantees Offered</label>
+          <div class="row">
+            <input type="text" id="guaranteeIndividual" placeholder="Individual guarantors">
+            <input type="text" id="guaranteeCorporate" placeholder="Corporate guarantors">
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- TAB: TENANTS -->
+    <div id="tab-tenants" class="tab-content">
+      <div class="section">
+        <div class="section-title">Tenant Schedule</div>
+        <div class="note-box">📋 Only complete if security is a leased property. Future update will allow import of tenant schedule.</div>
+        <div id="tenantsContainer"></div>
+        <button class="btn btn-ghost btn-sm" onclick="addTenant()">+ Add Tenant</button>
+      </div>
+    </div>
+    
+    <!-- TAB: RISK -->
+    <div id="tab-risk" class="tab-content">
+      <!-- Character/Management -->
+      <div class="section">
+        <div class="section-title">Character / Management Risk</div>
+        <div class="form-group">
+          <label>Business Background</label>
+          <textarea id="businessBackground" rows="5"></textarea>
+          <div class="hint-box">
+            <strong>Consider including:</strong><br>
+            • How long has the business been trading under the same structure?<br>
+            • Main industry & ANZSIC code (if known)<br>
+            • Trading location(s)<br>
+            • Business website<br>
+            • Key individuals & their roles<br>
+            • Is business insurance in place?
+          </div>
+        </div>
+        <div class="chips" id="characterChips">
+          <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">Clean credit history</span>
+          <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">Experienced management</span>
+          <span class="chip" data-risk="medium" onclick="toggleRiskChip(this)">First-time borrower</span>
+          <span class="chip warning" data-risk="high" onclick="toggleRiskChip(this)">Minor credit issues</span>
+          <span class="chip danger" data-risk="critical" onclick="toggleRiskChip(this)">Defaults / Bankruptcy</span>
+        </div>
+      </div>
+      
+      <!-- Capacity/Servicing -->
+      <div class="section">
+        <div class="section-title">Capacity / Serviceability Risk</div>
+        <div class="chips" id="capacityChips">
+          <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">ICR ≥2.0x</span>
+          <span class="chip" data-risk="medium" onclick="toggleRiskChip(this)">ICR 1.5x-2.0x</span>
+          <span class="chip warning" data-risk="high" onclick="toggleRiskChip(this)">ICR 1.0x-1.5x</span>
+          <span class="chip danger" data-risk="critical" onclick="toggleRiskChip(this)">ICR &lt;1.0x</span>
+          <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">DSCR ≥1.25x</span>
+          <span class="chip" data-risk="medium" onclick="toggleRiskChip(this)">DSCR 1.0x-1.25x</span>
+          <span class="chip danger" data-risk="critical" onclick="toggleRiskChip(this)">DSCR &lt;1.0x</span>
+        </div>
+      </div>
+      
+      <!-- Collateral/Security -->
+      <div class="section">
+        <div class="section-title">Collateral / Security Risk</div>
+        <div class="chips" id="collateralChips">
+          <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">LVR ≤60%</span>
+          <span class="chip" data-risk="medium" onclick="toggleRiskChip(this)">LVR 60-70%</span>
+          <span class="chip warning" data-risk="high" onclick="toggleRiskChip(this)">LVR 70-80%</span>
+          <span class="chip danger" data-risk="critical" onclick="toggleRiskChip(this)">LVR &gt;80%</span>
+          <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">Prime metro location</span>
+          <span class="chip warning" data-risk="high" onclick="toggleRiskChip(this)">Regional / Secondary</span>
+          <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">Strong tenant covenant</span>
+          <span class="chip danger" data-risk="critical" onclick="toggleRiskChip(this)">Vacant property</span>
+        </div>
+      </div>
+      
+      <!-- Deal Breakers -->
+      <div class="section">
+        <div class="section-title">⛔ Deal Breakers</div>
+        <div class="chips" id="dealBreakerChips">
+          <span class="chip danger" data-breaker="true" onclick="toggleRiskChip(this)">ATO debt outstanding</span>
+          <span class="chip danger" data-breaker="true" onclick="toggleRiskChip(this)">Recent defaults (&lt;2yrs)</span>
+          <span class="chip danger" data-breaker="true" onclick="toggleRiskChip(this)">Negative equity position</span>
+          <span class="chip danger" data-breaker="true" onclick="toggleRiskChip(this)">SMSF bare trust issue</span>
+          <span class="chip danger" data-breaker="true" onclick="toggleRiskChip(this)">Unable to demonstrate serviceability</span>
+          <span class="chip danger" data-breaker="true" onclick="toggleRiskChip(this)">Related party transaction</span>
+          <span class="chip danger" data-breaker="true" onclick="toggleRiskChip(this)">Current litigation</span>
+          <span class="chip danger" data-breaker="true" onclick="toggleRiskChip(this)">Undisclosed liabilities</span>
+          <span class="chip danger" data-breaker="true" onclick="toggleRiskChip(this)">Utilising projection income</span>
+          <span class="chip danger" data-breaker="true" onclick="toggleRiskChip(this)">Utilising vendor financials</span>
+        </div>
+      </div>
+      
+      <!-- Presenter -->
+      <div class="section">
+        <div class="section-title">Presenter Details</div>
+        <div class="row">
+          <div class="form-group"><label>Broker / Presenter Name</label><input type="text" id="presenterName" placeholder="Your name"></div>
+          <div class="form-group"><label>Company</label><input type="text" id="presenterCompany" placeholder="Your company"></div>
+        </div>
+        <div class="row">
+          <div class="form-group"><label>Phone</label><input type="text" id="presenterPhone" placeholder="0400 000 000"></div>
+          <div class="form-group"><label>Email</label><input type="text" id="presenterEmail" placeholder="email@example.com"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+  
+  <!-- MAIN PREVIEW -->
+  <main class="main">
+    <div id="dealBreakerAlert" class="deal-breaker" style="display: none;">
+      <div class="deal-breaker-title">⛔ Deal Breakers Identified</div>
+      <ul class="deal-breaker-list" id="dealBreakerList"></ul>
+    </div>
+    
+    <div class="preview" id="preview">
+      <div class="preview-header">
+        <div>
+          <svg class="preview-logo-svg" viewBox="0 0 190 90" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="goldGrad2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#D4A853"/><stop offset="100%" style="stop-color:#B8860B"/></linearGradient></defs>
+            <g transform="translate(38, 45)"><path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#goldGrad2)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/><path d="M0 -38 L0 -44" stroke="url(#goldGrad2)" stroke-width="5" stroke-linecap="round"/></g>
+            <text x="32" y="50" font-family="Inter, Arial" font-size="26" font-weight="600" fill="#1E293B">ney</text>
+            <text x="77" y="50" font-family="Inter, Arial" font-size="20" fill="url(#goldGrad2)">&amp;</text>
+            <text x="94" y="50" font-family="Inter, Arial" font-size="26" font-weight="600" fill="#1E293B">co</text>
+          </svg>
+        </div>
+        <div class="preview-meta">
+          <div class="preview-title">CREDIT PAPER</div>
+          <div class="preview-subtitle" id="previewSubtitle">Commercial Property Acquisition</div>
+          <div class="preview-date" id="previewDate"></div>
+        </div>
+      </div>
+      
+      <h2>Executive Summary</h2>
+      <table>
+        <tr><th width="25%">Borrower(s)</th><td id="sumBorrower">—</td></tr>
+        <tr><th>Guarantor(s)</th><td id="sumGuarantor">—</td></tr>
+        <tr><th>Purpose</th><td id="sumPurpose">—</td></tr>
+        <tr><th>Total Facilities</th><td id="sumFacilities">—</td></tr>
+        <tr><th>Security</th><td id="sumSecurity">—</td></tr>
+        <tr><th>Overall Risk</th><td id="sumRisk"><span class="risk-badge risk-medium">MEDIUM</span></td></tr>
+      </table>
+      
+      <h2>Key Metrics</h2>
+      <div class="metric-grid">
+        <div class="metric-box"><div class="metric-label">LVR</div><div class="metric-value" id="metricLVR">—</div><div class="metric-sub" id="metricLVRMax">Max: —</div></div>
+        <div class="metric-box"><div class="metric-label">ICR</div><div class="metric-value" id="metricICR">—</div><div class="metric-sub">Min 1.0x | Pref 2.0x</div></div>
+        <div class="metric-box"><div class="metric-label">DSCR</div><div class="metric-value" id="metricDSCR">—</div><div class="metric-sub">Min 1.0x</div></div>
+        <div class="metric-box"><div class="metric-label">WALE</div><div class="metric-value" id="metricWALE">—</div><div class="metric-sub">years</div></div>
+      </div>
+      
+      <h2>Parties</h2>
+      <table id="partiesTable"><thead><tr><th>Entity</th><th>Type</th><th>Role</th><th>ABN/ACN</th></tr></thead><tbody id="partiesTableBody"><tr><td colspan="4" style="text-align:center;color:var(--muted);">No entities</td></tr></tbody></table>
+      
+      <h2>Facility Structure</h2>
+      <div id="facilityPreviewContent"><p style="color:var(--muted);text-align:center;">No facilities</p></div>
+      
+      <h2>Security Position</h2>
+      <table id="securityTable"><thead><tr><th>Property</th><th>Type</th><th>Owner</th><th>Tenure</th><th>Value ($'000)</th></tr></thead><tbody id="securityTableBody"><tr><td colspan="5" style="text-align:center;color:var(--muted);">No securities</td></tr></tbody></table>
+      <div id="securityLinkagePreview"></div>
+      
+      <div id="tenantSection" style="display:none;">
+        <h2>Tenant Schedule</h2>
+        <table><thead><tr><th>Tenant</th><th>Passing Rent</th><th>Outgoings</th><th>Recoverable</th><th>Lease Start</th><th>Lease Expiry</th></tr></thead><tbody id="tenantTableBody"></tbody></table>
+        <p style="margin-top:8px;"><strong>WALE:</strong> <span id="waleDisplay">—</span></p>
+      </div>
+      
+      <h2>Risk Assessment</h2>
+      
+      <h3>Character / Management Risk <span class="risk-badge" id="riskCharBadge">—</span></h3>
+      <div id="narrativeCharacter">—</div>
+      
+      <h3>Capacity / Serviceability Risk <span class="risk-badge" id="riskCapBadge">—</span></h3>
+      <div id="narrativeCapacity">—</div>
+      
+      <h3>Collateral / Security Risk <span class="risk-badge" id="riskColBadge">—</span></h3>
+      <div id="narrativeCollateral">—</div>
+      
+      <h2>Recommendation</h2>
+      <ul id="recommendationList"></ul>
+      
+      <div class="preview-footer">
+        <p><strong>Prepared by:</strong> <span id="footerPresenter">Oney & Co — Commercial Finance</span></p>
+        <p id="footerContact" style="margin-top:4px;"></p>
+        <p style="margin-top:10px;font-size:9px;"><em>This document is for assessment purposes only and does not constitute financial advice. Final decisions are subject to lender credit policy and approval processes.</em></p>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const state = {
+  txnType: 'acquisition', txnSubType: '',
+  entities: [],
+  facilityGroups: [],
+  securities: [], tenants: [], servicingEntities: [],
+  riskFactors: [], dealBreakers: [],
+  showHousehold: false
+};
+
+const lvrPolicy = {
+  major: { retail: 65, office: 65, industrial: 70, residential: 80, mixed: 65, specialised: 50, land: 50, gsa: 0 },
+  second: { retail: 70, office: 70, industrial: 70, residential: 80, mixed: 70, specialised: 60, land: 55, gsa: 0 },
+  'non-bank': { retail: 75, office: 75, industrial: 75, residential: 80, mixed: 75, specialised: 65, land: 60, gsa: 0 },
+  private: { retail: 80, office: 80, industrial: 80, residential: 85, mixed: 80, specialised: 70, land: 70, gsa: 0 }
+};
+
+const txnLabels = {
+  'acquisition': 'Commercial Property Acquisition',
+  'refinance': 'Commercial Refinance',
+  'refinance-no-cashout': 'Refinance (No Cash Out)',
+  'refinance-cashout': 'Refinance (With Cash Out)',
+  'construction': 'Construction Finance',
+  'working-capital': 'Working Capital Finance',
+  'working-capital-od': 'Working Capital — Overdraft',
+  'working-capital-trade': 'Working Capital — Trade Facility',
+  'equipment': 'Equipment Finance',
+  'other': 'Commercial Finance'
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('previewDate').textContent = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
+  addEntity();
+  addSecurity();
+  addServicingEntity();
+  updatePreview();
+});
+
+function switchTab(tabId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.querySelector(`.tab[onclick="switchTab('${tabId}')"]`).classList.add('active');
+  document.getElementById('tab-' + tabId).classList.add('active');
+}
+
+function selectTxnType(el) {
+  document.querySelectorAll('#txnTypeChips .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  state.txnType = el.dataset.value;
+  state.txnSubType = '';
+  renderTxnSubOptions();
+  updatePreview();
+}
+
+function renderTxnSubOptions() {
+  const container = document.getElementById('txnSubOptions');
+  let html = '';
+  if (state.txnType === 'refinance') {
+    html = `<div class="sub-options"><label>Refinance Type</label><div class="chips"><span class="chip ${state.txnSubType === 'no-cashout' ? 'active' : ''}" onclick="selectSubType('no-cashout')">No Cash Out</span><span class="chip ${state.txnSubType === 'cashout' ? 'active' : ''}" onclick="selectSubType('cashout')">With Cash Out</span></div></div>`;
+  } else if (state.txnType === 'working-capital') {
+    html = `<div class="sub-options"><label>Facility Type</label><div class="chips"><span class="chip ${state.txnSubType === 'od' ? 'active' : ''}" onclick="selectSubType('od')">Overdraft</span><span class="chip ${state.txnSubType === 'trade' ? 'active' : ''}" onclick="selectSubType('trade')">Trade Facility</span></div></div>`;
+  } else if (state.txnType === 'equipment') {
+    html = `<div class="sub-options"><label>Is residential or commercial property being pledged as security?</label><div class="chips"><span class="chip ${state.txnSubType === 'with-property' ? 'active' : ''}" onclick="selectSubType('with-property')">Yes - Property Pledged</span><span class="chip ${state.txnSubType === 'no-property' ? 'active' : ''}" onclick="selectSubType('no-property')">No - Equipment Only</span></div><div id="efNote"></div></div>`;
+  } else if (state.txnType === 'other') {
+    html = `<div class="sub-options"><label>Transaction Description</label><input type="text" id="otherTxnDesc" placeholder="Describe the transaction purpose" oninput="updatePreview()"></div>`;
+  }
+  container.innerHTML = html;
+}
+
+function selectSubType(subType) {
+  state.txnSubType = subType;
+  renderTxnSubOptions();
+  if (state.txnType === 'equipment' && subType === 'no-property') {
+    document.getElementById('efNote').innerHTML = `<div class="warning-box" style="margin-top:8px;">⚠️ For equipment finance without property security, please refer to the dedicated <strong>EF Credit Paper</strong> tool.</div>`;
+  } else if (state.txnType === 'equipment' && subType === 'with-property') {
+    document.getElementById('efNote').innerHTML = `<div class="note-box" style="margin-top:8px;">📝 For combined transactions with equipment and property, please note: Most lenders assess equipment finance separately. It is recommended to confirm the lender's approach to mixed facility requirements prior to submission.</div>`;
+  }
+  document.querySelectorAll('#txnSubOptions .chip').forEach(c => c.classList.toggle('active', c.textContent.toLowerCase().includes(subType.replace('-', ' ')) || c.textContent.toLowerCase().includes(subType)));
+  updatePreview();
+}
+
+function toggleChip(el) { el.classList.toggle('active'); updatePreview(); }
+function toggleRiskChip(el) { el.classList.toggle('active'); updateRiskAssessment(); }
+
+function toggleHousehold(show) {
+  state.showHousehold = show;
+  document.getElementById('householdYes').classList.toggle('active', show);
+  document.getElementById('householdNo').classList.toggle('active', !show);
+  document.getElementById('householdSection').style.display = show ? '' : 'none';
+  updatePreview();
+}
+
+// ENTITIES
+function addEntity() {
+  state.entities.push({ id: Date.now(), name: '', type: 'company', role: 'borrower', abn: '' });
+  renderEntities();
+}
+function removeEntity(id) { state.entities = state.entities.filter(e => e.id !== id); renderEntities(); renderFacilityGroups(); updatePreview(); }
+function renderEntities() {
+  document.getElementById('entitiesContainer').innerHTML = state.entities.map((e, i) => `
+    <div class="item-card">
+      <div class="item-card-header">
+        <span class="item-card-title">Entity ${i+1}
+          <span class="entity-badge ${e.role === 'borrower' ? 'borrower' : 'guarantor'}">${e.role === 'borrower' ? 'Borrower' : e.role === 'guarantor-individual' ? 'Individual G.' : 'Corporate G.'}</span>
+        </span>
+        ${state.entities.length > 1 ? `<button class="remove-btn" onclick="removeEntity(${e.id})">×</button>` : ''}
+      </div>
+      <div class="row">
+        <div class="form-group"><label>Role</label><select onchange="updateEntity(${e.id},'role',this.value)">
+          <option value="borrower" ${e.role==='borrower'?'selected':''}>Borrowing Entity</option>
+          <option value="guarantor-individual" ${e.role==='guarantor-individual'?'selected':''}>Individual Guarantor</option>
+          <option value="guarantor-corporate" ${e.role==='guarantor-corporate'?'selected':''}>Corporate Guarantor</option>
+        </select></div>
+        <div class="form-group"><label>Entity Type</label><select onchange="updateEntity(${e.id},'type',this.value)">
+          <option value="company" ${e.type==='company'?'selected':''}>Company (Pty Ltd)</option>
+          <option value="trust" ${e.type==='trust'?'selected':''}>Trust</option>
+          <option value="smsf" ${e.type==='smsf'?'selected':''}>SMSF</option>
+          <option value="partnership" ${e.type==='partnership'?'selected':''}>Partnership</option>
+          <option value="individual" ${e.type==='individual'?'selected':''}>Individual</option>
+        </select></div>
+      </div>
+      <div class="row">
+        <div class="form-group"><label>Name</label><input type="text" value="${e.name}" placeholder="${e.role === 'guarantor-individual' ? 'John Smith' : 'ABC Pty Ltd'}" onchange="updateEntity(${e.id},'name',this.value)"></div>
+        <div class="form-group"><label>${e.role === 'guarantor-individual' ? 'Notes' : 'ABN/ACN'}</label><input type="text" value="${e.abn}" placeholder="${e.role === 'guarantor-individual' ? 'Director of...' : '12 345 678 901'}" onchange="updateEntity(${e.id},'abn',this.value)"></div>
+      </div>
+    </div>`).join('');
+}
+function updateEntity(id, key, value) {
+  const e = state.entities.find(x => x.id === id);
+  if (e) e[key] = value;
+  renderEntities();
+  renderFacilityGroups();
+  updatePreview();
+}
+
+// FACILITY GROUPS
+function addFacilityGroup() {
+  const borrowers = state.entities.filter(e => e.role === 'borrower');
+  if (borrowers.length === 0) { alert('Please add a borrowing entity in Basic tab first.'); return; }
+  state.facilityGroups.push({ id: Date.now(), borrowerId: borrowers[0].id, facilities: [{ id: Date.now()+1, type: 'Commercial Bill', amount: '', rate: '', term: '', ioTerm: '', repayment: 'io', shared: false, sharePercent: 100 }] });
+  renderFacilityGroups();
+}
+function removeFacilityGroup(id) { state.facilityGroups = state.facilityGroups.filter(g => g.id !== id); renderFacilityGroups(); updatePreview(); }
+function addFacilityToGroup(groupId) {
+  const group = state.facilityGroups.find(g => g.id === groupId);
+  if (group) group.facilities.push({ id: Date.now(), type: 'Commercial Bill', amount: '', rate: '', term: '', ioTerm: '', repayment: 'io', shared: false, sharePercent: 100 });
+  renderFacilityGroups();
+}
+function removeFacilityFromGroup(groupId, facilityId) {
+  const group = state.facilityGroups.find(g => g.id === groupId);
+  if (group) group.facilities = group.facilities.filter(f => f.id !== facilityId);
+  renderFacilityGroups();
+  updatePreview();
+}
+function renderFacilityGroups() {
+  const borrowers = state.entities.filter(e => e.role === 'borrower');
+  document.getElementById('facilityGroupsContainer').innerHTML = state.facilityGroups.map((g, gi) => {
+    const borrower = state.entities.find(e => e.id === g.borrowerId) || borrowers[0];
+    return `
+    <div class="item-card" style="margin-bottom:12px;">
+      <div class="item-card-header">
+        <span class="item-card-title">Borrower Group ${gi+1}</span>
+        ${state.facilityGroups.length > 1 ? `<button class="remove-btn" onclick="removeFacilityGroup(${g.id})">×</button>` : ''}
+      </div>
+      <div class="form-group">
+        <label>Borrowing Entity</label>
+        <select onchange="updateFacilityGroup(${g.id},'borrowerId',parseInt(this.value))">
+          ${borrowers.map(b => `<option value="${b.id}" ${b.id === g.borrowerId ? 'selected' : ''}>${b.name || 'Unnamed Entity'}</option>`).join('')}
+        </select>
+      </div>
+      ${g.facilities.map((f, fi) => `
+        <div style="background:white;border:1px solid var(--border);border-radius:6px;padding:8px;margin-top:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-size:10px;font-weight:600;color:var(--gold-dark);">Facility ${fi+1}</span>
+            ${g.facilities.length > 1 ? `<button class="remove-btn" style="font-size:12px;" onclick="removeFacilityFromGroup(${g.id},${f.id})">×</button>` : ''}
+          </div>
+          <div class="row">
+            <div class="form-group"><label>Type</label><select onchange="updateFacility(${g.id},${f.id},'type',this.value)">
+              <option ${f.type==='Commercial Bill'?'selected':''}>Commercial Bill</option>
+              <option ${f.type==='Term Loan'?'selected':''}>Term Loan</option>
+              <option ${f.type==='Overdraft'?'selected':''}>Overdraft</option>
+              <option ${f.type==='Equipment Finance'?'selected':''}>Equipment Finance</option>
+              <option ${f.type==='Other'?'selected':''}>Other</option>
+            </select></div>
+            <div class="form-group"><label>Amount ($'000)</label><input type="number" value="${f.amount}" placeholder="2,500" onchange="updateFacility(${g.id},${f.id},'amount',this.value)"></div>
+          </div>
+          <div class="row-3">
+            <div class="form-group"><label>Rate (%)</label><input type="number" step="0.01" value="${f.rate}" placeholder="6.50" onchange="updateFacility(${g.id},${f.id},'rate',this.value)"></div>
+            <div class="form-group"><label>Term (yrs)</label><input type="number" value="${f.term}" placeholder="3" onchange="updateFacility(${g.id},${f.id},'term',this.value)"></div>
+            <div class="form-group"><label>Repayment</label><select onchange="updateFacility(${g.id},${f.id},'repayment',this.value)">
+              <option value="io" ${f.repayment==='io'?'selected':''}>Interest Only</option>
+              <option value="pi" ${f.repayment==='pi'?'selected':''}>P&I</option>
+              <option value="combined" ${f.repayment==='combined'?'selected':''}>Combined (I/O then P&I)</option>
+            </select></div>
+          </div>
+          ${f.repayment === 'combined' ? `<div class="form-group"><label>I/O Period (yrs)</label><input type="number" value="${f.ioTerm}" placeholder="2" onchange="updateFacility(${g.id},${f.id},'ioTerm',this.value)"></div>` : ''}
+          <div class="form-group">
+            <label>Debt Ownership</label>
+            <div class="chips">
+              <span class="chip ${!f.shared ? 'active' : ''}" onclick="setFacilityShared(${g.id},${f.id},false)">100% this entity</span>
+              <span class="chip ${f.shared ? 'active' : ''}" onclick="setFacilityShared(${g.id},${f.id},true)">Shared with others</span>
+            </div>
+          </div>
+          ${f.shared ? `<div class="form-group"><label>This entity's share (%)</label><input type="number" value="${f.sharePercent}" placeholder="50" min="1" max="99" onchange="updateFacility(${g.id},${f.id},'sharePercent',this.value)"></div>` : ''}
+        </div>
+      `).join('')}
+      <button class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="addFacilityToGroup(${g.id})">+ Add Facility</button>
+    </div>`;
+  }).join('') || '<p class="helper">No facility groups yet. Click below to add.</p>';
+}
+function updateFacilityGroup(groupId, key, value) {
+  const g = state.facilityGroups.find(x => x.id === groupId);
+  if (g) g[key] = value;
+  renderFacilityGroups();
+  updatePreview();
+}
+function updateFacility(groupId, facilityId, key, value) {
+  const g = state.facilityGroups.find(x => x.id === groupId);
+  if (g) {
+    const f = g.facilities.find(x => x.id === facilityId);
+    if (f) f[key] = ['amount','rate','term','ioTerm','sharePercent'].includes(key) ? parseFloat(value)||'' : value;
+  }
+  if (key === 'repayment') renderFacilityGroups();
+  updatePreview();
+}
+function setFacilityShared(groupId, facilityId, shared) {
+  const g = state.facilityGroups.find(x => x.id === groupId);
+  if (g) {
+    const f = g.facilities.find(x => x.id === facilityId);
+    if (f) { f.shared = shared; f.sharePercent = shared ? 50 : 100; }
+  }
+  renderFacilityGroups();
+  updatePreview();
+}
+
+// SECURITIES
+function addSecurity() {
+  state.securities.push({ id: Date.now(), type: 'retail', ownerType: 'borrower', ownerName: '', tenure: 'freehold', value: '', address: '', specialisedUse: '' });
+  renderSecurities();
+}
+function removeSecurity(id) { state.securities = state.securities.filter(s => s.id !== id); renderSecurities(); updatePreview(); }
+function renderSecurities() {
+  document.getElementById('securitiesContainer').innerHTML = state.securities.map((s, i) => `
+    <div class="item-card">
+      <div class="item-card-header"><span class="item-card-title">Security ${i+1}</span>${state.securities.length > 1 ? `<button class="remove-btn" onclick="removeSecurity(${s.id})">×</button>` : ''}</div>
+      <div class="form-group"><label>Security Type</label><select onchange="updateSecurity(${s.id},'type',this.value)">
+        <option value="retail" ${s.type==='retail'?'selected':''}>Retail</option>
+        <option value="office" ${s.type==='office'?'selected':''}>Office</option>
+        <option value="industrial" ${s.type==='industrial'?'selected':''}>Industrial</option>
+        <option value="residential" ${s.type==='residential'?'selected':''}>Residential</option>
+        <option value="mixed" ${s.type==='mixed'?'selected':''}>Mixed Use</option>
+        <option value="specialised" ${s.type==='specialised'?'selected':''}>Specialised</option>
+        <option value="land" ${s.type==='land'?'selected':''}>Land</option>
+        <option value="gsa" ${s.type==='gsa'?'selected':''}>GSA (No Property)</option>
+      </select></div>
+      ${s.type === 'specialised' ? `<div class="form-group"><label>Specialised Use</label><input type="text" value="${s.specialisedUse}" placeholder="e.g. Childcare, Service Station" onchange="updateSecurity(${s.id},'specialisedUse',this.value)"></div>` : ''}
+      ${s.type !== 'gsa' ? `<div class="form-group"><label>Tenure</label><select onchange="updateSecurity(${s.id},'tenure',this.value)"><option value="freehold" ${s.tenure==='freehold'?'selected':''}>Freehold</option><option value="leasehold" ${s.tenure==='leasehold'?'selected':''}>Leasehold</option></select></div>${s.tenure === 'leasehold' ? '<div class="warning-box">⚠️ Leasehold tenure may require additional security or lender approval.</div>' : ''}` : ''}
+      <div class="row">
+        <div class="form-group"><label>Security Owner</label><select onchange="updateSecurity(${s.id},'ownerType',this.value)"><option value="borrower" ${s.ownerType==='borrower'?'selected':''}>Borrowing Entity</option><option value="associated" ${s.ownerType==='associated'?'selected':''}>Associated Individual/Entity</option><option value="third-party" ${s.ownerType==='third-party'?'selected':''}>Third Party</option></select></div>
+        <div class="form-group"><label>Owner Name</label><input type="text" value="${s.ownerName || ''}" placeholder="Enter owner name" onchange="updateSecurity(${s.id},'ownerName',this.value)"></div>
+      </div>
+      ${s.ownerType === 'third-party' ? '<div class="danger-box">⛔ Third-party security owner - potential deal breaker. Confirm lender appetite.</div>' : ''}
+      <div class="row">
+        <div class="form-group"><label>Value ($'000)</label><input type="number" value="${s.value}" placeholder="4,000" onchange="updateSecurity(${s.id},'value',this.value)"></div>
+        ${s.type !== 'gsa' ? `<div class="form-group"><label>Address</label><input type="text" value="${s.address}" placeholder="123 Main St, Sydney" onchange="updateSecurity(${s.id},'address',this.value)"></div>` : '<div></div>'}
+      </div>
+    </div>`).join('');
+}
+function updateSecurity(id, key, value) {
+  const s = state.securities.find(x => x.id === id);
+  if (s) s[key] = key === 'value' ? parseFloat(value)||'' : value;
+  renderSecurities();
+  updatePreview();
+}
+
+// SERVICING ENTITIES
+function addServicingEntity() {
+  state.servicingEntities.push({ id: Date.now(), name: '', ebit: '', depreciation: '', amortisation: '', notes: '' });
+  renderServicingEntities();
+}
+function removeServicingEntity(id) { state.servicingEntities = state.servicingEntities.filter(e => e.id !== id); renderServicingEntities(); updatePreview(); }
+function renderServicingEntities() {
+  document.getElementById('servicingContainer').innerHTML = state.servicingEntities.map((e, i) => `
+    <div class="item-card">
+      <div class="item-card-header"><span class="item-card-title">Entity ${i+1}</span>${state.servicingEntities.length > 1 ? `<button class="remove-btn" onclick="removeServicingEntity(${e.id})">×</button>` : ''}</div>
+      <div class="form-group"><label>Entity Name</label><input type="text" value="${e.name}" placeholder="ABC Pty Ltd" onchange="updateServicing(${e.id},'name',this.value)"></div>
+      <div class="row-4">
+        <div class="form-group"><label>EBIT ($'000)</label><input type="number" value="${e.ebit}" placeholder="500" onchange="updateServicing(${e.id},'ebit',this.value)"></div>
+        <div class="form-group"><label>D ($'000)</label><input type="number" value="${e.depreciation}" placeholder="50" onchange="updateServicing(${e.id},'depreciation',this.value)"></div>
+        <div class="form-group"><label>A ($'000)</label><input type="number" value="${e.amortisation}" placeholder="10" onchange="updateServicing(${e.id},'amortisation',this.value)"></div>
+        <div class="form-group"><label>EBITDA</label><input type="text" value="${((parseFloat(e.ebit)||0)+(parseFloat(e.depreciation)||0)+(parseFloat(e.amortisation)||0)).toLocaleString() || '—'}" disabled style="background:#e5e7eb;"></div>
+      </div>
+      <div class="form-group"><label>Notes</label><textarea rows="2" placeholder="Additional servicing notes..." onchange="updateServicing(${e.id},'notes',this.value)">${e.notes}</textarea></div>
+    </div>`).join('');
+}
+function updateServicing(id, key, value) {
+  const e = state.servicingEntities.find(x => x.id === id);
+  if (e) e[key] = ['ebit','depreciation','amortisation'].includes(key) ? parseFloat(value)||'' : value;
+  renderServicingEntities();
+  updatePreview();
+}
+
+// TENANTS
+function addTenant() {
+  state.tenants.push({ id: Date.now(), name: '', passingRent: '', outgoings: '', recoverable: '', leaseStart: '', leaseExpiry: '' });
+  renderTenants();
+}
+function removeTenant(id) { state.tenants = state.tenants.filter(t => t.id !== id); renderTenants(); updatePreview(); }
+function renderTenants() {
+  document.getElementById('tenantsContainer').innerHTML = state.tenants.map((t, i) => `
+    <div class="item-card">
+      <div class="item-card-header"><span class="item-card-title">Tenant ${i+1}</span><button class="remove-btn" onclick="removeTenant(${t.id})">×</button></div>
+      <div class="row">
+        <div class="form-group"><label>Tenant Name</label><input type="text" value="${t.name}" placeholder="Tenant Pty Ltd" onchange="updateTenant(${t.id},'name',this.value)"></div>
+        <div class="form-group"><label>Passing Rent ($'000 p.a.)</label><input type="number" value="${t.passingRent}" onchange="updateTenant(${t.id},'passingRent',this.value)"></div>
+      </div>
+      <div class="row-3">
+        <div class="form-group"><label>Outgoings ($'000)</label><input type="number" value="${t.outgoings}" onchange="updateTenant(${t.id},'outgoings',this.value)"></div>
+        <div class="form-group"><label>Recoverable ($'000)</label><input type="number" value="${t.recoverable}" onchange="updateTenant(${t.id},'recoverable',this.value)"></div>
+        <div></div>
+      </div>
+      <div class="row">
+        <div class="form-group"><label>Lease Start</label><input type="date" value="${t.leaseStart}" onchange="updateTenant(${t.id},'leaseStart',this.value)"></div>
+        <div class="form-group"><label>Lease Expiry</label><input type="date" value="${t.leaseExpiry}" onchange="updateTenant(${t.id},'leaseExpiry',this.value)"></div>
+      </div>
+    </div>`).join('');
+}
+function updateTenant(id, key, value) {
+  const t = state.tenants.find(x => x.id === id);
+  if (t) t[key] = ['passingRent','outgoings','recoverable'].includes(key) ? parseFloat(value)||'' : value;
+  updatePreview();
+}
+
+// RISK
+function updateRiskAssessment() {
+  state.riskFactors = [];
+  state.dealBreakers = [];
+  document.querySelectorAll('#characterChips .chip.active, #capacityChips .chip.active, #collateralChips .chip.active').forEach(c => {
+    if (c.dataset.risk) state.riskFactors.push({ text: c.textContent.trim(), risk: c.dataset.risk });
+  });
+  document.querySelectorAll('#dealBreakerChips .chip.active').forEach(c => {
+    state.dealBreakers.push(c.textContent.trim());
+  });
+  const alertEl = document.getElementById('dealBreakerAlert');
+  const listEl = document.getElementById('dealBreakerList');
+  if (state.dealBreakers.length > 0) {
+    alertEl.style.display = 'block';
+    listEl.innerHTML = state.dealBreakers.map(b => `<li>${b}</li>`).join('');
+  } else {
+    alertEl.style.display = 'none';
+  }
+  updatePreview();
+}
+
+// UPDATE PREVIEW
+function updatePreview() {
+  const lender = document.getElementById('targetLender').value;
+  let txnLabel = txnLabels[state.txnType] || 'Commercial Finance';
+  if (state.txnType === 'refinance' && state.txnSubType) txnLabel = txnLabels['refinance-' + state.txnSubType] || txnLabel;
+  if (state.txnType === 'working-capital' && state.txnSubType) txnLabel = txnLabels['working-capital-' + state.txnSubType] || txnLabel;
+  if (state.txnType === 'other') txnLabel = document.getElementById('otherTxnDesc')?.value || 'Commercial Finance';
+  document.getElementById('previewSubtitle').textContent = txnLabel;
+  
+  // Parties
+  const borrowers = state.entities.filter(e => e.role === 'borrower' && e.name);
+  const guarantors = state.entities.filter(e => e.role !== 'borrower' && e.name);
+  document.getElementById('sumBorrower').textContent = borrowers.map(b => b.name).join(', ') || '—';
+  document.getElementById('sumGuarantor').textContent = guarantors.map(g => g.name).join(', ') || '—';
+  
+  const partiesBody = document.getElementById('partiesTableBody');
+  if (state.entities.some(e => e.name)) {
+    partiesBody.innerHTML = state.entities.filter(e => e.name).map(e => `<tr>
+      <td>${e.name}</td>
+      <td>${e.type.charAt(0).toUpperCase() + e.type.slice(1)}</td>
+      <td>${e.role === 'borrower' ? 'Borrower' : e.role === 'guarantor-individual' ? 'Individual Guarantor' : 'Corporate Guarantor'}</td>
+      <td>${e.abn || '—'}</td>
+    </tr>`).join('');
+  } else {
+    partiesBody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--muted);">No entities</td></tr>';
+  }
+  
+  // Facilities
+  let totalFacility = 0;
+  let facilityHtml = '';
+  state.facilityGroups.forEach(g => {
+    const borrower = state.entities.find(e => e.id === g.borrowerId);
+    if (g.facilities.some(f => f.amount)) {
+      facilityHtml += `<h3 style="font-size:11px;margin:12px 0 6px;">${borrower?.name || 'Unnamed Borrower'}</h3>`;
+      facilityHtml += `<table><thead><tr><th>Type</th><th>Limit ($'000)</th><th>Rate</th><th>Term</th><th>Repayment</th><th>Share</th></tr></thead><tbody>`;
+      g.facilities.filter(f => f.amount).forEach(f => {
+        totalFacility += (parseFloat(f.amount) || 0) * ((f.sharePercent || 100) / 100);
+        facilityHtml += `<tr>
+          <td>${f.type}</td>
+          <td>${parseFloat(f.amount).toLocaleString()}</td>
+          <td>${f.rate ? parseFloat(f.rate).toFixed(2) + '%' : '—'}</td>
+          <td>${f.term ? f.term + ' yr' + (f.term > 1 ? 's' : '') : '—'}${f.repayment === 'combined' && f.ioTerm ? ` (${f.ioTerm} I/O)` : ''}</td>
+          <td>${f.repayment === 'io' ? 'Interest Only' : f.repayment === 'pi' ? 'P&I' : 'I/O then P&I'}</td>
+          <td>${f.shared ? f.sharePercent + '%' : '100%'}</td>
+        </tr>`;
+      });
+      facilityHtml += `</tbody></table>`;
+    }
+  });
+  document.getElementById('facilityPreviewContent').innerHTML = facilityHtml || '<p style="color:var(--muted);text-align:center;">No facilities</p>';
+  document.getElementById('sumPurpose').textContent = txnLabel;
+  document.getElementById('sumFacilities').textContent = totalFacility ? `$${totalFacility.toLocaleString()}k total` : '—';
+  
+  // Security
+  const totalSecValue = state.securities.filter(s => s.type !== 'gsa').reduce((sum, s) => sum + (parseFloat(s.value) || 0), 0);
+  const lvr = totalSecValue > 0 ? (totalFacility / totalSecValue) * 100 : 0;
+  let minMaxLVR = 100;
+  state.securities.filter(s => s.type !== 'gsa').forEach(s => {
+    const max = lvrPolicy[lender]?.[s.type] || 65;
+    if (max > 0 && max < minMaxLVR) minMaxLVR = max;
+  });
+  if (minMaxLVR === 100) minMaxLVR = 65;
+  
+  const propCount = state.securities.filter(s => s.type !== 'gsa').length;
+  const hasGSA = state.securities.some(s => s.type === 'gsa');
+  let secText = propCount ? `${propCount} propert${propCount === 1 ? 'y' : 'ies'} valued at $${totalSecValue.toLocaleString()}k` : '';
+  if (hasGSA) secText += (secText ? ' + ' : '') + 'GSA';
+  document.getElementById('sumSecurity').textContent = secText || '—';
+  
+  const stBody = document.getElementById('securityTableBody');
+  if (state.securities.some(s => s.value || s.type === 'gsa')) {
+    stBody.innerHTML = state.securities.filter(s => s.value || s.type === 'gsa').map(s => {
+      const ownerDisplay = s.ownerName || (s.ownerType === 'borrower' ? 'Borrower' : s.ownerType === 'associated' ? 'Associated' : 'Third Party');
+      const ownerClass = s.ownerType === 'third-party' ? 'highlight-danger' : '';
+      return `<tr>
+        <td>${s.type === 'gsa' ? 'GSA' : s.address || '—'}</td>
+        <td>${s.type === 'specialised' ? `Specialised (${s.specialisedUse || '—'})` : s.type.charAt(0).toUpperCase() + s.type.slice(1)}</td>
+        <td>${ownerClass ? `<span class="${ownerClass}">${ownerDisplay}</span>` : ownerDisplay}</td>
+        <td>${s.type === 'gsa' ? 'N/A' : (s.tenure === 'leasehold' ? '<span class="highlight-warning">Leasehold</span>' : 'Freehold')}</td>
+        <td>${s.value ? parseFloat(s.value).toLocaleString() : '—'}</td>
+      </tr>`;
+    }).join('');
+  } else {
+    stBody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--muted);">No securities</td></tr>';
+  }
+  
+  const linkageText = document.getElementById('securityLinkageProposal')?.value;
+  document.getElementById('securityLinkagePreview').innerHTML = linkageText ? `<p style="margin-top:10px;"><strong>Proposed Security Linkage:</strong> ${linkageText}</p>` : '';
+  
+  // Metrics
+  const lvrEl = document.getElementById('metricLVR');
+  lvrEl.textContent = lvr ? lvr.toFixed(1) + '%' : '—';
+  lvrEl.className = 'metric-value ' + (lvr && lvr <= minMaxLVR - 5 ? 'ok' : lvr && lvr <= minMaxLVR ? 'warn' : lvr ? 'fail' : '');
+  document.getElementById('metricLVRMax').textContent = `Max: ${minMaxLVR}%`;
+  
+  const icrVal = document.getElementById('overallICR').value;
+  const icrEl = document.getElementById('metricICR');
+  icrEl.textContent = icrVal || '—';
+  const icrNum = parseFloat(icrVal);
+  icrEl.className = 'metric-value ' + (icrNum >= 2 ? 'ok' : icrNum >= 1 ? 'warn' : icrNum ? 'fail' : '');
+  
+  const dscrVal = document.getElementById('overallDSCR').value;
+  const dscrEl = document.getElementById('metricDSCR');
+  dscrEl.textContent = dscrVal || '—';
+  const dscrNum = parseFloat(dscrVal);
+  dscrEl.className = 'metric-value ' + (dscrNum >= 1.25 ? 'ok' : dscrNum >= 1 ? 'warn' : dscrNum ? 'fail' : '');
+  
+  // WALE
+  let wale = 0;
+  const totalRent = state.tenants.reduce((sum, t) => sum + (parseFloat(t.passingRent) || 0), 0);
+  if (totalRent > 0) {
+    const now = new Date();
+    state.tenants.forEach(t => {
+      if (t.leaseExpiry && t.passingRent) {
+        const exp = new Date(t.leaseExpiry);
+        const years = Math.max(0, (exp - now) / (365.25 * 24 * 60 * 60 * 1000));
+        wale += ((parseFloat(t.passingRent) || 0) / totalRent) * years;
+      }
+    });
+  }
+  document.getElementById('metricWALE').textContent = state.tenants.some(t => t.name) ? wale.toFixed(1) : '—';
+  
+  // Tenant Table
+  const tenantSection = document.getElementById('tenantSection');
+  if (state.tenants.some(t => t.name)) {
+    tenantSection.style.display = '';
+    document.getElementById('tenantTableBody').innerHTML = state.tenants.filter(t => t.name).map(t => `<tr>
+      <td>${t.name}</td>
+      <td>${t.passingRent ? '$' + parseFloat(t.passingRent).toLocaleString() + 'k' : '—'}</td>
+      <td>${t.outgoings ? '$' + parseFloat(t.outgoings).toLocaleString() + 'k' : '—'}</td>
+      <td>${t.recoverable ? '$' + parseFloat(t.recoverable).toLocaleString() + 'k' : '—'}</td>
+      <td>${t.leaseStart || '—'}</td>
+      <td>${t.leaseExpiry || '—'}</td>
+    </tr>`).join('');
+    document.getElementById('waleDisplay').textContent = wale.toFixed(1) + ' years';
+  } else {
+    tenantSection.style.display = 'none';
+  }
+  
+  // Risk
+  let overallRisk = 'medium';
+  if (state.dealBreakers.length > 0) overallRisk = 'critical';
+  else if (lvr > minMaxLVR) overallRisk = 'critical';
+  else if (state.riskFactors.some(r => r.risk === 'critical')) overallRisk = 'critical';
+  else if (state.riskFactors.some(r => r.risk === 'high')) overallRisk = 'high';
+  else if (state.riskFactors.every(r => r.risk === 'low') && state.riskFactors.length > 0) overallRisk = 'low';
+  
+  const riskLabels = { low: 'LOW', medium: 'MEDIUM', high: 'MEDIUM-HIGH', critical: 'HIGH' };
+  document.getElementById('sumRisk').innerHTML = `<span class="risk-badge risk-${overallRisk}">${riskLabels[overallRisk]}</span>`;
+  
+  // Risk narratives
+  const charRisks = state.riskFactors.filter(r => ['Clean credit history','Experienced management','First-time borrower','Minor credit issues','Defaults / Bankruptcy'].includes(r.text));
+  const charLevel = charRisks.some(r => r.risk === 'critical') ? 'critical' : charRisks.some(r => r.risk === 'high') ? 'high' : charRisks.some(r => r.risk === 'medium') ? 'medium' : 'low';
+  document.getElementById('riskCharBadge').className = `risk-badge risk-${charLevel}`;
+  document.getElementById('riskCharBadge').textContent = riskLabels[charLevel];
+  
+  const bgText = document.getElementById('businessBackground').value;
+  document.getElementById('narrativeCharacter').innerHTML = bgText 
+    ? `<p>${bgText.replace(/\n/g, '</p><p>')}</p>` + (charRisks.length ? `<p><em>Assessment: ${charRisks.map(r => r.text).join(', ')}</em></p>` : '')
+    : '<p>—</p>';
+  
+  const capRisks = state.riskFactors.filter(r => r.text.includes('ICR') || r.text.includes('DSCR'));
+  const capLevel = capRisks.some(r => r.risk === 'critical') ? 'critical' : capRisks.some(r => r.risk === 'high') ? 'high' : capRisks.some(r => r.risk === 'medium') ? 'medium' : 'low';
+  document.getElementById('riskCapBadge').className = `risk-badge risk-${capLevel}`;
+  document.getElementById('riskCapBadge').textContent = riskLabels[capLevel];
+  
+  const totalEBITDA = state.servicingEntities.reduce((sum, e) => sum + (parseFloat(e.ebit)||0) + (parseFloat(e.depreciation)||0) + (parseFloat(e.amortisation)||0), 0);
+  let capNarr = '<ul>';
+  if (totalEBITDA) capNarr += `<li>Combined EBITDA: $${totalEBITDA.toLocaleString()}k</li>`;
+  if (icrVal) capNarr += `<li>ICR: ${icrVal}</li>`;
+  if (dscrVal) capNarr += `<li>DSCR: ${dscrVal}</li>`;
+  const householdText = document.getElementById('householdPosition')?.value;
+  if (state.showHousehold && householdText) capNarr += `<li>Household Position: ${householdText}</li>`;
+  if (capRisks.length) capNarr += `<li>Assessment: ${capRisks.map(r => r.text).join(', ')}</li>`;
+  capNarr += '</ul>';
+  document.getElementById('narrativeCapacity').innerHTML = capNarr !== '<ul></ul>' ? capNarr : '<p>—</p>';
+  
+  const colRisks = state.riskFactors.filter(r => r.text.includes('LVR') || ['Prime metro location','Regional / Secondary','Strong tenant covenant','Vacant property'].includes(r.text));
+  const colLevel = lvr > minMaxLVR ? 'critical' : colRisks.some(r => r.risk === 'critical') ? 'critical' : colRisks.some(r => r.risk === 'high') ? 'high' : colRisks.some(r => r.risk === 'medium') ? 'medium' : 'low';
+  document.getElementById('riskColBadge').className = `risk-badge risk-${colLevel}`;
+  document.getElementById('riskColBadge').textContent = riskLabels[colLevel];
+  
+  let colNarr = '<ul>';
+  if (lvr) colNarr += `<li>LVR: ${lvr.toFixed(1)}% (Max: ${minMaxLVR}%)${lvr > minMaxLVR ? ' <span class="highlight-danger">EXCEEDS POLICY</span>' : ''}</li>`;
+  state.securities.forEach((s, i) => {
+    if (s.value || s.type === 'gsa') {
+      const ownerText = s.ownerName || (s.ownerType === 'borrower' ? 'Borrower' : s.ownerType === 'associated' ? 'Associated' : 'Third Party');
+      colNarr += `<li>Security ${i+1}: ${s.type === 'gsa' ? 'GSA' : s.type.charAt(0).toUpperCase() + s.type.slice(1)}${s.type !== 'gsa' ? ' — ' + s.tenure : ''} — Owner: ${s.ownerType === 'third-party' ? '<span class="highlight-danger">' + ownerText + '</span>' : ownerText}</li>`;
+    }
+  });
+  const secStruct = Array.from(document.querySelectorAll('#secStructureChips .chip.active')).map(c => c.textContent);
+  if (secStruct.length) colNarr += `<li>Structure: ${secStruct.join(', ')}</li>`;
+  const guaInd = document.getElementById('guaranteeIndividual').value;
+  const guaCorp = document.getElementById('guaranteeCorporate').value;
+  if (guaInd) colNarr += `<li>Individual guarantees: ${guaInd}</li>`;
+  if (guaCorp) colNarr += `<li>Corporate guarantees: ${guaCorp}</li>`;
+  colNarr += '</ul>';
+  document.getElementById('narrativeCollateral').innerHTML = colNarr !== '<ul></ul>' ? colNarr : '<p>—</p>';
+  
+  // Recommendation
+  const lenderLabels = { major: 'Major Bank', second: 'Second Tier Lender', 'non-bank': 'Non-Bank Lender', private: 'Private Lender' };
+  let recList = [];
+  if (overallRisk === 'low' || overallRisk === 'medium') {
+    recList.push(`Transaction suitable for submission to <strong>${lenderLabels[lender]}</strong>`);
+  } else if (overallRisk === 'high') {
+    recList.push(`Elevated risk factors identified — consider <strong>Non-Bank</strong> or negotiate mitigants`);
+  } else {
+    recList.push(`<span class="highlight-danger">Critical issues require resolution prior to submission</span>`);
+  }
+  if (state.dealBreakers.length) recList.push(`Deal breakers: ${state.dealBreakers.join(', ')}`);
+  if (lvr > minMaxLVR) recList.push(`LVR exceeds policy — reduce loan amount or provide additional security`);
+  if (state.securities.some(s => s.ownerType === 'third-party')) recList.push(`Third-party security requires lender approval`);
+  if (state.securities.some(s => s.tenure === 'leasehold')) recList.push(`Leasehold tenure may require additional due diligence`);
+  document.getElementById('recommendationList').innerHTML = recList.map(r => `<li>${r}</li>`).join('');
+  
+  // Footer
+  const presenterName = document.getElementById('presenterName').value;
+  const presenterCompany = document.getElementById('presenterCompany').value;
+  document.getElementById('footerPresenter').textContent = presenterName ? `${presenterName}${presenterCompany ? ' — ' + presenterCompany : ''}` : 'Oney & Co — Commercial Finance';
+  const presenterPhone = document.getElementById('presenterPhone').value;
+  const presenterEmail = document.getElementById('presenterEmail').value;
+  document.getElementById('footerContact').textContent = [presenterPhone, presenterEmail].filter(Boolean).join(' | ');
+}
+
+// SAVE/LOAD
+function saveDraft() {
+  const data = { ...state,
+    targetLender: document.getElementById('targetLender').value,
+    overallSurplus: document.getElementById('overallSurplus').value,
+    overallICR: document.getElementById('overallICR').value,
+    overallDSCR: document.getElementById('overallDSCR').value,
+    householdPosition: document.getElementById('householdPosition')?.value || '',
+    securityLinkageProposal: document.getElementById('securityLinkageProposal')?.value || '',
+    businessBackground: document.getElementById('businessBackground').value,
+    guaranteeIndividual: document.getElementById('guaranteeIndividual').value,
+    guaranteeCorporate: document.getElementById('guaranteeCorporate').value,
+    presenterName: document.getElementById('presenterName').value,
+    presenterCompany: document.getElementById('presenterCompany').value,
+    presenterPhone: document.getElementById('presenterPhone').value,
+    presenterEmail: document.getElementById('presenterEmail').value
+  };
+  localStorage.setItem('creditPaperProV3', JSON.stringify(data));
+  alert('✅ Draft saved!');
+}
+
+function loadDraft() {
+  const data = JSON.parse(localStorage.getItem('creditPaperProV3'));
+  if (!data) { alert('No draft found.'); return; }
+  Object.assign(state, { txnType: data.txnType, txnSubType: data.txnSubType, entities: data.entities || [], facilityGroups: data.facilityGroups || [], securities: data.securities || [], tenants: data.tenants || [], servicingEntities: data.servicingEntities || [], riskFactors: data.riskFactors || [], dealBreakers: data.dealBreakers || [], showHousehold: data.showHousehold || false });
+  
+  document.getElementById('targetLender').value = data.targetLender || 'major';
+  document.getElementById('overallSurplus').value = data.overallSurplus || '';
+  document.getElementById('overallICR').value = data.overallICR || '';
+  document.getElementById('overallDSCR').value = data.overallDSCR || '';
+  if (document.getElementById('householdPosition')) document.getElementById('householdPosition').value = data.householdPosition || '';
+  if (document.getElementById('securityLinkageProposal')) document.getElementById('securityLinkageProposal').value = data.securityLinkageProposal || '';
+  document.getElementById('businessBackground').value = data.businessBackground || '';
+  document.getElementById('guaranteeIndividual').value = data.guaranteeIndividual || '';
+  document.getElementById('guaranteeCorporate').value = data.guaranteeCorporate || '';
+  document.getElementById('presenterName').value = data.presenterName || '';
+  document.getElementById('presenterCompany').value = data.presenterCompany || '';
+  document.getElementById('presenterPhone').value = data.presenterPhone || '';
+  document.getElementById('presenterEmail').value = data.presenterEmail || '';
+  
+  document.querySelectorAll('#txnTypeChips .chip').forEach(c => c.classList.toggle('active', c.dataset.value === state.txnType));
+  toggleHousehold(state.showHousehold);
+  renderTxnSubOptions();
+  renderEntities();
+  renderFacilityGroups();
+  renderSecurities();
+  renderServicingEntities();
+  renderTenants();
+  updatePreview();
+  alert('✅ Draft loaded!');
+}
+
+function resetAll() {
+  if (!confirm('Reset all fields?')) return;
+  localStorage.removeItem('creditPaperProV3');
+  location.reload();
+}
+</script>
+</body>
+</html>
