@@ -438,7 +438,7 @@
     <div class="actions" style="margin-bottom: 12px;">
       <button class="btn btn-ghost btn-sm" onclick="saveDraft()">💾 Save</button>
       <button class="btn btn-ghost btn-sm" onclick="loadDraft()">📂 Load</button>
-      <button class="btn btn-ghost btn-sm" onclick="window.print()">🖨️ Print</button>
+      <button class="btn btn-ghost btn-sm" id="printBtn" onclick="handlePrint()">🖨️ Print</button>
       <button class="btn btn-ghost btn-sm" onclick="resetAll()">🔄 Reset</button>
     </div>
     
@@ -984,8 +984,22 @@ function setFacilityShared(groupId, facilityId, shared) {
   updatePreview();
 }
 
+// Print handler with tier check
+function handlePrint() {
+  if (!hasFeature('pdf_export')) {
+    showUpgradeModal('Print / PDF Export');
+    return;
+  }
+  window.print();
+}
+
 // SECURITIES
 function addSecurity() {
+  // Lite tier: limit to 1 security
+  if (window.currentTier === 'lite' && state.securities.length >= 1) {
+    showUpgradeModal('Multiple Securities');
+    return;
+  }
   state.securities.push({ id: Date.now(), type: 'retail', ownerType: 'borrower', ownerName: '', tenure: 'freehold', value: '', address: '', specialisedUse: '' });
   renderSecurities();
 }
@@ -1433,6 +1447,13 @@ function initTierSystem() {
   
   // Apply feature restrictions for Lite tier
   if (tier === 'lite') {
+    // Lock Print button
+    const printBtn = document.getElementById('printBtn');
+    if (printBtn) {
+      printBtn.style.opacity = '0.6';
+      printBtn.title = '🔒 Upgrade to unlock printing';
+    }
+    
     // Lock PDF export button
     const pdfBtn = document.querySelector('button[onclick*="exportPDF"]');
     if (pdfBtn) {
@@ -1442,6 +1463,12 @@ function initTierSystem() {
       };
       pdfBtn.style.opacity = '0.6';
       pdfBtn.title = '🔒 Upgrade to unlock PDF export';
+    }
+    
+    // Lock Add Security button (visual indicator)
+    const addSecurityBtn = document.querySelector('button[onclick*="addSecurity"]');
+    if (addSecurityBtn) {
+      addSecurityBtn.title = 'Lite: 1 Security max. Upgrade for more.';
     }
     
     // Add upgrade prompts to certain sections
