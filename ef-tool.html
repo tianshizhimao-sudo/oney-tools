@@ -191,6 +191,11 @@
       border-color: rgba(248, 113, 113, 0.3);
       color: var(--danger);
     }
+    .info-box.info {
+      background: rgba(96, 165, 250, 0.1);
+      border-color: rgba(96, 165, 250, 0.3);
+      color: var(--info);
+    }
     
     /* Alert Box */
     .alert-box {
@@ -200,6 +205,10 @@
       padding: 16px;
       margin-top: 12px;
     }
+    .alert-box.warning {
+      background: rgba(251, 191, 36, 0.15);
+      border-color: var(--warning);
+    }
     .alert-box-title {
       font-size: 14px;
       font-weight: 700;
@@ -208,6 +217,9 @@
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+    .alert-box.warning .alert-box-title {
+      color: var(--warning);
     }
     .alert-box-text {
       font-size: 13px;
@@ -273,6 +285,19 @@
     .result-value.success { color: var(--success); }
     .result-value.warning { color: var(--warning); }
     .result-value.info { color: var(--info); }
+    
+    /* Disclaimer */
+    .disclaimer {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      padding: 12px 16px;
+      background: var(--bg);
+      border-radius: 8px;
+      margin-top: 16px;
+      border-left: 3px solid var(--warning);
+    }
+    .disclaimer strong { color: var(--warning); }
     
     /* Comparison Table */
     .comparison-table {
@@ -364,6 +389,14 @@
     .btn-secondary:hover {
       border-color: var(--primary);
     }
+    .btn-success {
+      background: linear-gradient(135deg, #059669, #10B981);
+      color: white;
+    }
+    .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
+    }
     
     /* Checkbox */
     .checkbox-group {
@@ -400,6 +433,26 @@
     }
     .collapsible-content.open { display: block; }
     
+    /* Quote Request */
+    .quote-section {
+      border-top: 2px solid var(--primary);
+      margin-top: 24px;
+      padding-top: 24px;
+    }
+    .quote-preview {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 20px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      max-height: 400px;
+      overflow-y: auto;
+      margin: 16px 0;
+      border: 1px solid var(--border);
+    }
+    
     /* Footer */
     footer {
       text-align: center;
@@ -419,6 +472,58 @@
       border-radius: 8px;
       border-left: 3px solid var(--warning);
     }
+    
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--card);
+      border-radius: var(--radius);
+      max-width: 600px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+    }
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-header h3 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-body { padding: 24px; }
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 12px;
+    }
+    .modal-footer .btn { flex: 1; }
     
     /* Responsive */
     @media (max-width: 600px) {
@@ -500,7 +605,7 @@
         </div>
         <div class="form-group">
           <label>Asset Age (if used)</label>
-          <select id="assetAge" disabled onchange="calculate()">
+          <select id="assetAge" disabled>
             <option value="0">N/A (New)</option>
             <option value="1">0-2 years</option>
             <option value="2">2-5 years</option>
@@ -512,21 +617,21 @@
       
       <!-- Asset Description Section -->
       <div class="collapsible-header" onclick="toggleAssetDetails()">
-        <label style="margin: 0; cursor: pointer;">Asset Description (Click to expand)</label>
+        <label style="margin: 0; cursor: pointer;">📋 Asset Description (Click to expand) <span style="color: var(--danger);">*Required for Quote</span></label>
         <span id="assetDetailsToggle">▼</span>
       </div>
       <div class="collapsible-content" id="assetDetailsSection">
         <div class="form-group">
-          <label>Make / Brand</label>
+          <label>Make / Brand *</label>
           <input type="text" id="assetMake" placeholder="e.g. Toyota, Caterpillar, John Deere">
         </div>
         <div class="row">
           <div class="form-group">
-            <label>Model</label>
+            <label>Model *</label>
             <input type="text" id="assetModel" placeholder="e.g. Hilux SR5, 320D Excavator">
           </div>
           <div class="form-group">
-            <label>Year of Manufacture</label>
+            <label>Year of Manufacture *</label>
             <input type="text" id="assetYear" placeholder="e.g. 2024">
           </div>
         </div>
@@ -563,7 +668,7 @@
       <div class="row" style="margin-top: 16px;">
         <div class="form-group">
           <label>Purchase Price (ex GST)</label>
-          <input type="text" id="purchasePrice" placeholder="$100,000" oninput="formatCurrency(this); calculate()">
+          <input type="text" id="purchasePrice" placeholder="$100,000" oninput="formatCurrency(this); updateGst()">
         </div>
         <div class="form-group">
           <label>GST (10%)</label>
@@ -574,6 +679,18 @@
       <div class="form-group">
         <label>Total Price (inc GST)</label>
         <input type="text" id="totalPrice" placeholder="$110,000" disabled style="font-weight: 700; font-size: 18px;">
+      </div>
+      
+      <div class="alert-box warning" id="valuationAlert" style="display: none;">
+        <div class="alert-box-title">📋 High Value Asset Notice</div>
+        <div class="alert-box-text">
+          For assets exceeding <strong>$500,000</strong>, most lenders will require:
+          <ul style="margin: 8px 0 0 20px; line-height: 1.8;">
+            <li>Independent asset inspection</li>
+            <li>Professional valuation report</li>
+            <li>Enhanced due diligence documentation</li>
+          </ul>
+        </div>
       </div>
     </div>
     
@@ -611,11 +728,11 @@
       <div class="row-3">
         <div class="form-group">
           <label>Deposit</label>
-          <input type="text" id="deposit" placeholder="$0" value="$0" oninput="formatCurrency(this); calculate()">
+          <input type="text" id="deposit" placeholder="$0" value="$0" oninput="formatCurrency(this)">
         </div>
         <div class="form-group">
           <label>Term</label>
-          <select id="term" onchange="onTermChange(); calculate()">
+          <select id="term" onchange="onTermChange()">
             <option value="12">12 months (1 yr)</option>
             <option value="24">24 months (2 yrs)</option>
             <option value="36">36 months (3 yrs)</option>
@@ -627,14 +744,14 @@
         </div>
         <div class="form-group">
           <label>Interest Rate (p.a.)</label>
-          <input type="text" id="interestRate" placeholder="8.5%" value="8.5%" oninput="calculate()">
+          <input type="text" id="interestRate" placeholder="8.5%" value="8.5%">
         </div>
       </div>
       
       <div class="row">
         <div class="form-group">
           <label>Balloon / Residual (%)</label>
-          <select id="balloonPercent" onchange="updateBalloon(); calculate()">
+          <select id="balloonPercent" onchange="updateBalloonAmount()">
             <option value="0">0% (Fully Amortised)</option>
             <option value="10">10%</option>
             <option value="20">20%</option>
@@ -652,8 +769,8 @@
       </div>
       
       <div class="ato-note" id="atoNote">
-        <strong>ATO Residual Guidelines:</strong> Max residual for <span id="atoTermDisplay">48 months</span> is <span id="atoMaxBalloon">37.50%</span>. 
-        Current selection is within guidelines. ✓
+        <strong>ATO Residual Guidelines:</strong> Max residual for <span id="atoTermDisplay">48 months</span> is <span id="atoMaxBalloon">37.50%</span> per ATO. 
+        However, <strong>most lenders accept up to 30% for 5-year terms</strong> as standard practice.
       </div>
       
       <div class="form-group" style="margin-top: 16px;">
@@ -671,7 +788,7 @@
       <div class="card-title"><span>👤</span> Borrower Details</div>
       
       <div class="form-group">
-        <label>Full Borrower Name (Individual or Entity)</label>
+        <label>Full Borrower Name (Individual or Entity) *</label>
         <input type="text" id="borrowerName" placeholder="e.g. John Smith / ABC Pty Ltd ATF ABC Family Trust">
       </div>
       
@@ -682,7 +799,7 @@
         </div>
         <div class="form-group">
           <label>ABN Age</label>
-          <select id="abnAge" onchange="onAbnAgeChange(); calculate()">
+          <select id="abnAge" onchange="onAbnAgeChange()">
             <option value="0">No ABN</option>
             <option value="1">0-6 months</option>
             <option value="2">6-12 months</option>
@@ -714,22 +831,22 @@
       </div>
       
       <div class="checkbox-group">
-        <input type="checkbox" id="instantWriteOff" checked onchange="calculate()">
+        <input type="checkbox" id="instantWriteOff" checked>
         <label for="instantWriteOff">Eligible for Instant Asset Write-Off ($20,000 threshold - FY24/25)</label>
       </div>
     </div>
     
     <!-- Calculate Button -->
     <button class="btn btn-primary" onclick="calculate()" style="margin-bottom: 16px;">
-      Calculate Repayments
+      📊 Calculate Repayments
     </button>
     
-    <!-- Results -->
+    <!-- Results (Hidden until calculated) -->
     <div class="card results-card" id="resultsCard" style="display: none;">
-      <div class="card-title"><span>📊</span> Repayment Summary</div>
+      <div class="card-title"><span>📊</span> Indicative Repayment Summary</div>
       
       <div class="result-hero">
-        <div class="result-hero-label">Your Repayment</div>
+        <div class="result-hero-label">Estimated Repayment</div>
         <div class="result-hero-value" id="repaymentAmount">$0</div>
         <div class="result-hero-sub" id="repaymentFreq">per month</div>
       </div>
@@ -752,9 +869,16 @@
           <div class="result-value info" id="balloonPayment">$0</div>
         </div>
       </div>
+      
+      <div class="disclaimer">
+        <strong>Important Disclaimer:</strong> The repayment figures shown are indicative estimates only and are subject to lender approval. 
+        Actual repayments may vary as some lenders include establishment fees, account keeping fees, and other charges 
+        within the total repayment amount. Final rates and terms are subject to credit assessment and lender policies. 
+        Please obtain a formal quote from your lender for accurate figures.
+      </div>
     </div>
     
-    <!-- Tax Benefits -->
+    <!-- Tax Benefits (Hidden until calculated) -->
     <div class="card" id="taxCard" style="display: none;">
       <div class="card-title"><span>💰</span> Tax Benefits (Estimated)</div>
       
@@ -781,7 +905,7 @@
       </div>
     </div>
     
-    <!-- Comparison -->
+    <!-- Comparison (Hidden until calculated) -->
     <div class="card" id="comparisonCard" style="display: none;">
       <div class="card-title"><span>⚖️</span> Structure Comparison</div>
       
@@ -829,10 +953,21 @@
       </table>
     </div>
     
+    <!-- Generate Quote Request Section (Hidden until calculated) -->
+    <div class="card quote-section" id="quoteSection" style="display: none;">
+      <div class="card-title"><span>📧</span> Request Lender Quote</div>
+      <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">
+        Generate a professional quote request to send to lenders. This includes all required asset and borrower information.
+      </p>
+      <button class="btn btn-success" onclick="openQuoteModal()">
+        📝 Generate Quote Request
+      </button>
+    </div>
+    
     <!-- Actions -->
     <div class="row" style="margin-top: 16px;">
-      <button class="btn btn-secondary" onclick="copyResults()">📋 Copy Results</button>
-      <button class="btn btn-secondary" onclick="resetForm()">🔄 Reset</button>
+      <button class="btn btn-secondary" onclick="copyResults()">📋 Copy Summary</button>
+      <button class="btn btn-secondary" onclick="resetForm()">🔄 Reset All</button>
     </div>
     
     <footer>
@@ -841,14 +976,35 @@
     </footer>
   </div>
   
+  <!-- Quote Modal -->
+  <div class="modal-overlay" id="quoteModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>📧 Lender Quote Request</h3>
+        <button class="modal-close" onclick="closeQuoteModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
+          Review the quote request below. You can copy and send this to your preferred lenders.
+        </p>
+        <div class="quote-preview" id="quotePreview"></div>
+        <div class="info-box info" id="quoteValidation" style="display: none; margin-top: 12px;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeQuoteModal()">Close</button>
+        <button class="btn btn-primary" onclick="copyQuote()">📋 Copy to Clipboard</button>
+      </div>
+    </div>
+  </div>
+  
   <script>
-    // ATO Residual Value Guidelines (approximate)
+    // ATO Residual Value Guidelines (approximate) - with 30% allowed for 60 months per industry practice
     const ATO_RESIDUAL = {
-      vehicle: { 12: 65.63, 24: 56.25, 36: 46.88, 48: 37.50, 60: 28.13, 72: 22.00, 84: 16.00 },
-      truck: { 12: 65.63, 24: 56.25, 36: 46.88, 48: 37.50, 60: 28.13, 72: 22.00, 84: 16.00 },
-      trailer: { 12: 65.63, 24: 56.25, 36: 46.88, 48: 37.50, 60: 28.13, 72: 22.00, 84: 16.00 },
-      construction: { 12: 60.00, 24: 50.00, 36: 40.00, 48: 30.00, 60: 22.00, 72: 15.00, 84: 10.00 },
-      agriculture: { 12: 60.00, 24: 50.00, 36: 40.00, 48: 30.00, 60: 22.00, 72: 15.00, 84: 10.00 },
+      vehicle: { 12: 65.63, 24: 56.25, 36: 46.88, 48: 37.50, 60: 30.00, 72: 22.00, 84: 16.00 },
+      truck: { 12: 65.63, 24: 56.25, 36: 46.88, 48: 37.50, 60: 30.00, 72: 22.00, 84: 16.00 },
+      trailer: { 12: 65.63, 24: 56.25, 36: 46.88, 48: 37.50, 60: 30.00, 72: 22.00, 84: 16.00 },
+      construction: { 12: 60.00, 24: 50.00, 36: 40.00, 48: 30.00, 60: 25.00, 72: 15.00, 84: 10.00 },
+      agriculture: { 12: 60.00, 24: 50.00, 36: 40.00, 48: 30.00, 60: 25.00, 72: 15.00, 84: 10.00 },
       manufacturing: { 12: 55.00, 24: 45.00, 36: 35.00, 48: 26.00, 60: 18.00, 72: 12.00, 84: 8.00 },
       medical: { 12: 55.00, 24: 45.00, 36: 35.00, 48: 26.00, 60: 18.00, 72: 12.00, 84: 8.00 },
       it: { 12: 50.00, 24: 37.50, 36: 25.00, 48: 12.50, 60: 0, 72: 0, 84: 0 },
@@ -862,7 +1018,8 @@
       condition: 'new',
       structure: 'chattel',
       frequency: 'monthly',
-      gstRegistered: 'yes'
+      gstRegistered: 'yes',
+      calculated: false
     };
     
     // Helpers
@@ -880,6 +1037,18 @@
     
     function formatMoney(num) {
       return '$' + num.toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+    
+    function updateGst() {
+      const price = parseCurrency(document.getElementById('purchasePrice').value);
+      const gst = price * 0.1;
+      const total = price + gst;
+      document.getElementById('gstAmount').value = price > 0 ? formatMoney(gst) : '';
+      document.getElementById('totalPrice').value = price > 0 ? formatMoney(total) : '';
+      updateBalloonAmount();
+      
+      // Show valuation alert for high value assets
+      document.getElementById('valuationAlert').style.display = price > 500000 ? 'block' : 'none';
     }
     
     // Purchase Source
@@ -926,9 +1095,7 @@
       document.getElementById('vehicleFields2').style.display = isVehicle ? 'grid' : 'none';
       document.getElementById('serialField').style.display = isVehicle ? 'none' : 'block';
       
-      // Update ATO residual limits
       onTermChange();
-      calculate();
     }
     
     // Setters
@@ -939,7 +1106,6 @@
       });
       document.getElementById('assetAge').disabled = (val === 'new');
       if (val === 'new') document.getElementById('assetAge').value = '0';
-      calculate();
     }
     
     function setStructure(val) {
@@ -956,7 +1122,6 @@
         rental: '<strong>Operating Lease / Rental:</strong> Rent the asset and return at end. 100% tax deductible payments. Best for short-term needs or rapidly depreciating assets.'
       };
       infoBox.innerHTML = infos[val];
-      calculate();
     }
     
     function setFrequency(val) {
@@ -964,7 +1129,6 @@
       document.querySelectorAll('[data-value="weekly"], [data-value="fortnightly"], [data-value="monthly"]').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.value === val);
       });
-      calculate();
     }
     
     function setGstRegistered(val) {
@@ -972,7 +1136,6 @@
       document.querySelectorAll('[data-gst]').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.gst === val);
       });
-      calculate();
     }
     
     function onAbnAgeChange() {
@@ -986,68 +1149,64 @@
       const assetType = document.getElementById('assetType').value;
       const maxBalloon = ATO_RESIDUAL[assetType]?.[term] || 30;
       
-      // Update ATO note
       document.getElementById('atoTermDisplay').textContent = term + ' months';
       document.getElementById('atoMaxBalloon').textContent = maxBalloon.toFixed(2) + '%';
       
-      // Update balloon dropdown and cap if needed
+      // Update note for 60 months
+      if (term === 60) {
+        document.getElementById('atoNote').innerHTML = `<strong>ATO Residual Guidelines:</strong> Max residual for <span id="atoTermDisplay">60 months</span> is <span id="atoMaxBalloon">28.13%</span> per ATO. However, <strong>most lenders accept up to 30% for 5-year terms</strong> as standard practice.`;
+      } else {
+        document.getElementById('atoNote').innerHTML = `<strong>ATO Residual Guidelines:</strong> Max residual for <span id="atoTermDisplay">${term} months</span> is <span id="atoMaxBalloon">${maxBalloon.toFixed(2)}%</span> per ATO guidelines.`;
+      }
+      
+      // Update balloon dropdown
       const balloonSelect = document.getElementById('balloonPercent');
       const currentBalloon = parseFloat(balloonSelect.value);
-      
-      // Update balloon options with ATO max
       const options = balloonSelect.options;
+      
       for (let i = 0; i < options.length; i++) {
         const val = parseFloat(options[i].value);
         if (val > maxBalloon) {
           options[i].disabled = true;
-          options[i].textContent = options[i].value + '% (exceeds ATO)';
+          options[i].textContent = options[i].value + '% (exceeds limit)';
         } else {
           options[i].disabled = false;
           options[i].textContent = options[i].value === '0' ? '0% (Fully Amortised)' : options[i].value + '%';
         }
       }
       
-      // Cap current selection if needed
       if (currentBalloon > maxBalloon) {
-        // Find closest valid option
         for (let i = options.length - 1; i >= 0; i--) {
           if (parseFloat(options[i].value) <= maxBalloon && !options[i].disabled) {
             balloonSelect.value = options[i].value;
             break;
           }
         }
-        document.getElementById('atoNote').innerHTML = `<strong>⚠️ Balloon adjusted:</strong> Max residual for ${term} months is ${maxBalloon.toFixed(2)}% per ATO guidelines. Your selection has been adjusted.`;
-        document.getElementById('atoNote').style.borderLeftColor = 'var(--warning)';
-      } else {
-        document.getElementById('atoNote').innerHTML = `<strong>ATO Residual Guidelines:</strong> Max residual for <span id="atoTermDisplay">${term} months</span> is <span id="atoMaxBalloon">${maxBalloon.toFixed(2)}%</span>. Current selection is within guidelines. ✓`;
-        document.getElementById('atoNote').style.borderLeftColor = 'var(--success)';
       }
       
-      updateBalloon();
+      updateBalloonAmount();
     }
     
-    function updateBalloon() {
+    function updateBalloonAmount() {
       const price = parseCurrency(document.getElementById('purchasePrice').value);
       const balloonPercent = parseFloat(document.getElementById('balloonPercent').value) || 0;
       const balloon = price * (balloonPercent / 100);
-      document.getElementById('balloonAmount').value = formatMoney(balloon);
+      document.getElementById('balloonAmount').value = price > 0 ? formatMoney(balloon) : '';
     }
     
-    // Calculate
+    // Calculate - only when button clicked
     function calculate() {
       const price = parseCurrency(document.getElementById('purchasePrice').value);
       if (price <= 0) {
-        document.getElementById('resultsCard').style.display = 'none';
-        document.getElementById('taxCard').style.display = 'none';
-        document.getElementById('comparisonCard').style.display = 'none';
+        alert('Please enter a purchase price');
         return;
       }
+      
+      state.calculated = true;
       
       // GST
       const gst = price * 0.1;
       const totalPrice = price + gst;
-      document.getElementById('gstAmount').value = formatMoney(gst);
-      document.getElementById('totalPrice').value = formatMoney(totalPrice);
       
       // Loan params
       const deposit = parseCurrency(document.getElementById('deposit').value);
@@ -1055,7 +1214,7 @@
       const rate = parseFloat(document.getElementById('interestRate').value.replace('%', '')) / 100;
       const balloonPercent = parseFloat(document.getElementById('balloonPercent').value) / 100;
       
-      // Finance amount (Chattel = ex GST, Lease = inc GST)
+      // Finance amount
       let financeAmount;
       if (state.structure === 'chattel') {
         financeAmount = price - deposit;
@@ -1064,7 +1223,6 @@
       }
       
       const balloon = price * balloonPercent;
-      document.getElementById('balloonAmount').value = formatMoney(balloon);
       
       // PMT calculation
       const monthlyRate = rate / 12;
@@ -1151,9 +1309,169 @@
       document.getElementById('resultsCard').style.display = 'block';
       document.getElementById('taxCard').style.display = 'block';
       document.getElementById('comparisonCard').style.display = 'block';
+      document.getElementById('quoteSection').style.display = 'block';
+      
+      // Scroll to results
+      document.getElementById('resultsCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    
+    // Quote Modal Functions
+    function openQuoteModal() {
+      const validation = validateQuoteData();
+      const quoteText = generateQuoteText();
+      
+      document.getElementById('quotePreview').textContent = quoteText;
+      
+      if (validation.warnings.length > 0) {
+        document.getElementById('quoteValidation').innerHTML = '⚠️ <strong>Missing recommended fields:</strong> ' + validation.warnings.join(', ');
+        document.getElementById('quoteValidation').style.display = 'block';
+      } else {
+        document.getElementById('quoteValidation').style.display = 'none';
+      }
+      
+      document.getElementById('quoteModal').classList.add('open');
+    }
+    
+    function closeQuoteModal() {
+      document.getElementById('quoteModal').classList.remove('open');
+    }
+    
+    function validateQuoteData() {
+      const warnings = [];
+      const make = document.getElementById('assetMake').value.trim();
+      const model = document.getElementById('assetModel').value.trim();
+      const year = document.getElementById('assetYear').value.trim();
+      const vin = document.getElementById('assetVin').value.trim();
+      const rego = document.getElementById('assetRego').value.trim();
+      const borrower = document.getElementById('borrowerName').value.trim();
+      
+      if (!borrower) warnings.push('Borrower Name');
+      if (!make || !model || !year) {
+        if (!vin && !rego) {
+          warnings.push('Asset identification (Make/Model/Year OR VIN/Rego)');
+        }
+      }
+      
+      return { warnings };
+    }
+    
+    function generateQuoteText() {
+      const assetType = document.getElementById('assetType').selectedOptions[0].text.replace(/^[^\s]+\s/, '');
+      const make = document.getElementById('assetMake').value.trim();
+      const model = document.getElementById('assetModel').value.trim();
+      const year = document.getElementById('assetYear').value.trim();
+      const vin = document.getElementById('assetVin').value.trim();
+      const engine = document.getElementById('assetEngine').value.trim();
+      const rego = document.getElementById('assetRego').value.trim();
+      const odometer = document.getElementById('assetOdometer').value.trim();
+      const serial = document.getElementById('assetSerial').value.trim();
+      const description = document.getElementById('assetDescription').value.trim();
+      const condition = state.condition === 'new' ? 'New' : 'Used';
+      const age = document.getElementById('assetAge').selectedOptions[0].text;
+      
+      const price = parseCurrency(document.getElementById('purchasePrice').value);
+      const gst = price * 0.1;
+      const total = price + gst;
+      const deposit = parseCurrency(document.getElementById('deposit').value);
+      const term = document.getElementById('term').value;
+      const balloon = document.getElementById('balloonPercent').value;
+      const frequency = state.frequency.charAt(0).toUpperCase() + state.frequency.slice(1);
+      
+      const structure = {
+        chattel: 'Chattel Mortgage',
+        lease: 'Finance Lease',
+        rental: 'Operating Lease / Rental'
+      }[state.structure];
+      
+      const borrower = document.getElementById('borrowerName').value.trim() || '[Borrower Name Required]';
+      const abn = document.getElementById('abnNumber').value.trim();
+      const abnAge = document.getElementById('abnAge').selectedOptions[0].text;
+      const gstReg = state.gstRegistered === 'yes' ? 'Yes' : 'No';
+      
+      const source = {
+        dealer: 'Licensed Dealer',
+        private: 'Private Sale',
+        import: 'Overseas Import'
+      }[state.purchaseSource];
+      
+      const today = new Date().toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric' });
+      
+      let assetId = '';
+      if (vin) assetId += `VIN: ${vin}\n`;
+      if (engine) assetId += `Engine No: ${engine}\n`;
+      if (rego) assetId += `Registration: ${rego}\n`;
+      if (odometer) assetId += `Odometer: ${odometer} km\n`;
+      if (serial) assetId += `Serial No: ${serial}\n`;
+      
+      return `════════════════════════════════════════════
+       EQUIPMENT FINANCE QUOTE REQUEST
+════════════════════════════════════════════
+
+Date: ${today}
+
+─────────────────────────────────────────────
+BORROWER DETAILS
+─────────────────────────────────────────────
+Borrower Name:    ${borrower}
+ABN:              ${abn || 'Not provided'}
+ABN Trading Age:  ${abnAge}
+GST Registered:   ${gstReg}
+
+─────────────────────────────────────────────
+ASSET DETAILS
+─────────────────────────────────────────────
+Asset Type:       ${assetType}
+Condition:        ${condition}${condition === 'Used' ? ' (' + age + ')' : ''}
+Purchase Source:  ${source}
+
+Make:             ${make || 'Not specified'}
+Model:            ${model || 'Not specified'}
+Year:             ${year || 'Not specified'}
+
+${assetId}${description ? 'Notes: ' + description + '\n' : ''}
+─────────────────────────────────────────────
+FINANCE REQUIREMENTS
+─────────────────────────────────────────────
+Purchase Price:   ${formatMoney(price)} (ex GST)
+GST:              ${formatMoney(gst)}
+Total:            ${formatMoney(total)} (inc GST)
+
+Deposit:          ${formatMoney(deposit)}
+Finance Amount:   ${formatMoney(state.structure === 'chattel' ? price - deposit : total - deposit)}
+
+Structure:        ${structure}
+Term:             ${term} months
+Balloon/Residual: ${balloon}%
+Payment Freq:     ${frequency}
+
+─────────────────────────────────────────────
+QUOTE REQUEST
+─────────────────────────────────────────────
+Please provide:
+□ Interest rate (fixed/variable)
+□ Establishment fees
+□ Account keeping fees
+□ Total repayment amount
+□ Required documentation
+
+════════════════════════════════════════════
+Generated by Oney & Co EF Tool
+https://tools.oneyco.com.au
+════════════════════════════════════════════`;
+    }
+    
+    function copyQuote() {
+      const quoteText = document.getElementById('quotePreview').textContent;
+      navigator.clipboard.writeText(quoteText);
+      alert('Quote request copied to clipboard!');
     }
     
     function copyResults() {
+      if (!state.calculated) {
+        alert('Please calculate repayments first');
+        return;
+      }
+      
       const price = parseCurrency(document.getElementById('purchasePrice').value);
       const payment = document.getElementById('repaymentAmount').textContent;
       const freq = document.getElementById('repaymentFreq').textContent;
@@ -1166,24 +1484,26 @@
       const model = document.getElementById('assetModel').value;
       const assetDesc = make && model ? `${make} ${model}` : document.getElementById('assetType').selectedOptions[0].text;
       
-      const text = `Equipment Finance Quote
+      const text = `Equipment Finance Summary
 ━━━━━━━━━━━━━━━━━━
 Borrower: ${borrower}
 Asset: ${assetDesc}
 Price: ${formatMoney(price)} (ex GST)
-Structure: ${structure} Mortgage
+Structure: ${structure}
 Term: ${term} months
 Rate: ${rate}
 Balloon: ${balloon}%
 
-Repayment: ${payment} ${freq}
+Estimated Repayment: ${payment} ${freq}
 Total Interest: ${document.getElementById('totalInterest').textContent}
+
+Note: Indicative only. Subject to lender approval.
 ━━━━━━━━━━━━━━━━━━
 Generated by Oney & Co EF Tool
 https://tools.oneyco.com.au`;
       
       navigator.clipboard.writeText(text);
-      alert('Results copied to clipboard!');
+      alert('Summary copied to clipboard!');
     }
     
     function resetForm() {
@@ -1213,9 +1533,12 @@ https://tools.oneyco.com.au`;
       setPurchaseSource('dealer');
       document.getElementById('abnAge').value = '4';
       document.getElementById('abnAlert').style.display = 'none';
+      document.getElementById('valuationAlert').style.display = 'none';
       document.getElementById('resultsCard').style.display = 'none';
       document.getElementById('taxCard').style.display = 'none';
       document.getElementById('comparisonCard').style.display = 'none';
+      document.getElementById('quoteSection').style.display = 'none';
+      state.calculated = false;
       onTermChange();
     }
     
@@ -1224,6 +1547,13 @@ https://tools.oneyco.com.au`;
       document.querySelector('.structure-card').classList.add('active');
       onTermChange();
       onAssetTypeChange();
+    });
+    
+    // Close modal on overlay click
+    document.getElementById('quoteModal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('quoteModal')) {
+        closeQuoteModal();
+      }
     });
   </script>
 </body>
