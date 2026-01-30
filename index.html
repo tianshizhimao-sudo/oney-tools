@@ -3,20 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Commercial Investment Tools — Oney & Co</title>
+  <title>Finance Tools — Oney & Co</title>
   <meta name="description" content="Professional loan assessment tools for Australian commercial property investors and mortgage brokers.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><path d='M0-38A38 38 0 1 0 0-37.99' fill='none' stroke='url(%23g)' stroke-width='8' stroke-linecap='round' stroke-dasharray='227 12'/><path d='M0-45L0-52' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/></g></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #0a0a0a;
+      --bg-secondary: #111111;
       --card: #141414;
       --border: #262626;
       --primary: #1FAD73;
       --primary-light: #2ECC85;
       --primary-lighter: #4ADE94;
+      --primary-glow: rgba(31, 173, 115, 0.15);
       --success: #2ECC85;
-      --warning: #ffc107;
       --text: #ffffff;
       --text-muted: #a3a3a3;
     }
@@ -40,6 +41,11 @@
     nav {
       padding: 20px 0;
       border-bottom: 1px solid var(--border);
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
     
     .nav-inner {
@@ -98,38 +104,52 @@
       margin: 0 auto 40px;
     }
     
-    /* Products */
-    .products {
+    /* Tools Grid */
+    .tools-section {
       padding: 80px 0;
     }
     
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 32px;
+    .section-title {
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary-light);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
     }
     
-    .product-card {
+    .section-heading {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 48px;
+    }
+    
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 24px;
+    }
+    
+    .tool-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 24px;
-      padding: 40px;
+      padding: 32px;
       position: relative;
       transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
     }
     
-    .product-card:hover {
+    .tool-card:hover {
       border-color: var(--primary);
       transform: translateY(-4px);
       box-shadow: 0 20px 60px rgba(31, 173, 115, 0.15);
     }
     
-    .product-card.featured {
-      border-color: var(--primary);
-      background: linear-gradient(180deg, rgba(31, 173, 115, 0.08) 0%, var(--card) 100%);
-    }
-    
-    .product-badge {
+    .tool-badge {
       position: absolute;
       top: -12px;
       right: 24px;
@@ -141,61 +161,58 @@
       font-weight: 600;
     }
     
-    .product-badge.free {
+    .tool-badge.free {
       background: var(--success);
       color: #000;
     }
     
-    .product-name {
-      font-size: 24px;
+    .tool-badge.pro {
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      color: #000;
+    }
+    
+    .tool-icon {
+      width: 56px;
+      height: 56px;
+      background: var(--primary-glow);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+    
+    .tool-name {
+      font-size: 22px;
       font-weight: 700;
       margin-bottom: 8px;
     }
     
-    .product-tagline {
+    .tool-desc {
       color: var(--text-muted);
       margin-bottom: 24px;
+      flex-grow: 1;
     }
     
-    .product-price {
-      font-size: 40px;
-      font-weight: 800;
-      margin-bottom: 24px;
-    }
-    
-    .product-price span {
-      font-size: 16px;
-      font-weight: 400;
-      color: var(--text-muted);
-    }
-    
-    .feature-list {
+    .tool-features {
       list-style: none;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
     
-    .feature-list li {
-      padding: 8px 0;
+    .tool-features li {
+      padding: 6px 0;
       display: flex;
       align-items: center;
-      gap: 12px;
-      font-size: 15px;
+      gap: 10px;
+      font-size: 14px;
+      color: var(--text-muted);
     }
     
-    .feature-list li::before {
+    .tool-features li::before {
       content: "✓";
       color: var(--success);
       font-weight: 600;
-    }
-    
-    .feature-list li.disabled {
-      color: var(--text-muted);
-      text-decoration: line-through;
-    }
-    
-    .feature-list li.disabled::before {
-      content: "✗";
-      color: var(--text-muted);
     }
     
     .btn {
@@ -237,14 +254,9 @@
     /* Features */
     .features {
       padding: 80px 0;
+      background: var(--bg-secondary);
       border-top: 1px solid var(--border);
-    }
-    
-    .section-title {
-      text-align: center;
-      font-size: 32px;
-      font-weight: 700;
-      margin-bottom: 48px;
+      border-bottom: 1px solid var(--border);
     }
     
     .features-grid {
@@ -254,16 +266,8 @@
     }
     
     .feature-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
       text-align: center;
-      transition: all 0.3s;
-    }
-    
-    .feature-card:hover {
-      border-color: var(--primary);
+      padding: 24px;
     }
     
     .feature-icon {
@@ -321,7 +325,8 @@
     @media (max-width: 768px) {
       h1 { font-size: 32px; }
       .hero { padding: 60px 0 40px; }
-      .products, .features, .cta { padding: 60px 0; }
+      .tools-section, .features, .cta { padding: 60px 0; }
+      .tools-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -346,52 +351,61 @@
   <section class="hero">
     <div class="container">
       <div class="hero-badge">🇦🇺 Built for Australian Brokers</div>
-      <h1>Commercial Investment Tools</h1>
-      <p class="hero-subtitle">Professional loan assessment tools for commercial property investors and mortgage brokers. Quick, accurate, and designed by industry experts.</p>
+      <h1>Finance Tools</h1>
+      <p class="hero-subtitle">Professional calculators and tools for commercial property investors and mortgage brokers. Quick, accurate, and designed by industry experts.</p>
     </div>
   </section>
   
-  <section class="products">
+  <section class="tools-section">
     <div class="container">
-      <div class="products-grid">
+      <div class="section-title">Our Tools</div>
+      <h2 class="section-heading">Choose Your Tool</h2>
+      
+      <div class="tools-grid">
         
-        <!-- Free Version -->
-        <div class="product-card">
-          <span class="product-badge free">FREE</span>
-          <h2 class="product-name">Commercial Investment Lite</h2>
-          <p class="product-tagline">Basic LVR & ICR calculator</p>
-          <div class="product-price">$0 <span>forever</span></div>
-          <ul class="feature-list">
-            <li>LVR calculation</li>
-            <li>ICR calculation</li>
-            <li>Single property</li>
-            <li>Basic property types</li>
-            <li>Copy results</li>
-            <li class="disabled">Multiple properties</li>
-            <li class="disabled">Ownership structures</li>
-            <li class="disabled">PDF export</li>
+        <!-- Credit Paper Pro -->
+        <div class="tool-card">
+          <span class="tool-badge pro">PRO</span>
+          <div class="tool-icon">📋</div>
+          <h3 class="tool-name">Credit Paper Pro</h3>
+          <p class="tool-desc">Generate professional credit papers in minutes. Bank-grade documentation with automatic financial calculations.</p>
+          <ul class="tool-features">
+            <li>Credit assessment templates</li>
+            <li>Auto financial ratio calculations</li>
+            <li>Export to PDF</li>
+            <li>Commercial & residential</li>
           </ul>
-          <a href="#free-download" class="btn btn-secondary">Download Free</a>
+          <a href="credit-paper-pro.html" class="btn btn-primary">Open Tool →</a>
         </div>
         
-        <!-- Standard Version -->
-        <div class="product-card featured">
-          <span class="product-badge">POPULAR</span>
-          <h2 class="product-name">Commercial Investment Standard</h2>
-          <p class="product-tagline">Professional assessment tool</p>
-          <div class="product-price">$49 <span>one-time</span></div>
-          <ul class="feature-list">
-            <li>Everything in Free, plus:</li>
-            <li>Multiple properties</li>
-            <li>Ownership structures (Trust, SMSF, etc)</li>
-            <li>ATO Tax Position check</li>
-            <li>Custom LVR/ICR thresholds</li>
-            <li>Lease details & options</li>
-            <li>Interest rate buffer</li>
-            <li>PDF export</li>
-            <li>Address verification</li>
+        <!-- Commercial Investment Calculator -->
+        <div class="tool-card">
+          <span class="tool-badge free">FREE</span>
+          <div class="tool-icon">🏢</div>
+          <h3 class="tool-name">Commercial Investment Calculator</h3>
+          <p class="tool-desc">Analyse commercial property investments with LVR and ICR calculations. Quick assessment for investment properties.</p>
+          <ul class="tool-features">
+            <li>LVR calculation</li>
+            <li>ICR calculation</li>
+            <li>Property type support</li>
+            <li>Copy results</li>
           </ul>
-          <a href="https://gumroad.com/l/commercial-investment-standard" class="btn btn-primary">Buy Now — $49</a>
+          <a href="commercial-investment-calculator.html" class="btn btn-secondary">Open Tool →</a>
+        </div>
+        
+        <!-- Specialised Lending Calculator -->
+        <div class="tool-card">
+          <span class="tool-badge">STANDARD</span>
+          <div class="tool-icon">🎯</div>
+          <h3 class="tool-name">Specialised Lending MLL</h3>
+          <p class="tool-desc">Maximum Loan Limit calculator for specialised industries and non-standard deals. Built for complex lending scenarios.</p>
+          <ul class="tool-features">
+            <li>Multiple lender policies</li>
+            <li>Industry adjustments</li>
+            <li>Security valuation</li>
+            <li>Credit memo generation</li>
+          </ul>
+          <a href="specialised-lending-calculator.html" class="btn btn-secondary">Open Tool →</a>
         </div>
         
       </div>
@@ -400,7 +414,8 @@
   
   <section class="features">
     <div class="container">
-      <h2 class="section-title">Why Choose Our Tools?</h2>
+      <div class="section-title">Why Choose Us</div>
+      <h2 class="section-heading">Built Different</h2>
       <div class="features-grid">
         <div class="feature-card">
           <div class="feature-icon">🏦</div>
@@ -438,9 +453,9 @@
   
   <section class="cta">
     <div class="container">
-      <h2>Ready to streamline your assessments?</h2>
-      <p>Join brokers and investors who trust our tools for quick, accurate analysis.</p>
-      <a href="https://gumroad.com/l/commercial-investment-standard" class="btn btn-primary">Get Started — $49</a>
+      <h2>Need a custom solution?</h2>
+      <p>We can build tailored tools and calculators for your specific business needs.</p>
+      <a href="mailto:hello@oneyco.com.au" class="btn btn-primary">Get in Touch</a>
     </div>
   </section>
   
