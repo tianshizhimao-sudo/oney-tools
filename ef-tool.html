@@ -84,7 +84,7 @@
     /* Form Elements */
     .form-group { margin-bottom: 16px; }
     label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
-    input, select {
+    input, select, textarea {
       width: 100%;
       padding: 14px 16px;
       font-size: 16px;
@@ -95,7 +95,8 @@
       color: var(--text);
       transition: all 0.2s;
     }
-    input:focus, select:focus {
+    textarea { min-height: 80px; resize: vertical; }
+    input:focus, select:focus, textarea:focus {
       outline: none;
       border-color: var(--primary);
       box-shadow: 0 0 0 3px var(--primary-glow);
@@ -157,7 +158,7 @@
       background: rgba(31, 173, 115, 0.1);
     }
     .structure-card .icon {
-      font-size: 24px;
+      font-size: 32px;
       margin-bottom: 8px;
     }
     .structure-card .name {
@@ -184,6 +185,34 @@
       background: rgba(251, 191, 36, 0.1);
       border-color: rgba(251, 191, 36, 0.3);
       color: var(--warning);
+    }
+    .info-box.danger {
+      background: rgba(248, 113, 113, 0.1);
+      border-color: rgba(248, 113, 113, 0.3);
+      color: var(--danger);
+    }
+    
+    /* Alert Box */
+    .alert-box {
+      background: rgba(248, 113, 113, 0.15);
+      border: 2px solid var(--danger);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 12px;
+    }
+    .alert-box-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--danger);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .alert-box-text {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
     }
     
     /* Results */
@@ -354,6 +383,23 @@
       cursor: pointer;
     }
     
+    /* Collapsible */
+    .collapsible-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      padding: 8px 0;
+    }
+    .collapsible-header:hover { color: var(--primary-light); }
+    .collapsible-content {
+      display: none;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      margin-top: 12px;
+    }
+    .collapsible-content.open { display: block; }
+    
     /* Footer */
     footer {
       text-align: center;
@@ -362,6 +408,17 @@
       font-size: 13px;
     }
     footer a { color: var(--primary-light); text-decoration: none; }
+    
+    /* ATO Note */
+    .ato-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: var(--card);
+      border-radius: 8px;
+      border-left: 3px solid var(--warning);
+    }
     
     /* Responsive */
     @media (max-width: 600px) {
@@ -382,23 +439,54 @@
       <div class="tagline">Equipment Finance Calculator</div>
     </header>
     
+    <!-- Purchase Source -->
+    <div class="card">
+      <div class="card-title"><span>🏪</span> Purchase Source</div>
+      
+      <div class="form-group">
+        <label>Where is the asset being purchased from?</label>
+        <div class="toggle-group">
+          <button class="toggle-btn active" data-source="dealer" onclick="setPurchaseSource('dealer')">Licensed Dealer</button>
+          <button class="toggle-btn" data-source="private" onclick="setPurchaseSource('private')">Private Sale</button>
+          <button class="toggle-btn" data-source="import" onclick="setPurchaseSource('import')">Overseas Import</button>
+        </div>
+      </div>
+      
+      <div class="info-box" id="sourceInfo">
+        <strong>Licensed Dealer:</strong> Standard EF application. Most lenders accept dealer purchases with standard documentation.
+      </div>
+      
+      <div class="alert-box" id="importAlert" style="display: none;">
+        <div class="alert-box-title">⚠️ Overseas Import — Special Requirements</div>
+        <div class="alert-box-text">
+          Imported assets must be financed via a <strong>Trade Finance facility</strong> first, then converted to Equipment Finance upon arrival and registration in Australia. This requires:
+          <ul style="margin: 8px 0 0 20px; line-height: 1.8;">
+            <li>Letter of Credit or Trade Finance approval</li>
+            <li>Import documentation & customs clearance</li>
+            <li>Australian compliance certification</li>
+            <li>Registration/re-registration in Australia</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
     <!-- Asset Details -->
     <div class="card">
-      <div class="card-title"><span>🚜</span> Asset Details</div>
+      <div class="card-title"><span>🚗</span> Asset Details</div>
       
       <div class="form-group">
         <label>Asset Type</label>
-        <select id="assetType">
-          <option value="vehicle">Motor Vehicle</option>
-          <option value="truck">Truck / Heavy Vehicle</option>
-          <option value="trailer">Trailer</option>
-          <option value="construction">Construction Equipment</option>
-          <option value="agriculture">Agricultural Equipment</option>
-          <option value="manufacturing">Manufacturing Equipment</option>
-          <option value="medical">Medical Equipment</option>
-          <option value="it">IT Equipment / Software</option>
-          <option value="office">Office Equipment / Fitout</option>
-          <option value="other">Other Equipment</option>
+        <select id="assetType" onchange="onAssetTypeChange()">
+          <option value="vehicle">🚗 Motor Vehicle (Car/Ute/SUV)</option>
+          <option value="truck">🚛 Truck / Heavy Vehicle</option>
+          <option value="trailer">🚚 Trailer</option>
+          <option value="construction">🏗️ Construction Equipment</option>
+          <option value="agriculture">🚜 Agricultural Equipment</option>
+          <option value="manufacturing">⚙️ Manufacturing Equipment</option>
+          <option value="medical">🏥 Medical Equipment</option>
+          <option value="it">💻 IT Equipment / Software</option>
+          <option value="office">🏢 Office Equipment / Fitout</option>
+          <option value="other">📦 Other Equipment</option>
         </select>
       </div>
       
@@ -412,7 +500,7 @@
         </div>
         <div class="form-group">
           <label>Asset Age (if used)</label>
-          <select id="assetAge" disabled>
+          <select id="assetAge" disabled onchange="calculate()">
             <option value="0">N/A (New)</option>
             <option value="1">0-2 years</option>
             <option value="2">2-5 years</option>
@@ -422,7 +510,57 @@
         </div>
       </div>
       
-      <div class="row">
+      <!-- Asset Description Section -->
+      <div class="collapsible-header" onclick="toggleAssetDetails()">
+        <label style="margin: 0; cursor: pointer;">Asset Description (Click to expand)</label>
+        <span id="assetDetailsToggle">▼</span>
+      </div>
+      <div class="collapsible-content" id="assetDetailsSection">
+        <div class="form-group">
+          <label>Make / Brand</label>
+          <input type="text" id="assetMake" placeholder="e.g. Toyota, Caterpillar, John Deere">
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Model</label>
+            <input type="text" id="assetModel" placeholder="e.g. Hilux SR5, 320D Excavator">
+          </div>
+          <div class="form-group">
+            <label>Year of Manufacture</label>
+            <input type="text" id="assetYear" placeholder="e.g. 2024">
+          </div>
+        </div>
+        <div class="row" id="vehicleFields">
+          <div class="form-group">
+            <label>VIN (Vehicle Identification Number)</label>
+            <input type="text" id="assetVin" placeholder="e.g. JTDKN3DU5A0123456" maxlength="17" style="text-transform: uppercase;">
+          </div>
+          <div class="form-group">
+            <label>Engine Number</label>
+            <input type="text" id="assetEngine" placeholder="e.g. 1GD-FTV-1234567">
+          </div>
+        </div>
+        <div class="row" id="vehicleFields2">
+          <div class="form-group">
+            <label>Registration Number</label>
+            <input type="text" id="assetRego" placeholder="e.g. ABC123" style="text-transform: uppercase;">
+          </div>
+          <div class="form-group">
+            <label>Odometer (km)</label>
+            <input type="text" id="assetOdometer" placeholder="e.g. 45,000">
+          </div>
+        </div>
+        <div class="form-group" id="serialField" style="display: none;">
+          <label>Serial Number</label>
+          <input type="text" id="assetSerial" placeholder="Equipment serial number">
+        </div>
+        <div class="form-group">
+          <label>Description / Notes</label>
+          <textarea id="assetDescription" placeholder="Additional details about the asset..."></textarea>
+        </div>
+      </div>
+      
+      <div class="row" style="margin-top: 16px;">
         <div class="form-group">
           <label>Purchase Price (ex GST)</label>
           <input type="text" id="purchasePrice" placeholder="$100,000" oninput="formatCurrency(this); calculate()">
@@ -445,12 +583,12 @@
       
       <div class="structure-grid">
         <div class="structure-card active" onclick="setStructure('chattel')">
-          <div class="icon">📄</div>
+          <div class="icon">🚗</div>
           <div class="name">Chattel Mortgage</div>
           <div class="desc">Own from day 1</div>
         </div>
         <div class="structure-card" onclick="setStructure('lease')">
-          <div class="icon">📑</div>
+          <div class="icon">🔑</div>
           <div class="name">Finance Lease</div>
           <div class="desc">Rent to own</div>
         </div>
@@ -476,15 +614,15 @@
           <input type="text" id="deposit" placeholder="$0" value="$0" oninput="formatCurrency(this); calculate()">
         </div>
         <div class="form-group">
-          <label>Term (months)</label>
-          <select id="term" onchange="calculate()">
-            <option value="12">12 months</option>
-            <option value="24">24 months</option>
-            <option value="36">36 months</option>
-            <option value="48" selected>48 months</option>
-            <option value="60">60 months</option>
-            <option value="72">72 months</option>
-            <option value="84">84 months</option>
+          <label>Term</label>
+          <select id="term" onchange="onTermChange(); calculate()">
+            <option value="12">12 months (1 yr)</option>
+            <option value="24">24 months (2 yrs)</option>
+            <option value="36">36 months (3 yrs)</option>
+            <option value="48" selected>48 months (4 yrs)</option>
+            <option value="60">60 months (5 yrs)</option>
+            <option value="72">72 months (6 yrs)</option>
+            <option value="84">84 months (7 yrs)</option>
           </select>
         </div>
         <div class="form-group">
@@ -501,7 +639,9 @@
             <option value="10">10%</option>
             <option value="20">20%</option>
             <option value="30" selected>30%</option>
+            <option value="37.5">37.5%</option>
             <option value="40">40%</option>
+            <option value="46.88">46.88%</option>
             <option value="50">50%</option>
           </select>
         </div>
@@ -511,7 +651,12 @@
         </div>
       </div>
       
-      <div class="form-group">
+      <div class="ato-note" id="atoNote">
+        <strong>ATO Residual Guidelines:</strong> Max residual for <span id="atoTermDisplay">48 months</span> is <span id="atoMaxBalloon">37.50%</span>. 
+        Current selection is within guidelines. ✓
+      </div>
+      
+      <div class="form-group" style="margin-top: 16px;">
         <label>Repayment Frequency</label>
         <div class="toggle-group">
           <button class="toggle-btn" data-value="weekly" onclick="setFrequency('weekly')">Weekly</button>
@@ -525,10 +670,19 @@
     <div class="card">
       <div class="card-title"><span>👤</span> Borrower Details</div>
       
+      <div class="form-group">
+        <label>Full Borrower Name (Individual or Entity)</label>
+        <input type="text" id="borrowerName" placeholder="e.g. John Smith / ABC Pty Ltd ATF ABC Family Trust">
+      </div>
+      
       <div class="row">
         <div class="form-group">
+          <label>ABN</label>
+          <input type="text" id="abnNumber" placeholder="e.g. 12 345 678 901" maxlength="14">
+        </div>
+        <div class="form-group">
           <label>ABN Age</label>
-          <select id="abnAge" onchange="calculate()">
+          <select id="abnAge" onchange="onAbnAgeChange(); calculate()">
             <option value="0">No ABN</option>
             <option value="1">0-6 months</option>
             <option value="2">6-12 months</option>
@@ -536,18 +690,32 @@
             <option value="4" selected>2+ years</option>
           </select>
         </div>
-        <div class="form-group">
-          <label>GST Registered</label>
-          <div class="toggle-group">
-            <button class="toggle-btn active" data-value="yes" onclick="setGstRegistered('yes')">Yes</button>
-            <button class="toggle-btn" data-value="no" onclick="setGstRegistered('no')">No</button>
-          </div>
+      </div>
+      
+      <div class="alert-box" id="abnAlert" style="display: none;">
+        <div class="alert-box-title">⛔ Potential Deal Breaker</div>
+        <div class="alert-box-text">
+          ABN under 12 months is a <strong>deal breaker</strong> for most mainstream lenders. Options may include:
+          <ul style="margin: 8px 0 0 20px; line-height: 1.8;">
+            <li>Higher deposit (20-30% minimum)</li>
+            <li>Director's guarantee with property security</li>
+            <li>Specialist / 2nd tier lenders (higher rates)</li>
+            <li>Rent-to-own arrangements</li>
+          </ul>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label>GST Registered</label>
+        <div class="toggle-group">
+          <button class="toggle-btn active" data-gst="yes" onclick="setGstRegistered('yes')">Yes</button>
+          <button class="toggle-btn" data-gst="no" onclick="setGstRegistered('no')">No</button>
         </div>
       </div>
       
       <div class="checkbox-group">
         <input type="checkbox" id="instantWriteOff" checked onchange="calculate()">
-        <label for="instantWriteOff">Eligible for Instant Asset Write-Off ($20,000 threshold)</label>
+        <label for="instantWriteOff">Eligible for Instant Asset Write-Off ($20,000 threshold - FY24/25)</label>
       </div>
     </div>
     
@@ -669,13 +837,28 @@
     
     <footer>
       <p>© 2026 <a href="https://oneyco.com.au">Oney & Co</a></p>
-      <p style="margin-top: 8px;">Calculations are estimates only. Actual rates and terms may vary.</p>
+      <p style="margin-top: 8px;">Calculations are estimates only. Actual rates and terms may vary. Consult your accountant for tax advice.</p>
     </footer>
   </div>
   
   <script>
+    // ATO Residual Value Guidelines (approximate)
+    const ATO_RESIDUAL = {
+      vehicle: { 12: 65.63, 24: 56.25, 36: 46.88, 48: 37.50, 60: 28.13, 72: 22.00, 84: 16.00 },
+      truck: { 12: 65.63, 24: 56.25, 36: 46.88, 48: 37.50, 60: 28.13, 72: 22.00, 84: 16.00 },
+      trailer: { 12: 65.63, 24: 56.25, 36: 46.88, 48: 37.50, 60: 28.13, 72: 22.00, 84: 16.00 },
+      construction: { 12: 60.00, 24: 50.00, 36: 40.00, 48: 30.00, 60: 22.00, 72: 15.00, 84: 10.00 },
+      agriculture: { 12: 60.00, 24: 50.00, 36: 40.00, 48: 30.00, 60: 22.00, 72: 15.00, 84: 10.00 },
+      manufacturing: { 12: 55.00, 24: 45.00, 36: 35.00, 48: 26.00, 60: 18.00, 72: 12.00, 84: 8.00 },
+      medical: { 12: 55.00, 24: 45.00, 36: 35.00, 48: 26.00, 60: 18.00, 72: 12.00, 84: 8.00 },
+      it: { 12: 50.00, 24: 37.50, 36: 25.00, 48: 12.50, 60: 0, 72: 0, 84: 0 },
+      office: { 12: 55.00, 24: 45.00, 36: 35.00, 48: 26.00, 60: 18.00, 72: 12.00, 84: 8.00 },
+      other: { 12: 55.00, 24: 45.00, 36: 35.00, 48: 26.00, 60: 18.00, 72: 12.00, 84: 8.00 }
+    };
+    
     // State
     let state = {
+      purchaseSource: 'dealer',
       condition: 'new',
       structure: 'chattel',
       frequency: 'monthly',
@@ -699,6 +882,55 @@
       return '$' + num.toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     }
     
+    // Purchase Source
+    function setPurchaseSource(val) {
+      state.purchaseSource = val;
+      document.querySelectorAll('[data-source]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.source === val);
+      });
+      
+      const infoBox = document.getElementById('sourceInfo');
+      const importAlert = document.getElementById('importAlert');
+      
+      const infos = {
+        dealer: '<strong>Licensed Dealer:</strong> Standard EF application. Most lenders accept dealer purchases with standard documentation.',
+        private: '<strong>Private Sale:</strong> Additional requirements may include: independent valuation, PPSR check, mechanical inspection, and seller verification.',
+        import: '<strong>Overseas Import:</strong> See special requirements below.'
+      };
+      
+      infoBox.innerHTML = infos[val];
+      importAlert.style.display = val === 'import' ? 'block' : 'none';
+      
+      if (val === 'import') {
+        infoBox.classList.add('warning');
+      } else {
+        infoBox.classList.remove('warning');
+      }
+    }
+    
+    // Asset Details Toggle
+    function toggleAssetDetails() {
+      const section = document.getElementById('assetDetailsSection');
+      const toggle = document.getElementById('assetDetailsToggle');
+      section.classList.toggle('open');
+      toggle.textContent = section.classList.contains('open') ? '▲' : '▼';
+    }
+    
+    // Asset Type Change
+    function onAssetTypeChange() {
+      const assetType = document.getElementById('assetType').value;
+      const vehicleTypes = ['vehicle', 'truck', 'trailer'];
+      const isVehicle = vehicleTypes.includes(assetType);
+      
+      document.getElementById('vehicleFields').style.display = isVehicle ? 'grid' : 'none';
+      document.getElementById('vehicleFields2').style.display = isVehicle ? 'grid' : 'none';
+      document.getElementById('serialField').style.display = isVehicle ? 'none' : 'block';
+      
+      // Update ATO residual limits
+      onTermChange();
+      calculate();
+    }
+    
     // Setters
     function setCondition(val) {
       state.condition = val;
@@ -717,7 +949,6 @@
       });
       event.currentTarget.classList.add('active');
       
-      // Update info box
       const infoBox = document.getElementById('structureInfo');
       const infos = {
         chattel: '<strong>Chattel Mortgage:</strong> You own the asset immediately. Claim GST upfront. Interest and depreciation are tax deductible. Most common for ABN holders.',
@@ -738,12 +969,61 @@
     
     function setGstRegistered(val) {
       state.gstRegistered = val;
-      document.querySelectorAll('[data-value="yes"], [data-value="no"]').forEach(btn => {
-        if (btn.closest('.form-group')?.querySelector('label')?.textContent.includes('GST')) {
-          btn.classList.toggle('active', btn.dataset.value === val);
-        }
+      document.querySelectorAll('[data-gst]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.gst === val);
       });
       calculate();
+    }
+    
+    function onAbnAgeChange() {
+      const abnAge = parseInt(document.getElementById('abnAge').value);
+      const alertBox = document.getElementById('abnAlert');
+      alertBox.style.display = (abnAge > 0 && abnAge <= 2) ? 'block' : 'none';
+    }
+    
+    function onTermChange() {
+      const term = parseInt(document.getElementById('term').value);
+      const assetType = document.getElementById('assetType').value;
+      const maxBalloon = ATO_RESIDUAL[assetType]?.[term] || 30;
+      
+      // Update ATO note
+      document.getElementById('atoTermDisplay').textContent = term + ' months';
+      document.getElementById('atoMaxBalloon').textContent = maxBalloon.toFixed(2) + '%';
+      
+      // Update balloon dropdown and cap if needed
+      const balloonSelect = document.getElementById('balloonPercent');
+      const currentBalloon = parseFloat(balloonSelect.value);
+      
+      // Update balloon options with ATO max
+      const options = balloonSelect.options;
+      for (let i = 0; i < options.length; i++) {
+        const val = parseFloat(options[i].value);
+        if (val > maxBalloon) {
+          options[i].disabled = true;
+          options[i].textContent = options[i].value + '% (exceeds ATO)';
+        } else {
+          options[i].disabled = false;
+          options[i].textContent = options[i].value === '0' ? '0% (Fully Amortised)' : options[i].value + '%';
+        }
+      }
+      
+      // Cap current selection if needed
+      if (currentBalloon > maxBalloon) {
+        // Find closest valid option
+        for (let i = options.length - 1; i >= 0; i--) {
+          if (parseFloat(options[i].value) <= maxBalloon && !options[i].disabled) {
+            balloonSelect.value = options[i].value;
+            break;
+          }
+        }
+        document.getElementById('atoNote').innerHTML = `<strong>⚠️ Balloon adjusted:</strong> Max residual for ${term} months is ${maxBalloon.toFixed(2)}% per ATO guidelines. Your selection has been adjusted.`;
+        document.getElementById('atoNote').style.borderLeftColor = 'var(--warning)';
+      } else {
+        document.getElementById('atoNote').innerHTML = `<strong>ATO Residual Guidelines:</strong> Max residual for <span id="atoTermDisplay">${term} months</span> is <span id="atoMaxBalloon">${maxBalloon.toFixed(2)}%</span>. Current selection is within guidelines. ✓`;
+        document.getElementById('atoNote').style.borderLeftColor = 'var(--success)';
+      }
+      
+      updateBalloon();
     }
     
     function updateBalloon() {
@@ -792,8 +1072,6 @@
       const pv = financeAmount;
       const fv = balloon;
       
-      // PMT = (PV * r - FV * r / ((1+r)^n - 1)) / (1 - (1+r)^-n)
-      // Simplified with balloon:
       let monthlyPayment;
       if (monthlyRate === 0) {
         monthlyPayment = (pv - fv) / n;
@@ -831,7 +1109,7 @@
       
       // Tax benefits
       const gstClaimable = state.gstRegistered === 'yes' ? gst : 0;
-      const annualDepreciation = price / (term / 12); // Simple straight-line
+      const annualDepreciation = price / (term / 12);
       const instantWriteOff = document.getElementById('instantWriteOff').checked && price <= 20000;
       
       document.getElementById('gstClaimable').textContent = formatMoney(gstClaimable);
@@ -859,7 +1137,7 @@
       
       const chattelPmt = calcPmt(price - deposit, balloon);
       const leasePmt = calcPmt(totalPrice - deposit, balloon);
-      const rentalPmt = calcPmt(totalPrice - deposit, 0) * 1.05; // Operating lease typically 5% higher
+      const rentalPmt = calcPmt(totalPrice - deposit, 0) * 1.05;
       
       document.getElementById('cmpChattelPmt').textContent = formatMoney(Math.round(chattelPmt));
       document.getElementById('cmpLeasePmt').textContent = formatMoney(Math.round(leasePmt));
@@ -883,10 +1161,15 @@
       const term = document.getElementById('term').value;
       const rate = document.getElementById('interestRate').value;
       const balloon = document.getElementById('balloonPercent').value;
+      const borrower = document.getElementById('borrowerName').value || 'N/A';
+      const make = document.getElementById('assetMake').value;
+      const model = document.getElementById('assetModel').value;
+      const assetDesc = make && model ? `${make} ${model}` : document.getElementById('assetType').selectedOptions[0].text;
       
       const text = `Equipment Finance Quote
 ━━━━━━━━━━━━━━━━━━
-Asset: ${document.getElementById('assetType').selectedOptions[0].text}
+Borrower: ${borrower}
+Asset: ${assetDesc}
 Price: ${formatMoney(price)} (ex GST)
 Structure: ${structure} Mortgage
 Term: ${term} months
@@ -896,7 +1179,8 @@ Balloon: ${balloon}%
 Repayment: ${payment} ${freq}
 Total Interest: ${document.getElementById('totalInterest').textContent}
 ━━━━━━━━━━━━━━━━━━
-Generated by Oney & Co EF Tool`;
+Generated by Oney & Co EF Tool
+https://tools.oneyco.com.au`;
       
       navigator.clipboard.writeText(text);
       alert('Results copied to clipboard!');
@@ -911,19 +1195,35 @@ Generated by Oney & Co EF Tool`;
       document.getElementById('gstAmount').value = '';
       document.getElementById('totalPrice').value = '';
       document.getElementById('balloonAmount').value = '';
+      document.getElementById('borrowerName').value = '';
+      document.getElementById('abnNumber').value = '';
+      document.getElementById('assetMake').value = '';
+      document.getElementById('assetModel').value = '';
+      document.getElementById('assetYear').value = '';
+      document.getElementById('assetVin').value = '';
+      document.getElementById('assetEngine').value = '';
+      document.getElementById('assetRego').value = '';
+      document.getElementById('assetOdometer').value = '';
+      document.getElementById('assetSerial').value = '';
+      document.getElementById('assetDescription').value = '';
       setCondition('new');
       setStructure('chattel');
       setFrequency('monthly');
       setGstRegistered('yes');
+      setPurchaseSource('dealer');
+      document.getElementById('abnAge').value = '4';
+      document.getElementById('abnAlert').style.display = 'none';
       document.getElementById('resultsCard').style.display = 'none';
       document.getElementById('taxCard').style.display = 'none';
       document.getElementById('comparisonCard').style.display = 'none';
+      onTermChange();
     }
     
     // Init
     document.addEventListener('DOMContentLoaded', () => {
-      // Set initial active states
       document.querySelector('.structure-card').classList.add('active');
+      onTermChange();
+      onAssetTypeChange();
     });
   </script>
 </body>
