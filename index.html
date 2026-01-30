@@ -18,6 +18,7 @@
       --primary-lighter: #4ADE94;
       --primary-glow: rgba(31, 173, 115, 0.15);
       --success: #2ECC85;
+      --gold: #fbbf24;
       --text: #ffffff;
       --text-muted: #a3a3a3;
     }
@@ -32,14 +33,14 @@
     }
     
     .container {
-      max-width: 1200px;
+      max-width: 1400px;
       margin: 0 auto;
-      padding: 0 24px;
+      padding: 0 32px;
     }
     
     /* Nav */
     nav {
-      padding: 20px 0;
+      padding: 24px 0;
       border-bottom: 1px solid var(--border);
       background: rgba(10, 10, 10, 0.95);
       backdrop-filter: blur(20px);
@@ -55,88 +56,137 @@
     }
     
     .nav-logo svg {
-      height: 40px;
+      height: 56px;
       width: auto;
     }
     
     .nav-link {
       color: var(--text-muted);
       text-decoration: none;
-      font-size: 14px;
-      transition: color 0.2s;
+      font-size: 15px;
+      font-weight: 500;
+      padding: 10px 20px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: all 0.2s;
     }
     
     .nav-link:hover {
       color: var(--primary-light);
+      border-color: var(--primary);
     }
     
-    /* Hero */
+    /* Hero with background */
     .hero {
-      padding: 100px 0 80px;
+      padding: 120px 0 100px;
       text-align: center;
-      background: linear-gradient(180deg, rgba(31, 173, 115, 0.08) 0%, transparent 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        radial-gradient(ellipse at 30% 20%, rgba(31, 173, 115, 0.15) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(31, 173, 115, 0.1) 0%, transparent 50%),
+        linear-gradient(180deg, rgba(31, 173, 115, 0.05) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .hero-logo {
+      margin-bottom: 32px;
+    }
+    
+    .hero-logo svg {
+      height: 80px;
+      width: auto;
     }
     
     .hero-badge {
       display: inline-block;
       background: rgba(31, 173, 115, 0.15);
       color: var(--primary-light);
-      padding: 8px 16px;
+      padding: 10px 20px;
       border-radius: 50px;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 500;
-      margin-bottom: 24px;
+      margin-bottom: 28px;
+      border: 1px solid rgba(31, 173, 115, 0.3);
     }
     
-    h1 {
-      font-size: 48px;
+    .hero h1 {
+      font-size: 64px;
       font-weight: 800;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       background: linear-gradient(135deg, #fff 0%, var(--primary-light) 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
     }
     
     .hero-subtitle {
-      font-size: 20px;
+      font-size: 22px;
       color: var(--text-muted);
-      max-width: 600px;
-      margin: 0 auto 40px;
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.6;
     }
     
-    /* Tools Grid */
+    /* Tools Section */
     .tools-section {
-      padding: 80px 0;
+      padding: 100px 0;
+      background: linear-gradient(180deg, var(--bg) 0%, var(--bg-secondary) 50%, var(--bg) 100%);
+    }
+    
+    .section-header {
+      text-align: center;
+      margin-bottom: 64px;
     }
     
     .section-title {
-      text-align: center;
       font-size: 14px;
       font-weight: 600;
       color: var(--primary-light);
       text-transform: uppercase;
-      letter-spacing: 2px;
+      letter-spacing: 3px;
       margin-bottom: 16px;
     }
     
     .section-heading {
-      text-align: center;
-      font-size: 32px;
+      font-size: 44px;
       font-weight: 700;
-      margin-bottom: 48px;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+    
+    .section-desc {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
     }
     
     .tools-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+      gap: 28px;
     }
     
     .tool-card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 24px;
-      padding: 32px;
+      padding: 36px;
       position: relative;
       transition: all 0.3s;
       display: flex;
@@ -145,19 +195,24 @@
     
     .tool-card:hover {
       border-color: var(--primary);
-      transform: translateY(-4px);
-      box-shadow: 0 20px 60px rgba(31, 173, 115, 0.15);
+      transform: translateY(-6px);
+      box-shadow: 0 25px 80px rgba(31, 173, 115, 0.15);
+    }
+    
+    .tool-card.featured {
+      border-color: var(--primary);
+      background: linear-gradient(180deg, rgba(31, 173, 115, 0.08) 0%, var(--card) 100%);
     }
     
     .tool-badge {
       position: absolute;
-      top: -12px;
-      right: 24px;
+      top: -14px;
+      right: 28px;
       background: var(--primary);
       color: white;
-      padding: 6px 16px;
+      padding: 8px 18px;
       border-radius: 50px;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
     }
     
@@ -171,28 +226,80 @@
       color: #000;
     }
     
+    .tool-badge.coming {
+      background: #666;
+    }
+    
     .tool-icon {
-      width: 56px;
-      height: 56px;
+      width: 64px;
+      height: 64px;
       background: var(--primary-glow);
-      border-radius: 14px;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 28px;
-      margin-bottom: 20px;
+      font-size: 32px;
+      margin-bottom: 24px;
     }
     
     .tool-name {
-      font-size: 22px;
+      font-size: 26px;
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     
     .tool-desc {
       color: var(--text-muted);
       margin-bottom: 24px;
       flex-grow: 1;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    
+    /* Pricing Tiers */
+    .tool-tiers {
+      display: none;
+      background: var(--bg);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+    }
+    
+    .tool-card:hover .tool-tiers {
+      display: block;
+    }
+    
+    .tier {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .tier:last-child {
+      border-bottom: none;
+    }
+    
+    .tier-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .tier-name.free { color: var(--success); }
+    .tier-name.standard { color: var(--primary-light); }
+    .tier-name.pro { color: var(--gold); }
+    
+    .tier-price {
+      font-weight: 700;
+      font-size: 15px;
+    }
+    
+    .tier-features {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
     }
     
     .tool-features {
@@ -201,11 +308,11 @@
     }
     
     .tool-features li {
-      padding: 6px 0;
+      padding: 8px 0;
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 14px;
+      gap: 12px;
+      font-size: 15px;
       color: var(--text-muted);
     }
     
@@ -213,6 +320,18 @@
       content: "✓";
       color: var(--success);
       font-weight: 600;
+    }
+    
+    .tool-price {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+    
+    .tool-price span {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-muted);
     }
     
     .btn {
@@ -253,7 +372,7 @@
     
     /* Features */
     .features {
-      padding: 80px 0;
+      padding: 100px 0;
       background: var(--bg-secondary);
       border-top: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
@@ -261,56 +380,109 @@
     
     .features-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 32px;
     }
     
     .feature-card {
       text-align: center;
-      padding: 24px;
+      padding: 32px;
+      background: var(--card);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      transition: all 0.3s;
+    }
+    
+    .feature-card:hover {
+      border-color: var(--primary);
     }
     
     .feature-icon {
-      font-size: 40px;
-      margin-bottom: 16px;
+      font-size: 48px;
+      margin-bottom: 20px;
     }
     
     .feature-card h3 {
-      font-size: 18px;
-      margin-bottom: 8px;
+      font-size: 20px;
+      margin-bottom: 12px;
     }
     
     .feature-card p {
       color: var(--text-muted);
-      font-size: 14px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    
+    /* Ideas Section */
+    .ideas-section {
+      padding: 100px 0;
+    }
+    
+    .ideas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 48px;
+    }
+    
+    .idea-card {
+      background: var(--card);
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      text-align: center;
+      opacity: 0.7;
+      transition: all 0.3s;
+    }
+    
+    .idea-card:hover {
+      opacity: 1;
+      border-style: solid;
+      border-color: var(--primary);
+    }
+    
+    .idea-card .icon {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+    
+    .idea-card h4 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    
+    .idea-card p {
+      font-size: 13px;
+      color: var(--text-muted);
     }
     
     /* CTA */
     .cta {
-      padding: 80px 0;
+      padding: 100px 0;
       text-align: center;
-      background: linear-gradient(180deg, transparent 0%, rgba(31, 173, 115, 0.08) 100%);
+      background: linear-gradient(180deg, var(--bg) 0%, rgba(31, 173, 115, 0.1) 50%, var(--bg) 100%);
     }
     
     .cta h2 {
-      font-size: 32px;
+      font-size: 40px;
       margin-bottom: 16px;
     }
     
     .cta p {
       color: var(--text-muted);
+      font-size: 18px;
       margin-bottom: 32px;
     }
     
     .cta .btn {
       display: inline-block;
       width: auto;
-      padding: 16px 48px;
+      padding: 18px 48px;
     }
     
     /* Footer */
     footer {
-      padding: 40px 0;
+      padding: 48px 0;
       text-align: center;
       border-top: 1px solid var(--border);
       color: var(--text-muted);
@@ -323,10 +495,14 @@
     }
     
     @media (max-width: 768px) {
-      h1 { font-size: 32px; }
-      .hero { padding: 60px 0 40px; }
+      .hero h1 { font-size: 40px; }
+      .hero-subtitle { font-size: 18px; }
+      .section-heading { font-size: 32px; }
       .tools-section, .features, .cta { padding: 60px 0; }
       .tools-grid { grid-template-columns: 1fr; }
+      .nav-logo svg { height: 44px; }
+      .hero-logo svg { height: 60px; }
+      .container { padding: 0 20px; }
     }
   </style>
 </head>
@@ -343,32 +519,71 @@
             <text x="94" y="50" font-family="Inter, Arial" font-size="26" font-weight="600" fill="#FFFFFF">co</text>
           </svg>
         </a>
-        <a href="https://oneyco.com.au" class="nav-link">← Back to main site</a>
+        <a href="https://oneyco.com.au" class="nav-link">← Back to Main Site</a>
       </div>
     </div>
   </nav>
 
   <section class="hero">
     <div class="container">
-      <div class="hero-badge">🇦🇺 Built for Australian Brokers</div>
-      <h1>Finance Tools</h1>
-      <p class="hero-subtitle">Professional calculators and tools for commercial property investors and mortgage brokers. Quick, accurate, and designed by industry experts.</p>
+      <div class="hero-content">
+        <div class="hero-logo">
+          <svg viewBox="0 0 190 90" xmlns="http://www.w3.org/2000/svg">
+            <defs><linearGradient id="greenGrad2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs>
+            <g transform="translate(38, 45)"><path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#greenGrad2)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/><path d="M0 -38 L0 -44" stroke="url(#greenGrad2)" stroke-width="5" stroke-linecap="round"/></g>
+            <text x="32" y="50" font-family="Inter, Arial" font-size="26" font-weight="600" fill="#FFFFFF">ney</text>
+            <text x="77" y="50" font-family="Inter, Arial" font-size="20" fill="url(#greenGrad2)">&amp;</text>
+            <text x="94" y="50" font-family="Inter, Arial" font-size="26" font-weight="600" fill="#FFFFFF">co</text>
+          </svg>
+        </div>
+        <div class="hero-badge">🇦🇺 Built for Australian Brokers</div>
+        <h1>Finance Tools</h1>
+        <p class="hero-subtitle">Professional calculators and deal documentation tools for commercial finance brokers. Built by a banker, for brokers.</p>
+      </div>
     </div>
   </section>
   
   <section class="tools-section">
     <div class="container">
-      <div class="section-title">Our Tools</div>
-      <h2 class="section-heading">Choose Your Tool</h2>
+      <div class="section-header">
+        <div class="section-title">Our Tools</div>
+        <h2 class="section-heading">Choose Your Tool</h2>
+        <p class="section-desc">Hover over each tool to see pricing tiers and features</p>
+      </div>
       
       <div class="tools-grid">
         
         <!-- Credit Paper Pro -->
-        <div class="tool-card">
+        <div class="tool-card featured">
           <span class="tool-badge pro">PRO</span>
           <div class="tool-icon">📋</div>
           <h3 class="tool-name">Credit Paper Pro</h3>
           <p class="tool-desc">Generate professional credit papers in minutes. Bank-grade documentation with automatic financial calculations.</p>
+          
+          <div class="tool-tiers">
+            <div class="tier">
+              <div>
+                <div class="tier-name free">Lite (Free)</div>
+                <div class="tier-features">Basic inputs, no export</div>
+              </div>
+              <div class="tier-price">$0</div>
+            </div>
+            <div class="tier">
+              <div>
+                <div class="tier-name standard">Standard</div>
+                <div class="tier-features">Full inputs, PDF export</div>
+              </div>
+              <div class="tier-price">$49</div>
+            </div>
+            <div class="tier">
+              <div>
+                <div class="tier-name pro">Pro</div>
+                <div class="tier-features">Multi-deal, templates, API</div>
+              </div>
+              <div class="tier-price">$149</div>
+            </div>
+          </div>
+          
           <ul class="tool-features">
             <li>Credit assessment templates</li>
             <li>Auto financial ratio calculations</li>
@@ -378,12 +593,70 @@
           <a href="credit-paper-pro.html" class="btn btn-primary">Open Tool →</a>
         </div>
         
+        <!-- EF Tool -->
+        <div class="tool-card">
+          <span class="tool-badge">NEW</span>
+          <div class="tool-icon">🚗</div>
+          <h3 class="tool-name">EF Tool</h3>
+          <p class="tool-desc">Equipment Finance calculator. Compare Chattel Mortgage, Finance Lease, and Rental with tax benefit estimates.</p>
+          
+          <div class="tool-tiers">
+            <div class="tier">
+              <div>
+                <div class="tier-name free">Free Trial</div>
+                <div class="tier-features">3 calculations</div>
+              </div>
+              <div class="tier-price">$0</div>
+            </div>
+            <div class="tier">
+              <div>
+                <div class="tier-name standard">Per Use</div>
+                <div class="tier-features">Single calculation + quote</div>
+              </div>
+              <div class="tier-price">$4.99</div>
+            </div>
+            <div class="tier">
+              <div>
+                <div class="tier-name pro">Unlimited</div>
+                <div class="tier-features">Monthly subscription</div>
+              </div>
+              <div class="tier-price">$29/mo</div>
+            </div>
+          </div>
+          
+          <ul class="tool-features">
+            <li>Chattel / Lease / Rental comparison</li>
+            <li>GST & tax deduction estimates</li>
+            <li>ATO residual guidelines</li>
+            <li>Lender quote generator</li>
+          </ul>
+          <a href="ef-tool.html" class="btn btn-primary">Open Tool →</a>
+        </div>
+        
         <!-- Commercial Investment Calculator -->
         <div class="tool-card">
           <span class="tool-badge free">FREE</span>
           <div class="tool-icon">🏢</div>
           <h3 class="tool-name">Commercial Investment Calculator</h3>
           <p class="tool-desc">Analyse commercial property investments with LVR and ICR calculations. Quick assessment for investment properties.</p>
+          
+          <div class="tool-tiers">
+            <div class="tier">
+              <div>
+                <div class="tier-name free">Lite (Free)</div>
+                <div class="tier-features">Basic LVR/ICR</div>
+              </div>
+              <div class="tier-price">$0</div>
+            </div>
+            <div class="tier">
+              <div>
+                <div class="tier-name standard">Standard</div>
+                <div class="tier-features">Multi-property, PDF</div>
+              </div>
+              <div class="tier-price">$49</div>
+            </div>
+          </div>
+          
           <ul class="tool-features">
             <li>LVR calculation</li>
             <li>ICR calculation</li>
@@ -393,12 +666,63 @@
           <a href="commercial-investment-calculator.html" class="btn btn-secondary">Open Tool →</a>
         </div>
         
+        <!-- Security Test Tool -->
+        <div class="tool-card">
+          <span class="tool-badge free">FREE</span>
+          <div class="tool-icon">🔒</div>
+          <h3 class="tool-name">Security Test Tool</h3>
+          <p class="tool-desc">Property type identification and LVR policy lookup. Quick security assessment for commercial and residential properties.</p>
+          
+          <div class="tool-tiers">
+            <div class="tier">
+              <div>
+                <div class="tier-name free">Free</div>
+                <div class="tier-features">Full access</div>
+              </div>
+              <div class="tier-price">$0</div>
+            </div>
+            <div class="tier">
+              <div>
+                <div class="tier-name standard">+ Credit Paper</div>
+                <div class="tier-features">Link to Credit Paper Pro</div>
+              </div>
+              <div class="tier-price">Bundle</div>
+            </div>
+          </div>
+          
+          <ul class="tool-features">
+            <li>Property type identification</li>
+            <li>LVR policy lookup</li>
+            <li>Google address autocomplete</li>
+            <li>Quick assessment</li>
+          </ul>
+          <a href="security-test.html" class="btn btn-secondary">Open Tool →</a>
+        </div>
+        
         <!-- Specialised Lending Calculator -->
         <div class="tool-card">
           <span class="tool-badge">STANDARD</span>
           <div class="tool-icon">🎯</div>
           <h3 class="tool-name">Specialised Lending MLL</h3>
           <p class="tool-desc">Maximum Loan Limit calculator for specialised industries and non-standard deals. Built for complex lending scenarios.</p>
+          
+          <div class="tool-tiers">
+            <div class="tier">
+              <div>
+                <div class="tier-name free">Lite</div>
+                <div class="tier-features">Basic calculation</div>
+              </div>
+              <div class="tier-price">$0</div>
+            </div>
+            <div class="tier">
+              <div>
+                <div class="tier-name standard">Standard</div>
+                <div class="tier-features">Full features</div>
+              </div>
+              <div class="tier-price">$79</div>
+            </div>
+          </div>
+          
           <ul class="tool-features">
             <li>Multiple lender policies</li>
             <li>Industry adjustments</li>
@@ -408,44 +732,60 @@
           <a href="specialised-lending-calculator.html" class="btn btn-secondary">Open Tool →</a>
         </div>
         
-        <!-- Security Test Tool -->
-        <div class="tool-card">
-          <span class="tool-badge free">FREE</span>
-          <div class="tool-icon">🔒</div>
-          <h3 class="tool-name">Security Test Tool</h3>
-          <p class="tool-desc">Property type identification and LVR policy lookup. Quick security assessment for commercial and residential properties.</p>
-          <ul class="tool-features">
-            <li>Property type identification</li>
-            <li>LVR policy lookup</li>
-            <li>Zoning analysis</li>
-            <li>Quick assessment</li>
-          </ul>
-          <a href="security-test.html" class="btn btn-secondary">Open Tool →</a>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Future Tools Ideas -->
+  <section class="ideas-section">
+    <div class="container">
+      <div class="section-header">
+        <div class="section-title">Coming Soon</div>
+        <h2 class="section-heading">Future Tools</h2>
+        <p class="section-desc">Tools we're planning to build. Have an idea? Let us know!</p>
+      </div>
+      
+      <div class="ideas-grid">
+        <div class="idea-card">
+          <div class="icon">📊</div>
+          <h4>Cash Flow Analyser</h4>
+          <p>Business cash flow analysis from bank statements</p>
         </div>
-        
-        <!-- EF Tool -->
-        <div class="tool-card">
-          <span class="tool-badge free">FREE</span>
-          <div class="tool-icon">📊</div>
-          <h3 class="tool-name">EF Tool</h3>
-          <p class="tool-desc">Equipment Finance calculator. Compare Chattel Mortgage, Finance Lease, and Rental structures with tax benefit estimates.</p>
-          <ul class="tool-features">
-            <li>Chattel / Lease / Rental comparison</li>
-            <li>GST & tax deduction estimates</li>
-            <li>Instant Asset Write-Off check</li>
-            <li>Balloon / Residual calculator</li>
-          </ul>
-          <a href="ef-tool.html" class="btn btn-secondary">Open Tool →</a>
+        <div class="idea-card">
+          <div class="icon">🏠</div>
+          <h4>Serviceability Calculator</h4>
+          <p>Residential loan serviceability with lender policies</p>
         </div>
-        
+        <div class="idea-card">
+          <div class="icon">📈</div>
+          <h4>Portfolio Dashboard</h4>
+          <p>Track all your deals and clients in one place</p>
+        </div>
+        <div class="idea-card">
+          <div class="icon">🔄</div>
+          <h4>Refinance Comparison</h4>
+          <p>Compare refinance options across lenders</p>
+        </div>
+        <div class="idea-card">
+          <div class="icon">📝</div>
+          <h4>Loan Scenario Builder</h4>
+          <p>Create and compare multiple loan scenarios</p>
+        </div>
+        <div class="idea-card">
+          <div class="icon">🏗️</div>
+          <h4>Construction Loan Tracker</h4>
+          <p>Track progress payments and drawdowns</p>
+        </div>
       </div>
     </div>
   </section>
   
   <section class="features">
     <div class="container">
-      <div class="section-title">Why Choose Us</div>
-      <h2 class="section-heading">Built Different</h2>
+      <div class="section-header">
+        <div class="section-title">Why Choose Us</div>
+        <h2 class="section-heading">Built Different</h2>
+      </div>
       <div class="features-grid">
         <div class="feature-card">
           <div class="feature-icon">🏦</div>
@@ -469,8 +809,8 @@
         </div>
         <div class="feature-card">
           <div class="feature-icon">💰</div>
-          <h3>One-Time Purchase</h3>
-          <p>No subscriptions. No hidden fees. Yours forever.</p>
+          <h3>Flexible Pricing</h3>
+          <p>Free tiers to try, pay only for what you need.</p>
         </div>
         <div class="feature-card">
           <div class="feature-icon">🔒</div>
