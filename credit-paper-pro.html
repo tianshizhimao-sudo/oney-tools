@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Credit Paper Pro V3 — Oney & Co</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    const GOOGLE_PLACES_API_KEY = 'AIzaSyBHTgzeidz9hvA2vDg-oD2GiIHSb6J_nwQ';
+    if (GOOGLE_PLACES_API_KEY) {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_PLACES_API_KEY}&libraries=places&callback=initGooglePlaces`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+    function initGooglePlaces() { window.googlePlacesReady = true; }
+  </script>
   <style>
     :root {
       --gold: #2ECC85; --gold-dark: #1FAD73; --gold-light: rgba(31, 173, 115, 0.15);
@@ -733,9 +744,32 @@ function renderSecurities() {
       ${s.ownerType === 'third-party' ? '<div class="danger-box">⛔ Third-party security owner - potential deal breaker. Confirm lender appetite.</div>' : ''}
       <div class="row">
         <div class="form-group"><label>Value ($'000)</label><input type="number" value="${s.value}" placeholder="4,000" onchange="updateSecurity(${s.id},'value',this.value)"></div>
-        ${s.type !== 'gsa' ? `<div class="form-group"><label>Address</label><input type="text" value="${s.address}" placeholder="123 Main St, Sydney" onchange="updateSecurity(${s.id},'address',this.value)"></div>` : '<div></div>'}
+        ${s.type !== 'gsa' ? `<div class="form-group"><label>Address</label><input type="text" id="securityAddress_${s.id}" value="${s.address}" placeholder="Start typing address..." onchange="updateSecurity(${s.id},'address',this.value)"></div>` : '<div></div>'}
       </div>
     </div>`).join('');
+  // Initialize Google Places autocomplete for address inputs
+  setTimeout(() => initSecurityAddressAutocomplete(), 100);
+}
+
+function initSecurityAddressAutocomplete() {
+  if (!window.googlePlacesReady) return;
+  state.securities.forEach(s => {
+    const input = document.getElementById('securityAddress_' + s.id);
+    if (input && !input.dataset.autocomplete) {
+      const autocomplete = new google.maps.places.Autocomplete(input, {
+        types: ['address'],
+        componentRestrictions: { country: 'au' }
+      });
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        if (place.formatted_address) {
+          input.value = place.formatted_address;
+          updateSecurity(s.id, 'address', place.formatted_address);
+        }
+      });
+      input.dataset.autocomplete = 'true';
+    }
+  });
 }
 function updateSecurity(id, key, value) {
   const s = state.securities.find(x => x.id === id);
