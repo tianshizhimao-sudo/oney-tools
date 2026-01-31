@@ -42,8 +42,8 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 80px 20px;
-            background: linear-gradient(180deg, rgba(10, 132, 255, 0.1) 0%, transparent 50%);
+            padding: 120px 20px 80px;
+            background: linear-gradient(180deg, rgba(46, 204, 133, 0.1) 0%, transparent 50%);
             position: relative;
             overflow: hidden;
         }
@@ -87,7 +87,7 @@
         }
 
         .hero h1 span {
-            background: linear-gradient(135deg, var(--primary), var(--purple));
+            background: linear-gradient(135deg, #2ECC85, #1FAD73);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -123,14 +123,14 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--purple));
+            background: linear-gradient(135deg, #2ECC85, #1FAD73);
             color: white;
-            box-shadow: 0 4px 20px rgba(10, 132, 255, 0.4);
+            box-shadow: 0 4px 20px rgba(46, 204, 133, 0.4);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 30px rgba(10, 132, 255, 0.5);
+            box-shadow: 0 6px 30px rgba(46, 204, 133, 0.5);
         }
 
         .btn-secondary {
@@ -497,9 +497,44 @@
     </style>
 </head>
 <body>
+    <!-- Nav -->
+    <nav style="position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; background: rgba(13, 17, 23, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border);">
+        <a href="../index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text-primary);">
+            <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="width: 36px; height: 36px;">
+                <defs>
+                    <linearGradient id="oneyGradNav" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#2ECC85"/>
+                        <stop offset="100%" stop-color="#1FAD73"/>
+                    </linearGradient>
+                </defs>
+                <g transform="translate(20, 20)">
+                    <path d="M 0 -15 A 15 15 0 1 0 0 -14.99" fill="none" stroke="url(#oneyGradNav)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="90 5"/>
+                    <path d="M0 -18 L0 -22" stroke="url(#oneyGradNav)" stroke-width="2.5" stroke-linecap="round"/>
+                </g>
+            </svg>
+            <span style="font-size: 1.25rem; font-weight: 700;">Oney</span>
+        </a>
+        <a href="index.html" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.875rem;">Launch Suite</a>
+    </nav>
+
     <!-- Hero -->
     <section class="hero">
         <div class="hero-content">
+            <!-- Oney Logo -->
+            <div style="margin-bottom: 24px;">
+                <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" style="width: 80px; height: 80px;">
+                    <defs>
+                        <linearGradient id="oneyGradHero" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#2ECC85"/>
+                            <stop offset="100%" stop-color="#1FAD73"/>
+                        </linearGradient>
+                    </defs>
+                    <g transform="translate(40, 40)">
+                        <path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#oneyGradHero)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/>
+                        <path d="M0 -38 L0 -44" stroke="url(#oneyGradHero)" stroke-width="5" stroke-linecap="round"/>
+                    </g>
+                </svg>
+            </div>
             <div class="hero-badge">
                 ✨ Premium Tier
             </div>
