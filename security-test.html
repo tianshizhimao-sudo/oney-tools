@@ -300,11 +300,11 @@
     
     <div id="step1">
       <div class="card">
-        <div class="card-title">📍 Property Address</div>
+        <div class="card-title">📍 Property Location</div>
         <div class="form-group">
-          <label>Property Address <span id="addressStatus" class="address-status manual">Manual Entry</span></label>
-          <input type="text" id="address" placeholder="Start typing address..." autocomplete="off">
-          <div class="helper" id="addressHelper">Start typing to search Australian addresses</div>
+          <label>Street Name <span id="addressStatus" class="address-status manual">Manual Entry</span></label>
+          <input type="text" id="address" placeholder="e.g. George Street, Sydney" autocomplete="off">
+          <div class="helper" id="addressHelper">Street name only — no street number needed</div>
         </div>
         <div class="row">
           <div class="form-group">
@@ -860,7 +860,7 @@ Address autocomplete powered by OpenStreetMap
       const addressHelper = document.getElementById('addressHelper');
       
       // Update helper text
-      addressHelper.textContent = 'Start typing to search Australian addresses';
+      addressHelper.textContent = 'Street name only — no street number needed';
       
       // Create suggestions dropdown
       suggestionsList = document.createElement('div');
