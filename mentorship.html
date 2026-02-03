@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Broker Mentorship — Oney & Co</title>
+  <meta name="description" content="1-on-1 mentorship for mortgage brokers navigating commercial and complex lending.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><path d='M0-38A38 38 0 1 0 0-37.99' fill='none' stroke='url(%23g)' stroke-width='8' stroke-linecap='round' stroke-dasharray='227 12'/><path d='M0-45L0-52' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --bg-secondary: #111111;
+      --card: #1a1a1a;
+      --border: #262626;
+      --accent: #1FAD73;
+      --accent-light: #2ECC85;
+      --accent-lighter: #4ADE94;
+      --accent-glow: rgba(31, 173, 115, 0.15);
+      --text: #ffffff;
+      --text-muted: #a3a3a3;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    nav {
+      padding: 20px 32px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .nav-logo svg { height: 48px; }
+    
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 100px;
+      transition: all 0.2s;
+    }
+    .nav-link:hover { color: var(--accent-light); }
+    
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 32px;
+      text-align: center;
+    }
+    
+    .coming-soon { max-width: 500px; }
+    
+    .icon {
+      font-size: 72px;
+      margin-bottom: 32px;
+    }
+    
+    h1 {
+      font-size: 40px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+    
+    .subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+    }
+    
+    .features {
+      text-align: left;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 40px;
+    }
+    
+    .features h3 {
+      font-size: 13px;
+      color: var(--accent-light);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 20px;
+    }
+    
+    .features ul { list-style: none; }
+    
+    .features li {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 15px;
+    }
+    
+    .features li:last-child { border-bottom: none; }
+    
+    .features li::before {
+      content: '✓';
+      color: var(--accent-light);
+      font-weight: 600;
+    }
+    
+    .notify-form {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .notify-form input {
+      flex: 1;
+      padding: 16px 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      color: var(--text);
+      font-size: 15px;
+    }
+    
+    .notify-form input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    
+    .notify-form input::placeholder { color: var(--text-muted); }
+    
+    .notify-form button {
+      padding: 16px 28px;
+      background: var(--accent-light);
+      border: none;
+      border-radius: 100px;
+      color: var(--bg);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    
+    .notify-form button:hover {
+      background: var(--accent-lighter);
+      transform: translateY(-1px);
+    }
+    
+    footer {
+      padding: 24px 32px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    
+    @media (max-width: 500px) {
+      .notify-form { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <svg viewBox="0 0 190 90" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#2ECC85"/>
+              <stop offset="100%" style="stop-color:#1FAD73"/>
+            </linearGradient>
+          </defs>
+          <g transform="translate(38, 45)">
+            <path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/>
+            <path d="M0 -38 L0 -44" stroke="url(#logoGrad)" stroke-width="5" stroke-linecap="round"/>
+          </g>
+          <text x="32" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#ffffff">ney</text>
+          <text x="77" y="50" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="400" fill="url(#logoGrad)">&amp;</text>
+          <text x="94" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#ffffff">co</text>
+        </svg>
+      </a>
+      <a href="index.html" class="nav-link">← Back to Home</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="coming-soon">
+      <div class="icon">🎓</div>
+      <h1>Broker Mentorship</h1>
+      <p class="subtitle">1-on-1 guidance from experienced commercial lending professionals. Launching mid-2026.</p>
+      
+      <div class="features">
+        <h3>What's included</h3>
+        <ul>
+          <li>Personalised coaching sessions</li>
+          <li>Complex deal structuring support</li>
+          <li>Credit paper review & feedback</li>
+          <li>Career development guidance</li>
+          <li>Access to professional network</li>
+        </ul>
+      </div>
+      
+      <form class="notify-form" onsubmit="event.preventDefault(); alert('Thanks! We\'ll notify you when mentorship launches.');">
+        <input type="email" placeholder="your@email.com" required>
+        <button type="submit">Notify Me</button>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <p>Oney & Co — Clarity in every deal</p>
+  </footer>
+</body>
+</html>

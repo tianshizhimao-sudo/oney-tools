@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oney Tool Suite | Complete Credit Assessment Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0A84FF;
+            --primary-dark: #0066CC;
+            --bg-dark: #0D1117;
+            --bg-card: #161B22;
+            --bg-card-hover: #1C2128;
+            --border: #30363D;
+            --text-primary: #F0F6FC;
+            --text-secondary: #8B949E;
+            --text-muted: #6E7681;
+            --success: #3FB950;
+            --warning: #D29922;
+            --danger: #F85149;
+            --info: #58A6FF;
+            --purple: #A371F7;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-card);
+            border-right: 1px solid var(--border);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-logo svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .sidebar-logo h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 0;
+        }
+
+        .nav-section {
+            margin-bottom: 24px;
+        }
+
+        .nav-section-title {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0 24px;
+            margin-bottom: 8px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+        }
+
+        .nav-item.active {
+            background: rgba(10, 132, 255, 0.1);
+            color: var(--primary);
+            border-left-color: var(--primary);
+        }
+
+        .nav-item.completed {
+            color: var(--success);
+        }
+
+        .nav-item.completed::after {
+            content: '✓';
+            margin-left: auto;
+            font-size: 0.875rem;
+        }
+
+        .nav-item-icon {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-item-number {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .nav-item.active .nav-item-number {
+            background: var(--primary);
+            color: white;
+        }
+
+        .nav-item.completed .nav-item-number {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .breadcrumb-current {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .top-bar-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .progress-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .progress-bar {
+            width: 120px;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--purple));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 1;
+            padding: 32px;
+            max-width: 1200px;
+        }
+
+        /* Module Container */
+        .module-container {
+            display: none;
+        }
+
+        .module-container.active {
+            display: block;
+        }
+
+        .module-header {
+            margin-bottom: 32px;
+        }
+
+        .module-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .module-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            max-width: 600px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Form Elements */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .form-input, .form-select, .form-textarea {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        /* Navigation Buttons */
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Shared Data Panel */
+        .shared-data-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .shared-data-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .shared-data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .shared-data-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .shared-data-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .shared-data-value {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .shared-data-value.empty {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        /* Risk Indicators */
+        .risk-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .risk-low {
+            background: rgba(63, 185, 80, 0.15);
+            color: var(--success);
+        }
+
+        .risk-medium {
+            background: rgba(210, 153, 34, 0.15);
+            color: var(--warning);
+        }
+
+        .risk-high {
+            background: rgba(248, 81, 73, 0.15);
+            color: var(--danger);
+        }
+
+        /* Summary Section */
+        .summary-section {
+            background: linear-gradient(135deg, rgba(10, 132, 255, 0.1), rgba(163, 113, 247, 0.1));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .summary-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .summary-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .summary-content {
+            background: var(--bg-dark);
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'SF Mono', 'Consolas', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        /* Tooltips */
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+            z-index: 100;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Dashboard Welcome */
+        .dashboard-welcome {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .dashboard-welcome-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .dashboard-welcome-icon svg {
+            width: 40px;
+            height: 40px;
+            color: white;
+        }
+
+        .dashboard-welcome h2 {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .dashboard-welcome p {
+            color: var(--text-secondary);
+            max-width: 500px;
+            margin: 0 auto 32px;
+        }
+
+        /* Quick Start Cards */
+        .quick-start-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .quick-start-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-start-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .quick-start-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quick-start-card p {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="oneyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#2ECC85"/>
+                            <stop offset="100%" stop-color="#1FAD73"/>
+                        </linearGradient>
+                    </defs>
+                    <g transform="translate(20, 20)">
+                        <path d="M 0 -15 A 15 15 0 1 0 0 -14.99" fill="none" stroke="url(#oneyGrad)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="90 5"/>
+                        <path d="M0 -18 L0 -22" stroke="url(#oneyGrad)" stroke-width="2.5" stroke-linecap="round"/>
+                    </g>
+                </svg>
+                <h1>Oney Suite</h1>
+            </div>
+            <span class="sidebar-subtitle">Credit Assessment Platform</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section">
+                <div class="nav-section-title">Getting Started</div>
+                <div class="nav-item active" data-module="dashboard">
+                    <span class="nav-item-icon">🏠</span>
+                    Dashboard
+                </div>
+                <div class="nav-item" data-module="shared-inputs">
+                    <span class="nav-item-icon">📋</span>
+                    Shared Inputs
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Assessment Workflow</div>
+                <div class="nav-item" data-module="financial-health">
+                    <span class="nav-item-number">1</span>
+                    Financial Health Check
+                </div>
+                <div class="nav-item" data-module="borrower-profile">
+                    <span class="nav-item-number">2</span>
+                    Borrower Profile
+                </div>
+                <div class="nav-item" data-module="loan-purpose">
+                    <span class="nav-item-number">3</span>
+                    Loan Purpose
+                </div>
+                <div class="nav-item" data-module="security-assessment">
+                    <span class="nav-item-number">4</span>
+                    Security Assessment
+                </div>
+                <div class="nav-item" data-module="servicing">
+                    <span class="nav-item-number">5</span>
+                    Servicing Analysis
+                </div>
+                <div class="nav-item" data-module="other-risks">
+                    <span class="nav-item-number">6</span>
+                    Other Risks
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title">Output</div>
+                <div class="nav-item" data-module="summary">
+                    <span class="nav-item-icon">📊</span>
+                    Credit Summary
+                </div>
+                <div class="nav-item" data-module="export">
+                    <span class="nav-item-icon">📤</span>
+                    Export Report
+                </div>
+            </div>
+        </nav>
+
+        <div style="padding: 16px 24px; border-top: 1px solid var(--border);">
+            <button class="btn btn-secondary" style="width: 100%;" onclick="resetAll()">
+                🔄 Reset All
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="breadcrumb">
+                <span>Suite</span>
+                <span>/</span>
+                <span class="breadcrumb-current" id="current-module-name">Dashboard</span>
+            </div>
+            <div class="top-bar-actions">
+                <div class="progress-indicator">
+                    <span id="progress-text">0/6 Complete</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" onclick="saveToLocalStorage()">💾 Save</button>
+            </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Dashboard Module -->
+            <div class="module-container active" id="module-dashboard">
+                <div class="dashboard-welcome">
+                    <div class="dashboard-welcome-icon" style="background: linear-gradient(135deg, #2ECC85, #1FAD73);">
+                        <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
+                            <g transform="translate(25, 25)">
+                                <path d="M 0 -18 A 18 18 0 1 0 0 -17.99" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-dasharray="108 6"/>
+                                <path d="M0 -22 L0 -27" stroke="white" stroke-width="3" stroke-linecap="round"/>
+                            </g>
+                        </svg>
+                    </div>
+                    <h2>Welcome to Oney Tool Suite</h2>
+                    <p>Complete credit assessment platform. All your tools in one place, with shared data flowing through every step.</p>
+                    <button class="btn btn-primary" onclick="navigateToModule('shared-inputs')">
+                        Get Started →
+                    </button>
+                </div>
+
+                <div class="quick-start-grid">
+                    <div class="quick-start-card" onclick="navigateToModule('financial-health')">
+                        <h3>💚 Financial Health Check</h3>
+                        <p>Start with a health assessment to determine if refinancing or restructuring makes sense.</p>
+                    </div>
+                    <div class="quick-start-card" onclick="navigateToModule('servicing')">
+                        <h3>📊 Servicing Calculator</h3>
+                        <p>Jump straight to servicing analysis with MLL-adjusted income calculations.</p>
+                    </div>
+                    <div class="quick-start-card" onclick="navigateToModule('security-assessment')">
+                        <h3>🏢 Security Assessment</h3>
+                        <p>Evaluate commercial and residential security with zoning and LVR analysis.</p>
+                    </div>
+                    <div class="quick-start-card" onclick="navigateToModule('summary')">
+                        <h3>📋 Full Assessment</h3>
+                        <p>Run through the complete workflow and generate a credit summary.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shared Inputs Module -->
+            <div class="module-container" id="module-shared-inputs">
+                <div class="module-header">
+                    <h2 class="module-title">📋 Shared Inputs</h2>
+                    <p class="module-description">Enter core information once. This data flows automatically to all assessment modules.</p>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">👤 Borrower Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Borrower Name</label>
+                            <input type="text" class="form-input shared-input" data-key="borrowerName" placeholder="e.g., John Smith or ABC Pty Ltd">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Borrower Type</label>
+                            <select class="form-select shared-input" data-key="borrowerType">
+                                <option value="">Select...</option>
+                                <option value="individual">Individual</option>
+                                <option value="company">Company</option>
+                                <option value="trust">Trust</option>
+                                <option value="smsf">SMSF</option>
+                                <option value="partnership">Partnership</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Industry / Occupation</label>
+                            <input type="text" class="form-input shared-input" data-key="industry" placeholder="e.g., Retail Trade, Medical">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">ABN (if applicable)</label>
+                            <input type="text" class="form-input shared-input" data-key="abn" placeholder="XX XXX XXX XXX">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">💰 Loan Request</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Loan Amount Requested</label>
+                            <input type="number" class="form-input shared-input" data-key="loanAmount" placeholder="e.g., 500000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Loan Purpose</label>
+                            <select class="form-select shared-input" data-key="loanPurpose">
+                                <option value="">Select...</option>
+                                <option value="purchase-owner-occupied">Purchase - Owner Occupied</option>
+                                <option value="purchase-investment">Purchase - Investment</option>
+                                <option value="refinance">Refinance</option>
+                                <option value="equity-release">Equity Release</option>
+                                <option value="construction">Construction</option>
+                                <option value="business-purposes">Business Purposes</option>
+                                <option value="debt-consolidation">Debt Consolidation</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Loan Term (years)</label>
+                            <input type="number" class="form-input shared-input" data-key="loanTerm" placeholder="e.g., 25">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Interest Rate (%)</label>
+                            <input type="number" class="form-input shared-input" data-key="interestRate" step="0.01" placeholder="e.g., 6.5">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">🏠 Primary Security</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Property Address</label>
+                            <input type="text" class="form-input shared-input" data-key="propertyAddress" placeholder="Full address">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Property Type</label>
+                            <select class="form-select shared-input" data-key="propertyType">
+                                <option value="">Select...</option>
+                                <option value="residential-house">Residential House</option>
+                                <option value="residential-unit">Residential Unit/Apartment</option>
+                                <option value="commercial-retail">Commercial - Retail</option>
+                                <option value="commercial-office">Commercial - Office</option>
+                                <option value="commercial-industrial">Commercial - Industrial</option>
+                                <option value="mixed-use">Mixed Use</option>
+                                <option value="land">Vacant Land</option>
+                                <option value="rural">Rural/Farming</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Estimated Value</label>
+                            <input type="number" class="form-input shared-input" data-key="propertyValue" placeholder="e.g., 800000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Existing Debt on Property</label>
+                            <input type="number" class="form-input shared-input" data-key="existingDebt" placeholder="e.g., 300000">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">💵 Income Summary</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Gross Annual Income</label>
+                            <input type="number" class="form-input shared-input" data-key="grossIncome" placeholder="e.g., 150000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Income Type</label>
+                            <select class="form-select shared-input" data-key="incomeType">
+                                <option value="">Select...</option>
+                                <option value="payg">PAYG Employee</option>
+                                <option value="self-employed">Self-Employed</option>
+                                <option value="rental">Rental Income</option>
+                                <option value="mixed">Mixed Income</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Monthly Living Expenses</label>
+                            <input type="number" class="form-input shared-input" data-key="monthlyExpenses" placeholder="e.g., 4500">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Total Existing Debt Commitments (monthly)</label>
+                            <input type="number" class="form-input shared-input" data-key="monthlyDebtPayments" placeholder="e.g., 2000">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateToModule('dashboard')">← Back</button>
+                    <button class="btn btn-primary" onclick="navigateToModule('financial-health')">Next: Financial Health →</button>
+                </div>
+            </div>
+
+            <!-- Financial Health Module -->
+            <div class="module-container" id="module-financial-health">
+                <div class="module-header">
+                    <h2 class="module-title">💚 Financial Health Check</h2>
+                    <p class="module-description">Evaluate the borrower's overall financial position. Determine if their situation warrants immediate action, refinancing, or a longer-term plan.</p>
+                </div>
+
+                <!-- Shared Data Preview -->
+                <div class="shared-data-panel">
+                    <div class="shared-data-title">
+                        <span>📎</span> Imported from Shared Inputs
+                    </div>
+                    <div class="shared-data-grid">
+                        <div class="shared-data-item">
+                            <span class="shared-data-label">Borrower</span>
+                            <span class="shared-data-value" data-display="borrowerName">Not set</span>
+                        </div>
+                        <div class="shared-data-item">
+                            <span class="shared-data-label">Gross Income</span>
+                            <span class="shared-data-value" data-display="grossIncome" data-format="currency">Not set</span>
+                        </div>
+                        <div class="shared-data-item">
+                            <span class="shared-data-label">Monthly Expenses</span>
+                            <span class="shared-data-value" data-display="monthlyExpenses" data-format="currency">Not set</span>
+                        </div>
+                        <div class="shared-data-item">
+                            <span class="shared-data-label">Existing Debt</span>
+                            <span class="shared-data-value" data-display="existingDebt" data-format="currency">Not set</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">📊 Health Score Inputs</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Credit Score (if known)</label>
+                            <input type="number" class="form-input module-input" data-module="financial-health" data-key="creditScore" placeholder="e.g., 720">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Emergency Fund (months of expenses)</label>
+                            <select class="form-select module-input" data-module="financial-health" data-key="emergencyFund">
+                                <option value="">Select...</option>
+                                <option value="0">None</option>
+                                <option value="1-2">1-2 months</option>
+                                <option value="3-6">3-6 months</option>
+                                <option value="6+">6+ months</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Savings Rate (% of income)</label>
+                            <input type="number" class="form-input module-input" data-module="financial-health" data-key="savingsRate" placeholder="e.g., 15">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Debt-to-Income Ratio Override (%)</label>
+                            <input type="number" class="form-input module-input" data-module="financial-health" data-key="dtiOverride" placeholder="Auto-calculated if blank">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">🚦 Assessment Result</h3>
+                    <div id="fhc-result" style="padding: 20px; text-align: center; color: var(--text-secondary);">
+                        Enter data above to see health assessment
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">📝 Recommendation</h3>
+                    <div class="form-group">
+                        <label class="form-label">Action Recommended</label>
+                        <select class="form-select module-input" data-module="financial-health" data-key="recommendation">
+                            <option value="">Select based on analysis...</option>
+                            <option value="proceed">✅ Proceed with Application</option>
+                            <option value="refinance">🔄 Consider Refinancing First</option>
+                            <option value="consolidate">💳 Debt Consolidation Recommended</option>
+                            <option value="wait-6m">⏳ Review in 6 months</option>
+                            <option value="wait-12m">⏳ Review in 12 months</option>
+                            <option value="wait-24m">⏳ Review in 24 months</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label class="form-label">Notes</label>
+                        <textarea class="form-textarea module-input" data-module="financial-health" data-key="notes" placeholder="Additional observations..."></textarea>
+                    </div>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateToModule('shared-inputs')">← Back</button>
+                    <button class="btn btn-success" onclick="markComplete('financial-health')">✓ Mark Complete</button>
+                    <button class="btn btn-primary" onclick="navigateToModule('borrower-profile')">Next: Borrower Profile →</button>
+                </div>
+            </div>
+
+            <!-- Borrower Profile Module -->
+            <div class="module-container" id="module-borrower-profile">
+                <div class="module-header">
+                    <h2 class="module-title">👤 Borrower Profile</h2>
+                    <p class="module-description">Analyze borrower characteristics and determine appropriate credit pathways.</p>
+                </div>
+
+                <div class="shared-data-panel">
+                    <div class="shared-data-title">📎 Imported from Shared Inputs</div>
+                    <div class="shared-data-grid">
+                        <div class="shared-data-item">
+                            <span class="shared-data-label">Borrower</span>
+                            <span class="shared-data-value" data-display="borrowerName">Not set</span>
+                        </div>
+                        <div class="shared-data-item">
+                            <span class="shared-data-label">Type</span>
+                            <span class="shared-data-value" data-display="borrowerType">Not set</span>
+                        </div>
+                        <div class="shared-data-item">
+                            <span class="shared-data-label">Industry</span>
+                            <span class="shared-data-value" data-display="industry">Not set</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">🏢 Business Details (if applicable)</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Years in Business</label>
+                            <input type="number" class="form-input module-input" data-module="borrower-profile" data-key="yearsInBusiness" placeholder="e.g., 5">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Business Structure</label>
+                            <select class="form-select module-input" data-module="borrower-profile" data-key="businessStructure">
+                                <option value="">Select...</option>
+                                <option value="sole-trader">Sole Trader</option>
+                                <option value="partnership">Partnership</option>
+                                <option value="pty-ltd">Pty Ltd Company</option>
+                                <option value="trust">Trust</option>
+                                <option value="smsf">SMSF</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Annual Turnover</label>
+                            <input type="number" class="form-input module-input" data-module="borrower-profile" data-key="annualTurnover" placeholder="e.g., 1000000">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">GST Registered</label>
+                            <select class="form-select module-input" data-module="borrower-profile" data-key="gstRegistered">
+                                <option value="">Select...</option>
+                                <option value="yes">Yes</option>
+                                <option value="no">No</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">📍 Credit Pathway Recommendation</h3>
+                    <div class="form-group">
+                        <label class="form-label">Suggested Pathway</label>
+                        <select class="form-select module-input" data-module="borrower-profile" data-key="creditPathway">
+                            <option value="">Based on profile...</option>
+                            <option value="standard-residential">Standard Residential</option>
+                            <option value="low-doc">Low Doc</option>
+                            <option value="alt-doc">Alt Doc</option>
+                            <option value="full-doc-commercial">Full Doc Commercial</option>
+                            <option value="smsf-lending">SMSF Lending</option>
+                            <option value="private-lending">Private/Non-Bank</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label class="form-label">Pathway Justification</label>
+                        <textarea class="form-textarea module-input" data-module="borrower-profile" data-key="pathwayNotes" placeholder="Why this pathway is recommended..."></textarea>
+                    </div>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateToModule('financial-health')">← Back</button>
+                    <button class="btn btn-success" onclick="markComplete('borrower-profile')">✓ Mark Complete</button>
+                    <button class="btn btn-primary" onclick="navigateToModule('loan-purpose')">Next: Loan Purpose →</button>
+                </div>
+            </div>
+
+            <!-- Loan Purpose Module -->
+            <div class="module-container" id="module-loan-purpose">
+                <div class="module-header">
+                    <h2 class="module-title">🎯 Loan Purpose Analysis</h2>
+                    <p class="module-description">Understand the loan purpose and its implications for credit assessment.</p>
+                </div>
+
+                <div class="shared-data-panel">
+                    <div class="shared-data-title">📎 Imported from Shared Inputs</div>
+                    <div class="shared-data-grid">
+                        <div class="shared-data-item">
+                            <span class="shared-data-label">Loan Amount</span>
+                            <span class="shared-data-value" data-display="loanAmount" data-format="currency">Not set</span>
+                        </div>
+                        <div class="shared-data-item">
+                            <span class="shared-data-label">Primary Purpose</span>
+                            <span class="shared-data-value" data-display="loanPurpose">Not set</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">💼 Purpose Details</h3>
+                    <div class="form-grid">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label class="form-label">Detailed Purpose Description</label>
+                            <textarea class="form-textarea module-input" data-module="loan-purpose" data-key="purposeDetail" placeholder="Describe the specific use of funds..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Business vs Personal Use</label>
+                            <select class="form-select module-input" data-module="loan-purpose" data-key="useType">
+                                <option value="">Select...</option>
+                                <option value="100-personal">100% Personal</option>
+                                <option value="100-business">100% Business</option>
+                                <option value="mixed">Mixed Use</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Purpose Risk Level</label>
+                            <select class="form-select module-input" data-module="loan-purpose" data-key="purposeRisk">
+                                <option value="">Assess...</option>
+                                <option value="low">Low Risk</option>
+                                <option value="medium">Medium Risk</option>
+                                <option value="high">High Risk</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">🚦 Purpose-Based Pathway</h3>
+                    <div class="form-group">
+                        <label class="form-label">Recommended Product</label>
+                        <select class="form-select module-input" data-module="loan-purpose" data-key="recommendedProduct">
+                            <option value="">Select product type...</option>
+                            <option value="home-loan-variable">Home Loan - Variable</option>
+                            <option value="home-loan-fixed">Home Loan - Fixed</option>
+                            <option value="investment-loan">Investment Loan</option>
+                            <option value="commercial-loan">Commercial Loan</option>
+                            <option value="construction-loan">Construction Loan</option>
+                            <option value="business-overdraft">Business Overdraft</option>
+                            <option value="equipment-finance">Equipment Finance</option>
+                            <option value="line-of-credit">Line of Credit</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateToModule('borrower-profile')">← Back</button>
+                    <button class="btn btn-success" onclick="markComplete('loan-purpose')">✓ Mark Complete</button>
+                    <button class="btn btn-primary" onclick="navigateToModule('security-assessment')">Next: Security →</button>
+                </div>
+            </div>
+
+            <!-- Security Assessment Module -->
+            <div class="module-container" id="module-security-assessment">
+                <div class="module-header">
+                    <h2 class="module-title">🏢 Security Assessment</h2>
+                    <p class="module-description">Evaluate the security property including type, zoning, and LVR calculations.</p>
+                </div>
+
+                <div class="shared-data-panel">
+                    <div class="shared-data-title">📎 Imported from Shared Inputs</div>
+                    <div class="shared-data-grid">
+                        <div class="shared-data-item">
+                            <span class="shared-data-label">Property Address</span>
+                            <span class="shared-data-value" data-display="propertyAddress">Not set</span>
+                        </div>
+                        <div class="shared-data-item">
+                            <span class="shared-data-label">Property Type</span>
+                            <span class="shared-data-value" data-display="propertyType">Not set</span>
+                        </div>
+                        <div class="shared-data-item">
+                            <span class="shared-data-label">Value</span>
+                            <span class="shared-data-value" data-display="propertyValue" data-format="currency">Not set</span>
+                        </div>
+                        <div class="shared-data-item">
+                            <span class="shared-data-label">Loan Amount</span>
+                            <span class="shared-data-value" data-display="loanAmount" data-format="currency">Not set</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">📊 LVR Calculation</h3>
+                    <div id="lvr-result" style="font-size: 2rem; font-weight: 700; text-align: center; padding: 20px;">
+                        --
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">🏗️ Property Details</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Zoning</label>
+                            <select class="form-select module-input" data-module="security" data-key="zoning">
+                                <option value="">Select...</option>
+                                <option value="residential">Residential</option>
+                                <option value="commercial">Commercial</option>
+                                <option value="industrial">Industrial</option>
+                                <option value="mixed">Mixed Use</option>
+                                <option value="rural">Rural</option>
+                                <option value="special">Special Purpose</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Land Size (sqm)</label>
+                            <input type="number" class="form-input module-input" data-module="security" data-key="landSize" placeholder="e.g., 650">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Building Age (years)</label>
+                            <input type="number" class="form-input module-input" data-module="security" data-key="buildingAge" placeholder="e.g., 15">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tenancy Status</label>
+                            <select class="form-select module-input" data-module="security" data-key="tenancy">
+                                <option value="">Select...</option>
+                                <option value="owner-occupied">Owner Occupied</option>
+                                <option value="leased">Leased</option>
+                                <option value="vacant">Vacant</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">⚠️ Security Risks</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Security Risk Rating</label>
+                            <select class="form-select module-input" data-module="security" data-key="securityRisk">
+                                <option value="">Assess...</option>
+                                <option value="low">🟢 Low Risk</option>
+                                <option value="medium">🟡 Medium Risk</option>
+                                <option value="high">🔴 High Risk</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Valuation Method</label>
+                            <select class="form-select module-input" data-module="security" data-key="valuationMethod">
+                                <option value="">Select...</option>
+                                <option value="full">Full Valuation</option>
+                                <option value="desktop">Desktop Valuation</option>
+                                <option value="avm">AVM</option>
+                                <option value="contract">Contract Price</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label class="form-label">Security Notes</label>
+                        <textarea class="form-textarea module-input" data-module="security" data-key="notes" placeholder="Any concerns or observations about the security..."></textarea>
+                    </div>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateToModule('loan-purpose')">← Back</button>
+                    <button class="btn btn-success" onclick="markComplete('security-assessment')">✓ Mark Complete</button>
+                    <button class="btn btn-primary" onclick="navigateToModule('servicing')">Next: Servicing →</button>
+                </div>
+            </div>
+
+            <!-- Servicing Module -->
+            <div class="module-container" id="module-servicing">
+                <div class="module-header">
+                    <h2 class="module-title">📊 Servicing Analysis</h2>
+                    <p class="module-description">Calculate debt serviceability with MLL-adjusted income and stress testing.</p>
+                </div>
+
+                <div class="shared-data-panel">
+                    <div class="shared-data-title">📎 Imported from Shared Inputs</div>
+                    <div class="shared-data-grid">
+                        <div class="shared-data-item">
+                            <span class="shared-data-label">Gross Income</span>
+                            <span class="shared-data-value" data-display="grossIncome" data-format="currency">Not set</span>
+                        </div>
+                        <div class="shared-data-item">
+                            <span class="shared-data-label">Monthly Expenses</span>
+                            <span class="shared-data-value" data-display="monthlyExpenses" data-format="currency">Not set</span>
+                        </div>
+                        <div class="shared-data-item">
+                            <span class="shared-data-label">Loan Amount</span>
+                            <span class="shared-data-value" data-display="loanAmount" data-format="currency">Not set</span>
+                        </div>
+                        <div class="shared-data-item">
+                            <span class="shared-data-label">Interest Rate</span>
+                            <span class="shared-data-value" data-display="interestRate" data-format="percent">Not set</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">💰 Income Assessment</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">MLL Adjusted Income</label>
+                            <input type="number" class="form-input module-input" data-module="servicing" data-key="mllAdjustedIncome" placeholder="After MLL adjustments">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Add-backs Applied</label>
+                            <input type="number" class="form-input module-input" data-module="servicing" data-key="addBacks" placeholder="e.g., depreciation">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Rental Income (if any)</label>
+                            <input type="number" class="form-input module-input" data-module="servicing" data-key="rentalIncome" placeholder="Gross annual">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Rental Shading %</label>
+                            <input type="number" class="form-input module-input" data-module="servicing" data-key="rentalShading" value="80" placeholder="e.g., 80">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">📉 Stress Test</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Assessment Rate Buffer</label>
+                            <input type="number" class="form-input module-input" data-module="servicing" data-key="rateBuffer" value="3" step="0.25" placeholder="e.g., 3.0%">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Stressed Monthly Repayment</label>
+                            <input type="number" class="form-input module-input" data-module="servicing" data-key="stressedRepayment" placeholder="Auto-calculated">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">✅ Servicing Result</h3>
+                    <div id="servicing-result" style="font-size: 1.5rem; font-weight: 700; text-align: center; padding: 20px;">
+                        Enter data to calculate
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label class="form-label">Servicing Assessment</label>
+                        <select class="form-select module-input" data-module="servicing" data-key="servicingResult">
+                            <option value="">Based on analysis...</option>
+                            <option value="comfortable">✅ Comfortable - Clear Surplus</option>
+                            <option value="marginal">⚠️ Marginal - Tight but passes</option>
+                            <option value="requires-mitigants">🟡 Requires Mitigants</option>
+                            <option value="does-not-service">❌ Does Not Service</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label class="form-label">Servicing Notes</label>
+                        <textarea class="form-textarea module-input" data-module="servicing" data-key="notes" placeholder="Key servicing observations..."></textarea>
+                    </div>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateToModule('security-assessment')">← Back</button>
+                    <button class="btn btn-success" onclick="markComplete('servicing')">✓ Mark Complete</button>
+                    <button class="btn btn-primary" onclick="navigateToModule('other-risks')">Next: Other Risks →</button>
+                </div>
+            </div>
+
+            <!-- Other Risks Module -->
+            <div class="module-container" id="module-other-risks">
+                <div class="module-header">
+                    <h2 class="module-title">⚠️ Other Credit Risks</h2>
+                    <p class="module-description">Identify and document additional risks that may impact the credit decision.</p>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">🔍 Risk Categories</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Character Risk</label>
+                            <select class="form-select module-input" data-module="other-risks" data-key="characterRisk">
+                                <option value="">Assess...</option>
+                                <option value="low">🟢 Low</option>
+                                <option value="medium">🟡 Medium</option>
+                                <option value="high">🔴 High</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Industry Risk</label>
+                            <select class="form-select module-input" data-module="other-risks" data-key="industryRisk">
+                                <option value="">Assess...</option>
+                                <option value="low">🟢 Low</option>
+                                <option value="medium">🟡 Medium</option>
+                                <option value="high">🔴 High</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Concentration Risk</label>
+                            <select class="form-select module-input" data-module="other-risks" data-key="concentrationRisk">
+                                <option value="">Assess...</option>
+                                <option value="low">🟢 Low</option>
+                                <option value="medium">🟡 Medium</option>
+                                <option value="high">🔴 High</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Market Risk</label>
+                            <select class="form-select module-input" data-module="other-risks" data-key="marketRisk">
+                                <option value="">Assess...</option>
+                                <option value="low">🟢 Low</option>
+                                <option value="medium">🟡 Medium</option>
+                                <option value="high">🔴 High</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">📋 Credit History</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Defaults in Last 5 Years</label>
+                            <select class="form-select module-input" data-module="other-risks" data-key="defaults">
+                                <option value="">Select...</option>
+                                <option value="none">None</option>
+                                <option value="minor">Minor (paid, <$500)</option>
+                                <option value="significant">Significant (paid)</option>
+                                <option value="current">Current Default</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Bankruptcy/Part IX</label>
+                            <select class="form-select module-input" data-module="other-risks" data-key="bankruptcy">
+                                <option value="">Select...</option>
+                                <option value="none">None</option>
+                                <option value="discharged-5plus">Discharged 5+ years</option>
+                                <option value="discharged-recent">Discharged <5 years</option>
+                                <option value="current">Current</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">📝 Risk Mitigants</h3>
+                    <div class="form-group">
+                        <label class="form-label">Identified Mitigants</label>
+                        <textarea class="form-textarea module-input" data-module="other-risks" data-key="mitigants" placeholder="List any factors that mitigate identified risks..."></textarea>
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label class="form-label">Conditions / Covenants Required</label>
+                        <textarea class="form-textarea module-input" data-module="other-risks" data-key="conditions" placeholder="List any conditions that should be applied..."></textarea>
+                    </div>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateToModule('servicing')">← Back</button>
+                    <button class="btn btn-success" onclick="markComplete('other-risks')">✓ Mark Complete</button>
+                    <button class="btn btn-primary" onclick="navigateToModule('summary')">Next: Summary →</button>
+                </div>
+            </div>
+
+            <!-- Summary Module -->
+            <div class="module-container" id="module-summary">
+                <div class="module-header">
+                    <h2 class="module-title">📋 Credit Summary</h2>
+                    <p class="module-description">Complete credit assessment summary with all findings and recommendations.</p>
+                </div>
+
+                <div class="summary-section">
+                    <div class="summary-header">
+                        <h3 class="summary-title">Generated Credit Paper</h3>
+                        <button class="btn btn-primary" onclick="generateSummary()">🔄 Regenerate</button>
+                    </div>
+                    <div class="summary-content" id="summary-output">
+                        Complete the assessment modules to generate a credit summary...
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 24px;">
+                    <h3 class="card-title">✍️ Credit Decision</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Recommendation</label>
+                            <select class="form-select module-input" data-module="summary" data-key="decision">
+                                <option value="">Select...</option>
+                                <option value="approve">✅ Approve</option>
+                                <option value="approve-conditions">✅ Approve with Conditions</option>
+                                <option value="refer">🟡 Refer to Senior Credit</option>
+                                <option value="decline">❌ Decline</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Overall Risk Rating</label>
+                            <select class="form-select module-input" data-module="summary" data-key="overallRisk">
+                                <option value="">Select...</option>
+                                <option value="very-low">Very Low</option>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="very-high">Very High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label class="form-label">Decision Rationale</label>
+                        <textarea class="form-textarea module-input" data-module="summary" data-key="rationale" placeholder="Summarize the key factors supporting this decision..."></textarea>
+                    </div>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="navigateToModule('other-risks')">← Back</button>
+                    <button class="btn btn-primary" onclick="navigateToModule('export')">Export Report →</button>
+                </div>
+            </div>
+
+            <!-- Export Module -->
+            <div class="module-container" id="module-export">
+                <div class="module-header">
+                    <h2 class="module-title">📤 Export Report</h2>
+                    <p class="module-description">Export your credit assessment in various formats.</p>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Export Options</h3>
+                    <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="exportPDF()">📄 Export PDF</button>
+                        <button class="btn btn-secondary" onclick="exportWord()">📝 Export Word</button>
+                        <button class="btn btn-secondary" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+                        <button class="btn btn-secondary" onclick="exportJSON()">💾 Export JSON (Save)</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Load Previous Assessment</h3>
+                    <div class="form-group">
+                        <label class="form-label">Import JSON File</label>
+                        <input type="file" accept=".json" onchange="importJSON(event)" class="form-input">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ============================================
+        // ONEY TOOL SUITE - SHARED STATE MANAGEMENT
+        // ============================================
+
+        // Shared state across all modules
+        const SuiteState = {
+            shared: {},      // Shared inputs (borrower info, loan details, etc.)
+            modules: {       // Module-specific data
+                'financial-health': {},
+                'borrower-profile': {},
+                'loan-purpose': {},
+                'security': {},
+                'servicing': {},
+                'other-risks': {},
+                'summary': {}
+            },
+            completed: [],   // Completed modules
+            version: '1.0.0'
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadFromLocalStorage();
+            setupEventListeners();
+            updateAllDisplays();
+            updateProgress();
+        });
+
+        // ============================================
+        // EVENT LISTENERS
+        // ============================================
+
+        function setupEventListeners() {
+            // Navigation items
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const module = item.dataset.module;
+                    if (module) navigateToModule(module);
+                });
+            });
+
+            // Shared inputs
+            document.querySelectorAll('.shared-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const key = e.target.dataset.key;
+                    SuiteState.shared[key] = e.target.value;
+                    updateAllDisplays();
+                    autoSave();
+                });
+            });
+
+            // Module inputs
+            document.querySelectorAll('.module-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const module = e.target.dataset.module;
+                    const key = e.target.dataset.key;
+                    if (!SuiteState.modules[module]) SuiteState.modules[module] = {};
+                    SuiteState.modules[module][key] = e.target.value;
+                    autoSave();
+                });
+            });
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+
+        function navigateToModule(moduleId) {
+            // Hide all modules
+            document.querySelectorAll('.module-container').forEach(m => {
+                m.classList.remove('active');
+            });
+
+            // Show target module
+            const target = document.getElementById(`module-${moduleId}`);
+            if (target) target.classList.add('active');
+
+            // Update nav
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.module === moduleId) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Update breadcrumb
+            const names = {
+                'dashboard': 'Dashboard',
+                'shared-inputs': 'Shared Inputs',
+                'financial-health': 'Financial Health Check',
+                'borrower-profile': 'Borrower Profile',
+                'loan-purpose': 'Loan Purpose',
+                'security-assessment': 'Security Assessment',
+                'servicing': 'Servicing Analysis',
+                'other-risks': 'Other Risks',
+                'summary': 'Credit Summary',
+                'export': 'Export Report'
+            };
+            document.getElementById('current-module-name').textContent = names[moduleId] || moduleId;
+
+            // Update displays for this module
+            updateAllDisplays();
+            calculateLVR();
+        }
+
+        // ============================================
+        // DISPLAY UPDATES
+        // ============================================
+
+        function updateAllDisplays() {
+            document.querySelectorAll('[data-display]').forEach(el => {
+                const key = el.dataset.display;
+                const format = el.dataset.format;
+                let value = SuiteState.shared[key];
+
+                if (value) {
+                    if (format === 'currency') {
+                        value = '$' + Number(value).toLocaleString();
+                    } else if (format === 'percent') {
+                        value = value + '%';
+                    }
+                    el.textContent = value;
+                    el.classList.remove('empty');
+                } else {
+                    el.textContent = 'Not set';
+                    el.classList.add('empty');
+                }
+            });
+
+            // Restore shared input values
+            document.querySelectorAll('.shared-input').forEach(input => {
+                const key = input.dataset.key;
+                if (SuiteState.shared[key]) {
+                    input.value = SuiteState.shared[key];
+                }
+            });
+
+            // Restore module input values
+            document.querySelectorAll('.module-input').forEach(input => {
+                const module = input.dataset.module;
+                const key = input.dataset.key;
+                if (SuiteState.modules[module] && SuiteState.modules[module][key]) {
+                    input.value = SuiteState.modules[module][key];
+                }
+            });
+
+            calculateLVR();
+        }
+
+        // ============================================
+        // CALCULATIONS
+        // ============================================
+
+        function calculateLVR() {
+            const loanAmount = Number(SuiteState.shared.loanAmount) || 0;
+            const propertyValue = Number(SuiteState.shared.propertyValue) || 0;
+
+            const lvrEl = document.getElementById('lvr-result');
+            if (lvrEl && propertyValue > 0) {
+                const lvr = (loanAmount / propertyValue * 100).toFixed(1);
+                let color = 'var(--success)';
+                if (lvr > 80) color = 'var(--warning)';
+                if (lvr > 90) color = 'var(--danger)';
+                lvrEl.innerHTML = `<span style="color: ${color}">${lvr}% LVR</span>`;
+            }
+        }
+
+        // ============================================
+        // MODULE COMPLETION
+        // ============================================
+
+        function markComplete(moduleId) {
+            if (!SuiteState.completed.includes(moduleId)) {
+                SuiteState.completed.push(moduleId);
+            }
+            updateProgress();
+            autoSave();
+
+            // Update nav item
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if (item.dataset.module === moduleId) {
+                    item.classList.add('completed');
+                }
+            });
+        }
+
+        function updateProgress() {
+            const total = 6; // Total workflow modules
+            const completed = SuiteState.completed.length;
+            const percent = (completed / total * 100).toFixed(0);
+
+            document.getElementById('progress-text').textContent = `${completed}/${total} Complete`;
+            document.getElementById('progress-fill').style.width = `${percent}%`;
+
+            // Update nav completed status
+            SuiteState.completed.forEach(moduleId => {
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    if (item.dataset.module === moduleId) {
+                        item.classList.add('completed');
+                    }
+                });
+            });
+        }
+
+        // ============================================
+        // SUMMARY GENERATION
+        // ============================================
+
+        function generateSummary() {
+            const s = SuiteState.shared;
+            const m = SuiteState.modules;
+
+            const lvr = s.propertyValue ? ((s.loanAmount / s.propertyValue) * 100).toFixed(1) : '--';
+
+            const summary = `
+═══════════════════════════════════════════════════════════
+                    CREDIT ASSESSMENT SUMMARY
+═══════════════════════════════════════════════════════════
+
+BORROWER DETAILS
+────────────────────────────────────────────────────────────
+Borrower Name:        ${s.borrowerName || 'Not specified'}
+Borrower Type:        ${s.borrowerType || 'Not specified'}
+Industry:             ${s.industry || 'Not specified'}
+ABN:                  ${s.abn || 'N/A'}
+
+LOAN REQUEST
+────────────────────────────────────────────────────────────
+Amount Requested:     $${Number(s.loanAmount || 0).toLocaleString()}
+Purpose:              ${s.loanPurpose || 'Not specified'}
+Term:                 ${s.loanTerm || '--'} years
+Interest Rate:        ${s.interestRate || '--'}%
+
+SECURITY
+────────────────────────────────────────────────────────────
+Property Address:     ${s.propertyAddress || 'Not specified'}
+Property Type:        ${s.propertyType || 'Not specified'}
+Estimated Value:      $${Number(s.propertyValue || 0).toLocaleString()}
+LVR:                  ${lvr}%
+Zoning:               ${m.security?.zoning || 'Not assessed'}
+Security Risk:        ${m.security?.securityRisk || 'Not assessed'}
+
+FINANCIAL HEALTH
+────────────────────────────────────────────────────────────
+Credit Score:         ${m['financial-health']?.creditScore || 'Not provided'}
+Emergency Fund:       ${m['financial-health']?.emergencyFund || 'Not assessed'}
+Recommendation:       ${m['financial-health']?.recommendation || 'Not assessed'}
+
+SERVICING ASSESSMENT
+────────────────────────────────────────────────────────────
+Gross Annual Income:  $${Number(s.grossIncome || 0).toLocaleString()}
+Monthly Expenses:     $${Number(s.monthlyExpenses || 0).toLocaleString()}
+MLL Adjusted Income:  $${Number(m.servicing?.mllAdjustedIncome || 0).toLocaleString()}
+Servicing Result:     ${m.servicing?.servicingResult || 'Not assessed'}
+
+RISK ASSESSMENT
+────────────────────────────────────────────────────────────
+Character Risk:       ${m['other-risks']?.characterRisk || 'Not assessed'}
+Industry Risk:        ${m['other-risks']?.industryRisk || 'Not assessed'}
+Concentration Risk:   ${m['other-risks']?.concentrationRisk || 'Not assessed'}
+Market Risk:          ${m['other-risks']?.marketRisk || 'Not assessed'}
+
+CREDIT DECISION
+────────────────────────────────────────────────────────────
+Recommendation:       ${m.summary?.decision || 'Not determined'}
+Overall Risk Rating:  ${m.summary?.overallRisk || 'Not assessed'}
+
+RATIONALE:
+${m.summary?.rationale || 'No rationale provided.'}
+
+═══════════════════════════════════════════════════════════
+Generated by Oney Tool Suite | ${new Date().toLocaleDateString()}
+═══════════════════════════════════════════════════════════
+            `.trim();
+
+            document.getElementById('summary-output').textContent = summary;
+        }
+
+        // ============================================
+        // STORAGE
+        // ============================================
+
+        function autoSave() {
+            localStorage.setItem('oney-suite-state', JSON.stringify(SuiteState));
+        }
+
+        function saveToLocalStorage() {
+            autoSave();
+            alert('Assessment saved!');
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('oney-suite-state');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                Object.assign(SuiteState, parsed);
+            }
+        }
+
+        function resetAll() {
+            if (confirm('Are you sure you want to reset all data? This cannot be undone.')) {
+                localStorage.removeItem('oney-suite-state');
+                location.reload();
+            }
+        }
+
+        // ============================================
+        // EXPORT FUNCTIONS
+        // ============================================
+
+        function exportJSON() {
+            const blob = new Blob([JSON.stringify(SuiteState, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `credit-assessment-${Date.now()}.json`;
+            a.click();
+        }
+
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const imported = JSON.parse(e.target.result);
+                        Object.assign(SuiteState, imported);
+                        updateAllDisplays();
+                        updateProgress();
+                        autoSave();
+                        alert('Assessment imported successfully!');
+                    } catch (err) {
+                        alert('Error importing file: ' + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function copyToClipboard() {
+            generateSummary();
+            const text = document.getElementById('summary-output').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Summary copied to clipboard!');
+            });
+        }
+
+        function exportPDF() {
+            generateSummary();
+            window.print();
+        }
+
+        function exportWord() {
+            generateSummary();
+            const text = document.getElementById('summary-output').textContent;
+            const blob = new Blob([text], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `credit-assessment-${Date.now()}.doc`;
+            a.click();
+        }
+    </script>
+</body>
+</html>

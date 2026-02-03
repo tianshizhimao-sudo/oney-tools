@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oney Tool Suite | Complete Credit Assessment Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0A84FF;
+            --primary-dark: #0066CC;
+            --bg-dark: #0D1117;
+            --bg-card: #161B22;
+            --bg-card-hover: #1C2128;
+            --border: #30363D;
+            --text-primary: #F0F6FC;
+            --text-secondary: #8B949E;
+            --text-muted: #6E7681;
+            --success: #3FB950;
+            --warning: #D29922;
+            --purple: #A371F7;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 20px 80px;
+            background: linear-gradient(180deg, rgba(46, 204, 133, 0.1) 0%, transparent 50%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(10, 132, 255, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(163, 113, 247, 0.15);
+            border: 1px solid rgba(163, 113, 247, 0.3);
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 0.875rem;
+            color: var(--purple);
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 24px;
+            line-height: 1.1;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, #2ECC85, #1FAD73);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 40px;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px 32px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            font-family: inherit;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2ECC85, #1FAD73);
+            color: white;
+            box-shadow: 0 4px 20px rgba(46, 204, 133, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(46, 204, 133, 0.5);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--text-muted);
+        }
+
+        /* Features Grid */
+        .features {
+            padding: 100px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, rgba(10, 132, 255, 0.2), rgba(163, 113, 247, 0.2));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Workflow Section */
+        .workflow {
+            padding: 100px 20px;
+            background: var(--bg-card);
+        }
+
+        .workflow-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .workflow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .workflow-step {
+            display: flex;
+            gap: 24px;
+            padding: 24px 0;
+            position: relative;
+        }
+
+        .workflow-step:not(:last-child)::after {
+            content: '';
+            position: absolute;
+            left: 24px;
+            top: 72px;
+            width: 2px;
+            height: calc(100% - 48px);
+            background: linear-gradient(180deg, var(--primary), var(--purple));
+            opacity: 0.3;
+        }
+
+        .step-number {
+            width: 48px;
+            height: 48px;
+            min-width: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .step-content h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .step-content p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .step-output {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(63, 185, 80, 0.15);
+            color: var(--success);
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-top: 12px;
+        }
+
+        /* Comparison Section */
+        .comparison {
+            padding: 100px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .comparison-table {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .comparison-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 16px;
+            padding: 24px;
+            background: var(--bg-card-hover);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-header > div {
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .comparison-header > div:first-child {
+            text-align: left;
+        }
+
+        .comparison-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 16px;
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+
+        .comparison-row:last-child {
+            border-bottom: none;
+        }
+
+        .comparison-row > div {
+            text-align: center;
+        }
+
+        .comparison-row > div:first-child {
+            text-align: left;
+            color: var(--text-secondary);
+        }
+
+        .check {
+            color: var(--success);
+            font-size: 1.25rem;
+        }
+
+        .cross {
+            color: var(--text-muted);
+            font-size: 1.25rem;
+        }
+
+        .highlight-col {
+            background: rgba(10, 132, 255, 0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+
+        /* Pricing */
+        .pricing {
+            padding: 100px 20px;
+            background: linear-gradient(180deg, transparent 0%, rgba(10, 132, 255, 0.05) 100%);
+        }
+
+        .pricing-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: var(--bg-card);
+            border: 2px solid var(--primary);
+            border-radius: 24px;
+            padding: 48px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--purple));
+        }
+
+        .pricing-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .pricing-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .pricing-card .tagline {
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .price {
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .price sup {
+            font-size: 1.5rem;
+            vertical-align: top;
+            margin-right: 4px;
+        }
+
+        .price-note {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 32px;
+        }
+
+        .pricing-features {
+            text-align: left;
+            margin-bottom: 32px;
+        }
+
+        .pricing-features li {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+
+        .pricing-features .check {
+            font-size: 1rem;
+        }
+
+        /* Footer CTA */
+        .footer-cta {
+            padding: 100px 20px;
+            text-align: center;
+            background: var(--bg-card);
+        }
+
+        .footer-cta h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .footer-cta p {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-size: 1.1rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .comparison-header,
+            .comparison-row {
+                grid-template-columns: 1fr;
+                text-align: center !important;
+            }
+
+            .comparison-header > div:first-child,
+            .comparison-row > div:first-child {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Nav -->
+    <nav style="position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; background: rgba(13, 17, 23, 0.9); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border);">
+        <a href="../index.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--text-primary);">
+            <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg" style="width: 36px; height: 36px;">
+                <defs>
+                    <linearGradient id="oneyGradNav" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#2ECC85"/>
+                        <stop offset="100%" stop-color="#1FAD73"/>
+                    </linearGradient>
+                </defs>
+                <g transform="translate(20, 20)">
+                    <path d="M 0 -15 A 15 15 0 1 0 0 -14.99" fill="none" stroke="url(#oneyGradNav)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="90 5"/>
+                    <path d="M0 -18 L0 -22" stroke="url(#oneyGradNav)" stroke-width="2.5" stroke-linecap="round"/>
+                </g>
+            </svg>
+            <span style="font-size: 1.25rem; font-weight: 700;">Oney</span>
+        </a>
+        <a href="index.html" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.875rem;">Launch Suite</a>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <!-- Oney Logo -->
+            <div style="margin-bottom: 24px;">
+                <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg" style="width: 80px; height: 80px;">
+                    <defs>
+                        <linearGradient id="oneyGradHero" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#2ECC85"/>
+                            <stop offset="100%" stop-color="#1FAD73"/>
+                        </linearGradient>
+                    </defs>
+                    <g transform="translate(40, 40)">
+                        <path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#oneyGradHero)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/>
+                        <path d="M0 -38 L0 -44" stroke="url(#oneyGradHero)" stroke-width="5" stroke-linecap="round"/>
+                    </g>
+                </svg>
+            </div>
+            <div class="hero-badge">
+                ✨ Premium Tier
+            </div>
+            <h1>All Your Credit Tools.<br><span>One Unified Platform.</span></h1>
+            <p>Stop switching between tools. Oney Tool Suite integrates everything into a seamless workflow with shared data that flows automatically between every assessment module.</p>
+            <div class="hero-cta">
+                <a href="index.html" class="btn btn-primary">Try the Suite →</a>
+                <a href="#features" class="btn btn-secondary">See Features</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features" id="features">
+        <div class="section-header">
+            <h2>Built for Credit Professionals</h2>
+            <p>Everything you need to assess, document, and decide on credit applications</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h3>Shared Data Layer</h3>
+                <p>Enter borrower and loan information once. Every module automatically pulls the data it needs. No more copy-pasting between tools.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔄</div>
+                <h3>Guided Workflow</h3>
+                <p>Follow a structured assessment path from financial health check through to credit decision. Never miss a step.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Auto-Generated Summary</h3>
+                <p>Complete the workflow and get a formatted credit paper automatically. Export to PDF, Word, or copy to your CRM.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💾</div>
+                <h3>Save & Resume</h3>
+                <p>Save your assessment progress locally. Load it back anytime to continue where you left off.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>No Account Required</h3>
+                <p>Works entirely in your browser. Your data stays on your machine. No signup, no cloud dependency.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🚀</div>
+                <h3>Always Updated</h3>
+                <p>Suite includes all current tools plus every future tool we release. Buy once, benefit forever.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Workflow -->
+    <section class="workflow">
+        <div class="workflow-container">
+            <div class="section-header">
+                <h2>Complete Assessment Workflow</h2>
+                <p>A structured approach to credit analysis</p>
+            </div>
+            <div class="workflow-steps">
+                <div class="workflow-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Financial Health Check</h3>
+                        <p>Evaluate overall financial position. Determine if borrower should proceed now, refinance first, or follow a 12-24 month plan.</p>
+                        <div class="step-output">→ Proceed / Refinance / Wait</div>
+                    </div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Borrower Profile</h3>
+                        <p>Analyze borrower characteristics, business structure, and industry. Determine appropriate credit pathway.</p>
+                        <div class="step-output">→ Credit Pathway Recommendation</div>
+                    </div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Loan Purpose Analysis</h3>
+                        <p>Understand loan purpose and implications. Match to appropriate product type and assess purpose risk.</p>
+                        <div class="step-output">→ Product Type / Purpose Risk</div>
+                    </div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>Security Assessment</h3>
+                        <p>Evaluate security property including zoning, LVR calculation, and security risk rating.</p>
+                        <div class="step-output">→ LVR / Security Risk Rating</div>
+                    </div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3>Servicing Analysis</h3>
+                        <p>Calculate debt serviceability with MLL-adjusted income, add-backs, and stress testing.</p>
+                        <div class="step-output">→ Serviceability Result</div>
+                    </div>
+                </div>
+                <div class="workflow-step">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <h3>Other Risks & Summary</h3>
+                        <p>Document additional risks, mitigants, and conditions. Generate complete credit paper.</p>
+                        <div class="step-output">→ Credit Decision + Full Report</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison -->
+    <section class="comparison">
+        <div class="section-header">
+            <h2>Suite vs Individual Tools</h2>
+            <p>Why the Suite is the smart choice</p>
+        </div>
+        <div class="comparison-table">
+            <div class="comparison-header">
+                <div>Feature</div>
+                <div>Individual Tools</div>
+                <div>Tool Bundle</div>
+                <div class="highlight-col">Tool Suite</div>
+            </div>
+            <div class="comparison-row">
+                <div>All 6+ credit tools</div>
+                <div class="cross">✕</div>
+                <div class="cross">✕</div>
+                <div class="highlight-col"><span class="check">✓</span></div>
+            </div>
+            <div class="comparison-row">
+                <div>Shared data between tools</div>
+                <div class="cross">✕</div>
+                <div class="cross">✕</div>
+                <div class="highlight-col"><span class="check">✓</span></div>
+            </div>
+            <div class="comparison-row">
+                <div>Guided workflow</div>
+                <div class="cross">✕</div>
+                <div class="cross">✕</div>
+                <div class="highlight-col"><span class="check">✓</span></div>
+            </div>
+            <div class="comparison-row">
+                <div>Auto credit summary</div>
+                <div class="cross">✕</div>
+                <div class="cross">✕</div>
+                <div class="highlight-col"><span class="check">✓</span></div>
+            </div>
+            <div class="comparison-row">
+                <div>Save/load assessments</div>
+                <div class="cross">✕</div>
+                <div class="cross">✕</div>
+                <div class="highlight-col"><span class="check">✓</span></div>
+            </div>
+            <div class="comparison-row">
+                <div>Future tools included</div>
+                <div class="cross">✕</div>
+                <div class="cross">✕</div>
+                <div class="highlight-col"><span class="check">✓</span></div>
+            </div>
+            <div class="comparison-row">
+                <div>Priority support</div>
+                <div class="cross">✕</div>
+                <div class="cross">✕</div>
+                <div class="highlight-col"><span class="check">✓</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="pricing">
+        <div class="pricing-container">
+            <div class="section-header">
+                <h2>One Price. Everything Included.</h2>
+            </div>
+            <div class="pricing-card">
+                <div class="pricing-badge">Best Value</div>
+                <h3>Oney Tool Suite</h3>
+                <p class="tagline">Complete Credit Assessment Platform</p>
+                <div class="price"><sup>$</sup>499</div>
+                <p class="price-note">One-time payment. Lifetime access.</p>
+                <ul class="pricing-features">
+                    <li><span class="check">✓</span> All current tools (6+)</li>
+                    <li><span class="check">✓</span> All future tool updates</li>
+                    <li><span class="check">✓</span> Shared data layer</li>
+                    <li><span class="check">✓</span> Guided workflow</li>
+                    <li><span class="check">✓</span> Credit summary generator</li>
+                    <li><span class="check">✓</span> Export to PDF/Word</li>
+                    <li><span class="check">✓</span> Save/load assessments</li>
+                    <li><span class="check">✓</span> Priority email support</li>
+                </ul>
+                <a href="#" class="btn btn-primary" style="width: 100%;" onclick="alert('Coming soon! Contact dong@oney.com.au for early access.')">Get Suite Access →</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer CTA -->
+    <section class="footer-cta">
+        <h2>Ready to Streamline Your Credit Workflow?</h2>
+        <p>Join professionals who've upgraded to a smarter way of working.</p>
+        <a href="index.html" class="btn btn-primary">Try the Suite Now →</a>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>© 2025 Oney & Co. All rights reserved.</p>
+        <p style="margin-top: 8px;">
+            <a href="../index.html">Back to Tools</a> · 
+            <a href="mailto:dong@oney.com.au">Contact</a>
+        </p>
+    </footer>
+</body>
+</html>

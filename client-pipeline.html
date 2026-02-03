@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>🎯 Client Pipeline | Oney & Co</title>
+  <style>
+    :root {
+      --oney-green: #2ECC85;
+      --oney-dark: #1FAD73;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --border: #334155;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    
+    .header {
+      background: var(--card);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .logo { width: 36px; height: 36px; }
+    .header h1 { font-size: 18px; }
+    .view-toggle {
+      display: flex;
+      gap: 4px;
+      background: var(--bg);
+      padding: 4px;
+      border-radius: 8px;
+    }
+    .view-btn {
+      padding: 6px 12px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .view-btn.active { background: var(--oney-green); color: white; }
+    
+    .container { padding: 16px; max-width: 1200px; margin: 0 auto; }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 600px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+    .stat {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+    .stat-value { font-size: 24px; font-weight: 700; color: var(--oney-green); }
+    .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    
+    /* Kanban View */
+    .kanban { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 16px; }
+    .kanban.hidden { display: none; }
+    .stage {
+      flex: 0 0 280px;
+      background: var(--card);
+      border-radius: 12px;
+      padding: 12px;
+      max-height: calc(100vh - 220px);
+      display: flex;
+      flex-direction: column;
+    }
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--border);
+    }
+    .stage-title { font-weight: 600; font-size: 13px; }
+    .stage-count {
+      background: var(--oney-green);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+    }
+    .stage-clients {
+      flex: 1;
+      overflow-y: auto;
+      min-height: 100px;
+    }
+    .stage-clients.drag-over { background: rgba(46, 204, 133, 0.1); border-radius: 8px; }
+    
+    /* List View (Mobile) */
+    .list-view { display: none; }
+    .list-view.active { display: block; }
+    .list-section { margin-bottom: 16px; }
+    .list-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: var(--card);
+      border-radius: 10px 10px 0 0;
+      border-bottom: 2px solid var(--oney-green);
+    }
+    .list-section-title { font-weight: 600; font-size: 14px; }
+    
+    /* Client Card */
+    .client-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 8px;
+      cursor: grab;
+      transition: all 0.2s;
+      border-left: 3px solid var(--oney-green);
+    }
+    .client-card:hover { background: rgba(255,255,255,0.08); }
+    .client-card.dragging { opacity: 0.5; transform: rotate(2deg); }
+    .client-name { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+    .client-amount {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--oney-green);
+      margin-bottom: 2px;
+    }
+    .client-amount-text {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .client-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .client-tag {
+      background: rgba(255,255,255,0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .client-date { color: var(--warning); }
+    
+    .add-btn {
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    .add-btn:hover { border-color: var(--oney-green); color: var(--oney-green); }
+    
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+    .modal.hidden { display: none; }
+    .modal-content {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 440px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .modal h2 { font-size: 18px; }
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+    }
+    .form-textarea { resize: vertical; min-height: 60px; }
+    .form-input:focus, .form-select:focus { outline: none; border-color: var(--oney-green); }
+    .amount-preview {
+      font-size: 12px;
+      color: var(--oney-green);
+      margin-top: 4px;
+      min-height: 18px;
+    }
+    .btn-row { display: flex; gap: 10px; margin-top: 20px; }
+    .btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-primary { background: var(--oney-green); color: white; }
+    .btn-secondary { background: var(--border); color: var(--text); }
+    .btn-danger { background: var(--danger); color: white; }
+    
+    .history-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .history-title { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .history-item { font-size: 11px; color: var(--muted); padding: 4px 0; }
+    
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--oney-green);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 13px;
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 1001;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    
+    .fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 56px;
+      height: 56px;
+      background: var(--oney-green);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(46,204,133,0.4);
+      display: none;
+    }
+    @media (max-width: 768px) {
+      .fab { display: flex; align-items: center; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-left">
+      <svg class="logo" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="oneyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2ECC85"/>
+            <stop offset="100%" stop-color="#1FAD73"/>
+          </linearGradient>
+        </defs>
+        <g transform="translate(20, 20)">
+          <path d="M 0 -15 A 15 15 0 1 0 0 -14.99" fill="none" stroke="url(#oneyGrad)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="90 5"/>
+          <path d="M0 -18 L0 -22" stroke="url(#oneyGrad)" stroke-width="2.5" stroke-linecap="round"/>
+        </g>
+      </svg>
+      <h1>Client Pipeline</h1>
+    </div>
+    <div class="view-toggle">
+      <button class="view-btn active" onclick="setView('kanban')">📋 Board</button>
+      <button class="view-btn" onclick="setView('list')">📱 List</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value" id="totalClients">0</div>
+        <div class="stat-label">Total Clients</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="activeDeals">0</div>
+        <div class="stat-label">Active Deals</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="totalValue">$0</div>
+        <div class="stat-label">Pipeline Value</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="settledCount">0</div>
+        <div class="stat-label">Settled</div>
+      </div>
+    </div>
+
+    <div class="kanban" id="kanban"></div>
+    <div class="list-view" id="listView"></div>
+  </div>
+
+  <button class="fab" onclick="openModal()">+</button>
+
+  <div class="modal hidden" id="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Add Client</h2>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+      </div>
+      <input type="hidden" id="editId">
+      
+      <div class="form-group">
+        <label class="form-label">Client Name *</label>
+        <input type="text" class="form-input" id="clientName" placeholder="e.g., John Smith">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Phone / Email</label>
+        <input type="text" class="form-input" id="clientContact" placeholder="0412 345 678 or email">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Loan Amount ($)</label>
+        <input type="text" class="form-input" id="loanAmount" placeholder="e.g., 500000" oninput="updateAmountPreview()">
+        <div class="amount-preview" id="amountPreview"></div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Funding Purpose</label>
+        <select class="form-select" id="fundingPurpose">
+          <option value="purchase">🏠 Purchase</option>
+          <option value="refinance">🔄 Refinancing</option>
+          <option value="topup">💰 Top Up</option>
+          <option value="other">📋 Other</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Stage</label>
+        <select class="form-select" id="clientStage">
+          <option value="inquiry">📞 Inquiry</option>
+          <option value="preapproval">📋 Pre-approval</option>
+          <option value="application">📝 Application</option>
+          <option value="assessment">🔍 Assessment</option>
+          <option value="approved">✅ Approved</option>
+          <option value="settled">🎉 Settled</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <textarea class="form-textarea" id="clientNotes" placeholder="Any notes..."></textarea>
+      </div>
+      
+      <div class="history-section hidden" id="historySection">
+        <div class="history-title">📅 Stage History</div>
+        <div id="stageHistory"></div>
+      </div>
+      
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-danger hidden" id="deleteBtn" onclick="deleteClient()">Delete</button>
+        <button class="btn btn-primary" onclick="saveClient()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const stages = [
+      { id: 'inquiry', name: '📞 Inquiry', color: '#94a3b8' },
+      { id: 'preapproval', name: '📋 Pre-approval', color: '#60a5fa' },
+      { id: 'application', name: '📝 Application', color: '#f59e0b' },
+      { id: 'assessment', name: '🔍 Assessment', color: '#a78bfa' },
+      { id: 'approved', name: '✅ Approved', color: '#22c55e' },
+      { id: 'settled', name: '🎉 Settled', color: '#2ECC85' }
+    ];
+    
+    const purposeLabels = {
+      purchase: '🏠 Purchase',
+      refinance: '🔄 Refinance',
+      topup: '💰 Top Up',
+      other: '📋 Other'
+    };
+    
+    let clients = [];
+    let currentView = 'kanban';
+    let draggedClient = null;
+    
+    function loadData() {
+      const saved = localStorage.getItem('oney-client-pipeline-v2');
+      if (saved) clients = JSON.parse(saved);
+    }
+    
+    function saveData() {
+      localStorage.setItem('oney-client-pipeline-v2', JSON.stringify(clients));
+      showToast('✅ Saved');
+    }
+    
+    function formatAmount(num) {
+      if (!num) return '$0';
+      return '$' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+    
+    function amountToWords(num) {
+      if (!num) return '';
+      if (num >= 1000000) {
+        return (num / 1000000).toFixed(1).replace(/\.0$/, '') + ' million';
+      } else if (num >= 1000) {
+        return (num / 1000).toFixed(0) + ' thousand';
+      }
+      return num.toString();
+    }
+    
+    function updateAmountPreview() {
+      const input = document.getElementById('loanAmount').value.replace(/[^0-9]/g, '');
+      const preview = document.getElementById('amountPreview');
+      if (input) {
+        const num = parseInt(input);
+        preview.textContent = formatAmount(num) + ' (' + amountToWords(num) + ')';
+      } else {
+        preview.textContent = '';
+      }
+    }
+    
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+    }
+    
+    function daysSince(dateStr) {
+      if (!dateStr) return 0;
+      const d = new Date(dateStr);
+      const now = new Date();
+      return Math.floor((now - d) / (1000 * 60 * 60 * 24));
+    }
+    
+    function setView(view) {
+      currentView = view;
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector(`.view-btn[onclick="setView('${view}')"]`).classList.add('active');
+      
+      if (view === 'kanban') {
+        document.getElementById('kanban').classList.remove('hidden');
+        document.getElementById('listView').classList.remove('active');
+      } else {
+        document.getElementById('kanban').classList.add('hidden');
+        document.getElementById('listView').classList.add('active');
+      }
+      render();
+    }
+    
+    function render() {
+      if (currentView === 'kanban') {
+        renderKanban();
+      } else {
+        renderList();
+      }
+      updateStats();
+    }
+    
+    function renderKanban() {
+      const kanban = document.getElementById('kanban');
+      kanban.innerHTML = stages.map(stage => {
+        const stageClients = clients.filter(c => c.stage === stage.id);
+        return `
+          <div class="stage" data-stage="${stage.id}">
+            <div class="stage-header">
+              <span class="stage-title">${stage.name}</span>
+              <span class="stage-count">${stageClients.length}</span>
+            </div>
+            <div class="stage-clients" 
+                 ondragover="handleDragOver(event)" 
+                 ondragleave="handleDragLeave(event)"
+                 ondrop="handleDrop(event, '${stage.id}')">
+              ${stageClients.map(c => renderClientCard(c)).join('')}
+            </div>
+            <button class="add-btn" onclick="openModal('${stage.id}')">+ Add Client</button>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function renderList() {
+      const listView = document.getElementById('listView');
+      listView.innerHTML = stages.map(stage => {
+        const stageClients = clients.filter(c => c.stage === stage.id);
+        if (stageClients.length === 0) return '';
+        return `
+          <div class="list-section">
+            <div class="list-section-header">
+              <span class="list-section-title">${stage.name}</span>
+              <span>${stageClients.length}</span>
+            </div>
+            ${stageClients.map(c => renderClientCard(c, true)).join('')}
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function renderClientCard(client, isList = false) {
+      const days = daysSince(client.stageDate || client.createdAt);
+      const daysText = days === 0 ? 'Today' : days === 1 ? '1 day' : days + ' days';
+      
+      return `
+        <div class="client-card" 
+             draggable="true"
+             ondragstart="handleDragStart(event, ${client.id})"
+             ondragend="handleDragEnd(event)"
+             onclick="editClient(${client.id})">
+          <div class="client-name">${client.name}</div>
+          <div class="client-amount">${formatAmount(client.amount)}</div>
+          <div class="client-amount-text">${amountToWords(client.amount)}</div>
+          <div class="client-meta">
+            <span class="client-tag">${purposeLabels[client.purpose] || '📋 Other'}</span>
+            <span class="client-date">📅 ${daysText} in stage</span>
+          </div>
+        </div>
+      `;
+    }
+    
+    function updateStats() {
+      document.getElementById('totalClients').textContent = clients.length;
+      document.getElementById('activeDeals').textContent = clients.filter(c => c.stage !== 'settled').length;
+      const total = clients.reduce((sum, c) => sum + (c.amount || 0), 0);
+      document.getElementById('totalValue').textContent = formatAmount(total);
+      document.getElementById('settledCount').textContent = clients.filter(c => c.stage === 'settled').length;
+    }
+    
+    // Drag & Drop
+    function handleDragStart(e, id) {
+      draggedClient = id;
+      e.target.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    }
+    
+    function handleDragEnd(e) {
+      e.target.classList.remove('dragging');
+      document.querySelectorAll('.stage-clients').forEach(el => el.classList.remove('drag-over'));
+    }
+    
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.currentTarget.classList.add('drag-over');
+    }
+    
+    function handleDragLeave(e) {
+      e.currentTarget.classList.remove('drag-over');
+    }
+    
+    function handleDrop(e, newStage) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('drag-over');
+      
+      if (draggedClient !== null) {
+        const client = clients.find(c => c.id === draggedClient);
+        if (client && client.stage !== newStage) {
+          // Record stage change in history
+          if (!client.stageHistory) client.stageHistory = [];
+          client.stageHistory.push({
+            from: client.stage,
+            to: newStage,
+            date: new Date().toISOString()
+          });
+          
+          // Update stage
+          client.stage = newStage;
+          client.stageDate = new Date().toISOString();
+          
+          saveData();
+          render();
+          showToast(`Moved to ${stages.find(s => s.id === newStage)?.name}`);
+        }
+        draggedClient = null;
+      }
+    }
+    
+    function openModal(stage = 'inquiry') {
+      document.getElementById('editId').value = '';
+      document.getElementById('clientName').value = '';
+      document.getElementById('clientContact').value = '';
+      document.getElementById('loanAmount').value = '';
+      document.getElementById('amountPreview').textContent = '';
+      document.getElementById('fundingPurpose').value = 'purchase';
+      document.getElementById('clientStage').value = stage;
+      document.getElementById('clientNotes').value = '';
+      document.getElementById('modalTitle').textContent = 'Add Client';
+      document.getElementById('deleteBtn').classList.add('hidden');
+      document.getElementById('historySection').classList.add('hidden');
+      document.getElementById('modal').classList.remove('hidden');
+    }
+    
+    function editClient(id) {
+      const client = clients.find(c => c.id === id);
+      if (!client) return;
+      
+      document.getElementById('editId').value = id;
+      document.getElementById('clientName').value = client.name;
+      document.getElementById('clientContact').value = client.contact || '';
+      document.getElementById('loanAmount').value = client.amount || '';
+      document.getElementById('fundingPurpose').value = client.purpose || 'purchase';
+      document.getElementById('clientStage').value = client.stage;
+      document.getElementById('clientNotes').value = client.notes || '';
+      document.getElementById('modalTitle').textContent = 'Edit Client';
+      document.getElementById('deleteBtn').classList.remove('hidden');
+      
+      updateAmountPreview();
+      
+      // Show history
+      if (client.stageHistory && client.stageHistory.length > 0) {
+        document.getElementById('historySection').classList.remove('hidden');
+        document.getElementById('stageHistory').innerHTML = 
+          `<div class="history-item">📅 Created: ${formatDate(client.createdAt)}</div>` +
+          client.stageHistory.map(h => 
+            `<div class="history-item">➡️ ${stages.find(s=>s.id===h.from)?.name} → ${stages.find(s=>s.id===h.to)?.name} (${formatDate(h.date)})</div>`
+          ).join('');
+      } else {
+        document.getElementById('historySection').classList.add('hidden');
+      }
+      
+      document.getElementById('modal').classList.remove('hidden');
+    }
+    
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+    }
+    
+    function saveClient() {
+      const id = document.getElementById('editId').value;
+      const name = document.getElementById('clientName').value.trim();
+      if (!name) {
+        showToast('Please enter client name', 'warning');
+        return;
+      }
+      
+      const amountStr = document.getElementById('loanAmount').value.replace(/[^0-9]/g, '');
+      
+      const data = {
+        name,
+        contact: document.getElementById('clientContact').value.trim(),
+        amount: parseInt(amountStr) || 0,
+        purpose: document.getElementById('fundingPurpose').value,
+        stage: document.getElementById('clientStage').value,
+        notes: document.getElementById('clientNotes').value
+      };
+      
+      if (id) {
+        const idx = clients.findIndex(c => c.id === parseInt(id));
+        if (idx >= 0) {
+          const oldStage = clients[idx].stage;
+          if (oldStage !== data.stage) {
+            if (!clients[idx].stageHistory) clients[idx].stageHistory = [];
+            clients[idx].stageHistory.push({
+              from: oldStage,
+              to: data.stage,
+              date: new Date().toISOString()
+            });
+            data.stageDate = new Date().toISOString();
+          }
+          clients[idx] = { ...clients[idx], ...data };
+        }
+      } else {
+        clients.push({
+          id: Date.now(),
+          ...data,
+          createdAt: new Date().toISOString(),
+          stageDate: new Date().toISOString(),
+          stageHistory: []
+        });
+      }
+      
+      saveData();
+      render();
+      closeModal();
+    }
+    
+    function deleteClient() {
+      const id = parseInt(document.getElementById('editId').value);
+      if (confirm('Delete this client?')) {
+        clients = clients.filter(c => c.id !== id);
+        saveData();
+        render();
+        closeModal();
+        showToast('Client deleted');
+      }
+    }
+    
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+    
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target.id === 'modal') closeModal();
+    });
+    
+    // Check screen size and set default view
+    if (window.innerWidth <= 768) {
+      setView('list');
+    }
+    
+    loadData();
+    render();
+  </script>
+</body>
+</html>

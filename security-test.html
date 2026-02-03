@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Security Test Tool — Property type identification and LVR policy lookup">
+  <title>Security Test Tool</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Google Places API - Replace YOUR_API_KEY with actual key -->
+  <script>
+    // Configuration - Set your API key here
+    const GOOGLE_PLACES_API_KEY = 'AIzaSyBHTgzeidz9hvA2vDg-oD2GiIHSb6J_nwQ';
+    
+    // Load Google Maps script dynamically if API key is set
+    if (GOOGLE_PLACES_API_KEY) {
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_PLACES_API_KEY}&libraries=places&callback=initAutocomplete`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    }
+  </script>
+  
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --card: #141414;
+      --card-hover: #1a1a1a;
+      --border: #262626;
+      --primary: #2ECC85;
+      --primary-glow: rgba(31, 173, 115, 0.25);
+      --secondary: #4ADE94;
+      --success: #34d399;
+      --warning: #2ECC85;
+      --danger: #f87171;
+      --text: #f8fafc;
+      --text-muted: #a3a3a3;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 0 0 100px 0;
+    }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    header { text-align: center; padding: 30px 0 20px; }
+    .logo {
+      font-size: 26px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #2ECC85, #1FAD73);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .tagline { color: var(--text-muted); font-size: 14px; margin-top: 8px; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+    .form-group { margin-bottom: 16px; }
+    label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+    input, select {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-family: inherit;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .helper { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+    
+    /* Property Type Cards */
+    .property-types {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .type-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .type-btn:hover {
+      border-color: var(--primary);
+      color: var(--text);
+    }
+    .type-btn.active {
+      border-color: var(--primary);
+      background: var(--primary-glow);
+      color: var(--text);
+    }
+    .type-btn .icon { font-size: 24px; margin-bottom: 4px; }
+    .type-btn .name { font-weight: 500; }
+    
+    /* Sub-types */
+    .subtypes {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .subtype-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .subtype-btn {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-muted);
+      transition: all 0.2s;
+    }
+    .subtype-btn:hover { border-color: var(--primary); }
+    .subtype-btn.active {
+      border-color: var(--primary);
+      background: var(--primary-glow);
+      color: var(--text);
+    }
+    
+    /* Result Card */
+    .result-card {
+      background: linear-gradient(135deg, var(--card), var(--card-hover));
+      border: 1px solid var(--primary);
+      box-shadow: 0 0 30px var(--primary-glow);
+    }
+    .lvr-display {
+      text-align: center;
+      padding: 30px;
+      background: var(--bg);
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    .lvr-label { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
+    .lvr-value { font-size: 56px; font-weight: 700; color: var(--primary); }
+    .lvr-cap { font-size: 14px; color: var(--text-muted); margin-top: 8px; }
+    
+    .lvr-meter {
+      height: 12px;
+      background: var(--bg);
+      border-radius: 6px;
+      overflow: hidden;
+      margin: 20px 0;
+    }
+    .lvr-meter-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.5s ease;
+    }
+    .lvr-meter-fill.green { background: linear-gradient(90deg, #34d399, #10b981); }
+    .lvr-meter-fill.yellow { background: linear-gradient(90deg, #2ECC85, #1FAD73); }
+    .lvr-meter-fill.red { background: linear-gradient(90deg, #f87171, #ef4444); }
+    
+    .policy-box {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .policy-box h4 {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .policy-box ul {
+      list-style: none;
+      font-size: 14px;
+    }
+    .policy-box li {
+      padding: 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .warning-box {
+      background: rgba(248, 113, 113, 0.1);
+      border: 1px solid var(--danger);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    .warning-box h4 {
+      color: var(--danger);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .warning-box p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .info-box {
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    
+    .btn {
+      width: 100%; padding: 16px; font-size: 16px; font-weight: 600;
+      font-family: inherit; border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-primary { background: linear-gradient(135deg, #2ECC85, #1FAD73); color: #000; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px var(--primary-glow); }
+    .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); margin-top: 12px; }
+    .hidden { display: none; }
+    .footer { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 12px; }
+    .footer a { color: var(--primary); text-decoration: none; }
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: var(--card); border-top: 1px solid var(--border);
+      padding: 12px 20px; padding-bottom: calc(12px + env(safe-area-inset-bottom));
+      display: flex; justify-content: space-around;
+    }
+    .nav-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      background: none; border: none; color: var(--text-muted); font-size: 12px;
+      cursor: pointer; padding: 8px 16px; border-radius: 12px; transition: all 0.2s;
+    }
+    .nav-btn.active { color: var(--primary); background: var(--primary-glow); }
+    .nav-btn span:first-child { font-size: 20px; }
+    
+    /* Google Places Autocomplete Styling */
+    .pac-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-top: 4px;
+      font-family: 'Inter', -apple-system, sans-serif;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    .pac-item {
+      padding: 12px 16px;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .pac-item:hover {
+      background: var(--card-hover);
+    }
+    .pac-item-query {
+      color: var(--primary);
+      font-weight: 500;
+    }
+    .pac-matched {
+      color: var(--primary);
+      font-weight: 600;
+    }
+    .pac-icon {
+      display: none;
+    }
+    .address-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+      margin-left: 8px;
+    }
+    .address-status.verified {
+      background: rgba(52, 211, 153, 0.15);
+      color: var(--success);
+    }
+    .address-status.manual {
+      background: rgba(148, 163, 184, 0.15);
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">Security Test Tool</div>
+      <div class="tagline">Property Type & LVR Policy Lookup</div>
+    </header>
+    
+    <div id="step1">
+      <div class="card">
+        <div class="card-title">📍 Property Address</div>
+        <div class="form-group">
+          <label>Property Address <span id="addressStatus" class="address-status manual">Manual Entry</span></label>
+          <input type="text" id="address" placeholder="Start typing address..." autocomplete="off">
+          <div class="helper" id="addressHelper">Enter the full property address (autocomplete enabled if API key configured)</div>
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>State</label>
+            <select id="state">
+              <option value="NSW">NSW</option>
+              <option value="VIC">VIC</option>
+              <option value="QLD">QLD</option>
+              <option value="WA">WA</option>
+              <option value="SA">SA</option>
+              <option value="TAS">TAS</option>
+              <option value="ACT">ACT</option>
+              <option value="NT">NT</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Council Zoning</label>
+            <select id="zoning" onchange="updateZoningInfo()">
+              <optgroup label="Residential">
+                <option value="R1">R1 - General Residential</option>
+                <option value="R2">R2 - Low Density Residential</option>
+                <option value="R3">R3 - Medium Density Residential</option>
+                <option value="R4">R4 - High Density Residential</option>
+                <option value="R5">R5 - Large Lot Residential</option>
+              </optgroup>
+              <optgroup label="Business">
+                <option value="B1">B1 - Neighbourhood Centre</option>
+                <option value="B2">B2 - Local Centre</option>
+                <option value="B3">B3 - Commercial Core</option>
+                <option value="B4">B4 - Mixed Use</option>
+                <option value="B5">B5 - Business Development</option>
+                <option value="B6">B6 - Enterprise Corridor</option>
+                <option value="B7">B7 - Business Park</option>
+              </optgroup>
+              <optgroup label="Industrial">
+                <option value="IN1">IN1 - General Industrial</option>
+                <option value="IN2">IN2 - Light Industrial</option>
+                <option value="IN3">IN3 - Heavy Industrial</option>
+                <option value="IN4">IN4 - Working Waterfront</option>
+              </optgroup>
+              <optgroup label="Rural">
+                <option value="RU1">RU1 - Primary Production</option>
+                <option value="RU2">RU2 - Rural Landscape</option>
+                <option value="RU3">RU3 - Forestry</option>
+                <option value="RU4">RU4 - Primary Production Small Lots</option>
+                <option value="RU5">RU5 - Village</option>
+                <option value="RU6">RU6 - Transition</option>
+              </optgroup>
+              <optgroup label="Special Purpose">
+                <option value="SP1">SP1 - Special Activities</option>
+                <option value="SP2">SP2 - Infrastructure</option>
+                <option value="SP3">SP3 - Tourist</option>
+              </optgroup>
+              <optgroup label="Environment">
+                <option value="E1">E1 - National Parks</option>
+                <option value="E2">E2 - Environmental Conservation</option>
+                <option value="E3">E3 - Environmental Management</option>
+                <option value="E4">E4 - Environmental Living</option>
+              </optgroup>
+              <optgroup label="Other">
+                <option value="MU1">MU1 - Mixed Use</option>
+                <option value="RE1">RE1 - Public Recreation</option>
+                <option value="RE2">RE2 - Private Recreation</option>
+                <option value="W1">W1 - Natural Waterways</option>
+                <option value="W2">W2 - Recreational Waterways</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+        <div class="info-box" id="zoningInfo" style="background: rgba(56, 189, 248, 0.1); border: 1px solid var(--secondary); margin-top: 12px;">
+          💡 <strong>R1 - General Residential:</strong> Standard residential use, good lender appetite
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">🏠 Property Category</div>
+        <div class="property-types">
+          <div class="type-btn" onclick="selectCategory('residential')">
+            <div class="icon">🏠</div>
+            <div class="name">Residential</div>
+          </div>
+          <div class="type-btn" onclick="selectCategory('commercial')">
+            <div class="icon">🏢</div>
+            <div class="name">Commercial</div>
+          </div>
+          <div class="type-btn" onclick="selectCategory('specialised')">
+            <div class="icon">🏨</div>
+            <div class="name">Specialised</div>
+          </div>
+          <div class="type-btn" onclick="selectCategory('industrial')">
+            <div class="icon">🏭</div>
+            <div class="name">Industrial</div>
+          </div>
+          <div class="type-btn" onclick="selectCategory('rural')">
+            <div class="icon">🌾</div>
+            <div class="name">Rural</div>
+          </div>
+          <div class="type-btn" onclick="selectCategory('development')">
+            <div class="icon">🏗️</div>
+            <div class="name">Development</div>
+          </div>
+        </div>
+        
+        <div class="subtypes" id="subtypes" style="display: none;">
+          <label>Property Type</label>
+          <div class="subtype-grid" id="subtypeGrid"></div>
+        </div>
+      </div>
+      
+      <div class="card" id="securityCard" style="display: none;">
+        <div class="card-title">🏦 Security Details</div>
+        <div class="row">
+          <div class="form-group">
+            <label>Estimated Value</label>
+            <input type="text" id="propertyValue" placeholder="e.g., 1,500,000" inputmode="numeric" onkeyup="formatNumber(this)">
+          </div>
+          <div class="form-group">
+            <label>Proposed Loan</label>
+            <input type="text" id="loanAmount" placeholder="e.g., 1,000,000" inputmode="numeric" onkeyup="formatNumber(this)">
+          </div>
+        </div>
+      </div>
+      
+      <button class="btn btn-primary" onclick="calculate()">Check LVR Policy</button>
+    </div>
+    
+    <div id="step2" class="hidden">
+      <div class="card result-card">
+        <div class="card-title">📊 LVR Assessment</div>
+        
+        <div class="lvr-display">
+          <div class="lvr-label">Your LVR</div>
+          <div class="lvr-value" id="lvrValue">--</div>
+          <div class="lvr-cap" id="lvrCap">Cap: --</div>
+        </div>
+        
+        <div class="lvr-meter">
+          <div class="lvr-meter-fill green" id="lvrMeter" style="width: 0%;"></div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-bottom: 20px;">
+          <span>0%</span>
+          <span id="alertMark">Alert: 65%</span>
+          <span id="capMark">Cap: 70%</span>
+          <span>100%</span>
+        </div>
+        
+        <div class="policy-box">
+          <h4>📋 Property Details</h4>
+          <ul id="propertyDetails">
+            <li>🏠 Category: --</li>
+            <li>📍 Type: --</li>
+            <li>💰 Value: --</li>
+          </ul>
+        </div>
+        
+        <div class="policy-box">
+          <h4>📜 LVR Policy</h4>
+          <ul id="policyDetails">
+            <li>✅ Maximum LVR: --</li>
+            <li>⚠️ Alert Threshold: --</li>
+            <li>💵 Max Loan: --</li>
+          </ul>
+        </div>
+        
+        <div class="warning-box" id="warningBox" style="display: none;">
+          <h4>⚠️ Special Considerations</h4>
+          <p id="warningText"></p>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">📝 Recommendations</div>
+        <div id="recommendations" style="font-size: 14px; line-height: 1.8; color: var(--text-muted);"></div>
+      </div>
+      
+      <button class="btn btn-primary" onclick="copyResults()">📋 Copy Results</button>
+      <button class="btn btn-secondary" onclick="exportPDF()">📄 Export PDF</button>
+      <button class="btn btn-secondary" onclick="reset()">🔄 New Assessment</button>
+    </div>
+    
+    <footer class="footer">
+      <p>Made by <a href="https://oneyco.com.au">Oney & Co</a></p>
+    </footer>
+  </div>
+  
+  <nav class="bottom-nav">
+    <button class="nav-btn active" onclick="showStep(1)"><span>📝</span><span>Input</span></button>
+    <button class="nav-btn" onclick="showStep(2)"><span>📊</span><span>Results</span></button>
+    <button class="nav-btn" onclick="showInfo()"><span>ℹ️</span><span>Info</span></button>
+  </nav>
+  
+  <script>
+    // Property type definitions
+    const propertyTypes = {
+      residential: {
+        name: 'Residential',
+        icon: '🏠',
+        subtypes: [
+          { id: 'house', name: 'House', lvr: 80, alert: 70, warning: null },
+          { id: 'unit', name: 'Unit / Apartment', lvr: 80, alert: 70, warning: null },
+          { id: 'townhouse', name: 'Townhouse', lvr: 80, alert: 70, warning: null },
+          { id: 'rural-res', name: 'Rural Residential', lvr: 70, alert: 60, warning: 'Rural properties may require specialist valuation' },
+          { id: 'high-density', name: 'High Density (>50sqm)', lvr: 80, alert: 70, warning: null },
+          { id: 'small-unit', name: 'Small Unit (<50sqm)', lvr: 70, alert: 60, warning: 'Small units may have limited lender appetite' }
+        ]
+      },
+      commercial: {
+        name: 'Commercial',
+        icon: '🏢',
+        subtypes: [
+          { id: 'retail', name: 'Retail Shop', lvr: 70, alert: 65, warning: null },
+          { id: 'office', name: 'Office', lvr: 70, alert: 65, warning: null },
+          { id: 'mixed-use', name: 'Mixed Use', lvr: 70, alert: 65, warning: 'Requires assessment of both residential and commercial components' },
+          { id: 'strata-office', name: 'Strata Office', lvr: 65, alert: 60, warning: null }
+        ]
+      },
+      specialised: {
+        name: 'Specialised',
+        icon: '🏨',
+        subtypes: [
+          { id: 'hotel', name: 'Hotel / Motel', lvr: 60, alert: 50, warning: 'Specialised property — limited lender appetite, going concern valuation required' },
+          { id: 'childcare', name: 'Childcare Centre', lvr: 60, alert: 50, warning: 'Specialised property — operator covenant critical' },
+          { id: 'medical', name: 'Medical Centre', lvr: 65, alert: 55, warning: 'Tenant covenant and lease terms critical' },
+          { id: 'aged-care', name: 'Aged Care / Nursing', lvr: 55, alert: 45, warning: 'Highly specialised — very limited lenders, extensive due diligence required' },
+          { id: 'service-station', name: 'Service Station', lvr: 60, alert: 50, warning: 'Environmental assessment required, specialised valuation' },
+          { id: 'pub', name: 'Pub / Licensed Venue', lvr: 60, alert: 50, warning: 'Going concern valuation, gaming license considerations' }
+        ]
+      },
+      industrial: {
+        name: 'Industrial',
+        icon: '🏭',
+        subtypes: [
+          { id: 'warehouse', name: 'Warehouse', lvr: 65, alert: 60, warning: null },
+          { id: 'factory', name: 'Factory / Manufacturing', lvr: 65, alert: 55, warning: 'May require environmental assessment' },
+          { id: 'logistics', name: 'Logistics / Distribution', lvr: 65, alert: 60, warning: null },
+          { id: 'heavy-industrial', name: 'Heavy Industrial', lvr: 60, alert: 50, warning: 'Specialised use — limited alternative use, environmental considerations' }
+        ]
+      },
+      rural: {
+        name: 'Rural',
+        icon: '🌾',
+        subtypes: [
+          { id: 'farm', name: 'Working Farm', lvr: 60, alert: 50, warning: 'Rural specialist lender may be required, water rights critical' },
+          { id: 'hobby-farm', name: 'Hobby Farm (<100 acres)', lvr: 70, alert: 60, warning: 'May be assessed as rural residential' },
+          { id: 'vineyard', name: 'Vineyard / Orchard', lvr: 55, alert: 45, warning: 'Highly specialised — going concern valuation' },
+          { id: 'grazing', name: 'Grazing / Pastoral', lvr: 55, alert: 45, warning: 'Carrying capacity and water rights critical' }
+        ]
+      },
+      development: {
+        name: 'Development',
+        icon: '🏗️',
+        subtypes: [
+          { id: 'dev-site', name: 'Development Site (DA Approved)', lvr: 65, alert: 55, warning: 'Development finance — presales and builder covenant required' },
+          { id: 'raw-land', name: 'Raw Land (No DA)', lvr: 50, alert: 40, warning: 'Vacant land — very limited lenders, council zoning critical' },
+          { id: 'reno', name: 'Renovation Project', lvr: 70, alert: 60, warning: 'Renovation scope and budget to be assessed' },
+          { id: 'subdivision', name: 'Subdivision', lvr: 60, alert: 50, warning: 'Requires council approval and presale conditions' }
+        ]
+      }
+    };
+    
+    let selectedCategory = null;
+    let selectedSubtype = null;
+    
+    function formatNumber(input) {
+      let value = input.value.replace(/,/g, '').replace(/[^0-9]/g, '');
+      if (value) input.value = parseInt(value).toLocaleString();
+    }
+    
+    function parseNum(str) {
+      return parseFloat((str || '').replace(/,/g, '')) || 0;
+    }
+    
+    function selectCategory(category) {
+      selectedCategory = category;
+      selectedSubtype = null;
+      
+      // Update UI
+      document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      
+      // Show subtypes
+      const subtypesDiv = document.getElementById('subtypes');
+      const grid = document.getElementById('subtypeGrid');
+      const types = propertyTypes[category].subtypes;
+      
+      grid.innerHTML = types.map(t => `
+        <div class="subtype-btn" onclick="selectSubtype('${t.id}')">${t.name}</div>
+      `).join('');
+      
+      subtypesDiv.style.display = 'block';
+      document.getElementById('securityCard').style.display = 'block';
+    }
+    
+    function selectSubtype(subtypeId) {
+      selectedSubtype = subtypeId;
+      
+      document.querySelectorAll('.subtype-btn').forEach(btn => btn.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+    }
+    
+    function calculate() {
+      if (!selectedCategory || !selectedSubtype) {
+        alert('Please select property category and type');
+        return;
+      }
+      
+      const address = document.getElementById('address').value || 'Not specified';
+      const propertyValue = parseNum(document.getElementById('propertyValue').value);
+      const loanAmount = parseNum(document.getElementById('loanAmount').value);
+      
+      const category = propertyTypes[selectedCategory];
+      const subtype = category.subtypes.find(s => s.id === selectedSubtype);
+      
+      const lvr = propertyValue > 0 ? (loanAmount / propertyValue) * 100 : 0;
+      const maxLoan = propertyValue * (subtype.lvr / 100);
+      
+      // Determine status
+      let status, meterClass;
+      if (lvr <= subtype.alert) {
+        status = 'pass';
+        meterClass = 'green';
+      } else if (lvr <= subtype.lvr) {
+        status = 'alert';
+        meterClass = 'yellow';
+      } else {
+        status = 'fail';
+        meterClass = 'red';
+      }
+      
+      // Update display
+      document.getElementById('lvrValue').textContent = lvr.toFixed(1) + '%';
+      document.getElementById('lvrCap').textContent = `Cap: ${subtype.lvr}% | Alert: ${subtype.alert}%`;
+      
+      const meterWidth = Math.min(lvr, 100);
+      const meter = document.getElementById('lvrMeter');
+      meter.style.width = meterWidth + '%';
+      meter.className = 'lvr-meter-fill ' + meterClass;
+      
+      document.getElementById('alertMark').textContent = `Alert: ${subtype.alert}%`;
+      document.getElementById('capMark').textContent = `Cap: ${subtype.lvr}%`;
+      
+      document.getElementById('propertyDetails').innerHTML = `
+        <li>🏠 Category: ${category.name}</li>
+        <li>📍 Type: ${subtype.name}</li>
+        <li>📍 Address: ${address}</li>
+        <li>💰 Value: $${propertyValue.toLocaleString()}</li>
+        <li>🏦 Loan: $${loanAmount.toLocaleString()}</li>
+      `;
+      
+      document.getElementById('policyDetails').innerHTML = `
+        <li>${status === 'fail' ? '❌' : '✅'} Maximum LVR: ${subtype.lvr}%</li>
+        <li>⚠️ Alert Threshold: ${subtype.alert}%</li>
+        <li>💵 Max Loan at Cap: $${Math.round(maxLoan).toLocaleString()}</li>
+        <li>${status === 'pass' ? '✅' : status === 'alert' ? '⚠️' : '❌'} Your LVR: ${lvr.toFixed(1)}%</li>
+      `;
+      
+      // Warning
+      const warningBox = document.getElementById('warningBox');
+      if (subtype.warning) {
+        warningBox.style.display = 'block';
+        document.getElementById('warningText').textContent = subtype.warning;
+      } else {
+        warningBox.style.display = 'none';
+      }
+      
+      // Recommendations
+      let recs = [];
+      if (status === 'pass') {
+        recs.push('✅ LVR is within acceptable range');
+        recs.push('💡 Standard documentation should suffice');
+      } else if (status === 'alert') {
+        recs.push('⚠️ LVR is above alert threshold — expect additional scrutiny');
+        recs.push('💡 Strong income/serviceability will be required');
+        recs.push('💡 Consider reducing loan amount or increasing deposit');
+      } else {
+        recs.push('❌ LVR exceeds policy cap');
+        recs.push('💡 Reduce loan amount by $' + Math.round(loanAmount - maxLoan).toLocaleString());
+        recs.push('💡 Or increase deposit/equity');
+        recs.push('💡 Consider alternative lenders with higher LVR appetite');
+      }
+      
+      if (subtype.warning) {
+        recs.push('🔍 Special property type — additional due diligence required');
+      }
+      
+      document.getElementById('recommendations').innerHTML = recs.map(r => `<p>${r}</p>`).join('');
+      
+      // Store for export
+      window.lastResult = {
+        address, category: category.name, subtype: subtype.name,
+        propertyValue, loanAmount, lvr, lvrCap: subtype.lvr, lvrAlert: subtype.alert,
+        maxLoan, status, warning: subtype.warning
+      };
+      
+      showStep(2);
+    }
+    
+    function showStep(step) {
+      document.getElementById('step1').classList.toggle('hidden', step !== 1);
+      document.getElementById('step2').classList.toggle('hidden', step !== 2);
+      document.querySelectorAll('.nav-btn').forEach((b, i) => b.classList.toggle('active', i === step - 1));
+    }
+    
+    function reset() {
+      selectedCategory = null;
+      selectedSubtype = null;
+      document.querySelectorAll('.type-btn, .subtype-btn').forEach(btn => btn.classList.remove('active'));
+      document.getElementById('subtypes').style.display = 'none';
+      document.getElementById('securityCard').style.display = 'none';
+      document.querySelectorAll('input').forEach(i => i.value = '');
+      showStep(1);
+    }
+    
+    function copyResults() {
+      const r = window.lastResult;
+      if (!r) return;
+      
+      const text = `SECURITY TEST — LVR ASSESSMENT
+================================
+Address: ${r.address}
+Category: ${r.category}
+Type: ${r.subtype}
+
+Property Value: $${r.propertyValue.toLocaleString()}
+Proposed Loan: $${r.loanAmount.toLocaleString()}
+
+LVR: ${r.lvr.toFixed(1)}%
+LVR Cap: ${r.lvrCap}%
+Alert: ${r.lvrAlert}%
+Max Loan at Cap: $${Math.round(r.maxLoan).toLocaleString()}
+
+Status: ${r.status === 'pass' ? 'PASS' : r.status === 'alert' ? 'ALERT' : 'FAIL'}
+${r.warning ? '\nWarning: ' + r.warning : ''}
+================================
+Generated by Security Test Tool
+oneyco.com.au`;
+      
+      navigator.clipboard.writeText(text).then(() => alert('Copied!'));
+    }
+    
+    function exportPDF() {
+      const r = window.lastResult;
+      if (!r) {
+        alert('Please calculate first');
+        return;
+      }
+      
+      const printWindow = window.open('', '_blank');
+      const today = new Date().toLocaleDateString('en-AU');
+      
+      printWindow.document.write(`
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Security Test - ${r.subtype}</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 40px; color: #333; max-width: 800px; margin: 0 auto; }
+    h1 { color: #f39c12; border-bottom: 3px solid #f39c12; padding-bottom: 10px; }
+    h2 { color: #e67e22; margin-top: 30px; }
+    .header { display: flex; justify-content: space-between; margin-bottom: 30px; }
+    .logo { font-size: 24px; font-weight: bold; color: #f39c12; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+    th { background: #f8f9fa; }
+    .pass { color: #00d9a5; font-weight: bold; }
+    .alert { color: #f39c12; font-weight: bold; }
+    .fail { color: #e74c3c; font-weight: bold; }
+    .lvr-box { background: #f39c12; color: white; padding: 30px; border-radius: 12px; text-align: center; margin: 30px 0; }
+    .lvr-box .value { font-size: 48px; font-weight: bold; }
+    .warning { background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin: 20px 0; }
+    .footer { margin-top: 50px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">Oney & Co</div>
+    <div>${today}</div>
+  </div>
+  
+  <h1>Security Test — LVR Assessment</h1>
+  
+  <h2>Property Details</h2>
+  <table>
+    <tr><th>Address</th><td>${r.address}</td></tr>
+    <tr><th>Category</th><td>${r.category}</td></tr>
+    <tr><th>Type</th><td>${r.subtype}</td></tr>
+    <tr><th>Estimated Value</th><td>$${r.propertyValue.toLocaleString()}</td></tr>
+    <tr><th>Proposed Loan</th><td>$${r.loanAmount.toLocaleString()}</td></tr>
+  </table>
+  
+  <div class="lvr-box">
+    <div>Loan to Value Ratio</div>
+    <div class="value">${r.lvr.toFixed(1)}%</div>
+    <div>Cap: ${r.lvrCap}% | Alert: ${r.lvrAlert}%</div>
+  </div>
+  
+  <h2>LVR Policy</h2>
+  <table>
+    <tr><th>Maximum LVR</th><td>${r.lvrCap}%</td></tr>
+    <tr><th>Alert Threshold</th><td>${r.lvrAlert}%</td></tr>
+    <tr><th>Max Loan at Cap</th><td>$${Math.round(r.maxLoan).toLocaleString()}</td></tr>
+    <tr><th>Status</th><td class="${r.status}">${r.status.toUpperCase()}</td></tr>
+  </table>
+  
+  ${r.warning ? `<div class="warning"><strong>⚠️ Special Considerations:</strong><br>${r.warning}</div>` : ''}
+  
+  <div class="footer">
+    <p>Generated by Security Test Tool — oneyco.com.au</p>
+    <p>This assessment is for reference only. Final decisions subject to full credit assessment.</p>
+  </div>
+</body>
+</html>
+      `);
+      
+      printWindow.document.close();
+      setTimeout(() => printWindow.print(), 500);
+    }
+    
+    function showInfo() {
+      alert(`Security Test Tool v1.1
+
+Property Type & LVR Policy Lookup
+
+PROPERTY CATEGORIES:
+• Residential (80% LVR)
+• Commercial (70% LVR)
+• Specialised (55-65% LVR)
+• Industrial (60-65% LVR)
+• Rural (55-70% LVR)
+• Development (50-70% LVR)
+
+Each property type has:
+• Maximum LVR cap
+• Alert threshold
+• Special considerations
+
+NEW: Google Places address autocomplete
+(requires API key configuration)
+
+© Oney & Co`);
+    }
+    
+    // Google Places Autocomplete
+    let autocomplete = null;
+    let addressVerified = false;
+    
+    function initAutocomplete() {
+      const addressInput = document.getElementById('address');
+      const addressStatus = document.getElementById('addressStatus');
+      const addressHelper = document.getElementById('addressHelper');
+      
+      // Update helper text
+      addressHelper.textContent = 'Start typing to search Australian addresses';
+      
+      // Create autocomplete instance
+      autocomplete = new google.maps.places.Autocomplete(addressInput, {
+        types: ['address'],
+        componentRestrictions: { country: 'au' },
+        fields: ['address_components', 'formatted_address', 'geometry']
+      });
+      
+      // Listen for place selection
+      autocomplete.addListener('place_changed', function() {
+        const place = autocomplete.getPlace();
+        
+        if (!place.address_components) {
+          addressStatus.className = 'address-status manual';
+          addressStatus.textContent = 'Manual Entry';
+          addressVerified = false;
+          return;
+        }
+        
+        // Mark as verified
+        addressStatus.className = 'address-status verified';
+        addressStatus.textContent = '✓ Verified';
+        addressVerified = true;
+        
+        // Extract state from address components
+        let state = '';
+        for (const component of place.address_components) {
+          if (component.types.includes('administrative_area_level_1')) {
+            state = component.short_name;
+            break;
+          }
+        }
+        
+        // Update state dropdown
+        if (state) {
+          const stateSelect = document.getElementById('state');
+          const stateMap = {
+            'NSW': 'NSW', 'New South Wales': 'NSW',
+            'VIC': 'VIC', 'Victoria': 'VIC',
+            'QLD': 'QLD', 'Queensland': 'QLD',
+            'WA': 'WA', 'Western Australia': 'WA',
+            'SA': 'SA', 'South Australia': 'SA',
+            'TAS': 'TAS', 'Tasmania': 'TAS',
+            'ACT': 'ACT', 'Australian Capital Territory': 'ACT',
+            'NT': 'NT', 'Northern Territory': 'NT'
+          };
+          const mappedState = stateMap[state] || state;
+          if (stateSelect.querySelector(`option[value="${mappedState}"]`)) {
+            stateSelect.value = mappedState;
+          }
+        }
+        
+        console.log('Address verified:', place.formatted_address);
+      });
+      
+      // Track manual input
+      addressInput.addEventListener('input', function() {
+        if (addressVerified) {
+          addressStatus.className = 'address-status manual';
+          addressStatus.textContent = 'Manual Entry';
+          addressVerified = false;
+        }
+      });
+    }
+    
+    // Check if API key is configured on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!GOOGLE_PLACES_API_KEY) {
+        document.getElementById('addressHelper').textContent = 
+          'Enter the full property address (configure API key for autocomplete)';
+      }
+    });
+    
+    // Zoning info updates
+    const zoningInfo = {
+      'R1': { desc: 'General Residential — Standard residential use, good lender appetite', type: 'residential' },
+      'R2': { desc: 'Low Density Residential — Single dwellings, standard lending', type: 'residential' },
+      'R3': { desc: 'Medium Density Residential — Townhouses/villas, standard lending', type: 'residential' },
+      'R4': { desc: 'High Density Residential — Apartments, check unit size policies', type: 'residential' },
+      'R5': { desc: 'Large Lot Residential — Rural-residential, may need specialist lender', type: 'residential' },
+      'B1': { desc: 'Neighbourhood Centre — Small retail, commercial LVR applies', type: 'commercial' },
+      'B2': { desc: 'Local Centre — Retail/commercial mix, 70% LVR typical', type: 'commercial' },
+      'B3': { desc: 'Commercial Core — CBD commercial, prime office/retail', type: 'commercial' },
+      'B4': { desc: 'Mixed Use — Residential over commercial, blended approach', type: 'commercial' },
+      'B5': { desc: 'Business Development — Light industrial/commercial, 65-70% LVR', type: 'commercial' },
+      'B6': { desc: 'Enterprise Corridor — Highway commercial, varied appetite', type: 'commercial' },
+      'B7': { desc: 'Business Park — Office/warehouse parks, commercial lending', type: 'commercial' },
+      'IN1': { desc: 'General Industrial — Standard industrial, 65% LVR typical', type: 'industrial' },
+      'IN2': { desc: 'Light Industrial — Warehousing, better lender appetite', type: 'industrial' },
+      'IN3': { desc: 'Heavy Industrial — Limited lenders, environmental concerns', type: 'industrial' },
+      'IN4': { desc: 'Working Waterfront — Specialised, very limited lenders', type: 'specialised' },
+      'RU1': { desc: 'Primary Production — Working farms, rural specialist lenders', type: 'rural' },
+      'RU2': { desc: 'Rural Landscape — Hobby farms, may be residential lending', type: 'rural' },
+      'RU3': { desc: 'Forestry — Very specialised, limited finance options', type: 'rural' },
+      'RU4': { desc: 'Primary Production Small Lots — Small acreage, varied lending', type: 'rural' },
+      'RU5': { desc: 'Village — Rural township, may be standard residential', type: 'residential' },
+      'RU6': { desc: 'Transition — Urban fringe, development potential', type: 'development' },
+      'SP1': { desc: 'Special Activities — Case-by-case assessment required', type: 'specialised' },
+      'SP2': { desc: 'Infrastructure — Very limited financing options', type: 'specialised' },
+      'SP3': { desc: 'Tourist — Hotels/resorts, specialised lending', type: 'specialised' },
+      'E1': { desc: 'National Parks — Not financeable', type: 'specialised' },
+      'E2': { desc: 'Environmental Conservation — Very limited options', type: 'specialised' },
+      'E3': { desc: 'Environmental Management — Restricted use, limited lending', type: 'specialised' },
+      'E4': { desc: 'Environmental Living — Rural residential with restrictions', type: 'rural' },
+      'MU1': { desc: 'Mixed Use — Retail/residential, blended approach', type: 'commercial' },
+      'RE1': { desc: 'Public Recreation — Not typically financeable', type: 'specialised' },
+      'RE2': { desc: 'Private Recreation — Golf courses etc, specialised', type: 'specialised' },
+      'W1': { desc: 'Natural Waterways — Not financeable', type: 'specialised' },
+      'W2': { desc: 'Recreational Waterways — Marinas etc, specialised', type: 'specialised' }
+    };
+    
+    function updateZoningInfo() {
+      const zoning = document.getElementById('zoning').value;
+      const info = zoningInfo[zoning];
+      const infoBox = document.getElementById('zoningInfo');
+      
+      if (info) {
+        infoBox.innerHTML = `💡 <strong>${zoning}:</strong> ${info.desc}`;
+        
+        // Suggest property category based on zoning
+        const suggestMap = {
+          'residential': 'residential',
+          'commercial': 'commercial',
+          'industrial': 'industrial',
+          'rural': 'rural',
+          'specialised': 'specialised',
+          'development': 'development'
+        };
+        
+        // Auto-highlight suggested category (visual hint only)
+        document.querySelectorAll('.type-btn').forEach(btn => {
+          btn.style.opacity = '1';
+        });
+      }
+    }
+  </script>
+</body>
+</html>

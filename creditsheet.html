@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Credit Paper Pro V3 — Oney & Co</title>
+  <title>CreditSheet — Free Credit Assessment Tool | Oney & Co</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script>
     const GOOGLE_PLACES_API_KEY = 'AIzaSyBHTgzeidz9hvA2vDg-oD2GiIHSb6J_nwQ';
@@ -24,14 +24,8 @@
     };
     
     function detectTier() {
-      const params = new URLSearchParams(window.location.search);
-      const urlTier = params.get('tier');
+      // Check for activated license first
       const storedLicense = localStorage.getItem('cpp_license');
-      
-      // Check URL parameter first
-      if (urlTier && TIERS[urlTier]) return urlTier;
-      
-      // Check stored license
       if (storedLicense) {
         try {
           const license = JSON.parse(storedLicense);
@@ -40,8 +34,8 @@
           }
         } catch (e) {}
       }
-      
-      return 'lite'; // Default to free
+      // Default to lite for CreditSheet
+      return 'lite';
     }
     
     function hasFeature(feature) {
@@ -395,7 +389,7 @@
     <button class="upgrade-modal-close" onclick="closeUpgradeModal()">×</button>
     <div class="upgrade-modal-header">
       <h3>🔓 Unlock <span id="upgradeFeatureName">Full Features</span></h3>
-      <p>Upgrade to access all Credit Paper Pro features</p>
+      <p>Upgrade to <strong>Credit Paper Pro</strong> for full features</p>
     </div>
     <div class="upgrade-modal-body">
       <div class="upgrade-tiers">
@@ -445,7 +439,7 @@
         <text x="77" y="50" font-family="Inter, Arial" font-size="20" fill="url(#greenGrad)">&amp;</text>
         <text x="94" y="50" font-family="Inter, Arial" font-size="26" font-weight="600" fill="#1E293B">co</text>
       </svg>
-      <div class="app-title"><strong>Credit Paper Pro</strong>Commercial Finance</div>
+      <div class="app-title"><strong>CreditSheet</strong>Quick Credit Assessment</div>
     </div>
     
     <div class="actions" style="margin-bottom: 12px;">
@@ -835,7 +829,7 @@ function selectSubType(subType) {
   state.txnSubType = subType;
   renderTxnSubOptions();
   if (state.txnType === 'equipment' && subType === 'no-property') {
-    document.getElementById('efNote').innerHTML = `<div class="warning-box" style="margin-top:8px;">⚠️ For equipment finance without property security, please refer to the dedicated <strong>EF Credit Paper</strong> tool.</div>`;
+    document.getElementById('efNote').innerHTML = `<div class="warning-box" style="margin-top:8px;">⚠️ For equipment finance without property security, please refer to the dedicated <strong>EF Tool</strong>.</div>`;
   } else if (state.txnType === 'equipment' && subType === 'with-property') {
     document.getElementById('efNote').innerHTML = `<div class="note-box" style="margin-top:8px;">📝 For combined transactions with equipment and property, please note: Most lenders assess equipment finance separately. It is recommended to confirm the lender's approach to mixed facility requirements prior to submission.</div>`;
   }
