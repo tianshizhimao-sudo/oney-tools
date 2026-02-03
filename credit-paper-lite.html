@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Credit Paper Lite | Oney & Co</title>
+  <meta name="description" content="Free credit paper generator for basic loan applications. Generate simple credit summaries.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><path d='M0-38A38 38 0 1 0 0-37.99' fill='none' stroke='url(%23g)' stroke-width='8' stroke-linecap='round' stroke-dasharray='227 12'/><path d='M0-45L0-52' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --bg-secondary: #111111;
+      --card: #1a1a1a;
+      --border: #262626;
+      --accent: #1FAD73;
+      --accent-light: #2ECC85;
+      --accent-glow: rgba(31, 173, 115, 0.15);
+      --text: #ffffff;
+      --text-muted: #a3a3a3;
+      --gold: #f59e0b;
+      --gold-glow: rgba(245, 158, 11, 0.15);
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+    
+    /* Header */
+    .header {
+      margin-bottom: 32px;
+    }
+    
+    .header-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 16px;
+      transition: color 0.2s;
+    }
+    .header-back:hover { color: var(--accent-light); }
+    
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    
+    .header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    
+    .header p {
+      color: var(--text-muted);
+      font-size: 15px;
+    }
+    
+    .lite-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    
+    /* Layout */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    
+    @media (max-width: 768px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+    
+    /* Card */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+    
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    /* Form */
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 15px;
+      transition: border-color 0.2s;
+    }
+    
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .form-textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    
+    /* Preview */
+    .preview-card {
+      position: sticky;
+      top: 24px;
+    }
+    
+    .preview-content {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 20px;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    
+    .preview-header {
+      text-align: center;
+      padding-bottom: 16px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .preview-logo {
+      height: 32px;
+      margin-bottom: 8px;
+    }
+    
+    .preview-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent-light);
+    }
+    
+    .preview-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    
+    .preview-section {
+      margin-bottom: 16px;
+    }
+    
+    .preview-section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .preview-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    
+    .preview-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+    
+    .preview-label {
+      color: var(--text-muted);
+    }
+    
+    .preview-value {
+      font-weight: 500;
+      text-align: right;
+    }
+    
+    .preview-text {
+      color: var(--text-muted);
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+      width: 100%;
+    }
+    
+    .btn-primary:hover {
+      background: var(--accent-light);
+    }
+    
+    .btn-secondary {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      width: 100%;
+      margin-top: 12px;
+    }
+    
+    .btn-secondary:hover {
+      border-color: var(--accent);
+    }
+    
+    /* Upgrade Banner */
+    .upgrade-banner {
+      background: linear-gradient(135deg, var(--gold-glow), transparent);
+      border: 1px solid var(--gold);
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 24px;
+      text-align: center;
+    }
+    
+    .upgrade-banner h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: var(--gold);
+    }
+    
+    .upgrade-banner p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    
+    .upgrade-features {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .upgrade-feature {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    
+    .upgrade-feature span {
+      color: var(--accent-light);
+    }
+    
+    .btn-upgrade {
+      background: var(--gold);
+      color: var(--bg);
+      padding: 14px 28px;
+      border-radius: 100px;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.2s;
+    }
+    
+    .btn-upgrade:hover {
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+    }
+    
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 40px 24px;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 40px;
+      border-top: 1px solid var(--border);
+    }
+    
+    footer a {
+      color: var(--accent-light);
+      text-decoration: none;
+    }
+    
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--card);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 14px 24px;
+      border-radius: 100px;
+      font-size: 14px;
+      font-weight: 500;
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+    
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <a href="index.html" class="header-back">← Back to Tools</a>
+      <div class="header-top">
+        <div>
+          <h1>📋 Credit Paper Lite</h1>
+          <p>Generate a simple credit summary for basic loan applications</p>
+        </div>
+        <div class="lite-badge">✨ Free Version</div>
+      </div>
+    </header>
+    
+    <div class="main-grid">
+      <!-- Input Form -->
+      <div>
+        <div class="card">
+          <h2 class="card-title">📝 Application Details</h2>
+          
+          <div class="form-group">
+            <label class="form-label">Borrower / Entity Name</label>
+            <input type="text" class="form-input" id="borrowerName" placeholder="e.g. John Smith / ABC Pty Ltd" oninput="updatePreview()">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Transaction Type</label>
+            <select class="form-select" id="transactionType" onchange="updatePreview()">
+              <option value="">Select...</option>
+              <option value="Purchase">Purchase</option>
+              <option value="Refinance">Refinance</option>
+              <option value="Construction">Construction</option>
+              <option value="Equity Release">Equity Release</option>
+              <option value="Top Up">Top Up</option>
+            </select>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Loan Amount ($)</label>
+              <input type="text" class="form-input" id="loanAmount" placeholder="e.g. 500,000" oninput="formatCurrency(this); updatePreview()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Security Value ($)</label>
+              <input type="text" class="form-input" id="securityValue" placeholder="e.g. 650,000" oninput="formatCurrency(this); updatePreview()">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Security Type</label>
+            <select class="form-select" id="securityType" onchange="updatePreview()">
+              <option value="">Select...</option>
+              <option value="Residential">Residential</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Industrial">Industrial</option>
+              <option value="Retail">Retail</option>
+              <option value="Mixed Use">Mixed Use</option>
+              <option value="Rural">Rural</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Security Address</label>
+            <input type="text" class="form-input" id="securityAddress" placeholder="e.g. 123 Main St, Sydney NSW 2000" oninput="updatePreview()">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Target Lender</label>
+            <select class="form-select" id="targetLender" onchange="updatePreview()">
+              <option value="">Select...</option>
+              <option value="CBA">Commonwealth Bank</option>
+              <option value="NAB">NAB</option>
+              <option value="ANZ">ANZ</option>
+              <option value="Westpac">Westpac</option>
+              <option value="St George">St George</option>
+              <option value="Macquarie">Macquarie</option>
+              <option value="Bankwest">Bankwest</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Loan Purpose / Notes</label>
+            <textarea class="form-textarea" id="loanPurpose" placeholder="Brief description of the loan purpose and any key notes..." oninput="updatePreview()"></textarea>
+          </div>
+        </div>
+        
+        <div class="card" style="margin-top: 20px;">
+          <h2 class="card-title">📊 Quick Metrics</h2>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Annual Income ($)</label>
+              <input type="text" class="form-input" id="annualIncome" placeholder="e.g. 150,000" oninput="formatCurrency(this); updatePreview()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Monthly Rent (if any) ($)</label>
+              <input type="text" class="form-input" id="monthlyRent" placeholder="e.g. 3,500" oninput="formatCurrency(this); updatePreview()">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Preview -->
+      <div>
+        <div class="card preview-card">
+          <h2 class="card-title">👁️ Live Preview</h2>
+          
+          <div class="preview-content" id="previewContent">
+            <div class="preview-header">
+              <svg class="preview-logo" viewBox="0 0 190 50" xmlns="http://www.w3.org/2000/svg">
+                <defs><linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs>
+                <g transform="translate(20, 25)"><path d="M 0 -18 A 18 18 0 1 0 0 -17.99" fill="none" stroke="url(#greenGrad)" stroke-width="4" stroke-linecap="round" stroke-dasharray="108 6"/><path d="M0 -22 L0 -26" stroke="url(#greenGrad)" stroke-width="3" stroke-linecap="round"/></g>
+                <text x="25" y="30" font-family="Inter, Arial" font-size="16" font-weight="600" fill="#ffffff">ney</text>
+                <text x="52" y="30" font-family="Inter, Arial" font-size="12" fill="url(#greenGrad)">&amp;</text>
+                <text x="63" y="30" font-family="Inter, Arial" font-size="16" font-weight="600" fill="#ffffff">co</text>
+              </svg>
+              <div class="preview-title">Credit Summary</div>
+              <div class="preview-subtitle" id="previewDate">Generated: --</div>
+            </div>
+            
+            <div class="preview-section">
+              <div class="preview-section-title">Borrower</div>
+              <div id="previewBorrower" class="preview-value" style="font-size: 15px;">--</div>
+            </div>
+            
+            <div class="preview-section">
+              <div class="preview-section-title">Transaction</div>
+              <div class="preview-row">
+                <span class="preview-label">Type</span>
+                <span class="preview-value" id="previewType">--</span>
+              </div>
+              <div class="preview-row">
+                <span class="preview-label">Amount</span>
+                <span class="preview-value" id="previewAmount">--</span>
+              </div>
+              <div class="preview-row">
+                <span class="preview-label">Lender</span>
+                <span class="preview-value" id="previewLender">--</span>
+              </div>
+            </div>
+            
+            <div class="preview-section">
+              <div class="preview-section-title">Security</div>
+              <div class="preview-row">
+                <span class="preview-label">Type</span>
+                <span class="preview-value" id="previewSecType">--</span>
+              </div>
+              <div class="preview-row">
+                <span class="preview-label">Value</span>
+                <span class="preview-value" id="previewSecValue">--</span>
+              </div>
+              <div class="preview-row">
+                <span class="preview-label">LVR</span>
+                <span class="preview-value" id="previewLVR">--</span>
+              </div>
+              <div id="previewAddress" class="preview-text" style="margin-top: 8px; font-size: 12px;">--</div>
+            </div>
+            
+            <div class="preview-section" id="previewMetricsSection" style="display: none;">
+              <div class="preview-section-title">Key Metrics</div>
+              <div class="preview-row">
+                <span class="preview-label">Annual Income</span>
+                <span class="preview-value" id="previewIncome">--</span>
+              </div>
+              <div class="preview-row">
+                <span class="preview-label">Monthly Rent</span>
+                <span class="preview-value" id="previewRent">--</span>
+              </div>
+            </div>
+            
+            <div class="preview-section" id="previewPurposeSection" style="display: none;">
+              <div class="preview-section-title">Purpose / Notes</div>
+              <div class="preview-text" id="previewPurpose">--</div>
+            </div>
+          </div>
+          
+          <button class="btn btn-primary" onclick="copyToClipboard()">📋 Copy Summary</button>
+          <button class="btn btn-secondary" onclick="clearForm()">🗑️ Clear Form</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Upgrade Banner -->
+    <div class="upgrade-banner">
+      <h3>🚀 Need More Features?</h3>
+      <p>Upgrade to Credit Paper Pro for professional credit papers</p>
+      <div class="upgrade-features">
+        <div class="upgrade-feature"><span>✓</span> 3C Risk Analysis</div>
+        <div class="upgrade-feature"><span>✓</span> PDF Export</div>
+        <div class="upgrade-feature"><span>✓</span> Multiple Securities</div>
+        <div class="upgrade-feature"><span>✓</span> Servicing Calculator</div>
+        <div class="upgrade-feature"><span>✓</span> Lender Templates</div>
+      </div>
+      <a href="credit-paper-pro.html" class="btn-upgrade">Upgrade to Pro →</a>
+    </div>
+    
+    <footer>
+      <p>© 2026 Oney & Co — Financial Health for Everyone</p>
+      <p style="margin-top: 8px;"><a href="https://oneyco.com.au">oneyco.com.au</a></p>
+    </footer>
+  </div>
+  
+  <div class="toast" id="toast">Copied to clipboard!</div>
+  
+  <script>
+    function formatCurrency(input) {
+      let value = input.value.replace(/[^0-9]/g, '');
+      if (value) {
+        value = parseInt(value).toLocaleString();
+      }
+      input.value = value;
+    }
+    
+    function parseCurrency(str) {
+      if (!str) return 0;
+      return parseInt(str.replace(/[^0-9]/g, '')) || 0;
+    }
+    
+    function formatMoney(num) {
+      if (!num) return '--';
+      return '$' + num.toLocaleString();
+    }
+    
+    function updatePreview() {
+      const borrower = document.getElementById('borrowerName').value || '--';
+      const type = document.getElementById('transactionType').value || '--';
+      const amount = parseCurrency(document.getElementById('loanAmount').value);
+      const secValue = parseCurrency(document.getElementById('securityValue').value);
+      const secType = document.getElementById('securityType').value || '--';
+      const address = document.getElementById('securityAddress').value || '--';
+      const lender = document.getElementById('targetLender').value || '--';
+      const purpose = document.getElementById('loanPurpose').value;
+      const income = parseCurrency(document.getElementById('annualIncome').value);
+      const rent = parseCurrency(document.getElementById('monthlyRent').value);
+      
+      // Calculate LVR
+      let lvr = '--';
+      if (amount && secValue) {
+        lvr = ((amount / secValue) * 100).toFixed(1) + '%';
+      }
+      
+      // Update preview
+      document.getElementById('previewDate').textContent = 'Generated: ' + new Date().toLocaleDateString('en-AU');
+      document.getElementById('previewBorrower').textContent = borrower;
+      document.getElementById('previewType').textContent = type;
+      document.getElementById('previewAmount').textContent = formatMoney(amount);
+      document.getElementById('previewLender').textContent = lender;
+      document.getElementById('previewSecType').textContent = secType;
+      document.getElementById('previewSecValue').textContent = formatMoney(secValue);
+      document.getElementById('previewLVR').textContent = lvr;
+      document.getElementById('previewAddress').textContent = address;
+      
+      // Metrics section
+      const metricsSection = document.getElementById('previewMetricsSection');
+      if (income || rent) {
+        metricsSection.style.display = 'block';
+        document.getElementById('previewIncome').textContent = formatMoney(income);
+        document.getElementById('previewRent').textContent = rent ? formatMoney(rent) + '/mo' : '--';
+      } else {
+        metricsSection.style.display = 'none';
+      }
+      
+      // Purpose section
+      const purposeSection = document.getElementById('previewPurposeSection');
+      if (purpose) {
+        purposeSection.style.display = 'block';
+        document.getElementById('previewPurpose').textContent = purpose;
+      } else {
+        purposeSection.style.display = 'none';
+      }
+    }
+    
+    function copyToClipboard() {
+      const borrower = document.getElementById('borrowerName').value || 'N/A';
+      const type = document.getElementById('transactionType').value || 'N/A';
+      const amount = document.getElementById('loanAmount').value || 'N/A';
+      const secValue = document.getElementById('securityValue').value || 'N/A';
+      const secType = document.getElementById('securityType').value || 'N/A';
+      const address = document.getElementById('securityAddress').value || 'N/A';
+      const lender = document.getElementById('targetLender').value || 'N/A';
+      const purpose = document.getElementById('loanPurpose').value || 'N/A';
+      const income = document.getElementById('annualIncome').value || 'N/A';
+      const rent = document.getElementById('monthlyRent').value || 'N/A';
+      
+      const loanNum = parseCurrency(amount);
+      const secNum = parseCurrency(secValue);
+      const lvr = (loanNum && secNum) ? ((loanNum / secNum) * 100).toFixed(1) + '%' : 'N/A';
+      
+      const text = `
+CREDIT SUMMARY
+Generated by Oney & Co | ${new Date().toLocaleDateString('en-AU')}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BORROWER
+${borrower}
+
+TRANSACTION
+Type: ${type}
+Amount: $${amount}
+Target Lender: ${lender}
+
+SECURITY
+Type: ${secType}
+Value: $${secValue}
+LVR: ${lvr}
+Address: ${address}
+
+KEY METRICS
+Annual Income: $${income}
+Monthly Rent: $${rent}
+
+PURPOSE / NOTES
+${purpose}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Credit Paper Lite | oneyco.com.au
+      `.trim();
+      
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('Copied to clipboard!');
+      });
+    }
+    
+    function clearForm() {
+      document.querySelectorAll('.form-input, .form-textarea').forEach(el => el.value = '');
+      document.querySelectorAll('.form-select').forEach(el => el.selectedIndex = 0);
+      updatePreview();
+      showToast('Form cleared');
+    }
+    
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+    
+    // Initial preview update
+    updatePreview();
+  </script>
+</body>
+</html>
