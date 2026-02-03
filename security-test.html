@@ -10,7 +10,8 @@
   <title>Security Test Tool</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Address Autocomplete using OpenStreetMap Nominatim (Free) -->
+  <!-- Google Places API for Address Autocomplete -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBHTgzeidz9hvA2vDg-oD2GiIHSb6J_nwQ&libraries=places&callback=initGoogleAutocomplete"></script>
   
   <style>
     :root {
@@ -843,172 +844,78 @@ Each property type has:
 • Alert threshold
 • Special considerations
 
-Address autocomplete powered by OpenStreetMap
-(free, results may vary)
+Address autocomplete powered by Google Places API
 
 © Oney & Co`);
     }
     
-    // Address Autocomplete using OpenStreetMap Nominatim (Free)
+    // Google Places Autocomplete
+    let autocomplete = null;
     let addressVerified = false;
-    let searchTimeout = null;
-    let suggestionsList = null;
     
-    function initAutocomplete() {
+    function initGoogleAutocomplete() {
       const addressInput = document.getElementById('address');
       const addressStatus = document.getElementById('addressStatus');
       const addressHelper = document.getElementById('addressHelper');
       
-      // Update helper text
-      addressHelper.textContent = 'Street name only — no street number needed';
-      
-      // Create suggestions dropdown
-      suggestionsList = document.createElement('div');
-      suggestionsList.className = 'address-suggestions';
-      suggestionsList.style.cssText = `
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        margin-top: 4px;
-        max-height: 250px;
-        overflow-y: auto;
-        z-index: 1000;
-        display: none;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      `;
-      addressInput.parentElement.style.position = 'relative';
-      addressInput.parentElement.appendChild(suggestionsList);
-      
-      // Search on input
-      addressInput.addEventListener('input', function() {
-        const query = this.value.trim();
-        
-        // Reset verification
-        addressStatus.className = 'address-status manual';
-        addressStatus.textContent = 'Manual Entry';
-        addressVerified = false;
-        
-        // Clear previous timeout
-        if (searchTimeout) clearTimeout(searchTimeout);
-        
-        // Hide suggestions if query too short
-        if (query.length < 3) {
-          suggestionsList.style.display = 'none';
-          return;
-        }
-        
-        // Debounce search
-        searchTimeout = setTimeout(() => searchAddress(query), 300);
-      });
-      
-      // Hide suggestions on blur (with delay for click)
-      addressInput.addEventListener('blur', () => {
-        setTimeout(() => suggestionsList.style.display = 'none', 200);
-      });
-      
-      // Show suggestions on focus if there's content
-      addressInput.addEventListener('focus', () => {
-        if (suggestionsList.children.length > 0) {
-          suggestionsList.style.display = 'block';
-        }
-      });
-    }
-    
-    async function searchAddress(query) {
-      try {
-        const url = `https://nominatim.openstreetmap.org/search?` + new URLSearchParams({
-          q: query + ', Australia',
-          format: 'json',
-          addressdetails: '1',
-          countrycodes: 'au',
-          limit: '6'
-        });
-        
-        const response = await fetch(url, {
-          headers: { 'Accept': 'application/json' }
-        });
-        
-        if (!response.ok) throw new Error('Search failed');
-        
-        const results = await response.json();
-        showSuggestions(results);
-      } catch (err) {
-        console.error('Address search error:', err);
-        suggestionsList.innerHTML = '<div style="padding: 12px; color: var(--text-muted);">Search unavailable</div>';
-        suggestionsList.style.display = 'block';
-      }
-    }
-    
-    function showSuggestions(results) {
-      suggestionsList.innerHTML = '';
-      
-      if (results.length === 0) {
-        suggestionsList.innerHTML = '<div style="padding: 12px; color: var(--text-muted);">No results found</div>';
-        suggestionsList.style.display = 'block';
+      if (!addressInput) {
+        setTimeout(initGoogleAutocomplete, 500);
         return;
       }
       
-      results.forEach(place => {
-        const item = document.createElement('div');
-        item.style.cssText = `
-          padding: 12px 16px;
-          cursor: pointer;
-          border-bottom: 1px solid var(--border);
-          font-size: 14px;
-          transition: background 0.15s;
-        `;
-        item.textContent = place.display_name;
+      addressHelper.textContent = 'Start typing to search Australian streets';
+      
+      try {
+        autocomplete = new google.maps.places.Autocomplete(addressInput, {
+          types: ['address'],
+          componentRestrictions: { country: 'au' },
+          fields: ['address_components', 'formatted_address']
+        });
         
-        item.addEventListener('mouseenter', () => item.style.background = 'var(--card-hover)');
-        item.addEventListener('mouseleave', () => item.style.background = 'transparent');
+        autocomplete.addListener('place_changed', function() {
+          const place = autocomplete.getPlace();
+          
+          if (!place.address_components) {
+            addressStatus.className = 'address-status manual';
+            addressStatus.textContent = 'Manual Entry';
+            addressVerified = false;
+            return;
+          }
+          
+          addressStatus.className = 'address-status verified';
+          addressStatus.textContent = '✓ Verified';
+          addressVerified = true;
+          
+          let state = '';
+          for (const component of place.address_components) {
+            if (component.types.includes('administrative_area_level_1')) {
+              state = component.short_name;
+              break;
+            }
+          }
+          
+          if (state) {
+            const stateSelect = document.getElementById('state');
+            if (stateSelect.querySelector(`option[value="${state}"]`)) {
+              stateSelect.value = state;
+            }
+          }
+        });
         
-        item.addEventListener('click', () => selectAddress(place));
+        addressInput.addEventListener('input', function() {
+          if (addressVerified) {
+            addressStatus.className = 'address-status manual';
+            addressStatus.textContent = 'Manual Entry';
+            addressVerified = false;
+          }
+        });
         
-        suggestionsList.appendChild(item);
-      });
-      
-      suggestionsList.style.display = 'block';
-    }
-    
-    function selectAddress(place) {
-      const addressInput = document.getElementById('address');
-      const addressStatus = document.getElementById('addressStatus');
-      
-      addressInput.value = place.display_name;
-      
-      addressStatus.className = 'address-status verified';
-      addressStatus.textContent = '✓ Verified';
-      addressVerified = true;
-      
-      const stateMap = {
-        'New South Wales': 'NSW',
-        'Victoria': 'VIC',
-        'Queensland': 'QLD',
-        'Western Australia': 'WA',
-        'South Australia': 'SA',
-        'Tasmania': 'TAS',
-        'Australian Capital Territory': 'ACT',
-        'Northern Territory': 'NT'
-      };
-      
-      const state = place.address?.state;
-      if (state) {
-        const mappedState = stateMap[state] || state;
-        const stateSelect = document.getElementById('state');
-        if (stateSelect.querySelector(`option[value="${mappedState}"]`)) {
-          stateSelect.value = mappedState;
-        }
+        console.log('Google Places Autocomplete initialized');
+      } catch (e) {
+        console.error('Google Places init error:', e);
+        addressHelper.textContent = 'Enter street name manually';
       }
-      
-      suggestionsList.style.display = 'none';
     }
-    
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', initAutocomplete);
     
     // Zoning info updates
     const zoningInfo = {
