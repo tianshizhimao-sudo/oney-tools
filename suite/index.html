@@ -1652,13 +1652,21 @@
                 });
             });
 
-            // Shared inputs
+            // Shared inputs - save on change with debounced toast
+            let saveTimeout;
             document.querySelectorAll('.shared-input').forEach(input => {
                 input.addEventListener('input', (e) => {
                     const key = e.target.dataset.key;
-                    SuiteState.shared[key] = e.target.value;
+                    const value = e.target.type === 'number' ? e.target.value : e.target.value;
+                    SuiteState.shared[key] = value;
                     updateAllDisplays();
                     autoSave();
+                    
+                    // Show subtle save feedback (debounced)
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(() => {
+                        showToast('Auto-saved', 'info', 1500);
+                    }, 1000);
                 });
             });
 
@@ -1721,12 +1729,13 @@
         // ============================================
 
         function updateAllDisplays() {
+            // Update ALL display elements across ALL modules (not just visible ones)
             document.querySelectorAll('[data-display]').forEach(el => {
                 const key = el.dataset.display;
                 const format = el.dataset.format;
                 let value = SuiteState.shared[key];
 
-                if (value) {
+                if (value !== undefined && value !== null && value !== '') {
                     if (format === 'currency') {
                         value = '$' + Number(value).toLocaleString();
                     } else if (format === 'percent') {
