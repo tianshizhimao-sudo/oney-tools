@@ -10,11 +10,7 @@
   <title>Security Test Tool</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Google Places API for Address Autocomplete -->
-  <script>
-    const GOOGLE_PLACES_API_KEY = 'AIzaSyDL44B15g2PE8DqE4YcVV-jtdXr4rfa5bU';
-  </script>
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDL44B15g2PE8DqE4YcVV-jtdXr4rfa5bU&libraries=places&callback=initGoogleAutocomplete"></script>
+  <!-- Address Autocomplete using OpenStreetMap Nominatim (Free) -->
   
   <style>
     :root {
@@ -327,7 +323,7 @@
           <div class="form-group">
             <label>Council Zoning</label>
             <select id="zoning" onchange="updateZoningInfo()">
-              <option value="unknown">-- Not Sure / 不确定 --</option>
+              <option value="unknown">-- Not Sure --</option>
               <optgroup label="Residential">
                 <option value="R1">R1 - General Residential</option>
                 <option value="R2">R2 - Low Density Residential</option>
@@ -847,95 +843,172 @@ Each property type has:
 • Alert threshold
 • Special considerations
 
-Address autocomplete powered by Google Places API
-(Australian addresses only)
+Address autocomplete powered by OpenStreetMap
+(free, results may vary)
 
 © Oney & Co`);
     }
     
-    // Google Places Autocomplete
-    let autocomplete = null;
+    // Address Autocomplete using OpenStreetMap Nominatim (Free)
     let addressVerified = false;
+    let searchTimeout = null;
+    let suggestionsList = null;
     
-    function initGoogleAutocomplete() {
+    function initAutocomplete() {
       const addressInput = document.getElementById('address');
       const addressStatus = document.getElementById('addressStatus');
       const addressHelper = document.getElementById('addressHelper');
       
-      if (!addressInput) {
-        console.log('Address input not found, retrying...');
-        setTimeout(initGoogleAutocomplete, 500);
-        return;
-      }
-      
       // Update helper text
       addressHelper.textContent = 'Start typing to search Australian addresses';
       
-      // Create Google Places Autocomplete
-      autocomplete = new google.maps.places.Autocomplete(addressInput, {
-        types: ['address'],
-        componentRestrictions: { country: 'au' },
-        fields: ['address_components', 'formatted_address', 'geometry']
-      });
+      // Create suggestions dropdown
+      suggestionsList = document.createElement('div');
+      suggestionsList.className = 'address-suggestions';
+      suggestionsList.style.cssText = `
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        margin-top: 4px;
+        max-height: 250px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      `;
+      addressInput.parentElement.style.position = 'relative';
+      addressInput.parentElement.appendChild(suggestionsList);
       
-      // Listen for place selection
-      autocomplete.addListener('place_changed', function() {
-        const place = autocomplete.getPlace();
+      // Search on input
+      addressInput.addEventListener('input', function() {
+        const query = this.value.trim();
         
-        if (!place.address_components) {
-          addressStatus.className = 'address-status manual';
-          addressStatus.textContent = 'Manual Entry';
-          addressVerified = false;
+        // Reset verification
+        addressStatus.className = 'address-status manual';
+        addressStatus.textContent = 'Manual Entry';
+        addressVerified = false;
+        
+        // Clear previous timeout
+        if (searchTimeout) clearTimeout(searchTimeout);
+        
+        // Hide suggestions if query too short
+        if (query.length < 3) {
+          suggestionsList.style.display = 'none';
           return;
         }
         
-        // Mark as verified
-        addressStatus.className = 'address-status verified';
-        addressStatus.textContent = '✓ Verified';
-        addressVerified = true;
-        
-        // Extract state from address components
-        let state = '';
-        for (const component of place.address_components) {
-          if (component.types.includes('administrative_area_level_1')) {
-            state = component.short_name;
-            break;
-          }
-        }
-        
-        // Update state dropdown
-        if (state) {
-          const stateSelect = document.getElementById('state');
-          const stateMap = {
-            'NSW': 'NSW', 'New South Wales': 'NSW',
-            'VIC': 'VIC', 'Victoria': 'VIC',
-            'QLD': 'QLD', 'Queensland': 'QLD',
-            'WA': 'WA', 'Western Australia': 'WA',
-            'SA': 'SA', 'South Australia': 'SA',
-            'TAS': 'TAS', 'Tasmania': 'TAS',
-            'ACT': 'ACT', 'Australian Capital Territory': 'ACT',
-            'NT': 'NT', 'Northern Territory': 'NT'
-          };
-          const mappedState = stateMap[state] || state;
-          if (stateSelect.querySelector(`option[value="${mappedState}"]`)) {
-            stateSelect.value = mappedState;
-          }
-        }
-        
-        console.log('Address verified:', place.formatted_address);
+        // Debounce search
+        searchTimeout = setTimeout(() => searchAddress(query), 300);
       });
       
-      // Track manual input
-      addressInput.addEventListener('input', function() {
-        if (addressVerified) {
-          addressStatus.className = 'address-status manual';
-          addressStatus.textContent = 'Manual Entry';
-          addressVerified = false;
-        }
+      // Hide suggestions on blur (with delay for click)
+      addressInput.addEventListener('blur', () => {
+        setTimeout(() => suggestionsList.style.display = 'none', 200);
       });
       
-      console.log('Google Places Autocomplete initialized');
+      // Show suggestions on focus if there's content
+      addressInput.addEventListener('focus', () => {
+        if (suggestionsList.children.length > 0) {
+          suggestionsList.style.display = 'block';
+        }
+      });
     }
+    
+    async function searchAddress(query) {
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?` + new URLSearchParams({
+          q: query + ', Australia',
+          format: 'json',
+          addressdetails: '1',
+          countrycodes: 'au',
+          limit: '6'
+        });
+        
+        const response = await fetch(url, {
+          headers: { 'Accept': 'application/json' }
+        });
+        
+        if (!response.ok) throw new Error('Search failed');
+        
+        const results = await response.json();
+        showSuggestions(results);
+      } catch (err) {
+        console.error('Address search error:', err);
+        suggestionsList.innerHTML = '<div style="padding: 12px; color: var(--text-muted);">Search unavailable</div>';
+        suggestionsList.style.display = 'block';
+      }
+    }
+    
+    function showSuggestions(results) {
+      suggestionsList.innerHTML = '';
+      
+      if (results.length === 0) {
+        suggestionsList.innerHTML = '<div style="padding: 12px; color: var(--text-muted);">No results found</div>';
+        suggestionsList.style.display = 'block';
+        return;
+      }
+      
+      results.forEach(place => {
+        const item = document.createElement('div');
+        item.style.cssText = `
+          padding: 12px 16px;
+          cursor: pointer;
+          border-bottom: 1px solid var(--border);
+          font-size: 14px;
+          transition: background 0.15s;
+        `;
+        item.textContent = place.display_name;
+        
+        item.addEventListener('mouseenter', () => item.style.background = 'var(--card-hover)');
+        item.addEventListener('mouseleave', () => item.style.background = 'transparent');
+        
+        item.addEventListener('click', () => selectAddress(place));
+        
+        suggestionsList.appendChild(item);
+      });
+      
+      suggestionsList.style.display = 'block';
+    }
+    
+    function selectAddress(place) {
+      const addressInput = document.getElementById('address');
+      const addressStatus = document.getElementById('addressStatus');
+      
+      addressInput.value = place.display_name;
+      
+      addressStatus.className = 'address-status verified';
+      addressStatus.textContent = '✓ Verified';
+      addressVerified = true;
+      
+      const stateMap = {
+        'New South Wales': 'NSW',
+        'Victoria': 'VIC',
+        'Queensland': 'QLD',
+        'Western Australia': 'WA',
+        'South Australia': 'SA',
+        'Tasmania': 'TAS',
+        'Australian Capital Territory': 'ACT',
+        'Northern Territory': 'NT'
+      };
+      
+      const state = place.address?.state;
+      if (state) {
+        const mappedState = stateMap[state] || state;
+        const stateSelect = document.getElementById('state');
+        if (stateSelect.querySelector(`option[value="${mappedState}"]`)) {
+          stateSelect.value = mappedState;
+        }
+      }
+      
+      suggestionsList.style.display = 'none';
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', initAutocomplete);
     
     // Zoning info updates
     const zoningInfo = {

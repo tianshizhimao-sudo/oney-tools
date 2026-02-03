@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Oney & Co — Tools</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><path d='M0-38A38 38 0 1 0 0-37.99' fill='none' stroke='url(%23g)' stroke-width='8' stroke-linecap='round' stroke-dasharray='227 12'/><path d='M0-45L0-52' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Core CSS -->
+  <link rel="stylesheet" href="core/brand.css">
+  
+  <style>
+    /* Page-specific styles */
+    .header {
+      text-align: center;
+      padding: var(--space-2xl) 0;
+    }
+    
+    .header h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      margin: var(--space-md) 0 var(--space-sm);
+    }
+    
+    .beta-badge {
+      display: inline-block;
+      background: var(--gold-glow);
+      color: var(--gold);
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: var(--space-md);
+    }
+    
+    .section {
+      margin-bottom: var(--space-xl);
+    }
+    
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--space-md);
+    }
+    
+    /* Tool card enhancements */
+    .tool-card {
+      padding: var(--space-lg);
+      text-decoration: none;
+      color: inherit;
+    }
+    
+    .tool-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--oney-green);
+    }
+    
+    .tool-icon {
+      font-size: 28px;
+      margin-bottom: var(--space-md);
+    }
+    
+    .tool-name {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: var(--space-sm);
+    }
+    
+    .tool-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: var(--space-md);
+    }
+    
+    /* Modal overlay for password gate */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+  </style>
+</head>
+<body>
+  <!-- Password Gate (will be hidden if authenticated) -->
+  <div class="modal-overlay" id="passwordGate">
+    <div class="card text-center" style="max-width: 400px; width: 90%;">
+      <h2 style="margin-bottom: 8px;">🔒 Internal Testing</h2>
+      <p class="text-muted mb-lg">This site is currently in development. Enter password to access.</p>
+      <input type="password" class="form-input text-center mb-md" id="passwordInput" placeholder="Enter password" onkeypress="if(event.key==='Enter')checkPassword()">
+      <button class="btn btn-primary btn-full btn-pill" onclick="checkPassword()">Access Tools →</button>
+      <p id="passwordError" class="text-danger hidden mt-md">Incorrect password. Try again.</p>
+    </div>
+  </div>
+  
+  <!-- Main Content -->
+  <div class="main-content hidden" id="mainContent">
+    <div class="container">
+      <header class="header">
+        <!-- Logo inserted via JS -->
+        <div id="logoContainer"></div>
+        <h1>Oney Tools</h1>
+        <p class="text-muted">Financial tools for Australian businesses and borrowers</p>
+        <span class="beta-badge">🧪 Internal Testing</span>
+      </header>
+      
+      <!-- FHC - Featured -->
+      <div class="section">
+        <h2 class="card-title" style="display:flex;align-items:center;gap:12px;">
+          💚 Financial Health Check
+          <span style="flex:1;height:1px;background:var(--border-color);"></span>
+        </h2>
+        <div class="tools-grid">
+          <a href="fhc.html" class="card card-link card-featured tool-card">
+            <div class="tool-icon">💚</div>
+            <div class="tool-name">SME Financial Health Check</div>
+            <div class="tool-desc">5-minute assessment to understand your business lending position. Get actionable insights and a shareable report.</div>
+            <span class="badge badge-free">Free</span>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Free Tools -->
+      <div class="section">
+        <h2 class="card-title" style="display:flex;align-items:center;gap:12px;">
+          ✨ Free Tools
+          <span style="flex:1;height:1px;background:var(--border-color);"></span>
+        </h2>
+        <div class="tools-grid" id="freeTools">
+          <!-- Tools inserted via JS -->
+        </div>
+      </div>
+      
+      <!-- Premium Tools -->
+      <div class="section">
+        <h2 class="card-title" style="display:flex;align-items:center;gap:12px;">
+          💎 Oney Tool Suite
+          <span style="flex:1;height:1px;background:var(--border-color);"></span>
+        </h2>
+        <div class="tools-grid" id="premiumTools">
+          <!-- Tools inserted via JS -->
+        </div>
+      </div>
+      
+      <!-- Footer -->
+      <footer class="text-center p-lg" style="border-top:1px solid var(--border-color);color:var(--text-muted);font-size:13px;">
+        <p>© 2026 Oney & Co — Financial Health for Everyone</p>
+        <p style="margin-top:8px;">Questions? <a href="mailto:dong.m@oneyco.com.au" style="color:var(--oney-green);text-decoration:none;">dong.m@oneyco.com.au</a></p>
+      </footer>
+    </div>
+  </div>
+  
+  <!-- Core JS -->
+  <script src="core/storage.js"></script>
+  <script src="core/components.js"></script>
+  <script src="core/utils.js"></script>
+  
+  <script>
+    // Password
+    const PASSWORD = 'oney2026';
+    
+    // Tool definitions (data-driven)
+    const FREE_TOOLS = [
+      {
+        href: 'rba-tracker.html',
+        icon: '📊',
+        name: 'RBA Rate & CPI Tracker',
+        description: 'Track RBA cash rate and inflation. See how rate changes impact your mortgage payments.',
+        badge: { text: 'Free', type: 'free' }
+      },
+      {
+        href: 'credit-paper-lite.html',
+        icon: '📋',
+        name: 'Credit Paper Lite',
+        description: 'Generate simple credit summaries for basic loan applications. Quick and easy.',
+        badge: { text: 'Free', type: 'free' }
+      },
+      {
+        href: 'commercial-investment-calculator.html',
+        icon: '🏢',
+        name: 'Commercial Investment Calculator',
+        description: 'Analyse commercial property investments. Calculate yields, LVR, ICR, DSCR and cash flow.',
+        badge: { text: 'Free', type: 'free' }
+      },
+      {
+        href: 'specialised-lending-calculator.html',
+        icon: '🎯',
+        name: 'Specialised Lending Calculator',
+        description: 'MLL calculations for childcare, service stations, hotels, and other specialised securities.',
+        badge: { text: 'Free', type: 'free' }
+      },
+      {
+        href: 'ef-tool.html',
+        icon: '🚜',
+        name: 'Equipment Finance Calculator',
+        description: 'Calculate equipment finance repayments, balloon payments, and compare lease vs buy options.',
+        badge: { text: 'Free', type: 'free' }
+      },
+      {
+        href: 'security-test.html',
+        icon: '🔐',
+        name: 'Security Test',
+        description: 'Test and validate security parameters for commercial lending deals.',
+        badge: { text: 'Free', type: 'free' }
+      }
+    ];
+    
+    const PREMIUM_TOOLS = [
+      {
+        href: 'suite/index.html',
+        icon: '🛠️',
+        name: 'Oney Tool Suite',
+        description: 'All-in-one premium dashboard. Seamless workflow from data input to credit preparation.',
+        badge: { text: 'Pro', type: 'pro' },
+        variant: 'premium'
+      },
+      {
+        href: 'credit-paper-pro.html',
+        icon: '📋',
+        name: 'Credit Paper Pro',
+        description: 'Full-featured credit paper generator with 3C analysis, risk assessment, PDF export.',
+        badge: { text: 'Pro', type: 'pro' },
+        variant: 'premium'
+      },
+      {
+        href: '#',
+        icon: '📈',
+        name: 'Rent Roll Analyser',
+        description: 'Analyse rental income streams and calculate property valuations based on rent rolls.',
+        badge: { text: 'Coming Soon', type: 'coming' },
+        disabled: true
+      }
+    ];
+    
+    // Check auth status on load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add watermark
+      document.body.insertAdjacentHTML('afterbegin', OneyUI.watermark());
+      
+      // Insert logo
+      document.getElementById('logoContainer').innerHTML = OneyUI.logo({ width: 180, height: 75 });
+      
+      // Render tools
+      renderTools();
+      
+      // Check if authenticated
+      if (OneyStorage.isAuthenticated()) {
+        showContent();
+      }
+    });
+    
+    function checkPassword() {
+      const input = document.getElementById('passwordInput');
+      const error = document.getElementById('passwordError');
+      
+      if (input.value === PASSWORD) {
+        OneyStorage.setAuthenticated(true);
+        showContent();
+      } else {
+        error.classList.remove('hidden');
+        input.value = '';
+        input.focus();
+      }
+    }
+    
+    function showContent() {
+      document.getElementById('passwordGate').classList.add('hidden');
+      document.getElementById('mainContent').classList.remove('hidden');
+    }
+    
+    function renderTools() {
+      // Render free tools
+      const freeToolsHtml = FREE_TOOLS.map(tool => OneyUI.toolCard(tool)).join('');
+      document.getElementById('freeTools').innerHTML = freeToolsHtml;
+      
+      // Render premium tools
+      const premiumToolsHtml = PREMIUM_TOOLS.map(tool => OneyUI.toolCard(tool)).join('');
+      document.getElementById('premiumTools').innerHTML = premiumToolsHtml;
+    }
+  </script>
+</body>
+</html>

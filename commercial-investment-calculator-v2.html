@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Commercial Investment Calculator — Free loan assessment tool by Oney & Co">
+  <title>Commercial Investment Calculator — Oney & Co</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><path d='M0-38A38 38 0 1 0 0-37.99' fill='none' stroke='url(%23g)' stroke-width='8' stroke-linecap='round' stroke-dasharray='227 12'/><path d='M0-45L0-52' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Core CSS -->
+  <link rel="stylesheet" href="core/brand.css">
+  
+  <style>
+    /* Page-specific styles */
+    body {
+      padding-bottom: 100px;
+    }
+    
+    header {
+      text-align: center;
+      padding: var(--space-xl) 0 var(--space-lg);
+    }
+    
+    .logo-text {
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+    
+    .tagline {
+      margin-top: var(--space-sm);
+    }
+    
+    .badge-large {
+      display: inline-block;
+      background: var(--status-success);
+      color: var(--bg-primary);
+      padding: 4px 12px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: var(--space-sm);
+    }
+    
+    /* Bottom navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border-color);
+      padding: 12px 20px;
+      padding-bottom: calc(12px + env(safe-area-inset-bottom));
+      display: flex;
+      justify-content: space-around;
+      z-index: 100;
+    }
+    
+    .nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      transition: all 0.2s;
+    }
+    
+    .nav-btn.active {
+      color: var(--oney-green-dark);
+      background: var(--accent-glow);
+    }
+    
+    .nav-btn span:first-child {
+      font-size: 20px;
+    }
+    
+    /* Result card glow */
+    .result-card {
+      border-color: var(--oney-green-dark);
+      box-shadow: var(--shadow-glow);
+    }
+    
+    /* Summary styling */
+    #summaryContent {
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--text-secondary);
+    }
+    
+    #summaryContent hr {
+      border-color: var(--border-color);
+      margin: 12px 0;
+    }
+    
+    /* Upgrade banner */
+    .upgrade-banner {
+      background: linear-gradient(135deg, rgba(31, 173, 115, 0.1), rgba(46, 204, 133, 0.05));
+      border: 1px solid var(--oney-green-dark);
+    }
+    
+    .upgrade-banner h3 {
+      color: var(--oney-green);
+    }
+    
+    /* Saved data indicator */
+    .saved-indicator {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: var(--space-md);
+    }
+    
+    .saved-indicator.active {
+      color: var(--status-success);
+    }
+  </style>
+</head>
+<body>
+  <div class="container-narrow">
+    <header>
+      <div class="logo-text text-gradient">Commercial Investment Calculator</div>
+      <div class="tagline text-muted">Quick Loan Assessment Tool</div>
+      <div class="badge-large">FREE VERSION</div>
+    </header>
+    
+    <!-- Input Step -->
+    <div id="step1">
+      <!-- Saved data indicator -->
+      <div class="saved-indicator" id="savedIndicator">
+        <span>💾</span>
+        <span id="savedText">No saved data</span>
+      </div>
+      
+      <!-- Loan Details Card -->
+      <div class="card">
+        <div class="card-title">📋 Loan Details</div>
+        <div class="form-group">
+          <label class="form-label" for="loanAmount">Loan Amount (AUD)</label>
+          <input type="text" id="loanAmount" class="form-input" placeholder="e.g., 500,000" inputmode="numeric">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="interestRate">Interest Rate %</label>
+            <input type="number" id="interestRate" class="form-input" placeholder="6.50" step="0.01" value="6.50" inputmode="decimal">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="propType">Property Type</label>
+            <select id="propType" class="form-select">
+              <option value="residential">Residential</option>
+              <option value="commercial">Commercial</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Security Card -->
+      <div class="card">
+        <div class="card-title">🏠 Security</div>
+        <div class="form-group">
+          <label class="form-label" for="propValue">Property Value (AUD)</label>
+          <input type="text" id="propValue" class="form-input" placeholder="e.g., 800,000" inputmode="numeric">
+        </div>
+      </div>
+      
+      <!-- Income Card -->
+      <div class="card">
+        <div class="card-title">💰 Income (Annual)</div>
+        <div class="form-group">
+          <label class="form-label" for="rentalIncome">Net Rental Income p.a.</label>
+          <input type="text" id="rentalIncome" class="form-input" placeholder="e.g., 50,000" inputmode="numeric">
+        </div>
+      </div>
+      
+      <button class="btn btn-primary btn-full" onclick="calculate()">Calculate</button>
+    </div>
+    
+    <!-- Results Step -->
+    <div id="step2" class="hidden">
+      <div class="card result-card">
+        <div class="card-title">📊 Results</div>
+        <div class="grid grid-cols-2 gap-md">
+          <div class="metric" id="lvrMetric">
+            <div class="metric-value" id="lvrValue">--</div>
+            <div class="metric-label">LVR</div>
+          </div>
+          <div class="metric" id="icrMetric">
+            <div class="metric-value" id="icrValue">--</div>
+            <div class="metric-label">ICR</div>
+          </div>
+        </div>
+        <div id="statusBar" class="status-bar status-pass mt-md">
+          <span id="statusText">Meets criteria</span>
+        </div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">📝 Summary</div>
+        <div id="summaryContent"></div>
+      </div>
+      
+      <div class="card upgrade-banner text-center">
+        <h3>🚀 Want More Features?</h3>
+        <p class="text-muted" style="font-size:13px;margin:8px 0 16px;">Upgrade to Standard for: Multiple properties, Ownership structures, ATO checks, PDF export, Custom thresholds, and more!</p>
+        <button class="btn btn-primary btn-pill" onclick="window.open('https://oneyco.com.au/tools/commercial-investment-standard', '_blank')">Upgrade to Standard — $49</button>
+      </div>
+      
+      <button class="btn btn-primary btn-full" onclick="copyResults()">📋 Copy Results</button>
+      <button class="btn btn-secondary btn-full mt-sm" onclick="reset()">🔄 New Assessment</button>
+    </div>
+    
+    <footer class="text-center mt-lg" style="color:var(--text-muted);font-size:12px;">
+      <p>Made by <a href="https://oneyco.com.au" style="color:var(--oney-green);text-decoration:none;">Oney & Co</a></p>
+      <p class="mt-sm">Free version. <a href="https://oneyco.com.au/tools" style="color:var(--oney-green);text-decoration:none;">View all tools</a></p>
+    </footer>
+  </div>
+  
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="navInput" onclick="showStep(1)">
+      <span>📝</span>
+      <span>Input</span>
+    </button>
+    <button class="nav-btn" id="navResults" onclick="showStep(2)">
+      <span>📊</span>
+      <span>Results</span>
+    </button>
+    <button class="nav-btn" onclick="showInfo()">
+      <span>ℹ️</span>
+      <span>Info</span>
+    </button>
+  </nav>
+  
+  <!-- Core JS -->
+  <script src="core/storage.js"></script>
+  <script src="core/components.js"></script>
+  <script src="core/utils.js"></script>
+  
+  <script>
+    // Tool ID for storage
+    const TOOL_ID = 'commercial-investment-lite';
+    
+    // Store last result
+    let lastResult = null;
+    
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add watermark
+      document.body.insertAdjacentHTML('afterbegin', OneyUI.watermark());
+      
+      // Setup number formatting
+      ['loanAmount', 'propValue', 'rentalIncome'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('keyup', function() {
+            OneyUI.formatNumber(this);
+          });
+        }
+      });
+      
+      // Load saved data from profile
+      loadSavedData();
+      
+      // Apply URL params (e.g., from another tool)
+      OneyStorage.applyUrlParams();
+      const session = {
+        loan: OneyStorage.getSession('loan_amount'),
+        rate: OneyStorage.getSession('interest_rate')
+      };
+      if (session.loan) document.getElementById('loanAmount').value = OneyUtils.formatNumber(session.loan);
+      if (session.rate) document.getElementById('interestRate').value = session.rate;
+    });
+    
+    function loadSavedData() {
+      const profile = OneyStorage.getProfile();
+      const indicator = document.getElementById('savedIndicator');
+      const savedText = document.getElementById('savedText');
+      
+      // Check if we have relevant saved data
+      const hasData = profile.property.value > 0 || profile.income.rental > 0;
+      
+      if (hasData) {
+        indicator.classList.add('active');
+        savedText.textContent = 'Loaded from saved profile';
+        
+        // Pre-fill fields
+        if (profile.property.value > 0) {
+          document.getElementById('propValue').value = OneyUtils.formatNumber(profile.property.value);
+        }
+        if (profile.income.rental > 0) {
+          document.getElementById('rentalIncome').value = OneyUtils.formatNumber(profile.income.rental);
+        }
+        if (profile.property.type) {
+          const typeSelect = document.getElementById('propType');
+          if (typeSelect && profile.property.type === 'commercial') {
+            typeSelect.value = 'commercial';
+          }
+        }
+      }
+    }
+    
+    function calculate() {
+      // Get values
+      const loan = OneyUtils.parseNumber(document.getElementById('loanAmount').value);
+      const rate = parseFloat(document.getElementById('interestRate').value) || 6.5;
+      const propType = document.getElementById('propType').value;
+      const propValue = OneyUtils.parseNumber(document.getElementById('propValue').value);
+      const income = OneyUtils.parseNumber(document.getElementById('rentalIncome').value);
+      
+      // Validation
+      if (!loan || !propValue) {
+        OneyUI.toast('Please enter loan amount and property value', { type: 'warning' });
+        return;
+      }
+      
+      // Calculations
+      const lvr = OneyUtils.calcLVR(loan, propValue);
+      const annualInterest = OneyUtils.calcAnnualInterest(loan, rate);
+      const icr = OneyUtils.calcICR(income, annualInterest);
+      
+      // Thresholds
+      const lvrCap = propType === 'commercial' ? 70 : 80;
+      const lvrStatus = OneyUtils.getStatus(lvr, lvrCap - 10, lvrCap, false);
+      const icrStatus = OneyUtils.getStatus(icr, 1.5, 1.2, true);
+      const overall = (lvrStatus === 'fail' || icrStatus === 'fail') ? 'fail' : 
+                      (lvrStatus === 'warn' || icrStatus === 'warn') ? 'warn' : 'pass';
+      
+      // Update UI
+      document.getElementById('lvrValue').textContent = OneyUtils.formatPercent(lvr, 1);
+      document.getElementById('icrValue').textContent = OneyUtils.formatMultiple(icr, 2);
+      document.getElementById('lvrMetric').className = 'metric ' + lvrStatus;
+      document.getElementById('icrMetric').className = 'metric ' + icrStatus;
+      
+      const statusBar = document.getElementById('statusBar');
+      statusBar.className = 'status-bar status-' + overall + ' mt-md';
+      document.getElementById('statusText').textContent = 
+        overall === 'pass' ? '✓ Meets criteria' : 
+        overall === 'warn' ? '⚠ Review required' : '✗ Does not meet criteria';
+      
+      // Summary
+      document.getElementById('summaryContent').innerHTML = `
+        <p><strong>Loan:</strong> ${OneyUtils.formatCurrency(loan)}</p>
+        <p><strong>Property:</strong> ${OneyUtils.formatCurrency(propValue)} (${propType === 'commercial' ? 'Commercial' : 'Residential'})</p>
+        <p><strong>Interest Rate:</strong> ${rate}%</p>
+        <p><strong>Annual Interest:</strong> ${OneyUtils.formatCurrency(annualInterest)}</p>
+        <p><strong>Rental Income:</strong> ${OneyUtils.formatCurrency(income)} p.a.</p>
+        <hr>
+        <p><strong>LVR:</strong> ${OneyUtils.formatPercent(lvr, 1)} (Cap: ${lvrCap}%)</p>
+        <p><strong>ICR:</strong> ${OneyUtils.formatMultiple(icr, 2)} (Min: 1.50x)</p>
+      `;
+      
+      // Store result
+      lastResult = { loan, propValue, propType, rate, annualInterest, income, lvr, icr, lvrCap };
+      
+      // Save to profile for cross-tool use
+      OneyStorage.updateSection('property', { 
+        value: propValue, 
+        type: propType 
+      });
+      OneyStorage.updateSection('income', { 
+        rental: income 
+      });
+      
+      // Save calculation to history
+      OneyStorage.saveCalculation(TOOL_ID, lastResult);
+      
+      // Show results
+      showStep(2);
+    }
+    
+    function showStep(step) {
+      const step1 = document.getElementById('step1');
+      const step2 = document.getElementById('step2');
+      const navInput = document.getElementById('navInput');
+      const navResults = document.getElementById('navResults');
+      
+      if (step === 1) {
+        step1.classList.remove('hidden');
+        step2.classList.add('hidden');
+        navInput.classList.add('active');
+        navResults.classList.remove('active');
+      } else {
+        if (!lastResult) {
+          OneyUI.toast('Calculate first to see results', { type: 'info' });
+          return;
+        }
+        step1.classList.add('hidden');
+        step2.classList.remove('hidden');
+        navInput.classList.remove('active');
+        navResults.classList.add('active');
+      }
+    }
+    
+    function reset() {
+      document.querySelectorAll('input[type="text"]').forEach(i => i.value = '');
+      document.getElementById('interestRate').value = '6.50';
+      lastResult = null;
+      showStep(1);
+    }
+    
+    function copyResults() {
+      if (!lastResult) return;
+      
+      const r = lastResult;
+      const text = `COMMERCIAL INVESTMENT ASSESSMENT
+=====================================
+Loan: ${OneyUtils.formatCurrency(r.loan)}
+Property: ${OneyUtils.formatCurrency(r.propValue)} (${r.propType})
+Interest Rate: ${r.rate}%
+Annual Interest: ${OneyUtils.formatCurrency(r.annualInterest)}
+Rental Income: ${OneyUtils.formatCurrency(r.income)} p.a.
+
+LVR: ${OneyUtils.formatPercent(r.lvr, 1)} (Cap: ${r.lvrCap}%)
+ICR: ${OneyUtils.formatMultiple(r.icr, 2)} (Min: 1.50x)
+=====================================
+Generated by Oney & Co
+oneyco.com.au/tools`;
+      
+      OneyUI.copyToClipboard(text, 'Results copied!');
+    }
+    
+    function showInfo() {
+      const info = `Commercial Investment Calculator (Free)
+
+Basic LVR & ICR calculator for Australian property investors.
+
+LVR Caps:
+• Residential: 80%
+• Commercial: 70%
+
+ICR Minimum: 1.50x
+
+Upgrade to Standard ($49) for:
+• Multiple properties
+• Ownership structures
+• ATO tax position check
+• PDF export
+• Custom thresholds
+• Lease details
+
+© Oney & Co`;
+      alert(info);
+    }
+  </script>
+</body>
+</html>
