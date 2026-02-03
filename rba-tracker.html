@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>RBA Rate & CPI Tracker | Oney & Co</title>
+  <meta name="description" content="Track RBA interest rates and CPI inflation. Understand how rate changes affect your mortgage and financial life.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><path d='M0-38A38 38 0 1 0 0-37.99' fill='none' stroke='url(%23g)' stroke-width='8' stroke-linecap='round' stroke-dasharray='227 12'/><path d='M0-45L0-52' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --bg-secondary: #111111;
+      --card: #1a1a1a;
+      --border: #262626;
+      --accent: #1FAD73;
+      --accent-light: #2ECC85;
+      --accent-lighter: #4ADE94;
+      --accent-glow: rgba(31, 173, 115, 0.15);
+      --text: #ffffff;
+      --text-muted: #a3a3a3;
+      --red: #ef4444;
+      --red-glow: rgba(239, 68, 68, 0.15);
+      --blue: #3b82f6;
+      --blue-glow: rgba(59, 130, 246, 0.15);
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+    
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 40px;
+    }
+    
+    .header-left {
+      flex: 1;
+    }
+    
+    .header-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      margin-bottom: 16px;
+      transition: color 0.2s;
+    }
+    .header-back:hover { color: var(--accent-light); }
+    
+    .header h1 {
+      font-size: 32px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    
+    .header p {
+      color: var(--text-muted);
+      font-size: 16px;
+    }
+    
+    /* Language Switcher */
+    .lang-switcher {
+      display: flex;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      padding: 4px;
+    }
+    
+    .lang-btn {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 100px;
+      transition: all 0.2s;
+    }
+    
+    .lang-btn.active {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    
+    .lang-btn:hover:not(.active) {
+      color: var(--text);
+    }
+    
+    /* Rate Cards */
+    .rate-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+    
+    .rate-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .rate-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+    
+    .rate-card.rba::before {
+      background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    }
+    
+    .rate-card.cpi::before {
+      background: linear-gradient(90deg, var(--blue), #60a5fa);
+    }
+    
+    .rate-card h3 {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .rate-value {
+      font-size: 48px;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    
+    .rate-card.rba .rate-value { color: var(--accent-light); }
+    .rate-card.cpi .rate-value { color: var(--blue); }
+    
+    .rate-change {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 12px;
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-top: 12px;
+    }
+    
+    .rate-change.up {
+      background: var(--red-glow);
+      color: var(--red);
+    }
+    
+    .rate-change.down {
+      background: var(--accent-glow);
+      color: var(--accent-light);
+    }
+    
+    .rate-date {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 12px;
+    }
+    
+    /* Impact Section */
+    .section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 24px;
+    }
+    
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .section-desc {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+    
+    .input-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    
+    .input-field {
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    .input-field label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+    }
+    
+    .input-field input {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 16px;
+      color: var(--text);
+      transition: border-color 0.2s;
+    }
+    
+    .input-field input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .input-field span {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 6px;
+    }
+    
+    .impact-results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    
+    .impact-item {
+      text-align: center;
+      padding: 20px 16px;
+      background: var(--bg);
+      border-radius: 12px;
+    }
+    
+    .impact-item .label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    
+    .impact-item .value {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    
+    .impact-item .value.negative { color: var(--red); }
+    .impact-item .value.positive { color: var(--accent-light); }
+    
+    .impact-item .sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    
+    /* Awareness Grid */
+    .awareness-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    
+    .awareness-item {
+      background: var(--bg);
+      border-radius: 12px;
+      padding: 20px;
+    }
+    
+    .awareness-item h4 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .awareness-item p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    
+    /* Timeline */
+    .timeline {
+      position: relative;
+      padding-left: 24px;
+    }
+    
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 6px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--border);
+    }
+    
+    .timeline-item {
+      position: relative;
+      padding-bottom: 20px;
+    }
+    
+    .timeline-item:last-child { padding-bottom: 0; }
+    
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -22px;
+      top: 6px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+    
+    .timeline-item.up::before { background: var(--red); }
+    .timeline-item.down::before { background: var(--accent-light); }
+    
+    .timeline-date {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    
+    .timeline-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .timeline-rate {
+      font-weight: 600;
+      font-size: 18px;
+    }
+    
+    .timeline-change {
+      font-size: 13px;
+      padding: 2px 10px;
+      border-radius: 100px;
+      font-weight: 500;
+    }
+    
+    .timeline-change.up { background: var(--red-glow); color: var(--red); }
+    .timeline-change.down { background: var(--accent-glow); color: var(--accent-light); }
+    .timeline-change.hold { background: var(--bg-secondary); color: var(--text-muted); }
+    
+    /* CTA */
+    .cta-section {
+      text-align: center;
+      padding: 48px 32px;
+      background: linear-gradient(135deg, var(--accent-glow), transparent);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+    }
+    
+    .cta-section h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .cta-section p {
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      font-size: 15px;
+    }
+    
+    .cta-btn {
+      display: inline-block;
+      padding: 14px 32px;
+      background: var(--accent-light);
+      color: var(--bg);
+      text-decoration: none;
+      border-radius: 100px;
+      font-weight: 600;
+      font-size: 15px;
+      transition: all 0.2s;
+    }
+    
+    .cta-btn:hover {
+      background: var(--accent-lighter);
+      transform: translateY(-2px);
+    }
+    
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 40px 24px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    
+    footer a {
+      color: var(--accent-light);
+      text-decoration: none;
+    }
+    
+    footer a:hover { text-decoration: underline; }
+    
+    @media (max-width: 600px) {
+      .header { flex-direction: column; gap: 20px; }
+      .header h1 { font-size: 26px; }
+      .rate-value { font-size: 36px; }
+      .input-row { flex-direction: column; }
+      .input-field { min-width: 100%; }
+      .impact-results { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header with Language Switcher -->
+    <div class="header">
+      <div class="header-left">
+        <a href="index.html" class="header-back">← <span data-en="Back to Tools" data-zh="返回工具">Back to Tools</span></a>
+        <h1 data-en="RBA Rate & CPI Tracker" data-zh="RBA 利率 & CPI 追踪">RBA Rate & CPI Tracker</h1>
+        <p data-en="Understand how interest rates affect your financial life" data-zh="了解利率如何影响你的财务生活">Understand how interest rates affect your financial life</p>
+      </div>
+      <div class="lang-switcher">
+        <button class="lang-btn active" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="zh">中文</button>
+      </div>
+    </div>
+    
+    <!-- Current Rates -->
+    <div class="rate-cards">
+      <div class="rate-card rba">
+        <h3>🏦 <span data-en="RBA Cash Rate" data-zh="RBA 现金利率">RBA Cash Rate</span></h3>
+        <div class="rate-value">3.85%</div>
+        <span class="rate-change up">▲ +0.25%</span>
+        <p class="rate-date" data-en="Effective: 4 Feb 2026" data-zh="生效日期: 2026年2月4日">Effective: 4 Feb 2026</p>
+      </div>
+      <div class="rate-card cpi">
+        <h3>📊 <span data-en="CPI Inflation" data-zh="CPI 通胀率">CPI Inflation</span></h3>
+        <div class="rate-value">3.3%</div>
+        <span class="rate-change down">▼ <span data-en="-0.2% from peak" data-zh="较峰值 -0.2%">-0.2% from peak</span></span>
+        <p class="rate-date" data-en="Data: December 2025" data-zh="数据截至: 2025年12月">Data: December 2025</p>
+      </div>
+    </div>
+    
+    <!-- Impact Calculator -->
+    <div class="section">
+      <h2 class="section-title">💰 <span data-en="Impact on Your Mortgage" data-zh="对你贷款的影响">Impact on Your Mortgage</span></h2>
+      <p class="section-desc" data-en="Enter your loan details to see how rate changes affect you" data-zh="输入你的贷款信息，看看利率变化对你的实际影响">Enter your loan details to see how rate changes affect you</p>
+      
+      <div class="input-row">
+        <div class="input-field">
+          <label data-en="Loan Amount" data-zh="贷款金额">Loan Amount</label>
+          <input type="number" id="loanAmount" value="500000" placeholder="500000">
+          <span data-en="Australian Dollars" data-zh="澳元">Australian Dollars</span>
+        </div>
+        <div class="input-field">
+          <label data-en="Loan Term" data-zh="贷款期限">Loan Term</label>
+          <input type="number" id="loanTerm" value="30" placeholder="30">
+          <span data-en="Years" data-zh="年">Years</span>
+        </div>
+      </div>
+      
+      <div class="impact-results">
+        <div class="impact-item">
+          <div class="label" data-en="Current Monthly Payment" data-zh="当前月供估算">Current Monthly Payment</div>
+          <div class="value" id="currentPayment">$2,347</div>
+          <div class="sub" data-en="Based on 3.85%" data-zh="基于 3.85% 利率">Based on 3.85%</div>
+        </div>
+        <div class="impact-item">
+          <div class="label" data-en="This Rate Rise" data-zh="本次加息影响">This Rate Rise</div>
+          <div class="value negative" id="rateImpact">+$76/mo</div>
+          <div class="sub" data-en="vs. before rise" data-zh="相比加息前">vs. before rise</div>
+        </div>
+        <div class="impact-item">
+          <div class="label" data-en="Yearly Extra" data-zh="年度额外支出">Yearly Extra</div>
+          <div class="value negative" id="yearlyImpact">+$912/yr</div>
+          <div class="sub" data-en="Budget impact" data-zh="家庭预算影响">Budget impact</div>
+        </div>
+        <div class="impact-item">
+          <div class="label" data-en="Since 2022 Low" data-zh="较2022年低点">Since 2022 Low</div>
+          <div class="value negative" id="fromLow">+$1,156/mo</div>
+          <div class="sub" data-en="From 0.10% to now" data-zh="从 0.10% 到现在">From 0.10% to now</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Knowledge Section -->
+    <div class="section">
+      <h2 class="section-title">📚 <span data-en="What You Should Know" data-zh="你应该知道的">What You Should Know</span></h2>
+      <div class="awareness-grid">
+        <div class="awareness-item">
+          <h4>🎯 <span data-en="RBA's Goal" data-zh="RBA 的目标">RBA's Goal</span></h4>
+          <p data-en="RBA targets inflation at 2-3%. When CPI exceeds this range, RBA may raise rates to 'cool' the economy." data-zh="RBA 的目标是将通胀控制在 2-3% 区间。当 CPI 超过这个范围，RBA 可能会加息来"冷却"经济。">RBA targets inflation at 2-3%. When CPI exceeds this range, RBA may raise rates to 'cool' the economy.</p>
+        </div>
+        <div class="awareness-item">
+          <h4>⏰ <span data-en="Rate Pass-through" data-zh="利率传导">Rate Pass-through</span></h4>
+          <p data-en="After RBA changes rates, banks typically adjust mortgage rates within 1-2 weeks. Variable rates are directly affected." data-zh="RBA 调整利率后，银行通常会在 1-2 周内调整房贷利率。浮动利率贷款会直接受影响。">After RBA changes rates, banks typically adjust mortgage rates within 1-2 weeks. Variable rates are directly affected.</p>
+        </div>
+        <div class="awareness-item">
+          <h4>💡 <span data-en="3% Buffer Rule" data-zh="3% Buffer 规则">3% Buffer Rule</span></h4>
+          <p data-en="Banks add 3% buffer to current rates when assessing borrowing capacity. This ensures you can handle future rate rises." data-zh="银行在评估你的借款能力时，会在当前利率上加 3% 作为缓冲。这是为了确保你能承受未来加息。">Banks add 3% buffer to current rates when assessing borrowing capacity. This ensures you can handle future rate rises.</p>
+        </div>
+        <div class="awareness-item">
+          <h4>🔄 <span data-en="Fixed vs Variable" data-zh="固定 vs 浮动">Fixed vs Variable</span></h4>
+          <p data-en="Fixed rates stay constant during the term but are usually higher. Your choice depends on rate expectations and risk tolerance." data-zh="固定利率在期限内不变，但通常比浮动高。选择哪种取决于你对利率走势的预期和风险偏好。">Fixed rates stay constant during the term but are usually higher. Your choice depends on rate expectations and risk tolerance.</p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Timeline -->
+    <div class="section">
+      <h2 class="section-title">📅 <span data-en="Recent Rate Changes" data-zh="近期利率变动">Recent Rate Changes</span></h2>
+      <div class="timeline">
+        <div class="timeline-item up">
+          <div class="timeline-date">4 Feb 2026</div>
+          <div class="timeline-content">
+            <span class="timeline-rate">3.85%</span>
+            <span class="timeline-change up">+0.25%</span>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-date">10 Dec 2025</div>
+          <div class="timeline-content">
+            <span class="timeline-rate">3.60%</span>
+            <span class="timeline-change hold" data-en="Hold" data-zh="维持">Hold</span>
+          </div>
+        </div>
+        <div class="timeline-item down">
+          <div class="timeline-date">13 Aug 2025</div>
+          <div class="timeline-content">
+            <span class="timeline-rate">3.60%</span>
+            <span class="timeline-change down">-0.25%</span>
+          </div>
+        </div>
+        <div class="timeline-item down">
+          <div class="timeline-date">21 May 2025</div>
+          <div class="timeline-content">
+            <span class="timeline-rate">3.85%</span>
+            <span class="timeline-change down">-0.25%</span>
+          </div>
+        </div>
+        <div class="timeline-item down">
+          <div class="timeline-date">19 Feb 2025</div>
+          <div class="timeline-content">
+            <span class="timeline-rate">4.10%</span>
+            <span class="timeline-change down">-0.25%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- CTA -->
+    <div class="cta-section">
+      <h2 data-en="Want to Learn More?" data-zh="想了解更多？">Want to Learn More?</h2>
+      <p data-en="Interest rate environment is complex. Let professionals help you find the best loan strategy." data-zh="利率环境复杂多变，让专业人士帮你分析最适合的贷款方案">Interest rate environment is complex. Let professionals help you find the best loan strategy.</p>
+      <a href="https://oneyco.com.au" class="cta-btn" data-en="Contact Oney & Co →" data-zh="联系 Oney & Co →">Contact Oney & Co →</a>
+    </div>
+    
+    <footer>
+      <p data-en="Data sources:" data-zh="数据来源:">Data sources:</p>
+      <p><a href="https://www.rba.gov.au" target="_blank">Reserve Bank of Australia</a> | <a href="https://www.abs.gov.au" target="_blank">Australian Bureau of Statistics</a></p>
+      <p style="margin-top: 16px;" data-en="© 2026 Oney & Co. For reference only, not financial advice." data-zh="© 2026 Oney & Co. 仅供参考，不构成财务建议。">© 2026 Oney & Co. For reference only, not financial advice.</p>
+    </footer>
+  </div>
+  
+  <script>
+    // Language switching
+    let currentLang = 'en';
+    
+    function switchLanguage(lang) {
+      currentLang = lang;
+      document.querySelectorAll('[data-' + lang + ']').forEach(el => {
+        el.textContent = el.getAttribute('data-' + lang);
+      });
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === lang);
+      });
+      document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+      updateCalculations(); // Refresh with correct language
+    }
+    
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchLanguage(btn.dataset.lang));
+    });
+    
+    // Calculate monthly payment
+    function calculatePayment(principal, annualRate, years) {
+      const monthlyRate = annualRate / 100 / 12;
+      const numPayments = years * 12;
+      if (monthlyRate === 0) return principal / numPayments;
+      return principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
+             (Math.pow(1 + monthlyRate, numPayments) - 1);
+    }
+    
+    function formatCurrency(num) {
+      return '$' + Math.round(num).toLocaleString();
+    }
+    
+    function updateCalculations() {
+      const principal = parseFloat(document.getElementById('loanAmount').value) || 500000;
+      const years = parseFloat(document.getElementById('loanTerm').value) || 30;
+      
+      const currentRate = 3.85;
+      const previousRate = 3.60;
+      const lowRate = 0.10;
+      
+      const currentPayment = calculatePayment(principal, currentRate, years);
+      const previousPayment = calculatePayment(principal, previousRate, years);
+      const lowPayment = calculatePayment(principal, lowRate, years);
+      
+      const monthlyDiff = currentPayment - previousPayment;
+      const yearlyDiff = monthlyDiff * 12;
+      const fromLowDiff = currentPayment - lowPayment;
+      
+      const moSuffix = currentLang === 'zh' ? '/月' : '/mo';
+      const yrSuffix = currentLang === 'zh' ? '/年' : '/yr';
+      
+      document.getElementById('currentPayment').textContent = formatCurrency(currentPayment);
+      document.getElementById('rateImpact').textContent = (monthlyDiff >= 0 ? '+' : '') + formatCurrency(monthlyDiff) + moSuffix;
+      document.getElementById('yearlyImpact').textContent = (yearlyDiff >= 0 ? '+' : '') + formatCurrency(yearlyDiff) + yrSuffix;
+      document.getElementById('fromLow').textContent = (fromLowDiff >= 0 ? '+' : '') + formatCurrency(fromLowDiff) + moSuffix;
+    }
+    
+    document.getElementById('loanAmount').addEventListener('input', updateCalculations);
+    document.getElementById('loanTerm').addEventListener('input', updateCalculations);
+    
+    updateCalculations();
+  </script>
+</body>
+</html>
