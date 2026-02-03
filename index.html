@@ -33,6 +33,18 @@
       -webkit-font-smoothing: antialiased;
     }
     
+    /* Watermark */
+    .watermark {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      width: 80px;
+      height: 80px;
+      opacity: 0.08;
+      z-index: 1;
+      pointer-events: none;
+    }
+    
     /* Password Gate */
     .password-gate {
       position: fixed;
@@ -253,6 +265,12 @@
   </style>
 </head>
 <body>
+  <!-- Watermark -->
+  <svg class="watermark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <defs><linearGradient id="wm" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs>
+    <g transform="translate(50, 50)"><path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#wm)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/><path d="M0 -45 L0 -52" stroke="url(#wm)" stroke-width="6" stroke-linecap="round"/></g>
+  </svg>
+
   <!-- Password Gate -->
   <div class="password-gate" id="passwordGate">
     <div class="password-box">
@@ -280,14 +298,14 @@
         <span class="beta-badge">🧪 Internal Testing</span>
       </header>
       
-      <!-- Oney Suite -->
+      <!-- FHC - Featured -->
       <div class="section">
-        <h2 class="section-title">🏠 Oney Suite</h2>
+        <h2 class="section-title">💚 Financial Health Check</h2>
         <div class="tools-grid">
-          <a href="tools.html" class="tool-card featured">
-            <div class="tool-icon">🛠️</div>
-            <div class="tool-name">Oney Suite</div>
-            <div class="tool-desc">All-in-one dashboard with quick access to commercial finance calculators and tools.</div>
+          <a href="fhc.html" class="tool-card featured">
+            <div class="tool-icon">💚</div>
+            <div class="tool-name">SME Financial Health Check</div>
+            <div class="tool-desc">5-minute assessment to understand your business lending position. Get actionable insights and a shareable report.</div>
             <span class="tool-badge badge-free">Free</span>
           </a>
         </div>
@@ -297,13 +315,6 @@
       <div class="section">
         <h2 class="section-title">✨ Free Tools</h2>
         <div class="tools-grid">
-          <a href="fhc.html" class="tool-card">
-            <div class="tool-icon">💚</div>
-            <div class="tool-name">Financial Health Check</div>
-            <div class="tool-desc">5-minute assessment to understand your business lending position. Get actionable insights.</div>
-            <span class="tool-badge badge-free">Free</span>
-          </a>
-          
           <a href="rba-tracker.html" class="tool-card">
             <div class="tool-icon">📊</div>
             <div class="tool-name">RBA Rate & CPI Tracker</div>
@@ -333,9 +344,9 @@
           </a>
           
           <a href="ef-tool.html" class="tool-card">
-            <div class="tool-icon">🛡️</div>
-            <div class="tool-name">Emergency Fund Calculator</div>
-            <div class="tool-desc">Calculate how much emergency fund you need based on your expenses and risk profile.</div>
+            <div class="tool-icon">🚜</div>
+            <div class="tool-name">Equipment Finance Calculator</div>
+            <div class="tool-desc">Calculate equipment finance repayments, balloon payments, and compare lease vs buy options.</div>
             <span class="tool-badge badge-free">Free</span>
           </a>
           
@@ -348,14 +359,21 @@
         </div>
       </div>
       
-      <!-- Premium / Coming Soon -->
+      <!-- Premium / Oney Suite -->
       <div class="section">
-        <h2 class="section-title">💎 Premium & Coming Soon</h2>
+        <h2 class="section-title">💎 Oney Tool Suite</h2>
         <div class="tools-grid">
+          <a href="suite/index.html" class="tool-card premium">
+            <div class="tool-icon">🛠️</div>
+            <div class="tool-name">Oney Tool Suite</div>
+            <div class="tool-desc">All-in-one premium dashboard. Seamless workflow from data input to credit preparation. Export-ready for lender tools.</div>
+            <span class="tool-badge badge-pro">Pro</span>
+          </a>
+          
           <a href="credit-paper-pro.html" class="tool-card premium">
             <div class="tool-icon">📋</div>
             <div class="tool-name">Credit Paper Pro</div>
-            <div class="tool-desc">Generate professional credit papers with 3C analysis, risk assessment, and lender recommendations.</div>
+            <div class="tool-desc">Full-featured credit paper generator with 3C analysis, risk assessment, PDF export, and lender templates.</div>
             <span class="tool-badge badge-pro">Pro</span>
           </a>
           
@@ -363,13 +381,6 @@
             <div class="tool-icon">📈</div>
             <div class="tool-name">Rent Roll Analyser</div>
             <div class="tool-desc">Analyse rental income streams and calculate property valuations based on rent rolls.</div>
-            <span class="tool-badge badge-coming">Coming Soon</span>
-          </div>
-          
-          <div class="tool-card" style="opacity: 0.6; pointer-events: none;">
-            <div class="tool-icon">🤝</div>
-            <div class="tool-name">Client Pipeline</div>
-            <div class="tool-desc">Manage your client pipeline and track deal progress from initial contact to settlement.</div>
             <span class="tool-badge badge-coming">Coming Soon</span>
           </div>
         </div>
@@ -383,10 +394,8 @@
   </div>
   
   <script>
-    // Password: oney2026 (you can change this)
     const PASSWORD = 'oney2026';
     
-    // Check if already authenticated
     if (sessionStorage.getItem('oney_auth') === 'true') {
       document.getElementById('passwordGate').classList.add('hidden');
       document.getElementById('mainContent').classList.add('visible');
