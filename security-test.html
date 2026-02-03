@@ -3,42 +3,33 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#0a0a0a">
+  <meta name="theme-color" content="#1a1a2e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="description" content="Security Test Tool — Property type identification and LVR policy lookup">
   <title>Security Test Tool</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Google Places API - Replace YOUR_API_KEY with actual key -->
+  <!-- Google Places API for Address Autocomplete -->
   <script>
-    // Configuration - Set your API key here
-    const GOOGLE_PLACES_API_KEY = 'AIzaSyBHTgzeidz9hvA2vDg-oD2GiIHSb6J_nwQ';
-    
-    // Load Google Maps script dynamically if API key is set
-    if (GOOGLE_PLACES_API_KEY) {
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_PLACES_API_KEY}&libraries=places&callback=initAutocomplete`;
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
-    }
+    const GOOGLE_PLACES_API_KEY = 'AIzaSyDL44B15g2PE8DqE4YcVV-jtdXr4rfa5bU';
   </script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDL44B15g2PE8DqE4YcVV-jtdXr4rfa5bU&libraries=places&callback=initGoogleAutocomplete"></script>
   
   <style>
     :root {
-      --bg: #0a0a0a;
-      --card: #141414;
-      --card-hover: #1a1a1a;
-      --border: #262626;
+      --bg: #0a1628;
+      --card: #132337;
+      --card-hover: #1a3049;
+      --border: #234;
       --primary: #2ECC85;
-      --primary-glow: rgba(31, 173, 115, 0.25);
-      --secondary: #4ADE94;
-      --success: #34d399;
-      --warning: #2ECC85;
+      --primary-glow: rgba(46, 204, 133, 0.25);
+      --secondary: #1FAD73;
+      --success: #2ECC85;
+      --warning: #fbbf24;
       --danger: #f87171;
       --text: #f8fafc;
-      --text-muted: #a3a3a3;
+      --text-muted: #94a3b8;
       --radius: 16px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -183,7 +174,7 @@
       transition: width 0.5s ease;
     }
     .lvr-meter-fill.green { background: linear-gradient(90deg, #34d399, #10b981); }
-    .lvr-meter-fill.yellow { background: linear-gradient(90deg, #2ECC85, #1FAD73); }
+    .lvr-meter-fill.yellow { background: linear-gradient(90deg, #fbbf24, #f97316); }
     .lvr-meter-fill.red { background: linear-gradient(90deg, #f87171, #ef4444); }
     
     .policy-box {
@@ -235,7 +226,7 @@
       width: 100%; padding: 16px; font-size: 16px; font-weight: 600;
       font-family: inherit; border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s;
     }
-    .btn-primary { background: linear-gradient(135deg, #2ECC85, #1FAD73); color: #000; }
+    .btn-primary { background: linear-gradient(135deg, #fbbf24, #f97316); color: #000; }
     .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px var(--primary-glow); }
     .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); margin-top: 12px; }
     .hidden { display: none; }
@@ -305,12 +296,6 @@
   </style>
 </head>
 <body>
-  <!-- Watermark -->
-  <svg style="position:fixed;top:24px;left:24px;width:80px;height:80px;opacity:0.08;z-index:1;pointer-events:none;" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="wm" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs>
-    <g transform="translate(50, 50)"><path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#wm)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/><path d="M0 -45 L0 -52" stroke="url(#wm)" stroke-width="6" stroke-linecap="round"/></g>
-  </svg>
-
   <div class="container">
     <header>
       <div class="logo">Security Test Tool</div>
@@ -323,7 +308,7 @@
         <div class="form-group">
           <label>Property Address <span id="addressStatus" class="address-status manual">Manual Entry</span></label>
           <input type="text" id="address" placeholder="Start typing address..." autocomplete="off">
-          <div class="helper" id="addressHelper">Enter the full property address (autocomplete enabled if API key configured)</div>
+          <div class="helper" id="addressHelper">Start typing to search Australian addresses</div>
         </div>
         <div class="row">
           <div class="form-group">
@@ -342,6 +327,7 @@
           <div class="form-group">
             <label>Council Zoning</label>
             <select id="zoning" onchange="updateZoningInfo()">
+              <option value="unknown">-- Not Sure / 不确定 --</option>
               <optgroup label="Residential">
                 <option value="R1">R1 - General Residential</option>
                 <option value="R2">R2 - Low Density Residential</option>
@@ -861,8 +847,8 @@ Each property type has:
 • Alert threshold
 • Special considerations
 
-NEW: Google Places address autocomplete
-(requires API key configuration)
+Address autocomplete powered by Google Places API
+(Australian addresses only)
 
 © Oney & Co`);
     }
@@ -871,15 +857,21 @@ NEW: Google Places address autocomplete
     let autocomplete = null;
     let addressVerified = false;
     
-    function initAutocomplete() {
+    function initGoogleAutocomplete() {
       const addressInput = document.getElementById('address');
       const addressStatus = document.getElementById('addressStatus');
       const addressHelper = document.getElementById('addressHelper');
       
+      if (!addressInput) {
+        console.log('Address input not found, retrying...');
+        setTimeout(initGoogleAutocomplete, 500);
+        return;
+      }
+      
       // Update helper text
       addressHelper.textContent = 'Start typing to search Australian addresses';
       
-      // Create autocomplete instance
+      // Create Google Places Autocomplete
       autocomplete = new google.maps.places.Autocomplete(addressInput, {
         types: ['address'],
         componentRestrictions: { country: 'au' },
@@ -941,18 +933,13 @@ NEW: Google Places address autocomplete
           addressVerified = false;
         }
       });
+      
+      console.log('Google Places Autocomplete initialized');
     }
-    
-    // Check if API key is configured on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      if (!GOOGLE_PLACES_API_KEY) {
-        document.getElementById('addressHelper').textContent = 
-          'Enter the full property address (configure API key for autocomplete)';
-      }
-    });
     
     // Zoning info updates
     const zoningInfo = {
+      'unknown': { desc: 'Not sure about zoning? Check your local council website or ask your broker to verify.', type: 'unknown' },
       'R1': { desc: 'General Residential — Standard residential use, good lender appetite', type: 'residential' },
       'R2': { desc: 'Low Density Residential — Single dwellings, standard lending', type: 'residential' },
       'R3': { desc: 'Medium Density Residential — Townhouses/villas, standard lending', type: 'residential' },
