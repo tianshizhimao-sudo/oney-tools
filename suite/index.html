@@ -78,6 +78,86 @@
             -webkit-text-fill-color: transparent;
         }
 
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+            min-width: 250px;
+        }
+
+        .toast.success {
+            border-left: 3px solid var(--success);
+        }
+
+        .toast.error {
+            border-left: 3px solid var(--danger);
+        }
+
+        .toast.info {
+            border-left: 3px solid var(--info);
+        }
+
+        .toast-icon {
+            font-size: 1.2rem;
+        }
+
+        .toast-message {
+            flex: 1;
+            font-size: 0.875rem;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+            font-size: 1rem;
+        }
+
+        .toast-close:hover {
+            color: var(--text-primary);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
         .sidebar-subtitle {
             font-size: 0.75rem;
             color: var(--text-muted);
@@ -589,6 +669,22 @@
     </style>
 </head>
 <body>
+<!-- PASSWORD GATE START -->
+<div id="oney-gate" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;z-index:99999;display:flex;align-items:center;justify-content:center;font-family:Inter,-apple-system,sans-serif;">
+<div style="text-align:center;max-width:360px;padding:40px;">
+<div style="width:64px;height:64px;margin:0 auto 24px;border-radius:50%;background:rgba(46,204,133,0.12);display:flex;align-items:center;justify-content:center;">
+<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#2ECC85" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+</div>
+<h2 style="color:#fff;font-size:20px;margin-bottom:8px;">Oney &amp; Co</h2>
+<p style="color:#737373;font-size:14px;margin-bottom:24px;">This tool is in development. Enter password to access.</p>
+<input id="oney-pw" type="password" placeholder="Password" autocomplete="off" style="width:100%;padding:12px 16px;background:#141414;border:1px solid #262626;border-radius:8px;color:#fff;font-size:16px;outline:none;margin-bottom:12px;text-align:center;" onkeydown="if(event.key==='Enter')document.getElementById('oney-unlock').click()">
+<button id="oney-unlock" onclick="if(document.getElementById('oney-pw').value==='oney2026'){document.getElementById('oney-gate').remove();sessionStorage.setItem('oney-auth','1')}else{document.getElementById('oney-pw').style.borderColor='#EF4444';document.getElementById('oney-pw').value=''}" style="width:100%;padding:12px;background:linear-gradient(135deg,#2ECC85,#1FAD73);border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;">Unlock</button>
+</div></div>
+<script>if(sessionStorage.getItem("oney-auth")==="1"){var g=document.getElementById("oney-gate");if(g)g.remove();}</script>
+<!-- PASSWORD GATE END -->
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-header">
@@ -1498,6 +1594,40 @@
         // ONEY TOOL SUITE - SHARED STATE MANAGEMENT
         // ============================================
 
+        // ============================================
+        // TOAST NOTIFICATIONS
+        // ============================================
+
+        function showToast(message, type = 'success', duration = 3000) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️'
+            };
+            
+            toast.innerHTML = `
+                <span class="toast-icon">${icons[type] || '✅'}</span>
+                <span class="toast-message">${message}</span>
+                <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+            `;
+            
+            container.appendChild(toast);
+            
+            // Auto remove after duration
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        // ============================================
+        // STATE MANAGEMENT
+        // ============================================
+
         // Shared state across all modules
         const SuiteState = {
             shared: {},      // Shared inputs (borrower info, loan details, etc.)
@@ -1535,13 +1665,21 @@
                 });
             });
 
-            // Shared inputs
+            // Shared inputs - save on change with debounced toast
+            let saveTimeout;
             document.querySelectorAll('.shared-input').forEach(input => {
                 input.addEventListener('input', (e) => {
                     const key = e.target.dataset.key;
-                    SuiteState.shared[key] = e.target.value;
+                    const value = e.target.type === 'number' ? e.target.value : e.target.value;
+                    SuiteState.shared[key] = value;
                     updateAllDisplays();
                     autoSave();
+                    
+                    // Show subtle save feedback (debounced)
+                    clearTimeout(saveTimeout);
+                    saveTimeout = setTimeout(() => {
+                        showToast('Auto-saved', 'info', 1500);
+                    }, 1000);
                 });
             });
 
@@ -1604,12 +1742,13 @@
         // ============================================
 
         function updateAllDisplays() {
+            // Update ALL display elements across ALL modules (not just visible ones)
             document.querySelectorAll('[data-display]').forEach(el => {
                 const key = el.dataset.display;
                 const format = el.dataset.format;
                 let value = SuiteState.shared[key];
 
-                if (value) {
+                if (value !== undefined && value !== null && value !== '') {
                     if (format === 'currency') {
                         value = '$' + Number(value).toLocaleString();
                     } else if (format === 'percent') {
@@ -1782,7 +1921,7 @@ Generated by Oney Pro | ${new Date().toLocaleDateString()}
 
         function saveToLocalStorage() {
             autoSave();
-            alert('Assessment saved!');
+            showToast('Assessment saved!', 'success');
         }
 
         function loadFromLocalStorage() {
@@ -1824,9 +1963,9 @@ Generated by Oney Pro | ${new Date().toLocaleDateString()}
                         updateAllDisplays();
                         updateProgress();
                         autoSave();
-                        alert('Assessment imported successfully!');
+                        showToast('Assessment imported successfully!', 'success');
                     } catch (err) {
-                        alert('Error importing file: ' + err.message);
+                        showToast('Error importing file: ' + err.message, 'error');
                     }
                 };
                 reader.readAsText(file);
@@ -1837,7 +1976,7 @@ Generated by Oney Pro | ${new Date().toLocaleDateString()}
             generateSummary();
             const text = document.getElementById('summary-output').textContent;
             navigator.clipboard.writeText(text).then(() => {
-                alert('Summary copied to clipboard!');
+                showToast('Summary copied to clipboard!', 'success');
             });
         }
 

@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Get in Touch | Oney & Co</title>
+  <style>
+    :root {
+      --primary: #2ECC85;
+      --primary-dark: #1FAD73;
+      --text: #0a0a0a;
+      --text-light: #666;
+      --bg: #ffffff;
+      --bg-light: #f8faf9;
+      --border: #e0e0e0;
+      --error: #e74c3c;
+      --success: #27ae60;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: var(--bg-light);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .lead-form-container {
+      max-width: 520px;
+      margin: 0 auto;
+      background: var(--bg);
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    
+    .form-header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      padding: 32px 28px;
+      text-align: center;
+      color: white;
+    }
+    
+    .form-header svg {
+      width: 120px;
+      height: 56px;
+      margin-bottom: 16px;
+    }
+    
+    .form-header h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .form-header p {
+      font-size: 0.95rem;
+      opacity: 0.95;
+    }
+    
+    .form-body {
+      padding: 28px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    
+    label .required {
+      color: var(--error);
+    }
+    
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+    }
+    
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(46, 204, 133, 0.15);
+    }
+    
+    input.error,
+    select.error {
+      border-color: var(--error);
+    }
+    
+    .error-message {
+      color: var(--error);
+      font-size: 0.82rem;
+      margin-top: 4px;
+      display: none;
+    }
+    
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    
+    .checkbox-group input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--primary);
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    
+    .checkbox-group label {
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--text-light);
+      cursor: pointer;
+      margin-bottom: 0;
+    }
+    
+    .checkbox-group a {
+      color: var(--primary-dark);
+      text-decoration: none;
+    }
+    
+    .checkbox-group a:hover {
+      text-decoration: underline;
+    }
+    
+    .submit-btn {
+      width: 100%;
+      padding: 14px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      margin-top: 8px;
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(46, 204, 133, 0.35);
+    }
+    
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+    
+    .submit-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    /* Thank You State */
+    .thank-you {
+      display: none;
+      text-align: center;
+      padding: 48px 28px;
+    }
+    
+    .thank-you.show {
+      display: block;
+    }
+    
+    .thank-you-icon {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+    }
+    
+    .thank-you-icon svg {
+      width: 36px;
+      height: 36px;
+      stroke: white;
+    }
+    
+    .thank-you h2 {
+      font-size: 1.5rem;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    
+    .thank-you p {
+      color: var(--text-light);
+      font-size: 1rem;
+      max-width: 360px;
+      margin: 0 auto 24px;
+    }
+    
+    .reset-btn {
+      background: none;
+      border: 1.5px solid var(--primary);
+      color: var(--primary-dark);
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .reset-btn:hover {
+      background: var(--primary);
+      color: white;
+    }
+    
+    /* Admin Panel */
+    .admin-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--text);
+      color: white;
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: transform 0.2s;
+      z-index: 100;
+    }
+    
+    .admin-toggle:hover {
+      transform: scale(1.1);
+    }
+    
+    .admin-panel {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 200;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    
+    .admin-panel.show {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    
+    .admin-content {
+      background: white;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 900px;
+      margin: 20px auto;
+      overflow: hidden;
+    }
+    
+    .admin-header {
+      background: var(--text);
+      color: white;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .admin-header h2 {
+      font-size: 1.2rem;
+    }
+    
+    .admin-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .admin-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.2s;
+    }
+    
+    .admin-btn:hover {
+      opacity: 0.85;
+    }
+    
+    .admin-btn.export {
+      background: var(--primary);
+      color: white;
+    }
+    
+    .admin-btn.clear {
+      background: var(--error);
+      color: white;
+    }
+    
+    .admin-btn.close {
+      background: transparent;
+      border: 1px solid white;
+      color: white;
+    }
+    
+    .leads-table-wrapper {
+      overflow-x: auto;
+      padding: 20px;
+    }
+    
+    .leads-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+    
+    .leads-table th,
+    .leads-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .leads-table th {
+      background: var(--bg-light);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    
+    .leads-table tr:hover td {
+      background: var(--bg-light);
+    }
+    
+    .no-leads {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-light);
+    }
+    
+    .lead-count {
+      font-size: 0.85rem;
+      opacity: 0.8;
+    }
+    
+    /* Responsive */
+    @media (max-width: 560px) {
+      body {
+        padding: 12px;
+      }
+      
+      .form-header {
+        padding: 24px 20px;
+      }
+      
+      .form-body {
+        padding: 20px;
+      }
+      
+      .admin-content {
+        margin: 10px;
+      }
+      
+      .admin-header {
+        flex-direction: column;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+<!-- PASSWORD GATE START -->
+<div id="oney-gate" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;z-index:99999;display:flex;align-items:center;justify-content:center;font-family:Inter,-apple-system,sans-serif;">
+<div style="text-align:center;max-width:360px;padding:40px;">
+<div style="width:64px;height:64px;margin:0 auto 24px;border-radius:50%;background:rgba(46,204,133,0.12);display:flex;align-items:center;justify-content:center;">
+<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#2ECC85" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+</div>
+<h2 style="color:#fff;font-size:20px;margin-bottom:8px;">Oney &amp; Co</h2>
+<p style="color:#737373;font-size:14px;margin-bottom:24px;">This tool is in development. Enter password to access.</p>
+<input id="oney-pw" type="password" placeholder="Password" autocomplete="off" style="width:100%;padding:12px 16px;background:#141414;border:1px solid #262626;border-radius:8px;color:#fff;font-size:16px;outline:none;margin-bottom:12px;text-align:center;" onkeydown="if(event.key==='Enter')document.getElementById('oney-unlock').click()">
+<button id="oney-unlock" onclick="if(document.getElementById('oney-pw').value==='oney2026'){document.getElementById('oney-gate').remove();sessionStorage.setItem('oney-auth','1')}else{document.getElementById('oney-pw').style.borderColor='#EF4444';document.getElementById('oney-pw').value=''}" style="width:100%;padding:12px;background:linear-gradient(135deg,#2ECC85,#1FAD73);border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;">Unlock</button>
+</div></div>
+<script>if(sessionStorage.getItem("oney-auth")==="1"){var g=document.getElementById("oney-gate");if(g)g.remove();}</script>
+<!-- PASSWORD GATE END -->
+  <div class="lead-form-container">
+    <div class="form-header">
+      <!-- Oney & Co Logo -->
+      <svg viewBox="0 0 190 90" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(38, 45)">
+          <path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="white" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/>
+          <path d="M0 -38 L0 -44" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        </g>
+        <text x="32" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="white">ney</text>
+        <text x="77" y="50" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="400" fill="rgba(255,255,255,0.9)">&amp;</text>
+        <text x="94" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="white">co</text>
+      </svg>
+      <h1>Let's Talk Finance</h1>
+      <p>Leave your details and we'll be in touch soon.</p>
+    </div>
+    
+    <form id="leadForm" class="form-body">
+      <div class="form-group">
+        <label for="fullName">Full Name <span class="required">*</span></label>
+        <input type="text" id="fullName" name="fullName" placeholder="John Smith" required>
+        <div class="error-message" id="fullNameError">Please enter your full name</div>
+      </div>
+      
+      <div class="form-group">
+        <label for="email">Email <span class="required">*</span></label>
+        <input type="email" id="email" name="email" placeholder="john@example.com" required>
+        <div class="error-message" id="emailError">Please enter a valid email address</div>
+      </div>
+      
+      <div class="form-group">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" name="phone" placeholder="04XX XXX XXX">
+      </div>
+      
+      <div class="form-group">
+        <label for="loanType">Loan Type</label>
+        <select id="loanType" name="loanType">
+          <option value="">Select loan type...</option>
+          <option value="Home Loan">Home Loan</option>
+          <option value="Investment Loan">Investment Loan</option>
+          <option value="Commercial Loan">Commercial Loan</option>
+          <option value="Refinance">Refinance</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="loanAmount">Loan Amount Range</label>
+        <select id="loanAmount" name="loanAmount">
+          <option value="">Select amount range...</option>
+          <option value="<$500k">Less than $500k</option>
+          <option value="$500k-$1M">$500k - $1M</option>
+          <option value="$1M-$2M">$1M - $2M</option>
+          <option value="$2M+">$2M+</option>
+          <option value="Not Sure">Not Sure</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" placeholder="Tell us about your situation or any questions you have..."></textarea>
+      </div>
+      
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="privacy" name="privacy" required>
+          <label for="privacy">
+            I agree to the <a href="#" onclick="alert('Privacy Policy: We collect your information solely to assist with your loan enquiry. Your data is stored securely and will never be shared with third parties without your consent. You may request deletion at any time by contacting us.')">Privacy Policy</a> and consent to being contacted about my enquiry. <span class="required">*</span>
+          </label>
+        </div>
+        <div class="error-message" id="privacyError">Please accept the privacy policy</div>
+      </div>
+      
+      <button type="submit" class="submit-btn">Submit Enquiry</button>
+    </form>
+    
+    <div class="thank-you" id="thankYou">
+      <div class="thank-you-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <h2>Thank You!</h2>
+      <p>We've received your enquiry and will be in touch within 24 hours.</p>
+      <button class="reset-btn" onclick="resetForm()">Submit Another Enquiry</button>
+    </div>
+  </div>
+  
+  <!-- Admin Toggle -->
+  <button class="admin-toggle" onclick="toggleAdmin()" title="View Leads">📊</button>
+  
+  <!-- Admin Panel -->
+  <div class="admin-panel" id="adminPanel">
+    <div class="admin-content">
+      <div class="admin-header">
+        <h2>Lead Submissions <span class="lead-count" id="leadCount">(0)</span></h2>
+        <div class="admin-actions">
+          <button class="admin-btn export" onclick="exportCSV()">📥 Export CSV</button>
+          <button class="admin-btn clear" onclick="clearLeads()">🗑️ Clear All</button>
+          <button class="admin-btn close" onclick="toggleAdmin()">✕ Close</button>
+        </div>
+      </div>
+      <div class="leads-table-wrapper">
+        <table class="leads-table" id="leadsTable">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Loan Type</th>
+              <th>Amount</th>
+              <th>Message</th>
+            </tr>
+          </thead>
+          <tbody id="leadsBody"></tbody>
+        </table>
+        <div class="no-leads" id="noLeads">No leads yet. Submissions will appear here.</div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const STORAGE_KEY = 'oney_leads';
+    
+    // Form validation & submission
+    document.getElementById('leadForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // Reset errors
+      document.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
+      document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+      
+      let valid = true;
+      
+      // Validate name
+      const name = document.getElementById('fullName');
+      if (!name.value.trim()) {
+        name.classList.add('error');
+        document.getElementById('fullNameError').style.display = 'block';
+        valid = false;
+      }
+      
+      // Validate email
+      const email = document.getElementById('email');
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.value)) {
+        email.classList.add('error');
+        document.getElementById('emailError').style.display = 'block';
+        valid = false;
+      }
+      
+      // Validate privacy
+      const privacy = document.getElementById('privacy');
+      if (!privacy.checked) {
+        document.getElementById('privacyError').style.display = 'block';
+        valid = false;
+      }
+      
+      if (!valid) return;
+      
+      // Collect data
+      const lead = {
+        id: Date.now(),
+        date: new Date().toISOString(),
+        fullName: document.getElementById('fullName').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        loanType: document.getElementById('loanType').value,
+        loanAmount: document.getElementById('loanAmount').value,
+        message: document.getElementById('message').value.trim()
+      };
+      
+      // Save to localStorage
+      const leads = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      leads.push(lead);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(leads));
+      
+      // Show thank you
+      document.getElementById('leadForm').style.display = 'none';
+      document.getElementById('thankYou').classList.add('show');
+    });
+    
+    // Reset form
+    function resetForm() {
+      document.getElementById('leadForm').reset();
+      document.getElementById('leadForm').style.display = 'block';
+      document.getElementById('thankYou').classList.remove('show');
+    }
+    
+    // Admin panel
+    function toggleAdmin() {
+      const panel = document.getElementById('adminPanel');
+      panel.classList.toggle('show');
+      if (panel.classList.contains('show')) {
+        renderLeads();
+      }
+    }
+    
+    function renderLeads() {
+      const leads = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      const tbody = document.getElementById('leadsBody');
+      const noLeads = document.getElementById('noLeads');
+      const table = document.getElementById('leadsTable');
+      const count = document.getElementById('leadCount');
+      
+      count.textContent = `(${leads.length})`;
+      
+      if (leads.length === 0) {
+        table.style.display = 'none';
+        noLeads.style.display = 'block';
+        return;
+      }
+      
+      table.style.display = 'table';
+      noLeads.style.display = 'none';
+      
+      tbody.innerHTML = leads.slice().reverse().map(lead => `
+        <tr>
+          <td>${new Date(lead.date).toLocaleDateString('en-AU', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
+          <td>${escapeHtml(lead.fullName)}</td>
+          <td><a href="mailto:${escapeHtml(lead.email)}">${escapeHtml(lead.email)}</a></td>
+          <td>${escapeHtml(lead.phone) || '-'}</td>
+          <td>${escapeHtml(lead.loanType) || '-'}</td>
+          <td>${escapeHtml(lead.loanAmount) || '-'}</td>
+          <td>${escapeHtml(lead.message).substring(0, 80) || '-'}${lead.message && lead.message.length > 80 ? '...' : ''}</td>
+        </tr>
+      `).join('');
+    }
+    
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+    
+    function exportCSV() {
+      const leads = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+      if (leads.length === 0) {
+        alert('No leads to export');
+        return;
+      }
+      
+      const headers = ['Date', 'Full Name', 'Email', 'Phone', 'Loan Type', 'Loan Amount', 'Message'];
+      const rows = leads.map(l => [
+        new Date(l.date).toLocaleString('en-AU'),
+        l.fullName,
+        l.email,
+        l.phone,
+        l.loanType,
+        l.loanAmount,
+        l.message.replace(/"/g, '""')
+      ].map(v => `"${v || ''}"`).join(','));
+      
+      const csv = [headers.join(','), ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `oney-leads-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    
+    function clearLeads() {
+      if (confirm('Are you sure you want to delete all leads? This cannot be undone.')) {
+        localStorage.removeItem(STORAGE_KEY);
+        renderLeads();
+      }
+    }
+    
+    // Close admin on escape
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        document.getElementById('adminPanel').classList.remove('show');
+      }
+    });
+    
+    // Close admin on backdrop click
+    document.getElementById('adminPanel').addEventListener('click', function(e) {
+      if (e.target === this) toggleAdmin();
+    });
+  </script>
+</body>
+</html>

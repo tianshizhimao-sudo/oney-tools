@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f0f1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="description" content="Oney Tenancy Schedule — Free commercial property lease analysis tool for Australian brokers and investors">
+<title>Tenancy Schedule — Oney & Co</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================
+   ONEY TENANCY SCHEDULE V1
+   Single-file, Oney branded, Dark/Light mode
+   ============================================ */
+
+:root {
+  --primary: #2ECC85;
+  --primary-dark: #1FAD73;
+  --primary-glow: rgba(46, 204, 133, 0.15);
+  --primary-glow-strong: rgba(46, 204, 133, 0.3);
+  --gradient: linear-gradient(135deg, #2ECC85, #1FAD73);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Dark theme (default) */
+[data-theme="dark"] {
+  --bg: #0a0a14;
+  --bg-secondary: #12121f;
+  --card: #16162a;
+  --card-hover: #1e1e38;
+  --border: #2a2a4a;
+  --border-active: #3a3a5a;
+  --text: #f0f0f5;
+  --text-secondary: #9898b8;
+  --text-muted: #6868888;
+  --table-header: #1a1a30;
+  --table-row-alt: #13131f;
+  --table-row-hover: #1c1c34;
+  --input-bg: #0e0e1c;
+  --danger: #ff6b6b;
+  --danger-glow: rgba(255,107,107,0.15);
+  --warning: #ffc107;
+  --info: #6c9dff;
+  --success: #2ECC85;
+  --chart-bg: #1a1a30;
+  --scrollbar-track: #16162a;
+  --scrollbar-thumb: #2a2a4a;
+}
+
+/* Light theme */
+[data-theme="light"] {
+  --bg: #f5f7fa;
+  --bg-secondary: #eef1f5;
+  --card: #ffffff;
+  --card-hover: #f8f9fb;
+  --border: #e2e5ea;
+  --border-active: #c8cdd5;
+  --text: #1a1a2e;
+  --text-secondary: #5a5a7a;
+  --text-muted: #8888a8;
+  --table-header: #f0f2f5;
+  --table-row-alt: #f8f9fb;
+  --table-row-hover: #eef5f0;
+  --input-bg: #ffffff;
+  --danger: #e74c3c;
+  --danger-glow: rgba(231,76,60,0.1);
+  --warning: #f39c12;
+  --info: #3498db;
+  --success: #2ECC85;
+  --chart-bg: #f0f2f5;
+  --scrollbar-track: #f0f2f5;
+  --scrollbar-thumb: #c8cdd5;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  transition: background var(--transition), color var(--transition);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+/* ===== HEADER ===== */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.header-inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+}
+
+.logo-text h1 {
+  font-size: 18px;
+  font-weight: 700;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.logo-text span {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-glow);
+}
+
+.btn-primary {
+  background: var(--gradient);
+  color: #fff;
+  border-color: transparent;
+}
+
+.btn-primary:hover {
+  opacity: 0.9;
+  box-shadow: 0 4px 20px var(--primary-glow-strong);
+}
+
+.btn-danger {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.btn-danger:hover {
+  background: var(--danger-glow);
+}
+
+.btn-icon {
+  padding: 8px;
+  min-width: 36px;
+  justify-content: center;
+}
+
+.btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+/* ===== PROPERTY INFO BAR ===== */
+.property-bar {
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+}
+
+.property-bar-inner {
+  max-width: 1600px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.property-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.property-field label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.property-field input {
+  padding: 6px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  transition: all var(--transition);
+  width: auto;
+}
+
+.property-field input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+
+.property-field input.narrow { width: 120px; }
+.property-field input.medium { width: 200px; }
+.property-field input.wide { width: 280px; }
+
+/* ===== KPI DASHBOARD ===== */
+.dashboard {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.kpi-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+  transition: all var(--transition);
+}
+
+.kpi-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 4px 20px var(--primary-glow);
+}
+
+.kpi-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 8px;
+}
+
+.kpi-value {
+  font-size: 28px;
+  font-weight: 800;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.kpi-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* ===== TABLE SECTION ===== */
+.table-section {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 24px 24px;
+}
+
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.table-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  min-width: 1400px;
+}
+
+thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+th {
+  background: var(--table-header);
+  padding: 10px 12px;
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+  user-select: none;
+}
+
+th:first-child { padding-left: 16px; }
+
+td {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+td:first-child { padding-left: 12px; }
+
+tr:nth-child(even) td { background: var(--table-row-alt); }
+tr:hover td { background: var(--table-row-hover); }
+
+/* Table inputs */
+td input, td select {
+  width: 100%;
+  padding: 7px 8px;
+  font-size: 12.5px;
+  font-family: inherit;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--text);
+  transition: all var(--transition);
+}
+
+td input:hover, td select:hover {
+  border-color: var(--border);
+  background: var(--input-bg);
+}
+
+td input:focus, td select:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--input-bg);
+  box-shadow: 0 0 0 2px var(--primary-glow);
+}
+
+td select {
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%239898b8' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+}
+
+td input[type="number"] { text-align: right; }
+td input[type="date"] { cursor: pointer; }
+td input.computed {
+  color: var(--primary);
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.row-num {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-align: center;
+  width: 30px;
+}
+
+.del-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.del-btn:hover {
+  color: var(--danger);
+  background: var(--danger-glow);
+}
+
+.del-btn svg { width: 14px; height: 14px; }
+
+/* ===== TIMELINE SECTION ===== */
+.timeline-section {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 0 24px 24px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-title svg { width: 18px; height: 18px; color: var(--primary); }
+
+.timeline-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.timeline-canvas {
+  width: 100%;
+  min-height: 200px;
+}
+
+.timeline-legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(4px);
+}
+
+.modal-overlay.active { display: flex; }
+
+.modal {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  max-width: 500px;
+  width: 100%;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.modal h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.modal p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+  line-height: 1.6;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* ===== TOAST ===== */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  background: var(--card);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-sm);
+  padding: 12px 20px;
+  font-size: 13px;
+  color: var(--text);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  animation: toastIn 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toast.error { border-color: var(--danger); }
+
+@keyframes toastIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ===== FOOTER ===== */
+.app-footer {
+  max-width: 1600px;
+  margin: 40px auto 0;
+  padding: 20px 24px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.app-footer a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .header-inner { padding: 10px 16px; }
+  .logo-text h1 { font-size: 15px; }
+  .logo-text span { display: none; }
+  .header-actions .btn-text { display: none; }
+  .property-bar { padding: 10px 16px; }
+  .property-bar-inner { gap: 10px; }
+  .property-field input.wide { width: 160px; }
+  .dashboard { padding: 16px; gap: 8px; grid-template-columns: repeat(2, 1fr); }
+  .kpi-value { font-size: 22px; }
+  .table-section, .timeline-section { padding: 0 16px 16px; }
+  .table-toolbar { flex-direction: column; align-items: stretch; }
+  .table-toolbar-left, .table-toolbar-right { justify-content: center; flex-wrap: wrap; }
+}
+
+@media (max-width: 480px) {
+  .dashboard { grid-template-columns: repeat(2, 1fr); }
+  .kpi-card { padding: 12px 8px; }
+  .kpi-value { font-size: 20px; }
+}
+
+/* Print */
+@media print {
+  .app-header, .header-actions, .table-toolbar, .del-btn, .btn, .toast-container, .modal-overlay { display: none !important; }
+  body { background: #fff; color: #000; }
+  .card, .kpi-card, .table-wrap, .timeline-card { border: 1px solid #ddd; box-shadow: none; }
+  td input, td select { border: none; padding: 2px; }
+}
+
+/* File input hidden */
+#csvFileInput { display: none; }
+</style>
+</head>
+<body data-theme="dark">
+<!-- PASSWORD GATE START -->
+<div id="oney-gate" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;z-index:99999;display:flex;align-items:center;justify-content:center;font-family:Inter,-apple-system,sans-serif;">
+<div style="text-align:center;max-width:360px;padding:40px;">
+<div style="width:64px;height:64px;margin:0 auto 24px;border-radius:50%;background:rgba(46,204,133,0.12);display:flex;align-items:center;justify-content:center;">
+<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#2ECC85" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+</div>
+<h2 style="color:#fff;font-size:20px;margin-bottom:8px;">Oney &amp; Co</h2>
+<p style="color:#737373;font-size:14px;margin-bottom:24px;">This tool is in development. Enter password to access.</p>
+<input id="oney-pw" type="password" placeholder="Password" autocomplete="off" style="width:100%;padding:12px 16px;background:#141414;border:1px solid #262626;border-radius:8px;color:#fff;font-size:16px;outline:none;margin-bottom:12px;text-align:center;" onkeydown="if(event.key==='Enter')document.getElementById('oney-unlock').click()">
+<button id="oney-unlock" onclick="if(document.getElementById('oney-pw').value==='oney2026'){document.getElementById('oney-gate').remove();sessionStorage.setItem('oney-auth','1')}else{document.getElementById('oney-pw').style.borderColor='#EF4444';document.getElementById('oney-pw').value=''}" style="width:100%;padding:12px;background:linear-gradient(135deg,#2ECC85,#1FAD73);border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;">Unlock</button>
+</div></div>
+<script>if(sessionStorage.getItem("oney-auth")==="1"){var g=document.getElementById("oney-gate");if(g)g.remove();}</script>
+<!-- PASSWORD GATE END -->
+
+<!-- ===== HEADER ===== -->
+<header class="app-header">
+  <div class="header-inner">
+    <div class="logo-section">
+      <svg class="logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs><linearGradient id="gG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs>
+        <g transform="translate(50,50)"><path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#gG)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/><path d="M0 -45 L0 -52" stroke="url(#gG)" stroke-width="6" stroke-linecap="round"/></g>
+      </svg>
+      <div class="logo-text">
+        <h1>Tenancy Schedule</h1>
+        <span>Commercial Property Lease Analysis</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-icon" onclick="toggleTheme()" title="Toggle theme">
+        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <button class="btn" onclick="document.getElementById('csvFileInput').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        <span class="btn-text">Import CSV</span>
+      </button>
+      <input type="file" id="csvFileInput" accept=".csv" onchange="importCSV(event)">
+      <div style="position:relative">
+        <button class="btn" onclick="toggleExportMenu()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          <span class="btn-text">Export</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div id="exportMenu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.2);z-index:50;min-width:150px;">
+          <button class="btn" style="border:none;border-radius:0;width:100%;justify-content:flex-start;padding:10px 16px" onclick="exportCSV()">📄 Export CSV</button>
+          <button class="btn" style="border:none;border-radius:0;width:100%;justify-content:flex-start;padding:10px 16px" onclick="exportJSON()">📋 Export JSON</button>
+          <button class="btn" style="border:none;border-radius:0;width:100%;justify-content:flex-start;padding:10px 16px" onclick="exportPDF()">📑 Export PDF</button>
+        </div>
+      </div>
+      <button class="btn btn-danger" onclick="confirmClearAll()" title="Clear all data">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== PROPERTY INFO BAR ===== -->
+<div class="property-bar">
+  <div class="property-bar-inner">
+    <div class="property-field">
+      <label>Property</label>
+      <input type="text" id="propName" class="wide" placeholder="e.g. 123 Collins Street, Melbourne" oninput="saveData()">
+    </div>
+    <div class="property-field">
+      <label>Owner</label>
+      <input type="text" id="propOwner" class="medium" placeholder="e.g. ABC Trust" oninput="saveData()">
+    </div>
+    <div class="property-field">
+      <label>Total NLA</label>
+      <input type="number" id="propNLA" class="narrow" placeholder="sqm" oninput="recalcAll()">
+    </div>
+    <div class="property-field">
+      <label>As at</label>
+      <input type="date" id="propDate" class="narrow" oninput="recalcAll()">
+    </div>
+  </div>
+</div>
+
+<!-- ===== KPI DASHBOARD ===== -->
+<div class="dashboard">
+  <div class="kpi-card">
+    <div class="kpi-label">Total Passing Rent</div>
+    <div class="kpi-value" id="kpiTotalRent">$0</div>
+    <div class="kpi-sub">per annum</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">WALE (by Income)</div>
+    <div class="kpi-value" id="kpiWaleIncome">0.0</div>
+    <div class="kpi-sub">years</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">WALE (by Area)</div>
+    <div class="kpi-value" id="kpiWaleArea">0.0</div>
+    <div class="kpi-sub">years</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Occupancy</div>
+    <div class="kpi-value" id="kpiOccupancy">0%</div>
+    <div class="kpi-sub" id="kpiOccSub">0 / 0 sqm</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Avg Rent / sqm</div>
+    <div class="kpi-value" id="kpiAvgRent">$0</div>
+    <div class="kpi-sub">per annum</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Tenancies</div>
+    <div class="kpi-value" id="kpiTenancies">0</div>
+    <div class="kpi-sub" id="kpiTenSub">active leases</div>
+  </div>
+</div>
+
+<!-- ===== TENANCY TABLE ===== -->
+<div class="table-section">
+  <div class="table-toolbar">
+    <div class="table-toolbar-left">
+      <button class="btn btn-primary" onclick="addRow()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Add Tenant
+      </button>
+      <button class="btn" onclick="addSampleData()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+        <span class="btn-text">Sample Data</span>
+      </button>
+    </div>
+    <div class="table-toolbar-right">
+      <span style="font-size:11px;color:var(--text-muted)" id="rowCount">0 rows</span>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table id="tenancyTable">
+      <thead>
+        <tr>
+          <th style="width:30px">#</th>
+          <th style="min-width:140px">Tenant</th>
+          <th style="min-width:80px">Suite</th>
+          <th style="min-width:80px">Area (sqm)</th>
+          <th style="min-width:120px">Lease Start</th>
+          <th style="min-width:120px">Lease Expiry</th>
+          <th style="min-width:90px">Options</th>
+          <th style="min-width:110px">Passing Rent ($)</th>
+          <th style="min-width:80px">$/sqm</th>
+          <th style="min-width:100px">Review Type</th>
+          <th style="min-width:120px">Review Date</th>
+          <th style="min-width:100px">Outgoings</th>
+          <th style="min-width:100px">Bond ($)</th>
+          <th style="min-width:140px">Notes</th>
+          <th style="width:36px"></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== LEASE EXPIRY TIMELINE ===== -->
+<div class="timeline-section">
+  <div class="section-title">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Lease Expiry Timeline
+  </div>
+  <div class="timeline-card">
+    <canvas id="timelineCanvas" class="timeline-canvas"></canvas>
+    <div class="timeline-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#2ECC85"></div> Active (>2 yrs)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ffc107"></div> Expiring (<2 yrs)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff6b6b"></div> Critical (<6 mths)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#6c9dff"></div> Expired / Holdover</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="app-footer">
+  <p>Tenancy Schedule V1 — Built by <a href="https://oney.co" target="_blank">Oney & Co</a> · Free for commercial use · Data stored locally in your browser</p>
+</footer>
+
+<!-- ===== MODAL ===== -->
+<div class="modal-overlay" id="clearModal">
+  <div class="modal">
+    <h3>⚠️ Clear All Data?</h3>
+    <p>This will remove all tenancy data and property information. This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeClearModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="clearAll()">Clear All</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ============================================
+   ONEY TENANCY SCHEDULE — CORE ENGINE
+   ============================================ */
+
+// ===== CONSTANTS =====
+const STORAGE_KEY = 'oney_tenancy_schedule_v1';
+const REVIEW_TYPES = ['CPI', 'Fixed %', 'Market', 'CPI + Fixed', 'Other'];
+const OUTGOING_TYPES = ['Net', 'Gross', 'Semi-Gross'];
+const COLORS = {
+  active: '#2ECC85',
+  expiring: '#ffc107',
+  critical: '#ff6b6b',
+  expired: '#6c9dff',
+  grid: 'rgba(150,150,150,0.15)',
+  text: null // set dynamically
+};
+
+// ===== STATE =====
+let rows = [];
+let nextId = 1;
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  // Set today's date as default
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('propDate').value = today;
+
+  loadData();
+  if (rows.length === 0) addRow(); // Start with one empty row
+  renderAll();
+});
+
+// ===== THEME =====
+function toggleTheme() {
+  const body = document.body;
+  const current = body.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  body.setAttribute('data-theme', next);
+  localStorage.setItem('oney_ts_theme', next);
+  updateThemeIcon(next);
+  drawTimeline();
+}
+
+function updateThemeIcon(theme) {
+  const icon = document.getElementById('themeIcon');
+  if (theme === 'light') {
+    icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  } else {
+    icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  }
+}
+
+// Load saved theme
+(function() {
+  const saved = localStorage.getItem('oney_ts_theme');
+  if (saved) {
+    document.body.setAttribute('data-theme', saved);
+    updateThemeIcon(saved);
+  }
+})();
+
+// ===== ROW MANAGEMENT =====
+function createEmptyRow() {
+  return {
+    id: nextId++,
+    tenant: '',
+    suite: '',
+    area: '',
+    leaseStart: '',
+    leaseExpiry: '',
+    options: '',
+    rent: '',
+    reviewType: '',
+    reviewDate: '',
+    outgoings: '',
+    bond: '',
+    notes: ''
+  };
+}
+
+function addRow(data) {
+  const row = data || createEmptyRow();
+  if (!data) row.id = nextId++;
+  rows.push(row);
+  renderTable();
+  recalcAll();
+  saveData();
+}
+
+function deleteRow(id) {
+  rows = rows.filter(r => r.id !== id);
+  renderTable();
+  recalcAll();
+  saveData();
+}
+
+// ===== TABLE RENDERING =====
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  rows.forEach((row, idx) => {
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-id', row.id);
+
+    // Computed rent/sqm
+    const rentPerSqm = (row.rent && row.area) ? (parseFloat(row.rent) / parseFloat(row.area)).toFixed(0) : '';
+
+    tr.innerHTML = `
+      <td><div class="row-num">${idx + 1}</div></td>
+      <td><input type="text" value="${esc(row.tenant)}" placeholder="Tenant name" data-field="tenant" oninput="updateField(${row.id}, 'tenant', this.value)"></td>
+      <td><input type="text" value="${esc(row.suite)}" placeholder="Suite" data-field="suite" oninput="updateField(${row.id}, 'suite', this.value)"></td>
+      <td><input type="number" value="${row.area}" placeholder="0" min="0" step="0.1" data-field="area" oninput="updateField(${row.id}, 'area', this.value)"></td>
+      <td><input type="date" value="${row.leaseStart}" data-field="leaseStart" onchange="updateField(${row.id}, 'leaseStart', this.value)"></td>
+      <td><input type="date" value="${row.leaseExpiry}" data-field="leaseExpiry" onchange="updateField(${row.id}, 'leaseExpiry', this.value)"></td>
+      <td><input type="text" value="${esc(row.options)}" placeholder="e.g. 2×5yr" data-field="options" oninput="updateField(${row.id}, 'options', this.value)"></td>
+      <td><input type="number" value="${row.rent}" placeholder="0" min="0" step="100" data-field="rent" oninput="updateField(${row.id}, 'rent', this.value)"></td>
+      <td><input type="text" class="computed" value="${rentPerSqm ? '$' + Number(rentPerSqm).toLocaleString() : ''}" tabindex="-1" readonly></td>
+      <td><select data-field="reviewType" onchange="updateField(${row.id}, 'reviewType', this.value)">
+        <option value="">—</option>
+        ${REVIEW_TYPES.map(t => `<option value="${t}" ${row.reviewType === t ? 'selected' : ''}>${t}</option>`).join('')}
+      </select></td>
+      <td><input type="date" value="${row.reviewDate}" data-field="reviewDate" onchange="updateField(${row.id}, 'reviewDate', this.value)"></td>
+      <td><select data-field="outgoings" onchange="updateField(${row.id}, 'outgoings', this.value)">
+        <option value="">—</option>
+        ${OUTGOING_TYPES.map(t => `<option value="${t}" ${row.outgoings === t ? 'selected' : ''}>${t}</option>`).join('')}
+      </select></td>
+      <td><input type="number" value="${row.bond}" placeholder="0" min="0" step="100" data-field="bond" oninput="updateField(${row.id}, 'bond', this.value)"></td>
+      <td><input type="text" value="${esc(row.notes)}" placeholder="Notes..." data-field="notes" oninput="updateField(${row.id}, 'notes', this.value)"></td>
+      <td><button class="del-btn" onclick="deleteRow(${row.id})" title="Remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('rowCount').textContent = `${rows.length} row${rows.length !== 1 ? 's' : ''}`;
+}
+
+function updateField(id, field, value) {
+  const row = rows.find(r => r.id === id);
+  if (row) {
+    row[field] = value;
+    // If area or rent changed, update the computed $/sqm cell
+    if (field === 'area' || field === 'rent') {
+      const tr = document.querySelector(`tr[data-id="${id}"]`);
+      if (tr) {
+        const computed = tr.querySelector('input.computed');
+        if (computed) {
+          const rentPerSqm = (row.rent && row.area) ? (parseFloat(row.rent) / parseFloat(row.area)).toFixed(0) : '';
+          computed.value = rentPerSqm ? '$' + Number(rentPerSqm).toLocaleString() : '';
+        }
+      }
+    }
+    recalcAll();
+    saveData();
+  }
+}
+
+function esc(str) {
+  if (!str) return '';
+  return str.replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ===== KPI CALCULATIONS =====
+function recalcAll() {
+  const now = new Date(document.getElementById('propDate').value || new Date().toISOString().split('T')[0]);
+  const totalNLA = parseFloat(document.getElementById('propNLA').value) || 0;
+
+  let totalRent = 0;
+  let totalLeasedArea = 0;
+  let waleIncomeNum = 0;
+  let waleIncomeDen = 0;
+  let waleAreaNum = 0;
+  let waleAreaDen = 0;
+  let activeCount = 0;
+
+  rows.forEach(row => {
+    const rent = parseFloat(row.rent) || 0;
+    const area = parseFloat(row.area) || 0;
+
+    if (rent > 0) totalRent += rent;
+    if (area > 0) totalLeasedArea += area;
+
+    if (row.leaseExpiry && (rent > 0 || area > 0)) {
+      const expiry = new Date(row.leaseExpiry);
+      const yearsLeft = Math.max(0, (expiry - now) / (365.25 * 24 * 60 * 60 * 1000));
+
+      if (rent > 0) {
+        waleIncomeNum += yearsLeft * rent;
+        waleIncomeDen += rent;
+      }
+      if (area > 0) {
+        waleAreaNum += yearsLeft * area;
+        waleAreaDen += area;
+      }
+    }
+
+    if (row.tenant || rent > 0) activeCount++;
+  });
+
+  const waleIncome = waleIncomeDen > 0 ? (waleIncomeNum / waleIncomeDen) : 0;
+  const waleArea = waleAreaDen > 0 ? (waleAreaNum / waleAreaDen) : 0;
+  const effectiveNLA = totalNLA > 0 ? totalNLA : totalLeasedArea;
+  const occupancy = effectiveNLA > 0 ? (totalLeasedArea / effectiveNLA * 100) : 0;
+  const avgRentSqm = totalLeasedArea > 0 ? (totalRent / totalLeasedArea) : 0;
+
+  // Update KPI cards
+  document.getElementById('kpiTotalRent').textContent = '$' + Math.round(totalRent).toLocaleString();
+  document.getElementById('kpiWaleIncome').textContent = waleIncome.toFixed(1);
+  document.getElementById('kpiWaleArea').textContent = waleArea.toFixed(1);
+  document.getElementById('kpiOccupancy').textContent = Math.round(occupancy) + '%';
+  document.getElementById('kpiOccSub').textContent = `${Math.round(totalLeasedArea).toLocaleString()} / ${Math.round(effectiveNLA).toLocaleString()} sqm`;
+  document.getElementById('kpiAvgRent').textContent = '$' + Math.round(avgRentSqm).toLocaleString();
+  document.getElementById('kpiTenancies').textContent = activeCount;
+  document.getElementById('kpiTenSub').textContent = `active lease${activeCount !== 1 ? 's' : ''}`;
+
+  drawTimeline();
+  saveData();
+}
+
+// ===== TIMELINE CHART (Canvas) =====
+function drawTimeline() {
+  const canvas = document.getElementById('timelineCanvas');
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+
+  canvas.width = rect.width * dpr;
+  canvas.height = Math.max(200, rows.length * 32 + 60) * dpr;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = Math.max(200, rows.length * 32 + 60) + 'px';
+  ctx.scale(dpr, dpr);
+
+  const w = rect.width;
+  const h = Math.max(200, rows.length * 32 + 60);
+
+  // Theme colors
+  const isDark = document.body.getAttribute('data-theme') === 'dark';
+  const textColor = isDark ? '#9898b8' : '#5a5a7a';
+  const gridColor = isDark ? 'rgba(150,150,150,0.1)' : 'rgba(0,0,0,0.06)';
+
+  ctx.clearRect(0, 0, w, h);
+
+  // Filter rows with expiry dates
+  const validRows = rows.filter(r => r.leaseExpiry && (r.tenant || r.rent));
+  if (validRows.length === 0) {
+    ctx.fillStyle = textColor;
+    ctx.font = '13px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Add tenancies with lease expiry dates to see the timeline', w / 2, h / 2);
+    return;
+  }
+
+  const now = new Date();
+  const labelWidth = 120;
+  const rightPad = 20;
+  const topPad = 30;
+  const barHeight = 20;
+  const rowHeight = 32;
+
+  // Find time range
+  let minDate = now;
+  let maxDate = now;
+  validRows.forEach(r => {
+    const start = r.leaseStart ? new Date(r.leaseStart) : now;
+    const end = new Date(r.leaseExpiry);
+    if (start < minDate) minDate = start;
+    if (end > maxDate) maxDate = end;
+  });
+
+  // Extend range a bit
+  const rangeMs = maxDate - minDate;
+  const padMs = rangeMs * 0.05;
+  minDate = new Date(minDate.getTime() - padMs);
+  maxDate = new Date(maxDate.getTime() + padMs);
+  const totalMs = maxDate - minDate;
+
+  const chartLeft = labelWidth;
+  const chartWidth = w - labelWidth - rightPad;
+
+  function dateToX(d) {
+    return chartLeft + ((d - minDate) / totalMs) * chartWidth;
+  }
+
+  // Draw year grid lines
+  ctx.strokeStyle = gridColor;
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  const startYear = minDate.getFullYear();
+  const endYear = maxDate.getFullYear();
+  for (let y = startYear; y <= endYear + 1; y++) {
+    const d = new Date(y, 0, 1);
+    const x = dateToX(d);
+    if (x >= chartLeft && x <= chartLeft + chartWidth) {
+      ctx.beginPath();
+      ctx.moveTo(x, topPad - 5);
+      ctx.lineTo(x, h);
+      ctx.stroke();
+
+      ctx.fillStyle = textColor;
+      ctx.font = '10px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(y.toString(), x, topPad - 10);
+    }
+  }
+  ctx.setLineDash([]);
+
+  // Draw "now" line
+  const nowX = dateToX(now);
+  if (nowX >= chartLeft && nowX <= chartLeft + chartWidth) {
+    ctx.strokeStyle = '#ff6b6b';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([6, 3]);
+    ctx.beginPath();
+    ctx.moveTo(nowX, topPad - 5);
+    ctx.lineTo(nowX, h);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#ff6b6b';
+    ctx.font = 'bold 9px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('TODAY', nowX, topPad - 10);
+  }
+
+  // Draw bars
+  validRows.forEach((row, idx) => {
+    const y = topPad + idx * rowHeight;
+    const start = row.leaseStart ? new Date(row.leaseStart) : now;
+    const end = new Date(row.leaseExpiry);
+    const yearsLeft = (end - now) / (365.25 * 24 * 60 * 60 * 1000);
+
+    // Determine color
+    let color;
+    if (yearsLeft < 0) color = COLORS.expired;
+    else if (yearsLeft < 0.5) color = COLORS.critical;
+    else if (yearsLeft < 2) color = COLORS.expiring;
+    else color = COLORS.active;
+
+    const x1 = Math.max(chartLeft, dateToX(start));
+    const x2 = Math.min(chartLeft + chartWidth, dateToX(end));
+    const barW = Math.max(4, x2 - x1);
+
+    // Bar
+    ctx.fillStyle = color;
+    ctx.globalAlpha = 0.85;
+    ctx.beginPath();
+    ctx.roundRect(x1, y, barW, barHeight, 4);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    // Tenant label
+    ctx.fillStyle = textColor;
+    ctx.font = '11px Inter, sans-serif';
+    ctx.textAlign = 'right';
+    const label = (row.tenant || 'Unnamed').substring(0, 16);
+    ctx.fillText(label, chartLeft - 8, y + barHeight / 2 + 4);
+
+    // Expiry year on bar
+    if (barW > 40) {
+      ctx.fillStyle = isDark ? '#fff' : '#000';
+      ctx.font = 'bold 9px Inter, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(end.getFullYear().toString(), x1 + 6, y + barHeight / 2 + 3);
+    }
+  });
+}
+
+// Redraw on resize
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(drawTimeline, 100);
+});
+
+// ===== DATA PERSISTENCE (localStorage) =====
+function saveData() {
+  const data = {
+    property: {
+      name: document.getElementById('propName').value,
+      owner: document.getElementById('propOwner').value,
+      nla: document.getElementById('propNLA').value,
+      date: document.getElementById('propDate').value,
+    },
+    rows: rows,
+    nextId: nextId
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function loadData() {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) return;
+  try {
+    const data = JSON.parse(saved);
+    if (data.property) {
+      document.getElementById('propName').value = data.property.name || '';
+      document.getElementById('propOwner').value = data.property.owner || '';
+      document.getElementById('propNLA').value = data.property.nla || '';
+      if (data.property.date) document.getElementById('propDate').value = data.property.date;
+    }
+    if (data.rows) rows = data.rows;
+    if (data.nextId) nextId = data.nextId;
+  } catch(e) {
+    console.warn('Failed to load saved data', e);
+  }
+}
+
+function renderAll() {
+  renderTable();
+  recalcAll();
+}
+
+// ===== EXPORT: CSV =====
+function exportCSV() {
+  closeExportMenu();
+  const headers = ['Tenant','Suite','Area_sqm','Lease_Start','Lease_Expiry','Options','Passing_Rent','Rent_per_sqm','Review_Type','Review_Date','Outgoings','Bond','Notes'];
+  const csvRows = [headers.join(',')];
+
+  rows.forEach(r => {
+    const rentSqm = (r.rent && r.area) ? (parseFloat(r.rent) / parseFloat(r.area)).toFixed(2) : '';
+    csvRows.push([
+      csvEsc(r.tenant), csvEsc(r.suite), r.area, r.leaseStart, r.leaseExpiry,
+      csvEsc(r.options), r.rent, rentSqm, csvEsc(r.reviewType), r.reviewDate,
+      csvEsc(r.outgoings), r.bond, csvEsc(r.notes)
+    ].join(','));
+  });
+
+  downloadFile(csvRows.join('\n'), 'tenancy-schedule.csv', 'text/csv');
+  showToast('✅ CSV exported');
+}
+
+function csvEsc(str) {
+  if (!str) return '';
+  if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
+}
+
+// ===== EXPORT: JSON (Oney Serve compatible) =====
+function exportJSON() {
+  closeExportMenu();
+  const data = {
+    _format: 'oney-tenancy-schedule-v1',
+    _version: '1.0.0',
+    _exported: new Date().toISOString(),
+    property: {
+      name: document.getElementById('propName').value,
+      owner: document.getElementById('propOwner').value,
+      totalNLA: parseFloat(document.getElementById('propNLA').value) || null,
+      asAtDate: document.getElementById('propDate').value
+    },
+    tenancies: rows.map(r => ({
+      tenant: r.tenant || null,
+      suite: r.suite || null,
+      areaSqm: parseFloat(r.area) || null,
+      leaseStart: r.leaseStart || null,
+      leaseExpiry: r.leaseExpiry || null,
+      optionTerms: r.options || null,
+      passingRentPA: parseFloat(r.rent) || null,
+      rentPerSqm: (r.rent && r.area) ? parseFloat((parseFloat(r.rent) / parseFloat(r.area)).toFixed(2)) : null,
+      reviewType: r.reviewType || null,
+      reviewDate: r.reviewDate || null,
+      outgoingsRecovery: r.outgoings || null,
+      bond: parseFloat(r.bond) || null,
+      notes: r.notes || null
+    })),
+    summary: {
+      totalPassingRent: rows.reduce((s, r) => s + (parseFloat(r.rent) || 0), 0),
+      totalLeasedArea: rows.reduce((s, r) => s + (parseFloat(r.area) || 0), 0),
+      tenancyCount: rows.filter(r => r.tenant || r.rent).length,
+      waleByIncome: parseFloat(document.getElementById('kpiWaleIncome').textContent) || 0,
+      waleByArea: parseFloat(document.getElementById('kpiWaleArea').textContent) || 0
+    }
+  };
+
+  downloadFile(JSON.stringify(data, null, 2), 'tenancy-schedule.json', 'application/json');
+  showToast('✅ JSON exported (Oney Serve compatible)');
+}
+
+// ===== EXPORT: PDF (Print-based) =====
+function exportPDF() {
+  closeExportMenu();
+  showToast('📑 Opening print dialog for PDF export...');
+  setTimeout(() => window.print(), 300);
+}
+
+// ===== IMPORT: CSV =====
+function importCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const text = e.target.result;
+      const lines = text.split('\n').filter(l => l.trim());
+      if (lines.length < 2) throw new Error('CSV must have header + data rows');
+
+      const headers = parseCSVLine(lines[0]);
+      const headerMap = {};
+      headers.forEach((h, i) => {
+        const norm = h.toLowerCase().replace(/[^a-z]/g, '');
+        headerMap[norm] = i;
+      });
+
+      // Field mapping (flexible)
+      const fieldMaps = {
+        tenant: ['tenant', 'tenantname', 'name', 'lessee'],
+        suite: ['suite', 'unit', 'suiteunit', 'unitnumber', 'suitenumber'],
+        area: ['area', 'areasqm', 'lettablearea', 'sqm', 'nla'],
+        leaseStart: ['leasestart', 'leasecommencement', 'commencementdate', 'startdate', 'start'],
+        leaseExpiry: ['leaseexpiry', 'expirydate', 'expiry', 'leaseend', 'enddate', 'end'],
+        options: ['options', 'optionterms', 'option'],
+        rent: ['rent', 'passingrent', 'annualrent', 'currentrent', 'passingrentpa'],
+        reviewType: ['reviewtype', 'rentreviewtype', 'review'],
+        reviewDate: ['reviewdate', 'rentreviewdate', 'nextreview'],
+        outgoings: ['outgoings', 'outgoingsrecovery', 'recovery'],
+        bond: ['bond', 'bankguarantee', 'guarantee', 'security'],
+        notes: ['notes', 'specialconditions', 'conditions', 'comments']
+      };
+
+      function findCol(field) {
+        const aliases = fieldMaps[field] || [field];
+        for (const alias of aliases) {
+          if (headerMap[alias] !== undefined) return headerMap[alias];
+        }
+        return -1;
+      }
+
+      const imported = [];
+      for (let i = 1; i < lines.length; i++) {
+        const cols = parseCSVLine(lines[i]);
+        if (cols.length < 2) continue;
+
+        const row = createEmptyRow();
+        for (const field of Object.keys(fieldMaps)) {
+          const colIdx = findCol(field);
+          if (colIdx >= 0 && cols[colIdx] !== undefined) {
+            row[field] = cols[colIdx].trim();
+          }
+        }
+        imported.push(row);
+      }
+
+      if (imported.length === 0) throw new Error('No valid rows found');
+
+      // Replace or append?
+      if (rows.length <= 1 && !rows[0]?.tenant) {
+        rows = imported;
+      } else {
+        rows = rows.concat(imported);
+      }
+
+      renderAll();
+      showToast(`✅ Imported ${imported.length} rows from CSV`);
+    } catch (err) {
+      showToast('❌ Import failed: ' + err.message, true);
+    }
+
+    event.target.value = '';
+  };
+  reader.readAsText(file);
+}
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"') {
+        if (i + 1 < line.length && line[i + 1] === '"') {
+          current += '"';
+          i++;
+        } else {
+          inQuotes = false;
+        }
+      } else {
+        current += ch;
+      }
+    } else {
+      if (ch === '"') {
+        inQuotes = true;
+      } else if (ch === ',') {
+        result.push(current);
+        current = '';
+      } else {
+        current += ch;
+      }
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+// ===== SAMPLE DATA =====
+function addSampleData() {
+  if (rows.length > 1 || (rows.length === 1 && rows[0].tenant)) {
+    if (!confirm('This will add sample data to existing rows. Continue?')) return;
+  }
+
+  // Clear if only empty
+  if (rows.length === 1 && !rows[0].tenant) rows = [];
+
+  document.getElementById('propName').value = '88 Commercial Street, Melbourne VIC 3000';
+  document.getElementById('propOwner').value = 'Sunrise Property Trust';
+  document.getElementById('propNLA').value = '2850';
+
+  const samples = [
+    { tenant: 'Deloitte', suite: 'Level 1', area: '620', leaseStart: '2022-01-15', leaseExpiry: '2027-01-14', options: '2×5yr', rent: '310000', reviewType: 'CPI', reviewDate: '2026-01-15', outgoings: 'Net', bond: '77500', notes: 'Fitout contribution $50k' },
+    { tenant: 'JLL', suite: 'Level 2', area: '480', leaseStart: '2023-07-01', leaseExpiry: '2028-06-30', options: '1×5yr', rent: '264000', reviewType: 'Fixed %', reviewDate: '2026-07-01', outgoings: 'Net', bond: '66000', notes: '3.5% annual increase' },
+    { tenant: 'Brew & Co Café', suite: 'G01', area: '120', leaseStart: '2021-03-01', leaseExpiry: '2026-02-28', options: '1×3yr', rent: '96000', reviewType: 'CPI', reviewDate: '2026-03-01', outgoings: 'Gross', bond: '24000', notes: 'Exclusive food & beverage' },
+    { tenant: 'Smith & Partners Legal', suite: 'Level 3', area: '550', leaseStart: '2020-06-01', leaseExpiry: '2030-05-31', options: '2×5yr', rent: '330000', reviewType: 'Market', reviewDate: '2025-06-01', outgoings: 'Net', bond: '82500', notes: 'Anchor tenant, naming rights' },
+    { tenant: 'TechStart Co', suite: 'Suite 401', area: '280', leaseStart: '2024-01-15', leaseExpiry: '2027-01-14', options: '', rent: '154000', reviewType: 'Fixed %', reviewDate: '2026-01-15', outgoings: 'Semi-Gross', bond: '38500', notes: '4% fixed reviews' },
+    { tenant: 'Allied Health Hub', suite: 'Suite 102', area: '350', leaseStart: '2019-09-01', leaseExpiry: '2025-08-31', options: '1×3yr', rent: '192500', reviewType: 'CPI', reviewDate: '2025-09-01', outgoings: 'Net', bond: '48125', notes: 'Expiring soon — renewal TBC' },
+    { tenant: 'Vacant', suite: 'Suite 103', area: '180', leaseStart: '', leaseExpiry: '', options: '', rent: '', reviewType: '', reviewDate: '', outgoings: '', bond: '', notes: 'Under refurbishment' },
+    { tenant: 'CloudSec IT', suite: 'Suite 502', area: '270', leaseStart: '2025-03-01', leaseExpiry: '2030-02-28', options: '1×5yr', rent: '162000', reviewType: 'CPI + Fixed', reviewDate: '2026-03-01', outgoings: 'Net', bond: '40500', notes: 'CPI + 1% cap' },
+  ];
+
+  samples.forEach(s => {
+    const row = createEmptyRow();
+    Object.assign(row, s);
+    rows.push(row);
+  });
+
+  renderAll();
+  showToast('✅ Sample data loaded');
+}
+
+// ===== CLEAR ALL =====
+function confirmClearAll() {
+  document.getElementById('clearModal').classList.add('active');
+}
+
+function closeClearModal() {
+  document.getElementById('clearModal').classList.remove('active');
+}
+
+function clearAll() {
+  rows = [];
+  nextId = 1;
+  document.getElementById('propName').value = '';
+  document.getElementById('propOwner').value = '';
+  document.getElementById('propNLA').value = '';
+  localStorage.removeItem(STORAGE_KEY);
+  addRow();
+  renderAll();
+  closeClearModal();
+  showToast('🗑️ All data cleared');
+}
+
+// ===== EXPORT MENU =====
+function toggleExportMenu() {
+  const menu = document.getElementById('exportMenu');
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+
+function closeExportMenu() {
+  document.getElementById('exportMenu').style.display = 'none';
+}
+
+// Close export menu on outside click
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.header-actions [style*="position:relative"]')) {
+    closeExportMenu();
+  }
+});
+
+// ===== UTILITIES =====
+function downloadFile(content, filename, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function showToast(msg, isError) {
+  const container = document.getElementById('toastContainer');
+  const toast = document.createElement('div');
+  toast.className = 'toast' + (isError ? ' error' : '');
+  toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(10px)';
+    toast.style.transition = 'all 0.3s';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+// ===== KEYBOARD SHORTCUTS =====
+document.addEventListener('keydown', (e) => {
+  // Ctrl/Cmd + S = save (prevent default)
+  if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+    e.preventDefault();
+    saveData();
+    showToast('💾 Data saved');
+  }
+  // Ctrl/Cmd + N = new row
+  if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+    e.preventDefault();
+    addRow();
+  }
+});
+</script>
+</body>
+</html>
