@@ -1074,6 +1074,114 @@ Address autocomplete powered by Google Places API
         });
       }
     }
+
+    // === Theme Toggle ===
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('oney_theme', isLight ? 'light' : 'dark');
+      document.querySelector('.theme-toggle').textContent = isLight ? '☀️' : '🌙';
+    }
+    (function initTheme() {
+      if (localStorage.getItem('oney_theme') === 'light') {
+        document.documentElement.classList.add('light');
+        const btn = document.querySelector('.theme-toggle');
+        if (btn) btn.textContent = '☀️';
+      }
+    })();
+
+    // === Auto-Save ===
+    const SAVE_KEY = 'oney_save_security_test';
+    let saveTimeout = null;
+
+    function showAutoSaveToast() {
+      const t = document.getElementById('autosaveToast');
+      if (!t) return;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    function autoSave() {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        const data = {};
+        document.querySelectorAll('#step1 input, #step1 select').forEach(el => {
+          if (el.id) data[el.id] = el.value;
+        });
+        data._selectedCategory = selectedCategory;
+        data._selectedSubtype = selectedSubtype;
+        localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+        showAutoSaveToast();
+      }, 500);
+    }
+
+    function restoreSaved() {
+      const saved = localStorage.getItem(SAVE_KEY);
+      if (!saved) return;
+      try {
+        const data = JSON.parse(saved);
+        Object.keys(data).forEach(key => {
+          if (key.startsWith('_')) return;
+          const el = document.getElementById(key);
+          if (el) el.value = data[key];
+        });
+        // Restore category selection
+        if (data._selectedCategory) {
+          selectedCategory = data._selectedCategory;
+          document.querySelectorAll('.type-btn').forEach(btn => {
+            const onclick = btn.getAttribute('onclick') || '';
+            if (onclick.includes("'" + data._selectedCategory + "'")) {
+              btn.classList.add('active');
+              // Show subtypes
+              const subtypesDiv = document.getElementById('subtypes');
+              const grid = document.getElementById('subtypeGrid');
+              const types = propertyTypes[data._selectedCategory].subtypes;
+              grid.innerHTML = types.map(t => `
+                <div class="subtype-btn" onclick="selectSubtype('${t.id}')">${t.name}</div>
+              `).join('');
+              subtypesDiv.style.display = 'block';
+              document.getElementById('securityCard').style.display = 'block';
+            }
+          });
+        }
+        // Restore subtype selection
+        if (data._selectedSubtype) {
+          selectedSubtype = data._selectedSubtype;
+          document.querySelectorAll('.subtype-btn').forEach(btn => {
+            const onclick = btn.getAttribute('onclick') || '';
+            if (onclick.includes("'" + data._selectedSubtype + "'")) {
+              btn.classList.add('active');
+            }
+          });
+        }
+        // Restore zoning info
+        if (data.zoning) updateZoningInfo();
+      } catch(e) { console.error('Restore error:', e); }
+    }
+
+    function clearSavedData() {
+      localStorage.removeItem(SAVE_KEY);
+      reset();
+    }
+
+    // Bind auto-save listeners using event delegation
+    document.addEventListener('input', (e) => {
+      if (e.target.matches('input, select')) autoSave();
+    });
+    document.addEventListener('change', (e) => {
+      if (e.target.matches('input, select')) autoSave();
+    });
+    // Also save on category/subtype clicks
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.type-btn') || e.target.closest('.subtype-btn')) {
+        setTimeout(autoSave, 100);
+      }
+    });
+
+    // Restore on load
+    restoreSaved();
   </script>
+
+  <!-- Auto-save Toast -->
+  <div class="autosave-toast" id="autosaveToast">Auto-saved ✓</div>
 </body>
 </html>
