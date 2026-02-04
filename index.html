@@ -8,7 +8,6 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><path d='M0-38A38 38 0 1 0 0-37.99' fill='none' stroke='url(%23g)' stroke-width='8' stroke-linecap='round' stroke-dasharray='227 12'/><path d='M0-45L0-52' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/></g></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* ── Dark Mode (default) ── */
     :root {
       --bg: #0a0a0a;
       --bg-secondary: #111111;
@@ -21,27 +20,9 @@
       --text-muted: #a3a3a3;
       --gold: #f59e0b;
       --gold-glow: rgba(245, 158, 11, 0.15);
-      --logo-text: #ffffff;
-    }
-
-    /* ── Light Mode ── */
-    html.light {
-      --bg: #f5f5f5;
-      --bg-secondary: #ffffff;
-      --card: #ffffff;
-      --border: #e5e5e5;
-      --accent-glow: rgba(31, 173, 115, 0.10);
-      --text: #0a0a0a;
-      --text-muted: #525252;
-      --gold-glow: rgba(245, 158, 11, 0.10);
-      --logo-text: #0a0a0a;
     }
     
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    body, .tool-card, .password-box, .password-input, .section-title, footer {
-      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-    }
     
     body {
       font-family: 'Inter', -apple-system, sans-serif;
@@ -62,58 +43,6 @@
       opacity: 0.08;
       z-index: 1;
       pointer-events: none;
-    }
-
-    /* Theme Toggle */
-    .theme-toggle {
-      position: fixed;
-      top: 24px;
-      right: 24px;
-      width: 44px;
-      height: 44px;
-      border: 1px solid var(--border);
-      border-radius: 50%;
-      background: var(--card);
-      color: var(--text-muted);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      z-index: 100;
-      transition: all 0.3s ease;
-      position: fixed;
-      overflow: hidden;
-    }
-
-    .theme-toggle:hover {
-      border-color: var(--accent-light);
-      color: var(--accent-light);
-      background: var(--accent-glow);
-    }
-
-    .theme-toggle .icon-sun,
-    .theme-toggle .icon-moon {
-      position: absolute;
-      transition: transform 0.3s ease, opacity 0.3s ease;
-    }
-
-    .theme-toggle .icon-sun {
-      opacity: 0;
-      transform: rotate(-90deg) scale(0);
-    }
-    .theme-toggle .icon-moon {
-      opacity: 1;
-      transform: rotate(0) scale(1);
-    }
-
-    html.light .theme-toggle .icon-sun {
-      opacity: 1;
-      transform: rotate(0) scale(1);
-    }
-    html.light .theme-toggle .icon-moon {
-      opacity: 0;
-      transform: rotate(90deg) scale(0);
     }
     
     /* Password Gate */
@@ -160,7 +89,6 @@
       font-size: 16px;
       margin-bottom: 16px;
       text-align: center;
-      font-family: inherit;
     }
     
     .password-input:focus {
@@ -172,14 +100,13 @@
       width: 100%;
       padding: 14px;
       background: var(--accent);
-      color: #000;
+      color: var(--bg);
       border: none;
       border-radius: 100px;
       font-size: 15px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
-      font-family: inherit;
     }
     
     .password-btn:hover {
@@ -321,14 +248,6 @@
     .badge-beta { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
     .badge-coming { background: var(--gold-glow); color: var(--gold); }
     .badge-pro { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
-    .badge-featured {
-      background: linear-gradient(135deg, rgba(46,204,133,0.15), rgba(31,173,115,0.15));
-      color: var(--accent-light);
-    }
-    .badge-new {
-      background: rgba(59, 130, 246, 0.15);
-      color: #60a5fa;
-    }
     
     /* Footer */
     footer {
@@ -343,11 +262,6 @@
       color: var(--accent-light);
       text-decoration: none;
     }
-
-    /* Print */
-    @media print {
-      .theme-toggle { display: none; }
-    }
   </style>
 </head>
 <body>
@@ -356,12 +270,6 @@
     <defs><linearGradient id="wm" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs>
     <g transform="translate(50, 50)"><path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#wm)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/><path d="M0 -45 L0 -52" stroke="url(#wm)" stroke-width="6" stroke-linecap="round"/></g>
   </svg>
-
-  <!-- Theme Toggle (always visible) -->
-  <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle dark/light mode" aria-label="Toggle theme">
-    <span class="icon-sun">☀️</span>
-    <span class="icon-moon">🌙</span>
-  </button>
 
   <!-- Password Gate -->
   <div class="password-gate" id="passwordGate">
@@ -381,16 +289,16 @@
         <svg class="logo" viewBox="0 0 220 90" xmlns="http://www.w3.org/2000/svg">
           <defs><linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs>
           <g transform="translate(45, 45)"><path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#logoGrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/><path d="M0 -38 L0 -44" stroke="url(#logoGrad)" stroke-width="5" stroke-linecap="round"/></g>
-          <text x="85" y="54" font-family="Inter, Arial" font-size="28" font-weight="700" fill="var(--logo-text)">ney</text>
+          <text x="85" y="54" font-family="Inter, Arial" font-size="28" font-weight="700" fill="#ffffff">ney</text>
           <text x="133" y="54" font-family="Inter, Arial" font-size="20" fill="url(#logoGrad)">&amp;</text>
-          <text x="151" y="54" font-family="Inter, Arial" font-size="28" font-weight="700" fill="var(--logo-text)">co</text>
+          <text x="151" y="54" font-family="Inter, Arial" font-size="28" font-weight="700" fill="#ffffff">co</text>
         </svg>
         <h1>Oney Tools</h1>
         <p>Financial tools for Australian businesses and borrowers</p>
         <span class="beta-badge">🧪 Internal Testing</span>
       </header>
       
-      <!-- 1. FHC - Featured -->
+      <!-- FHC - Featured -->
       <div class="section">
         <h2 class="section-title">💚 Financial Health Check</h2>
         <div class="tools-grid">
@@ -402,10 +310,10 @@
           </a>
         </div>
       </div>
-
-      <!-- 2. Market Intelligence -->
+      
+      <!-- Oney Product Suite -->
       <div class="section">
-        <h2 class="section-title">📊 Market Intelligence</h2>
+        <h2 class="section-title">🏢 Commercial Lending</h2>
         <div class="tools-grid">
           <a href="commercial-servicing-calc.html" class="tool-card featured">
             <div class="tool-icon">📊</div>
@@ -413,33 +321,7 @@
             <div class="tool-desc">Commercial investment servicing calculator. LVR, ICR, DSCR, WALE analysis with portfolio support. IO/P&I, lease doc assessment.</div>
             <span class="tool-badge badge-beta">New V4.1</span>
           </a>
-          
-          <a href="rate-tracker-competitor.html" class="tool-card">
-            <div class="tool-icon">🏦</div>
-            <div class="tool-name">Competitor Rate Tracker</div>
-            <div class="tool-desc">Monitor and compare lender rates across Big 4, non-major banks, and non-bank lenders. Track rate changes over time.</div>
-            <span class="tool-badge badge-new">New</span>
-          </a>
-        </div>
-      </div>
 
-      <!-- 3. Oney Serve -->
-      <div class="section">
-        <h2 class="section-title">🛠️ Oney Serve</h2>
-        <div class="tools-grid">
-          <a href="../commercial-servicing-calc-v4.html" class="tool-card featured">
-            <div class="tool-icon">🛠️</div>
-            <div class="tool-name">Oney Serve V4</div>
-            <div class="tool-desc">All-in-one commercial investment servicing calculator. Multi-metric assessment with WALE analysis.</div>
-            <span class="tool-badge badge-featured">Featured</span>
-          </a>
-        </div>
-      </div>
-
-      <!-- 4. Free Tools -->
-      <div class="section">
-        <h2 class="section-title">✨ Free Tools</h2>
-        <div class="tools-grid">
           <a href="commercial-investment-calculator.html" class="tool-card">
             <div class="tool-icon">🏢</div>
             <div class="tool-name">Oney Assess</div>
@@ -515,24 +397,30 @@
             <div class="tool-desc">Calculate equipment finance repayments, balloon payments, and compare lease vs buy.</div>
             <span class="tool-badge badge-free">Free</span>
           </a>
-          
-          <a href="credit-paper-lite.html" class="tool-card">
-            <div class="tool-icon">📋</div>
-            <div class="tool-name">Credit Paper Lite</div>
-            <div class="tool-desc">Generate simple credit summaries for basic loan applications. Quick and easy.</div>
+        </div>
+      </div>
+
+      <!-- Market & Research -->
+      <div class="section">
+        <h2 class="section-title">📊 Market Intelligence</h2>
+        <div class="tools-grid">
+          <a href="rba-tracker.html" class="tool-card">
+            <div class="tool-icon">📊</div>
+            <div class="tool-name">RBA Rate & CPI Tracker</div>
+            <div class="tool-desc">Cash rate, CPI data, impact calculator</div>
             <span class="tool-badge badge-free">Free</span>
           </a>
         </div>
       </div>
-      
-      <!-- 5. Oney Pro -->
+
+      <!-- Premium / Oney Pro -->
       <div class="section">
         <h2 class="section-title">💎 Oney Pro</h2>
         <div class="tools-grid">
           <a href="suite/index.html" class="tool-card premium">
             <div class="tool-icon">🛠️</div>
-            <div class="tool-name">Oney Pro</div>
-            <div class="tool-desc">All-in-one premium dashboard. Seamless workflow from data input to credit preparation. Export-ready for lender tools.</div>
+            <div class="tool-name">Oney Pro Suite</div>
+            <div class="tool-desc">All-in-one premium dashboard. Seamless workflow from data input to credit preparation. Export-ready.</div>
             <span class="tool-badge badge-pro">Pro</span>
           </a>
 
@@ -555,27 +443,12 @@
       <footer>
         <p>© 2026 Oney & Co — Financial Health for Everyone</p>
         <p style="margin-top: 8px;">Questions? <a href="mailto:dong.m@oneyco.com.au">dong.m@oneyco.com.au</a></p>
+        <p style="margin-top: 20px; font-size: 11px; color: #737373; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.5;">⚠️ For educational purposes only. Not intended for commercial use. The tools and calculations provided are for general information and should not be considered as financial advice.</p>
       </footer>
     </div>
   </div>
   
   <script>
-    // ── Theme Toggle ──
-    function initTheme() {
-      const saved = localStorage.getItem('oney-tools-theme');
-      if (saved === 'light') {
-        document.documentElement.classList.add('light');
-      }
-    }
-
-    function toggleTheme() {
-      const isLight = document.documentElement.classList.toggle('light');
-      localStorage.setItem('oney-tools-theme', isLight ? 'light' : 'dark');
-    }
-
-    initTheme();
-
-    // ── Password Gate ──
     const PASSWORD = 'oney2026';
     
     if (sessionStorage.getItem('oney_auth') === 'true') {
