@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+<script>if(localStorage.getItem('oney_theme')==='light')document.documentElement.classList.add('light')</script>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -54,9 +55,58 @@
     .hidden { display: none; }
     .footer { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 12px; }
     .footer a { color: var(--primary); text-decoration: none; }
+    /* Light Mode */
+    html.light {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --border: #e5e5e5;
+      --text: #0a0a0a;
+      --text-muted: #525252;
+      --primary-glow: rgba(0, 217, 165, 0.15);
+    }
+    html.light select option { background: var(--card); color: var(--text); }
+    /* Smooth transitions */
+    body, .card, input, select, .metric, .footer, .final-box, .upgrade-box {
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+    /* Top Navigation Bar */
+    .top-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 16px;
+      background: rgba(20, 20, 20, 0.8);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      font-size: 13px; position: sticky; top: 0; z-index: 100;
+    }
+    html.light .top-nav { background: rgba(245, 245, 245, 0.8); }
+    .nav-back { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .nav-back:hover { color: var(--primary); }
+    .theme-toggle {
+      background: none; border: 1px solid var(--border); border-radius: 8px;
+      padding: 4px 10px; font-size: 16px; cursor: pointer; line-height: 1;
+      transition: border-color 0.2s;
+    }
+    .theme-toggle:hover { border-color: var(--primary); }
+    .clear-data-btn {
+      display: block; margin: 20px auto; background: none; border: none;
+      color: var(--text-muted); font-size: 12px; cursor: pointer;
+      opacity: 0.6; transition: opacity 0.2s; font-family: inherit;
+    }
+    .clear-data-btn:hover { opacity: 1; text-decoration: underline; }
+    #autoSaveToast {
+      position: fixed; bottom: 24px; right: 24px; background: var(--card);
+      border: 1px solid var(--border); color: var(--text-muted);
+      padding: 10px 18px; border-radius: 10px; font-size: 13px;
+      opacity: 0; transition: opacity 0.3s; z-index: 1000; pointer-events: none;
+    }
   </style>
 </head>
 <body>
+  <nav class="top-nav">
+    <a href="index.html" class="nav-back">← Oney Tools</a>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+  </nav>
+  <div id="autoSaveToast"></div>
   <!-- Watermark -->
   <svg style="position:fixed;top:24px;left:24px;width:80px;height:80px;opacity:0.08;z-index:1;pointer-events:none;" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <defs><linearGradient id="wm" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs>
@@ -151,6 +201,7 @@
       <button class="btn btn-secondary" onclick="reset()">🔄 New Assessment</button>
     </div>
     
+    <button class="clear-data-btn" onclick="clearSavedData()">Clear Saved Data</button>
     <footer class="footer">
       <p>Made by <a href="https://oneyco.com.au">Oney & Co</a></p>
       <p style="margin-top: 8px;">Free version — <a href="#">Upgrade for more features</a></p>
@@ -214,6 +265,65 @@
       document.getElementById('step2').classList.add('hidden');
     }
     
+    // === Theme Toggle ===
+    function toggleTheme() {
+      document.documentElement.classList.toggle('light');
+      var isLight = document.documentElement.classList.contains('light');
+      localStorage.setItem('oney_theme', isLight ? 'light' : 'dark');
+      document.getElementById('themeToggle').textContent = isLight ? '☀️' : '🌙';
+    }
+    (function() {
+      var btn = document.getElementById('themeToggle');
+      if (btn) btn.textContent = document.documentElement.classList.contains('light') ? '☀️' : '🌙';
+    })();
+
+    // === Auto-Save ===
+    (function() {
+      var SAVE_KEY = 'oney_save_specialised_lending';
+      var saveTimeout;
+      function getAllValues() {
+        var data = {};
+        document.querySelectorAll('#step1 input, #step1 select').forEach(function(el) {
+          if (el.id) data[el.id] = el.value;
+        });
+        return data;
+      }
+      function restoreValues() {
+        try {
+          var saved = localStorage.getItem(SAVE_KEY);
+          if (!saved) return;
+          var data = JSON.parse(saved);
+          Object.keys(data).forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.value = data[id];
+          });
+        } catch(e) {}
+      }
+      function saveValues() {
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(function() {
+          localStorage.setItem(SAVE_KEY, JSON.stringify(getAllValues()));
+          showAutoSaveToast();
+        }, 500);
+      }
+      function showAutoSaveToast() {
+        var toast = document.getElementById('autoSaveToast');
+        toast.textContent = 'Auto-saved ✓';
+        toast.style.opacity = '1';
+        setTimeout(function() { toast.style.opacity = '0'; }, 2000);
+      }
+      restoreValues();
+      document.addEventListener('input', saveValues);
+      document.addEventListener('change', saveValues);
+      window.clearSavedData = function() {
+        localStorage.removeItem(SAVE_KEY);
+        var toast = document.getElementById('autoSaveToast');
+        toast.textContent = 'Saved data cleared ✓';
+        toast.style.opacity = '1';
+        setTimeout(function() { toast.style.opacity = '0'; }, 2000);
+      };
+    })();
+
     function copyResults() {
       const c = window.lastCalc;
       if (!c) return;

@@ -29,6 +29,14 @@
       --text-muted: #94a3b8;
       --radius: 16px;
     }
+    html.light {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --card-hover: #f0f0f0;
+      --border: #e5e5e5;
+      --text: #0a0a0a;
+      --text-muted: #525252;
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Inter', -apple-system, sans-serif;
@@ -227,6 +235,82 @@
     .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px var(--primary-glow); }
     .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); margin-top: 12px; }
     .hidden { display: none; }
+
+    /* Top Nav Bar */
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: rgba(10, 22, 40, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    html.light .top-nav { background: rgba(245, 245, 245, 0.85); }
+    .top-nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .top-nav a:hover { color: var(--primary); }
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .theme-toggle:hover {
+      border-color: var(--primary);
+      background: var(--primary-glow);
+    }
+
+    /* Auto-save Toast */
+    .autosave-toast {
+      position: fixed;
+      bottom: 80px;
+      right: 24px;
+      background: var(--card);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .autosave-toast.show { opacity: 1; transform: translateY(0); }
+
+    /* Clear Data Button */
+    .clear-data-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      cursor: pointer;
+      padding: 8px 16px;
+      transition: color 0.2s;
+    }
+    .clear-data-btn:hover { color: var(--danger); }
+
+    /* Theme transitions */
+    body, .card, .type-btn, .subtype-btn, .policy-box, .lvr-display,
+    .warning-box, header, .bottom-nav, .nav-btn {
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+
     .footer { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 12px; }
     .footer a { color: var(--primary); text-decoration: none; }
     .bottom-nav {
@@ -293,6 +377,12 @@
   </style>
 </head>
 <body>
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <a href="index.html">← Oney Tools</a>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌙</button>
+  </nav>
+
   <div class="container">
     <header>
       <div class="logo">Security Test Tool</div>
@@ -488,6 +578,10 @@
       <button class="btn btn-secondary" onclick="reset()">🔄 New Assessment</button>
     </div>
     
+    <div style="text-align: center; margin-top: 16px;">
+      <button class="clear-data-btn" onclick="clearSavedData()">Clear Saved Data</button>
+    </div>
+
     <footer class="footer">
       <p>Made by <a href="https://oneyco.com.au">Oney & Co</a></p>
     </footer>

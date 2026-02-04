@@ -28,6 +28,14 @@
       --text-muted: #a3a3a3;
       --radius: 16px;
     }
+    html.light {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --card-hover: #f0f0f0;
+      --border: #e5e5e5;
+      --text: #0a0a0a;
+      --text-muted: #525252;
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Inter', -apple-system, sans-serif;
@@ -525,6 +533,81 @@
     }
     .modal-footer .btn { flex: 1; }
     
+    /* Top Nav Bar */
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: rgba(10, 10, 10, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    html.light .top-nav { background: rgba(245, 245, 245, 0.85); }
+    .top-nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .top-nav a:hover { color: var(--primary-light); }
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .theme-toggle:hover {
+      border-color: var(--primary);
+      background: var(--primary-glow);
+    }
+
+    /* Auto-save Toast */
+    .autosave-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--card);
+      border: 1px solid var(--primary);
+      color: var(--primary-light);
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .autosave-toast.show { opacity: 1; transform: translateY(0); }
+
+    /* Clear Data Button */
+    .clear-data-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      cursor: pointer;
+      padding: 8px 16px;
+      transition: color 0.2s;
+    }
+    .clear-data-btn:hover { color: var(--danger); }
+
+    /* Theme transitions */
+    body, .card, .result-item, .tax-item, .info-box, .alert-box, .disclaimer,
+    .ato-note, .result-hero, .quote-preview, .modal, header, footer {
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+
     /* Responsive */
     @media (max-width: 600px) {
       .row, .row-3 { grid-template-columns: 1fr; }
@@ -537,6 +620,12 @@
   </style>
 </head>
 <body>
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <a href="index.html">← Oney Tools</a>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌙</button>
+  </nav>
+
   <!-- Watermark -->
   <svg style="position:fixed;top:24px;left:24px;width:80px;height:80px;opacity:0.08;z-index:1;pointer-events:none;" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <defs><linearGradient id="wm" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs>
@@ -545,7 +634,6 @@
 
   <div class="container">
     <header>
-      <a href="index.html" class="back-link">← Back to Tools</a>
       <div class="logo">EF Tool</div>
       <div class="tagline">Equipment Finance Calculator</div>
     </header>
@@ -976,6 +1064,10 @@
       <button class="btn btn-secondary" onclick="resetForm()">🔄 Reset All</button>
     </div>
     
+    <div style="text-align: center; margin-top: 24px;">
+      <button class="clear-data-btn" onclick="clearSavedData()">Clear Saved Data</button>
+    </div>
+
     <footer>
       <p>© 2026 <a href="https://oneyco.com.au">Oney & Co</a></p>
       <p style="margin-top: 8px;">Calculations are estimates only. Actual rates and terms may vary. Consult your accountant for tax advice.</p>
@@ -1561,6 +1653,106 @@ https://tools.oneyco.com.au`;
         closeQuoteModal();
       }
     });
+
+    // === Theme Toggle ===
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('oney_theme', isLight ? 'light' : 'dark');
+      document.querySelector('.theme-toggle').textContent = isLight ? '☀️' : '🌙';
+    }
+    (function initTheme() {
+      if (localStorage.getItem('oney_theme') === 'light') {
+        document.documentElement.classList.add('light');
+        const btn = document.querySelector('.theme-toggle');
+        if (btn) btn.textContent = '☀️';
+      }
+    })();
+
+    // === Auto-Save ===
+    const SAVE_KEY = 'oney_save_ef_tool';
+    let saveTimeout = null;
+
+    function showAutoSaveToast() {
+      const t = document.getElementById('autosaveToast');
+      if (!t) return;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    function autoSave() {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        const data = {};
+        document.querySelectorAll('input, select, textarea').forEach(el => {
+          if (el.id) data[el.id] = el.value;
+        });
+        data._state = {
+          purchaseSource: state.purchaseSource,
+          condition: state.condition,
+          structure: state.structure,
+          frequency: state.frequency,
+          gstRegistered: state.gstRegistered
+        };
+        localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+        showAutoSaveToast();
+      }, 500);
+    }
+
+    function restoreSaved() {
+      const saved = localStorage.getItem(SAVE_KEY);
+      if (!saved) return;
+      try {
+        const data = JSON.parse(saved);
+        Object.keys(data).forEach(key => {
+          if (key === '_state') return;
+          const el = document.getElementById(key);
+          if (el && !el.disabled) el.value = data[key];
+        });
+        if (data._state) {
+          if (data._state.purchaseSource) setPurchaseSource(data._state.purchaseSource);
+          if (data._state.condition) setCondition(data._state.condition);
+          if (data._state.frequency) setFrequency(data._state.frequency);
+          if (data._state.gstRegistered) setGstRegistered(data._state.gstRegistered);
+          if (data._state.structure) {
+            state.structure = data._state.structure;
+            const structureInfos = {
+              chattel: '<strong>Chattel Mortgage:</strong> You own the asset immediately. Claim GST upfront. Interest and depreciation are tax deductible. Most common for ABN holders.',
+              lease: '<strong>Finance Lease:</strong> You lease the asset with option to buy at end. GST claimed monthly. Entire lease payment is tax deductible. Good for cash flow management.',
+              rental: '<strong>Operating Lease / Rental:</strong> Rent the asset and return at end. 100% tax deductible payments. Best for short-term needs or rapidly depreciating assets.'
+            };
+            document.querySelectorAll('.structure-card').forEach(card => {
+              const onclick = card.getAttribute('onclick') || '';
+              card.classList.toggle('active', onclick.includes("'" + data._state.structure + "'"));
+            });
+            const si = document.getElementById('structureInfo');
+            if (si && structureInfos[data._state.structure]) si.innerHTML = structureInfos[data._state.structure];
+          }
+        }
+        updateGst();
+        onTermChange();
+      } catch(e) { console.error('Restore error:', e); }
+    }
+
+    function clearSavedData() {
+      localStorage.removeItem(SAVE_KEY);
+      resetForm();
+    }
+
+    // Bind auto-save listeners
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+      el.addEventListener('input', autoSave);
+      el.addEventListener('change', autoSave);
+    });
+    // Also save on toggle/structure clicks
+    document.querySelectorAll('.toggle-btn, .structure-card').forEach(el => {
+      el.addEventListener('click', () => setTimeout(autoSave, 100));
+    });
+
+    // Restore saved data on load
+    restoreSaved();
   </script>
+
+  <!-- Auto-save Toast -->
+  <div class="autosave-toast" id="autosaveToast">Auto-saved ✓</div>
 </body>
 </html>

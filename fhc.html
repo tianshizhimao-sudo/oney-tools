@@ -24,6 +24,14 @@
       --warning: #f59e0b;
       --danger: #ef4444;
     }
+    html.light {
+      --bg: #f5f5f5;
+      --bg-secondary: #e8e8e8;
+      --card: #ffffff;
+      --border: #e5e5e5;
+      --text: #0a0a0a;
+      --text-muted: #525252;
+    }
     
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
@@ -428,6 +436,84 @@
       opacity: 1;
     }
     
+    /* Top Nav Bar */
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 16px;
+      background: rgba(10, 10, 10, 0.8);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+    html.light .top-nav { background: rgba(245, 245, 245, 0.85); }
+    .top-nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .top-nav a:hover { color: var(--accent-light); }
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    /* Auto-save Toast */
+    .autosave-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--card);
+      border: 1px solid var(--accent);
+      color: var(--accent-light);
+      padding: 10px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      pointer-events: none;
+    }
+    .autosave-toast.show { opacity: 1; transform: translateY(0); }
+
+    /* Clear Data Button */
+    .clear-data-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 12px;
+      cursor: pointer;
+      padding: 8px 16px;
+      transition: color 0.2s;
+    }
+    .clear-data-btn:hover { color: var(--danger); }
+
+    /* Theme transitions */
+    body, .result-card, .metric-item, .form-input, .form-select,
+    .loan-card, .email-section, .step, .header {
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+
+    /* Light mode SVG logo fix */
+    html.light .logo text[fill="#ffffff"] { fill: #0a0a0a; }
+
     @media (max-width: 500px) {
       .form-row { grid-template-columns: 1fr; }
       .metric-grid { grid-template-columns: 1fr; }
@@ -436,6 +522,12 @@
   </style>
 </head>
 <body>
+  <!-- Top Navigation -->
+  <nav class="top-nav">
+    <a href="index.html">← Oney Tools</a>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌙</button>
+  </nav>
+
   <!-- Watermark -->
   <svg style="position:fixed;top:24px;left:24px;width:80px;height:80px;opacity:0.08;z-index:1;pointer-events:none;" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <defs><linearGradient id="wm" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs>
@@ -448,7 +540,6 @@
 
   <div class="container">
     <div class="header">
-      <a href="index.html" class="header-back">← Back to Home</a>
       <svg class="logo" viewBox="0 0 220 90" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -722,9 +813,14 @@
         <button class="btn btn-secondary" onclick="startOver()">← Start New Assessment</button>
       </div>
     </div>
+
+    <div style="text-align: center; margin-top: 24px;">
+      <button class="clear-data-btn" onclick="clearSavedData()">Clear Saved Data</button>
+    </div>
   </div>
 
   <div class="toast" id="toast"></div>
+  <div class="autosave-toast" id="autosaveToast">Auto-saved ✓</div>
 
   <script>
     let currentStep = 1;
@@ -918,6 +1014,124 @@
     }
 
     updateProgress();
+
+    // === Theme Toggle ===
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('oney_theme', isLight ? 'light' : 'dark');
+      document.querySelector('.theme-toggle').textContent = isLight ? '☀️' : '🌙';
+    }
+    (function initTheme() {
+      if (localStorage.getItem('oney_theme') === 'light') {
+        document.documentElement.classList.add('light');
+        const btn = document.querySelector('.theme-toggle');
+        if (btn) btn.textContent = '☀️';
+      }
+    })();
+
+    // === Auto-Save ===
+    const SAVE_KEY = 'oney_save_fhc';
+    let saveTimeout = null;
+
+    function showAutoSaveToast() {
+      const t = document.getElementById('autosaveToast');
+      if (!t) return;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+
+    function autoSave() {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        const data = {};
+        // Save static fields
+        ['businessType', 'industry', 'yearsInBusiness', 'annualRevenue',
+         'monthlyIncome', 'monthlyExpenses', 'monthlyRepayments', 'cashBuffer',
+         'totalPropertyValue', 'userName', 'userEmail', 'brokerEmail'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) data[id] = el.value;
+        });
+        // Save loan cards
+        data.loans = [];
+        document.querySelectorAll('.loan-card').forEach(card => {
+          data.loans.push({
+            type: card.querySelector('.loan-type')?.value || '',
+            balance: card.querySelector('.loan-balance')?.value || '',
+            rate: card.querySelector('.loan-rate')?.value || '',
+            lender: card.querySelector('.loan-lender')?.value || '',
+            expiry: card.querySelector('.loan-expiry')?.value || ''
+          });
+        });
+        data.currentStep = currentStep;
+        localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+        showAutoSaveToast();
+      }, 500);
+    }
+
+    function restoreSaved() {
+      const saved = localStorage.getItem(SAVE_KEY);
+      if (!saved) return;
+      try {
+        const data = JSON.parse(saved);
+        // Restore static fields
+        Object.keys(data).forEach(key => {
+          if (key === 'loans' || key === 'currentStep') return;
+          const el = document.getElementById(key);
+          if (el) el.value = data[key];
+        });
+        // Restore loans
+        if (data.loans && data.loans.length > 0) {
+          const firstCard = document.querySelector('.loan-card');
+          if (firstCard && data.loans[0]) {
+            const fc = data.loans[0];
+            firstCard.querySelector('.loan-type').value = fc.type;
+            firstCard.querySelector('.loan-balance').value = fc.balance;
+            firstCard.querySelector('.loan-rate').value = fc.rate;
+            firstCard.querySelector('.loan-lender').value = fc.lender;
+            firstCard.querySelector('.loan-expiry').value = fc.expiry;
+          }
+          for (let i = 1; i < data.loans.length; i++) {
+            addLoan();
+            const cards = document.querySelectorAll('.loan-card');
+            const card = cards[cards.length - 1];
+            card.querySelector('.loan-type').value = data.loans[i].type;
+            card.querySelector('.loan-balance').value = data.loans[i].balance;
+            card.querySelector('.loan-rate').value = data.loans[i].rate;
+            card.querySelector('.loan-lender').value = data.loans[i].lender;
+            card.querySelector('.loan-expiry').value = data.loans[i].expiry;
+          }
+        }
+        // Restore step (but cap at step 3 — step 4 needs recalculation)
+        if (data.currentStep && data.currentStep >= 1 && data.currentStep <= 3) {
+          nextStep(data.currentStep);
+        }
+      } catch(e) { console.error('Restore error:', e); }
+    }
+
+    function clearSavedData() {
+      localStorage.removeItem(SAVE_KEY);
+      startOver();
+      // Reset all inputs
+      document.querySelectorAll('input, select').forEach(el => {
+        if (el.type === 'month' || el.type === 'email' || el.type === 'text' || el.type === 'number') el.value = '';
+        if (el.tagName === 'SELECT') el.selectedIndex = 0;
+      });
+      // Remove extra loan cards
+      const cards = document.querySelectorAll('.loan-card');
+      cards.forEach((c, i) => { if (i > 0) c.remove(); });
+      loanCount = 1;
+    }
+
+    // Bind auto-save listeners using event delegation
+    document.addEventListener('input', (e) => {
+      if (e.target.matches('input, select, textarea')) autoSave();
+    });
+    document.addEventListener('change', (e) => {
+      if (e.target.matches('input, select, textarea')) autoSave();
+    });
+
+    // Restore on load
+    restoreSaved();
   </script>
 </body>
 </html>
