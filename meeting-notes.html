@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meeting Notes → Action Items | Oney & Co</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green: #2ECC85;
+    --green2: #1FAD73;
+    --bg: #0e0e10;
+    --bg2: #18181c;
+    --bg3: #222228;
+    --bg4: #2c2c34;
+    --text: #e8e8ec;
+    --text2: #a0a0b0;
+    --border: #2e2e38;
+    --red: #e74c5e;
+    --orange: #f0a040;
+    --yellow: #f0d060;
+    --radius: 12px;
+    --shadow: 0 4px 24px rgba(0,0,0,.4);
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  .header svg { flex-shrink: 0; }
+  .header h1 { font-size: 1.15rem; font-weight: 600; }
+  .header span { font-size: .82rem; color: var(--text2); }
+
+  /* ── Layout ── */
+  .container {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 768px) {
+    .container { grid-template-columns: 1fr; }
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-title {
+    font-size: .9rem;
+    font-weight: 600;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-title .icon { font-size: 1.1rem; }
+
+  /* ── Textarea ── */
+  textarea {
+    flex: 1;
+    min-height: 320px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: .88rem;
+    line-height: 1.65;
+    resize: vertical;
+    outline: none;
+    transition: border-color .2s;
+  }
+  textarea:focus { border-color: var(--green); }
+  textarea::placeholder { color: var(--text2); opacity: .6; }
+
+  /* ── Buttons ── */
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: .84rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .18s;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--green), var(--green2));
+    color: #fff;
+  }
+  .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .btn-secondary {
+    background: var(--bg3);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--bg4); }
+  .btn-danger {
+    background: transparent;
+    color: var(--red);
+    border: 1px solid rgba(231,76,94,.3);
+  }
+  .btn-danger:hover { background: rgba(231,76,94,.1); }
+
+  /* ── Results ── */
+  .results-area {
+    flex: 1;
+    min-height: 320px;
+    overflow-y: auto;
+  }
+
+  .empty-state {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text2);
+    gap: 12px;
+    padding: 40px;
+    text-align: center;
+  }
+  .empty-state .big-icon { font-size: 3rem; opacity: .5; }
+  .empty-state p { font-size: .85rem; max-width: 260px; }
+
+  /* ── Action Item ── */
+  .action-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    transition: border-color .2s;
+    position: relative;
+  }
+  .action-item:hover { border-color: var(--green); }
+
+  .ai-top { display: flex; align-items: flex-start; gap: 10px; }
+  .ai-checkbox {
+    width: 20px; height: 20px;
+    border: 2px solid var(--border);
+    border-radius: 5px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s;
+  }
+  .ai-checkbox.checked {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .ai-checkbox.checked::after {
+    content: '✓';
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 700;
+  }
+  .ai-text { flex: 1; font-size: .88rem; line-height: 1.5; }
+  .ai-text.done { text-decoration: line-through; opacity: .5; }
+
+  .ai-meta {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+    padding-left: 30px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .3px;
+  }
+  .tag-person { background: rgba(46,204,133,.15); color: var(--green); }
+  .tag-date { background: rgba(240,160,64,.15); color: var(--orange); }
+  .tag-high { background: rgba(231,76,94,.15); color: var(--red); }
+  .tag-medium { background: rgba(240,160,64,.15); color: var(--orange); }
+  .tag-low { background: rgba(46,204,133,.15); color: var(--green); }
+
+  /* ── Summary bar ── */
+  .summary-bar {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .summary-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: .78rem;
+    color: var(--text2);
+  }
+  .summary-chip strong { color: var(--text); font-size: 1.05rem; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--green);
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-size: .85rem;
+    font-weight: 600;
+    box-shadow: var(--shadow);
+    opacity: 0;
+    transition: all .3s ease;
+    z-index: 999;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── Keywords hint ── */
+  .hint {
+    margin-top: 10px;
+    font-size: .75rem;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .hint code {
+    background: var(--bg3);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: .72rem;
+  }
+
+  /* ── Stats Panel ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .stat-box {
+    background: var(--bg3);
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stat-box .num {
+    font-size: 1.4rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--green), var(--green2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat-box .label {
+    font-size: .7rem;
+    color: var(--text2);
+    margin-top: 2px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 90" width="120" height="56">
+    <defs>
+      <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" style="stop-color:#2ECC85"/>
+        <stop offset="100%" style="stop-color:#1FAD73"/>
+      </linearGradient>
+    </defs>
+    <g transform="translate(38, 45)">
+      <path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#greenGrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/>
+      <path d="M0 -38 L0 -44" stroke="url(#greenGrad)" stroke-width="5" stroke-linecap="round"/>
+    </g>
+    <text x="32" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#e8e8ec">ney</text>
+    <text x="77" y="50" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="400" fill="url(#greenGrad)">&amp;</text>
+    <text x="94" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#e8e8ec">co</text>
+  </svg>
+  <div>
+    <h1>Meeting Notes → Action Items</h1>
+    <span>Paste your notes, get organised tasks instantly</span>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="container">
+
+  <!-- Left: Input -->
+  <div class="card">
+    <div class="card-title"><span class="icon">📝</span> Meeting Notes</div>
+    <textarea id="notesInput" placeholder="Paste your meeting notes here...
+
+Example:
+Discussed Q1 marketing strategy. John needs to finalise the budget by Friday. Action item: Sarah to follow up with the designer before Feb 10. TODO: Update the CRM entries. Alice mentioned the deadline for compliance report is March 1 — high priority."></textarea>
+    <div class="hint">
+      🔍 Keywords detected:
+      <code>need to</code> <code>action</code> <code>follow up</code> <code>by [date]</code>
+      <code>deadline</code> <code>TODO</code> <code>should</code> <code>must</code>
+      <code>will</code> <code>responsible</code> <code>assigned to</code> <code>make sure</code>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="extractActions()">⚡ Extract Actions</button>
+      <button class="btn btn-secondary" onclick="loadSample()">📋 Load Sample</button>
+      <button class="btn btn-danger" onclick="clearAll()">✕ Clear All</button>
+    </div>
+  </div>
+
+  <!-- Right: Results -->
+  <div class="card">
+    <div class="card-title"><span class="icon">✅</span> Action Items</div>
+
+    <div id="statsArea" style="display:none;">
+      <div class="stats-row">
+        <div class="stat-box"><div class="num" id="statTotal">0</div><div class="label">Total</div></div>
+        <div class="stat-box"><div class="num" id="statPeople">0</div><div class="label">People</div></div>
+        <div class="stat-box"><div class="num" id="statDated">0</div><div class="label">With Dates</div></div>
+      </div>
+    </div>
+
+    <div class="results-area" id="resultsArea">
+      <div class="empty-state">
+        <div class="big-icon">📋</div>
+        <p>Paste your meeting notes on the left and click <strong>Extract Actions</strong> to get started</p>
+      </div>
+    </div>
+
+    <div id="resultButtons" class="btn-row" style="display:none;">
+      <button class="btn btn-primary" onclick="copyResults()">📋 Copy All</button>
+      <button class="btn btn-secondary" onclick="exportMarkdown()">📄 Export .md</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ──
+let actionItems = [];
+
+// ── Keyword patterns ──
+const ACTION_PATTERNS = [
+  // Explicit action markers
+  /(?:action\s*(?:item)?[:\-–]?\s*)(.+)/i,
+  /(?:todo[:\-–]?\s*)(.+)/i,
+  /(?:follow\s*up[:\-–]?\s*)(.+)/i,
+
+  // "X needs to / need to Y"
+  /(\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?\s+(?:needs?\s+to|has\s+to|have\s+to)\s+.+)/i,
+
+  // "X should / must / will Y"
+  /(\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?\s+(?:should|must|will|shall)\s+.+)/i,
+
+  // "X to follow up / to do Y"
+  /(\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?\s+to\s+(?:follow\s+up|finalise|finalize|complete|prepare|send|create|update|review|schedule|arrange|confirm|draft|submit|check|organise|organize|coordinate|reach\s+out|set\s+up|write|contact|call|email|book|deliver|present|compile|handle|resolve|fix|make\s+sure)\b.+)/i,
+
+  // "assigned to X: task" or "responsible: X ..."
+  /(?:assigned\s+to\s+\w+[:\-–]?\s*)(.+)/i,
+  /(?:responsible[:\-–]?\s*)(.+)/i,
+
+  // "make sure ..."
+  /(?:make\s+sure\s+)(.+)/i,
+
+  // "deadline ... : task"
+  /(?:deadline[:\-–]?\s*)(.+)/i,
+];
+
+// ── Name extraction ──
+const COMMON_NAMES_HINT = /\b(John|Sarah|Alice|Bob|Mike|David|James|Tom|Chris|Nick|Emily|Emma|Lisa|Anna|Kate|Mark|Peter|Paul|Sam|Dan|Amy|Liam|Luke|Alex|Ryan|Ben|Jack|Leo|Zoe|Mia|Max|Jane|Steve|Kevin|Greg|Matt|Andrew|Rachel|Jessica|Laura|Helen|Karen|Simon|Tim|Adam|Scott|Brad|Tony|George|Gary|Eric|Nathan|Oscar|Henry|Aaron|Donna|Carlos|Maria|Wei|Li|Zhang|Wang|Chen|Liu|Dong)\b/gi;
+
+function extractPerson(text) {
+  // "X needs to" / "X to follow up" / "X should" etc.
+  const personAction = text.match(/^([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\s+(?:needs?\s+to|has\s+to|have\s+to|should|must|will|shall|to\s+(?:follow|finalise|finalize|complete|prepare|send|create|update|review|schedule|arrange|confirm|draft|submit|check|organise|organize|coordinate|reach|set|write|contact|call|email|book|deliver|present|compile|handle|resolve|fix|make))/i);
+  if (personAction) return personAction[1];
+
+  // "assigned to X"
+  const assigned = text.match(/assigned\s+to\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i);
+  if (assigned) return assigned[1];
+
+  // Fallback: any known name
+  const names = text.match(COMMON_NAMES_HINT);
+  if (names && names.length === 1) return names[0];
+
+  return null;
+}
+
+// ── Date extraction ──
+function extractDate(text) {
+  // "by Friday", "before Monday", "by end of week"
+  const byDay = text.match(/(?:by|before|until)\s+(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|end\s+of\s+(?:week|month|quarter|year))/i);
+  if (byDay) return byDay[1];
+
+  // "by Feb 10", "before March 1", "by 15 Jan"
+  const byDate = text.match(/(?:by|before|until|due)\s+(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\.?(?:\s+\d{2,4})?|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\.?\s+\d{1,2}(?:st|nd|rd|th)?(?:,?\s*\d{2,4})?)/i;
+  if (byDate) return byDate[1];
+
+  // "deadline March 1"
+  const deadline = text.match(/deadline[:\s]+(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\.?(?:\s+\d{2,4})?|(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\w*\.?\s+\d{1,2}(?:st|nd|rd|th)?(?:,?\s*\d{2,4})?)/i);
+  if (deadline) return deadline[1];
+
+  // ISO-ish "2025-02-10" or "10/02"
+  const iso = text.match(/(\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}[-/]\d{1,2}[-/]\d{2,4})/);
+  if (iso) return iso[1];
+
+  return null;
+}
+
+// ── Priority inference ──
+function inferPriority(text) {
+  const t = text.toLowerCase();
+  if (/\b(urgent|asap|critical|immediately|high\s*priority|top\s*priority)\b/.test(t)) return 'high';
+  if (/\b(important|should|priority|soon|this\s*week)\b/.test(t)) return 'medium';
+  if (/\b(low\s*priority|when\s*possible|nice\s*to\s*have|eventually|sometime)\b/.test(t)) return 'low';
+
+  // Deadline proximity heuristic
+  if (/\b(today|tomorrow|by\s+end\s+of\s+day|eod)\b/.test(t)) return 'high';
+  if (/\b(this\s+week|by\s+friday)\b/.test(t)) return 'medium';
+
+  // Default: medium
+  return 'medium';
+}
+
+// ── Main extraction ──
+function extractActions() {
+  const text = document.getElementById('notesInput').value.trim();
+  if (!text) { showToast('⚠️ Please paste some meeting notes first'); return; }
+
+  actionItems = [];
+  const sentences = splitSentences(text);
+
+  sentences.forEach(sentence => {
+    const trimmed = sentence.trim();
+    if (!trimmed || trimmed.length < 8) return;
+
+    for (const pattern of ACTION_PATTERNS) {
+      const match = trimmed.match(pattern);
+      if (match) {
+        const actionText = cleanAction(match[0]);
+        // Avoid duplicates
+        if (!actionItems.some(a => similarity(a.text, actionText) > 0.7)) {
+          actionItems.push({
+            text: actionText,
+            person: extractPerson(actionText),
+            date: extractDate(trimmed),
+            priority: inferPriority(trimmed),
+            done: false,
+          });
+        }
+        break;
+      }
+    }
+  });
+
+  if (actionItems.length === 0) {
+    showToast('⚠️ No action items detected — try adding keywords like "need to", "TODO", etc.');
+    return;
+  }
+
+  renderResults();
+  showToast(`✅ Found ${actionItems.length} action item${actionItems.length > 1 ? 's' : ''}`);
+}
+
+function splitSentences(text) {
+  // Split on periods, newlines, semicolons — but keep abbreviations intact
+  return text
+    .split(/(?<=[.!?;])\s+|\n+/)
+    .flatMap(s => s.split(/[•\-–—]\s+/))
+    .filter(s => s.trim().length > 0);
+}
+
+function cleanAction(text) {
+  return text
+    .replace(/^[\s\-–—•*]+/, '')
+    .replace(/^(?:action\s*(?:item)?[:\-–]?\s*)/i, '')
+    .replace(/^(?:todo[:\-–]?\s*)/i, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function similarity(a, b) {
+  const sa = a.toLowerCase();
+  const sb = b.toLowerCase();
+  if (sa === sb) return 1;
+  const longer = sa.length > sb.length ? sa : sb;
+  const shorter = sa.length > sb.length ? sb : sa;
+  if (longer.length === 0) return 1;
+  return (longer.length - editDist(longer, shorter)) / longer.length;
+}
+
+function editDist(a, b) {
+  const m = [];
+  for (let i = 0; i <= b.length; i++) { m[i] = [i]; }
+  for (let j = 0; j <= a.length; j++) { m[0][j] = j; }
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      m[i][j] = b[i-1] === a[j-1]
+        ? m[i-1][j-1]
+        : Math.min(m[i-1][j-1]+1, m[i][j-1]+1, m[i-1][j]+1);
+    }
+  }
+  return m[b.length][a.length];
+}
+
+// ── Render ──
+function renderResults() {
+  const area = document.getElementById('resultsArea');
+  const stats = document.getElementById('statsArea');
+  const btns = document.getElementById('resultButtons');
+
+  if (actionItems.length === 0) {
+    area.innerHTML = `<div class="empty-state"><div class="big-icon">📋</div><p>Paste your meeting notes on the left and click <strong>Extract Actions</strong> to get started</p></div>`;
+    stats.style.display = 'none';
+    btns.style.display = 'none';
+    return;
+  }
+
+  // Stats
+  const people = new Set(actionItems.filter(a => a.person).map(a => a.person.toLowerCase()));
+  document.getElementById('statTotal').textContent = actionItems.length;
+  document.getElementById('statPeople').textContent = people.size;
+  document.getElementById('statDated').textContent = actionItems.filter(a => a.date).length;
+  stats.style.display = 'block';
+  btns.style.display = 'flex';
+
+  // Items
+  area.innerHTML = actionItems.map((item, i) => `
+    <div class="action-item" data-index="${i}">
+      <div class="ai-top">
+        <div class="ai-checkbox ${item.done ? 'checked' : ''}" onclick="toggleDone(${i})"></div>
+        <div class="ai-text ${item.done ? 'done' : ''}">${escHtml(item.text)}</div>
+      </div>
+      <div class="ai-meta">
+        ${item.person ? `<span class="tag tag-person">👤 ${escHtml(item.person)}</span>` : ''}
+        ${item.date ? `<span class="tag tag-date">📅 ${escHtml(item.date)}</span>` : ''}
+        <span class="tag tag-${item.priority}">${priorityIcon(item.priority)} ${cap(item.priority)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleDone(i) {
+  actionItems[i].done = !actionItems[i].done;
+  renderResults();
+}
+
+function priorityIcon(p) {
+  return { high: '🔴', medium: '🟡', low: '🟢' }[p] || '⚪';
+}
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+// ── Copy ──
+function copyResults() {
+  if (!actionItems.length) return;
+  const lines = actionItems.map((a, i) => {
+    let line = `${i+1}. [${a.done ? 'x' : ' '}] ${a.text}`;
+    const meta = [];
+    if (a.person) meta.push(`👤 ${a.person}`);
+    if (a.date) meta.push(`📅 ${a.date}`);
+    meta.push(`${priorityIcon(a.priority)} ${cap(a.priority)}`);
+    line += `\n   ${meta.join(' | ')}`;
+    return line;
+  });
+  const full = `Meeting Action Items\n${'═'.repeat(40)}\n\n${lines.join('\n\n')}`;
+  navigator.clipboard.writeText(full).then(() => showToast('📋 Copied to clipboard!'));
+}
+
+// ── Export Markdown ──
+function exportMarkdown() {
+  if (!actionItems.length) return;
+  const now = new Date().toLocaleDateString('en-AU', { year: 'numeric', month: 'long', day: 'numeric' });
+  let md = `# Meeting Action Items\n\n> Extracted on ${now}\n\n`;
+  md += `| # | Action | Person | Due | Priority |\n`;
+  md += `|---|--------|--------|-----|----------|\n`;
+  actionItems.forEach((a, i) => {
+    md += `| ${i+1} | ${a.text} | ${a.person || '—'} | ${a.date || '—'} | ${cap(a.priority)} |\n`;
+  });
+  md += `\n---\n*Generated by Oney & Co Meeting Notes Converter*\n`;
+
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `action-items-${new Date().toISOString().slice(0,10)}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📄 Markdown exported!');
+}
+
+// ── Clear ──
+function clearAll() {
+  document.getElementById('notesInput').value = '';
+  actionItems = [];
+  renderResults();
+  showToast('🗑️ Cleared');
+}
+
+// ── Sample Data ──
+function loadSample() {
+  document.getElementById('notesInput').value = `Meeting: Q1 Strategy Review — 4 Feb 2026
+
+Attendees: John, Sarah, Alice, Mike
+
+Discussed the marketing budget for Q1. John needs to finalise the budget spreadsheet by Friday and share it with the team.
+
+Action item: Sarah to follow up with the design agency before Feb 10 regarding the new brand assets.
+
+TODO: Update all CRM entries with the latest client information. Mike will handle this by end of week.
+
+Alice mentioned the compliance report deadline is March 1 — this is high priority and must be submitted on time. Alice should coordinate with legal to ensure all documents are ready.
+
+We also need to schedule a follow-up meeting for next Wednesday to review progress.
+
+John will reach out to the Sydney office about the partnership proposal. This is urgent and should be done ASAP.
+
+Low priority: someone should eventually update the team wiki with the new onboarding process.
+
+Action: Mike to prepare the Q1 performance dashboard by Feb 15 for the board presentation.`;
+  showToast('📋 Sample notes loaded');
+}
+
+// ── Toast ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>

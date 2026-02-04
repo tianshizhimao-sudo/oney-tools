@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Competitor Rate Tracker — Oney & Co</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+  :root {
+    --green: #2ECC85;
+    --green2: #1FAD73;
+    --bg: #0a0a0a;
+    --bg2: #111113;
+    --bg3: #1a1a1e;
+    --bg4: #222228;
+    --border: #2a2a30;
+    --text: #e8e8ec;
+    --text2: #a0a0a8;
+    --text3: #666670;
+    --red: #ff4d6a;
+    --red-bg: rgba(255,77,106,0.08);
+    --green-bg: rgba(46,204,133,0.08);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  /* Header */
+  .header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(20px);
+  }
+
+  .header-inner {
+    max-width: 1600px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .logo svg { height: 40px; width: auto; }
+
+  .header-title {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header-title h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.3px;
+  }
+
+  .header-title span {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 400;
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+
+  .btn:hover { background: var(--bg4); border-color: var(--text3); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--green), var(--green2));
+    border-color: transparent;
+    color: #000;
+    font-weight: 600;
+  }
+
+  .btn-primary:hover { opacity: 0.9; border-color: transparent; }
+
+  .btn-danger {
+    color: var(--red);
+    border-color: rgba(255,77,106,0.3);
+  }
+
+  .btn-danger:hover { background: var(--red-bg); }
+
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+
+  /* Main Layout */
+  .main {
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  /* Controls Bar */
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .tab-group {
+    display: flex;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+
+  .tab-btn {
+    padding: 8px 20px;
+    background: transparent;
+    border: none;
+    color: var(--text2);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    border-right: 1px solid var(--border);
+  }
+
+  .tab-btn:last-child { border-right: none; }
+
+  .tab-btn.active {
+    background: linear-gradient(135deg, var(--green), var(--green2));
+    color: #000;
+    font-weight: 600;
+  }
+
+  .tab-btn:not(.active):hover {
+    background: var(--bg3);
+    color: var(--text);
+  }
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filter-label {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  select.filter-select {
+    padding: 8px 32px 8px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666670' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+  }
+
+  select.filter-select:focus { outline: none; border-color: var(--green); }
+
+  .spacer { flex: 1; }
+
+  .last-updated {
+    font-size: 12px;
+    color: var(--text3);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  /* Stats Row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text3);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .stat-value.green { color: var(--green); }
+  .stat-value.red { color: var(--red); }
+
+  .stat-sub {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 2px;
+  }
+
+  /* Table Container */
+  .table-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+
+  .table-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .table-header h2 {
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .badge {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
+
+  .badge-big4 { background: rgba(59,130,246,0.15); color: #60a5fa; }
+  .badge-nonmajor { background: rgba(168,85,247,0.15); color: #c084fc; }
+  .badge-nonbank { background: rgba(251,146,60,0.15); color: #fb923c; }
+
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+  }
+
+  th {
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg3);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s;
+    position: relative;
+  }
+
+  th:hover { color: var(--text); }
+
+  th.sorted { color: var(--green); }
+
+  th .sort-icon {
+    font-size: 10px;
+    margin-left: 4px;
+    opacity: 0.4;
+  }
+
+  th.sorted .sort-icon { opacity: 1; }
+
+  td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    white-space: nowrap;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: rgba(46,204,133,0.03); }
+
+  .bank-name {
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .bank-tier {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .tier-big4 { background: #60a5fa; }
+  .tier-nonmajor { background: #c084fc; }
+  .tier-nonbank { background: #fb923c; }
+
+  /* Rate Cell */
+  .rate-cell {
+    position: relative;
+    min-width: 90px;
+  }
+
+  .rate-display {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.15s;
+  }
+
+  .rate-display:hover { background: var(--bg4); }
+
+  .rate-value {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    font-size: 14px;
+  }
+
+  .rate-empty {
+    color: var(--text3);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 12px;
+  }
+
+  .rate-change {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  .rate-up {
+    color: var(--red);
+    background: var(--red-bg);
+  }
+
+  .rate-down {
+    color: var(--green);
+    background: var(--green-bg);
+  }
+
+  .rate-highlight-up {
+    animation: flashRed 2s ease-out;
+  }
+
+  .rate-highlight-down {
+    animation: flashGreen 2s ease-out;
+  }
+
+  @keyframes flashRed {
+    0% { background: rgba(255,77,106,0.2); }
+    100% { background: transparent; }
+  }
+
+  @keyframes flashGreen {
+    0% { background: rgba(46,204,133,0.2); }
+    100% { background: transparent; }
+  }
+
+  /* Rate Input */
+  .rate-input {
+    width: 80px;
+    padding: 4px 8px;
+    border: 2px solid var(--green);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    text-align: center;
+    outline: none;
+  }
+
+  .rate-input:focus { box-shadow: 0 0 0 3px rgba(46,204,133,0.2); }
+
+  .updated-time {
+    font-size: 11px;
+    color: var(--text3);
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 20px;
+    font-size: 13px;
+    color: var(--text);
+    z-index: 200;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+  .toast .toast-icon { font-size: 16px; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 300;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+
+  .modal-header {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-header h3 { font-size: 16px; font-weight: 600; }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--text3);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  .modal-body { padding: 20px; }
+
+  .form-group { margin-bottom: 16px; }
+
+  .form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text2);
+    margin-bottom: 6px;
+  }
+
+  .form-group input, .form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg3);
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+  }
+
+  .form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: var(--green);
+  }
+
+  .modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  /* Legend */
+  .legend {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--bg3);
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px 24px;
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .main { padding: 12px; }
+    .header { padding: 12px 16px; }
+    .header-title h1 { font-size: 15px; }
+    .controls { gap: 8px; }
+    .tab-btn { padding: 6px 12px; font-size: 12px; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    th, td { padding: 8px 10px; font-size: 12px; }
+    .rate-value { font-size: 13px; }
+    .table-header { padding: 12px 16px; }
+  }
+
+  @media (max-width: 480px) {
+    .stats-row { grid-template-columns: 1fr 1fr; }
+    .header-actions { width: 100%; justify-content: flex-end; }
+    .filter-group { width: 100%; }
+    select.filter-select { flex: 1; }
+  }
+
+  /* Scroll hint */
+  .scroll-hint {
+    display: none;
+    text-align: center;
+    font-size: 11px;
+    color: var(--text3);
+    padding: 6px;
+  }
+
+  @media (max-width: 768px) {
+    .scroll-hint { display: block; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="header-left">
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 90">
+          <defs><linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs>
+          <g transform="translate(38, 45)"><path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#greenGrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/><path d="M0 -38 L0 -44" stroke="url(#greenGrad)" stroke-width="5" stroke-linecap="round"/></g>
+          <text x="32" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#e8e8ec">ney</text>
+          <text x="77" y="50" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="400" fill="url(#greenGrad)">&amp;</text>
+          <text x="94" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#e8e8ec">co</text>
+        </svg>
+      </div>
+      <div class="header-title">
+        <h1>📊 Competitor Rate Tracker</h1>
+        <span>Monitor & compare lender rates across the market</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn" onclick="exportCSV()">📥 Export CSV</button>
+      <button class="btn btn-danger" onclick="confirmClearAll()">🗑️ Clear All</button>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <!-- Controls -->
+  <div class="controls">
+    <div class="tab-group" id="categoryTabs">
+      <button class="tab-btn active" data-cat="residential" onclick="switchCategory('residential')">🏠 Residential</button>
+      <button class="tab-btn" data-cat="commercial" onclick="switchCategory('commercial')">🏢 Commercial</button>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-label">LVR</span>
+      <select class="filter-select" id="lvrFilter" onchange="renderTables()">
+        <option value="all">All LVR Tiers</option>
+        <option value="60">≤ 60%</option>
+        <option value="70">≤ 70%</option>
+        <option value="80">≤ 80%</option>
+        <option value="80+">＞ 80%</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <span class="filter-label">Product</span>
+      <select class="filter-select" id="productFilter" onchange="renderTables()">
+        <option value="all">All Products</option>
+        <option value="variable">Variable</option>
+        <option value="fixed1">Fixed 1yr</option>
+        <option value="fixed2">Fixed 2yr</option>
+        <option value="fixed3">Fixed 3yr</option>
+      </select>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="last-updated" id="lastUpdatedGlobal">
+      🕐 No data yet
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row" id="statsRow">
+    <div class="stat-card">
+      <div class="stat-label">Rates Tracked</div>
+      <div class="stat-value" id="statTotal">0</div>
+      <div class="stat-sub">across all lenders</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Lowest Variable</div>
+      <div class="stat-value green" id="statLowest">—</div>
+      <div class="stat-sub" id="statLowestBank">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Highest Variable</div>
+      <div class="stat-value red" id="statHighest">—</div>
+      <div class="stat-sub" id="statHighestBank">—</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg Variable</div>
+      <div class="stat-value" id="statAvg">—</div>
+      <div class="stat-sub">market average</div>
+    </div>
+  </div>
+
+  <!-- Tables rendered here -->
+  <div id="tablesContainer"></div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span class="toast-icon">✅</span>
+  <span id="toastMsg">Saved</span>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  Oney & Co — Competitor Rate Tracker · Built for internal use · Data stored locally in your browser
+</div>
+
+<script>
+// ── Data Model ──
+const BANKS = [
+  { name: 'CBA', tier: 'big4' },
+  { name: 'NAB', tier: 'big4' },
+  { name: 'Westpac', tier: 'big4' },
+  { name: 'ANZ', tier: 'big4' },
+  { name: 'Macquarie', tier: 'nonmajor' },
+  { name: 'ING', tier: 'nonmajor' },
+  { name: 'Bankwest', tier: 'nonmajor' },
+  { name: 'St George', tier: 'nonmajor' },
+  { name: 'Suncorp', tier: 'nonmajor' },
+  { name: 'Pepper', tier: 'nonbank' },
+  { name: 'Liberty', tier: 'nonbank' },
+  { name: 'La Trobe', tier: 'nonbank' },
+  { name: 'Firstmac', tier: 'nonbank' },
+  { name: 'Resimac', tier: 'nonbank' },
+];
+
+const TIERS = {
+  big4: { label: 'Big 4', badge: 'badge-big4', dot: 'tier-big4' },
+  nonmajor: { label: 'Non-Major', badge: 'badge-nonmajor', dot: 'tier-nonmajor' },
+  nonbank: { label: 'Non-Bank', badge: 'badge-nonbank', dot: 'tier-nonbank' },
+};
+
+const CATEGORIES = ['residential', 'commercial'];
+const PRODUCTS = [
+  { key: 'variable', label: 'Variable' },
+  { key: 'fixed1', label: 'Fixed 1yr' },
+  { key: 'fixed2', label: 'Fixed 2yr' },
+  { key: 'fixed3', label: 'Fixed 3yr' },
+];
+const LVRS = [
+  { key: '60', label: '≤ 60%' },
+  { key: '70', label: '≤ 70%' },
+  { key: '80', label: '≤ 80%' },
+  { key: '80+', label: '> 80%' },
+];
+
+const STORAGE_KEY = 'oney_rate_tracker_v2';
+
+let currentCategory = 'residential';
+let rateData = {};
+let sortState = {}; // { tierKey: { col: string, asc: boolean } }
+
+// ── Persistence ──
+function loadData() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) rateData = JSON.parse(saved);
+  } catch(e) {
+    rateData = {};
+  }
+}
+
+function saveData() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(rateData));
+  updateGlobalTimestamp();
+}
+
+function makeKey(cat, bank, product, lvr) {
+  return `${cat}|${bank}|${product}|${lvr}`;
+}
+
+function getRate(cat, bank, product, lvr) {
+  const key = makeKey(cat, bank, product, lvr);
+  return rateData[key] || null;
+}
+
+function setRate(cat, bank, product, lvr, value) {
+  const key = makeKey(cat, bank, product, lvr);
+  const existing = rateData[key];
+  const newEntry = {
+    value: value,
+    prev: existing ? existing.value : null,
+    updated: new Date().toISOString(),
+  };
+  rateData[key] = newEntry;
+  saveData();
+}
+
+function deleteRate(cat, bank, product, lvr) {
+  const key = makeKey(cat, bank, product, lvr);
+  delete rateData[key];
+  saveData();
+}
+
+// ── UI ──
+function switchCategory(cat) {
+  currentCategory = cat;
+  document.querySelectorAll('#categoryTabs .tab-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === cat);
+  });
+  renderTables();
+}
+
+function getVisibleProducts() {
+  const f = document.getElementById('productFilter').value;
+  if (f === 'all') return PRODUCTS;
+  return PRODUCTS.filter(p => p.key === f);
+}
+
+function getVisibleLVRs() {
+  const f = document.getElementById('lvrFilter').value;
+  if (f === 'all') return LVRS;
+  return LVRS.filter(l => l.key === f);
+}
+
+function renderTables() {
+  const container = document.getElementById('tablesContainer');
+  const products = getVisibleProducts();
+  const lvrs = getVisibleLVRs();
+
+  // Build columns: each combo of product × lvr
+  const columns = [];
+  for (const p of products) {
+    for (const l of lvrs) {
+      columns.push({ product: p, lvr: l, key: `${p.key}_${l.key}` });
+    }
+  }
+
+  let html = '';
+
+  for (const [tierKey, tierInfo] of Object.entries(TIERS)) {
+    const banks = BANKS.filter(b => b.tier === tierKey);
+    const sortKey = `${currentCategory}_${tierKey}`;
+
+    html += `<div class="table-wrap">`;
+    html += `<div class="table-header">
+      <h2><span class="badge ${tierInfo.badge}">${tierInfo.label}</span> ${banks.length} lenders</h2>
+    </div>`;
+    html += `<div class="scroll-hint">← Scroll to see more →</div>`;
+    html += `<div class="table-scroll"><table>`;
+
+    // Header row
+    html += `<thead><tr>`;
+    html += `<th style="min-width:120px;position:sticky;left:0;z-index:2;background:var(--bg3);" onclick="sortTable('${sortKey}','bank')">
+      Bank <span class="sort-icon">${getSortIcon(sortKey, 'bank')}</span></th>`;
+    for (const col of columns) {
+      const colId = col.key;
+      const label = columns.length <= 4
+        ? `${col.product.label}<br>${col.lvr.label}`
+        : `${col.product.label} ${col.lvr.label}`;
+      html += `<th class="${isSorted(sortKey, colId) ? 'sorted' : ''}" onclick="sortTable('${sortKey}','${colId}')">
+        ${label} <span class="sort-icon">${getSortIcon(sortKey, colId)}</span></th>`;
+    }
+    html += `<th>Updated</th>`;
+    html += `</tr></thead>`;
+
+    // Sort banks
+    const sortedBanks = getSortedBanks(banks, columns, sortKey);
+
+    // Body
+    html += `<tbody>`;
+    for (const bank of sortedBanks) {
+      html += `<tr>`;
+      html += `<td style="position:sticky;left:0;z-index:1;background:var(--bg2);">
+        <span class="bank-name"><span class="bank-tier ${tierInfo.dot}"></span>${bank.name}</span></td>`;
+
+      let latestUpdate = null;
+
+      for (const col of columns) {
+        const entry = getRate(currentCategory, bank.name, col.product.key, col.lvr.key);
+        const cellId = `cell_${currentCategory}_${bank.name}_${col.product.key}_${col.lvr.key}`.replace(/\s/g, '_');
+
+        html += `<td class="rate-cell" id="${cellId}">`;
+        if (entry && entry.value !== null && entry.value !== undefined) {
+          let changeHtml = '';
+          let highlightClass = '';
+          if (entry.prev !== null && entry.prev !== undefined && entry.prev !== entry.value) {
+            const diff = entry.value - entry.prev;
+            if (diff > 0) {
+              changeHtml = `<span class="rate-change rate-up">▲ ${Math.abs(diff).toFixed(2)}</span>`;
+              highlightClass = 'rate-highlight-up';
+            } else {
+              changeHtml = `<span class="rate-change rate-down">▼ ${Math.abs(diff).toFixed(2)}</span>`;
+              highlightClass = 'rate-highlight-down';
+            }
+          }
+          html += `<div class="rate-display ${highlightClass}" onclick="editRate('${currentCategory}','${bank.name}','${col.product.key}','${col.lvr.key}','${cellId}')">
+            <span class="rate-value">${Number(entry.value).toFixed(2)}%</span>${changeHtml}</div>`;
+          if (entry.updated) {
+            const d = new Date(entry.updated);
+            if (!latestUpdate || d > latestUpdate) latestUpdate = d;
+          }
+        } else {
+          html += `<div class="rate-display" onclick="editRate('${currentCategory}','${bank.name}','${col.product.key}','${col.lvr.key}','${cellId}')">
+            <span class="rate-empty">—</span></div>`;
+        }
+        html += `</td>`;
+      }
+
+      html += `<td class="updated-time">${latestUpdate ? formatTime(latestUpdate) : '—'}</td>`;
+      html += `</tr>`;
+    }
+    html += `</tbody></table></div>`;
+
+    // Legend
+    html += `<div class="legend">
+      <div class="legend-item">💡 Click any cell to enter/edit a rate</div>
+      <div class="legend-item"><span class="rate-change rate-up" style="font-size:11px">▲ Up</span> = Rate increased</div>
+      <div class="legend-item"><span class="rate-change rate-down" style="font-size:11px">▼ Down</span> = Rate decreased</div>
+    </div>`;
+
+    html += `</div>`;
+  }
+
+  container.innerHTML = html;
+  updateStats();
+}
+
+// ── Sorting ──
+function getSortIcon(sortKey, col) {
+  const s = sortState[sortKey];
+  if (!s || s.col !== col) return '⇅';
+  return s.asc ? '↑' : '↓';
+}
+
+function isSorted(sortKey, col) {
+  const s = sortState[sortKey];
+  return s && s.col === col;
+}
+
+function sortTable(sortKey, col) {
+  const s = sortState[sortKey];
+  if (s && s.col === col) {
+    s.asc = !s.asc;
+  } else {
+    sortState[sortKey] = { col, asc: true };
+  }
+  renderTables();
+}
+
+function getSortedBanks(banks, columns, sortKey) {
+  const s = sortState[sortKey];
+  if (!s) return banks;
+
+  const sorted = [...banks];
+  const cat = currentCategory;
+
+  if (s.col === 'bank') {
+    sorted.sort((a, b) => a.name.localeCompare(b.name));
+  } else {
+    // Find column
+    const col = columns.find(c => c.key === s.col);
+    if (col) {
+      sorted.sort((a, b) => {
+        const ra = getRate(cat, a.name, col.product.key, col.lvr.key);
+        const rb = getRate(cat, b.name, col.product.key, col.lvr.key);
+        const va = ra ? ra.value : Infinity;
+        const vb = rb ? rb.value : Infinity;
+        return va - vb;
+      });
+    }
+  }
+
+  if (!s.asc) sorted.reverse();
+  return sorted;
+}
+
+// ── Edit Rate ──
+let currentEdit = null;
+
+function editRate(cat, bank, product, lvr, cellId) {
+  const cell = document.getElementById(cellId);
+  if (!cell || currentEdit === cellId) return;
+
+  // Close any existing edit
+  if (currentEdit) renderTables();
+
+  currentEdit = cellId;
+  const entry = getRate(cat, bank, product, lvr);
+  const val = entry ? Number(entry.value).toFixed(2) : '';
+
+  cell.innerHTML = `<input type="number" class="rate-input" value="${val}" step="0.01" min="0" max="30"
+    onkeydown="handleRateKey(event, '${cat}','${bank}','${product}','${lvr}')"
+    onblur="saveRate(this, '${cat}','${bank}','${product}','${lvr}')"
+    id="input_${cellId}">`;
+
+  const input = cell.querySelector('input');
+  input.focus();
+  input.select();
+}
+
+function handleRateKey(e, cat, bank, product, lvr) {
+  if (e.key === 'Enter') {
+    e.target.blur();
+  } else if (e.key === 'Escape') {
+    currentEdit = null;
+    renderTables();
+  } else if (e.key === 'Delete' || (e.key === 'Backspace' && e.target.value === '')) {
+    deleteRate(cat, bank, product, lvr);
+    currentEdit = null;
+    renderTables();
+    showToast('Rate removed', '🗑️');
+  }
+}
+
+function saveRate(input, cat, bank, product, lvr) {
+  const val = parseFloat(input.value);
+  currentEdit = null;
+  if (!isNaN(val) && val > 0 && val <= 30) {
+    setRate(cat, bank, product, lvr, val);
+    showToast(`${bank} rate saved: ${val.toFixed(2)}%`);
+  }
+  renderTables();
+}
+
+// ── Stats ──
+function updateStats() {
+  const cat = currentCategory;
+  let total = 0;
+  let lowestVar = Infinity, highestVar = -Infinity;
+  let lowestBank = '', highestBank = '';
+  let varSum = 0, varCount = 0;
+
+  for (const bank of BANKS) {
+    for (const p of PRODUCTS) {
+      for (const l of LVRS) {
+        const entry = getRate(cat, bank.name, p.key, l.key);
+        if (entry && entry.value !== null) {
+          total++;
+          if (p.key === 'variable') {
+            varSum += entry.value;
+            varCount++;
+            if (entry.value < lowestVar) { lowestVar = entry.value; lowestBank = bank.name; }
+            if (entry.value > highestVar) { highestVar = entry.value; highestBank = bank.name; }
+          }
+        }
+      }
+    }
+  }
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statLowest').textContent = lowestVar < Infinity ? lowestVar.toFixed(2) + '%' : '—';
+  document.getElementById('statLowestBank').textContent = lowestBank || '—';
+  document.getElementById('statHighest').textContent = highestVar > -Infinity ? highestVar.toFixed(2) + '%' : '—';
+  document.getElementById('statHighestBank').textContent = highestBank || '—';
+  document.getElementById('statAvg').textContent = varCount > 0 ? (varSum / varCount).toFixed(2) + '%' : '—';
+}
+
+// ── Export CSV ──
+function exportCSV() {
+  const cat = currentCategory;
+  let csv = 'Bank,Tier,Product,LVR,Rate (%),Previous Rate (%),Change,Last Updated\n';
+
+  for (const bank of BANKS) {
+    for (const p of PRODUCTS) {
+      for (const l of LVRS) {
+        const entry = getRate(cat, bank.name, p.key, l.key);
+        if (entry && entry.value !== null) {
+          const change = (entry.prev !== null && entry.prev !== undefined)
+            ? (entry.value - entry.prev).toFixed(2)
+            : '';
+          const updated = entry.updated ? new Date(entry.updated).toLocaleString() : '';
+          csv += `"${bank.name}","${TIERS[bank.tier].label}","${p.label}","${l.label}",${entry.value.toFixed(2)},${entry.prev !== null && entry.prev !== undefined ? entry.prev.toFixed(2) : ''},${change},"${updated}"\n`;
+        }
+      }
+    }
+  }
+
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `oney-rate-tracker-${cat}-${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exported successfully', '📥');
+}
+
+// ── Clear All ──
+function confirmClearAll() {
+  if (confirm('⚠️ Are you sure you want to clear ALL rate data? This cannot be undone.')) {
+    rateData = {};
+    saveData();
+    renderTables();
+    showToast('All data cleared', '🗑️');
+  }
+}
+
+// ── Helpers ──
+function formatTime(date) {
+  const now = new Date();
+  const diff = now - date;
+  if (diff < 60000) return 'just now';
+  if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+  if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+  return date.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+}
+
+function updateGlobalTimestamp() {
+  let latest = null;
+  for (const key in rateData) {
+    const d = rateData[key].updated;
+    if (d) {
+      const dt = new Date(d);
+      if (!latest || dt > latest) latest = dt;
+    }
+  }
+  const el = document.getElementById('lastUpdatedGlobal');
+  el.textContent = latest ? `🕐 Last updated: ${formatTime(latest)}` : '🕐 No data yet';
+}
+
+function showToast(msg, icon = '✅') {
+  const toast = document.getElementById('toast');
+  const toastMsg = document.getElementById('toastMsg');
+  toast.querySelector('.toast-icon').textContent = icon;
+  toastMsg.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ── Init ──
+loadData();
+renderTables();
+updateGlobalTimestamp();
+</script>
+</body>
+</html>

@@ -1,0 +1,4686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Oney Serve — Commercial Investment Servicing Calculator (Lease Doc) for Australian brokers">
+  <title>Oney Serve V4.1 — Oney & Co</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ============================================
+       CSS Variables & Base Styles
+       V4: Dark/Light mode via CSS custom properties
+       ============================================ */
+
+    /* ── Dark Mode (default) ── */
+    :root {
+      --bg: #0a0a0a;
+      --bg-elevated: #111111;
+      --card: #141414;
+      --card-hover: #1a1a1a;
+      --border: #262626;
+      --border-focus: #3d3d3d;
+      
+      /* Oney Brand Colors */
+      --primary: #2ECC85;
+      --primary-dark: #1FAD73;
+      --primary-glow: rgba(46, 204, 133, 0.2);
+      --primary-glow-strong: rgba(46, 204, 133, 0.4);
+      
+      /* Status Colors */
+      --success: #2ECC85;
+      --success-bg: rgba(46, 204, 133, 0.12);
+      --warning: #F59E0B;
+      --warning-bg: rgba(245, 158, 11, 0.12);
+      --danger: #EF4444;
+      --danger-bg: rgba(239, 68, 68, 0.12);
+      --info: #3B82F6;
+      --info-bg: rgba(59, 130, 246, 0.12);
+      
+      /* Text */
+      --text: #ffffff;
+      --text-secondary: #a3a3a3;
+      --text-muted: #737373;
+
+      --input-bg: var(--bg);
+      --select-arrow: %23737373;
+      
+      /* Spacing & Radius */
+      --radius-sm: 8px;
+      --radius: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+    }
+
+    /* ── Light Mode ── */
+    html.light {
+      --bg: #f5f5f5;
+      --bg-elevated: #ffffff;
+      --card: #ffffff;
+      --card-hover: #fafafa;
+      --border: #e5e5e5;
+      --border-focus: #d4d4d4;
+      
+      --primary-glow: rgba(46, 204, 133, 0.15);
+      --primary-glow-strong: rgba(46, 204, 133, 0.3);
+      
+      --text: #0a0a0a;
+      --text-secondary: #525252;
+      --text-muted: #737373;
+
+      --input-bg: #ffffff;
+      --select-arrow: %23525252;
+
+      --success-bg: rgba(46, 204, 133, 0.10);
+      --warning-bg: rgba(245, 158, 11, 0.10);
+      --danger-bg: rgba(239, 68, 68, 0.10);
+      --info-bg: rgba(59, 130, 246, 0.10);
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body, .card, .metric-card, .status-card, .repayment-card, .wale-summary,
+    .policy-card, .tenant-entry, .mode-selector, input, select,
+    .property-card, .portfolio-property-result, .btn, .btn-secondary,
+    .repayment-item, .portfolio-metric-item, .wale-tenant-row {
+      transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* ============================================
+       Layout
+       ============================================ */
+    .app-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 20px;
+      padding-bottom: 100px;
+    }
+    
+    @media (min-width: 768px) {
+      .app-container { padding: 40px; }
+    }
+    
+    /* ============================================
+       Header
+       ============================================ */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+    }
+    
+    .logo-text h1 {
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .logo-text .tagline {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .version-badge {
+      background: var(--primary-glow);
+      color: var(--primary);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* ============================================
+       Theme Toggle
+       ============================================ */
+    .theme-toggle {
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      background: var(--card);
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-glow);
+    }
+
+    .theme-toggle .icon-sun,
+    .theme-toggle .icon-moon {
+      position: absolute;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .theme-toggle .icon-sun {
+      opacity: 0;
+      transform: rotate(-90deg) scale(0);
+    }
+    .theme-toggle .icon-moon {
+      opacity: 1;
+      transform: rotate(0) scale(1);
+    }
+
+    html.light .theme-toggle .icon-sun {
+      opacity: 1;
+      transform: rotate(0) scale(1);
+    }
+    html.light .theme-toggle .icon-moon {
+      opacity: 0;
+      transform: rotate(90deg) scale(0);
+    }
+    
+    /* ============================================
+       Mode Toggle (Single / Portfolio)
+       ============================================ */
+    .mode-selector {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      margin-bottom: 24px;
+    }
+    
+    .mode-selector .section-label {
+      margin-bottom: 12px;
+    }
+    
+    .mode-toggle {
+      display: flex;
+      background: var(--bg);
+      border-radius: var(--radius);
+      padding: 4px;
+      gap: 4px;
+    }
+    
+    .mode-btn {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .mode-btn.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      box-shadow: 0 2px 8px var(--primary-glow);
+    }
+    
+    .mode-btn:not(.active):hover {
+      color: var(--text);
+      background: var(--card);
+    }
+    
+    /* ============================================
+       Main Grid Layout
+       ============================================ */
+    .main-grid {
+      display: grid;
+      gap: 24px;
+    }
+    
+    @media (min-width: 900px) {
+      .main-grid {
+        grid-template-columns: 420px 1fr;
+        gap: 32px;
+      }
+    }
+    
+    /* ============================================
+       Cards
+       ============================================ */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+    }
+    
+    .card + .card {
+      margin-top: 16px;
+    }
+    
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .card-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      justify-content: space-between;
+    }
+    
+    .card-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .card-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--primary-glow);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    
+    .card-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    
+    /* ============================================
+       Form Elements
+       ============================================ */
+    .form-section {
+      margin-bottom: 24px;
+    }
+    
+    .form-section:last-child {
+      margin-bottom: 0;
+    }
+    
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+    
+    .form-label {
+      display: block;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    
+    .input-wrapper {
+      position: relative;
+    }
+    
+    .input-prefix {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 14px;
+      pointer-events: none;
+    }
+    
+    .input-suffix {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 14px;
+      pointer-events: none;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-family: inherit;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      transition: all 0.2s ease;
+    }
+    
+    input.has-prefix { padding-left: 32px; }
+    input.has-suffix { padding-right: 40px; }
+    
+    input:hover, select:hover {
+      border-color: var(--border-focus);
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    
+    input::placeholder {
+      color: var(--text-muted);
+    }
+
+    /* V4: Validation warning style for inputs */
+    input.input-warning {
+      border-color: var(--warning) !important;
+      box-shadow: 0 0 0 3px var(--warning-bg) !important;
+    }
+    input.input-danger {
+      border-color: var(--danger) !important;
+      box-shadow: 0 0 0 3px var(--danger-bg) !important;
+    }
+    
+    select {
+      cursor: pointer;
+      appearance: none;
+      padding-right: 40px;
+    }
+
+    html:not(.light) select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23737373' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+    }
+    html.light select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23525252' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+    }
+    
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    
+    .row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* ============================================
+       V4: Validation Hint (inline warning/error text)
+       ============================================ */
+    .validation-hint {
+      font-size: 11px;
+      font-weight: 500;
+      margin-top: 4px;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: none;
+    }
+    .validation-hint.show { display: block; }
+    .validation-hint.warning {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+    .validation-hint.danger {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+    .validation-hint.info {
+      background: var(--info-bg);
+      color: var(--info);
+    }
+
+    /* ============================================
+       Property Type Description Input
+       ============================================ */
+    .property-type-desc-wrapper {
+      margin-top: 10px;
+      animation: fadeIn 0.3s ease forwards;
+    }
+
+    .property-type-desc-wrapper input {
+      font-size: 14px;
+      padding: 12px 14px;
+    }
+    
+    /* ============================================
+       Repayment Type Toggle
+       ============================================ */
+    .repayment-type-toggle {
+      display: flex;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      padding: 3px;
+      gap: 3px;
+    }
+    
+    .repayment-type-btn {
+      flex: 1;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+    
+    .repayment-type-btn.active {
+      background: var(--card-hover);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+    
+    .repayment-type-btn:not(.active):hover {
+      color: var(--text-secondary);
+    }
+    
+    /* ============================================
+       Tenant / Lease Section
+       ============================================ */
+    .tenant-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    .tenant-entry {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      position: relative;
+    }
+
+    html.light .tenant-entry {
+      background: var(--bg);
+    }
+    
+    .tenant-entry.expiring-soon {
+      border-color: var(--danger);
+      background: var(--danger-bg);
+    }
+    
+    .tenant-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    
+    .tenant-entry .form-label {
+      font-size: 11px;
+      margin-bottom: 4px;
+    }
+    
+    .tenant-entry input {
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+    
+    .tenant-entry input.has-prefix {
+      padding-left: 28px;
+    }
+    
+    .tenant-entry .input-prefix {
+      font-size: 12px;
+      left: 12px;
+    }
+    
+    .tenant-remove-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: var(--danger-bg);
+      color: var(--danger);
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    
+    .tenant-remove-btn:hover {
+      background: var(--danger);
+      color: white;
+    }
+    
+    .btn-add-tenant {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 10px;
+      border: 1px dashed var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-add-tenant:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-glow);
+    }
+    
+    .lease-expiry-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-top: 6px;
+    }
+    
+    .lease-expiry-tag.danger {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+    
+    .lease-expiry-tag.warning {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+    
+    .lease-expiry-tag.pass {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    /* V4: Lease Option styling */
+    .lease-option-wrapper {
+      margin-top: 10px;
+    }
+    .lease-option-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .lease-option-row input {
+      flex: 1;
+    }
+    .btn-no-option {
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+    .btn-no-option:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .btn-no-option.active {
+      background: var(--primary-glow);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    
+    /* ============================================
+       Buttons
+       ============================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px var(--primary-glow-strong);
+    }
+    
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+    
+    .btn-secondary {
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    html.light .btn-secondary {
+      background: var(--bg);
+    }
+    
+    .btn-secondary:hover {
+      background: var(--card-hover);
+      border-color: var(--border-focus);
+    }
+    
+    .btn-danger-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+    }
+    
+    .btn-danger-sm:hover {
+      border-color: var(--danger);
+    }
+    
+    .btn-add-property {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px;
+      border: 2px dashed var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 16px;
+    }
+    
+    .btn-add-property:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-glow);
+    }
+
+    /* V4: Save & Import buttons */
+    .btn-save {
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      background: var(--card);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-save:hover {
+      background: var(--primary-glow);
+    }
+
+    /* V4.1: Clear / Re-input button */
+    .btn-clear {
+      padding: 10px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      background: var(--card);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-clear:hover {
+      background: var(--danger-bg);
+    }
+
+    .btn-import {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 10px;
+      border: 1px dashed var(--info);
+      background: var(--info-bg);
+      color: var(--info);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-top: 8px;
+    }
+    .btn-import:hover {
+      background: rgba(59, 130, 246, 0.2);
+    }
+    
+    /* ============================================
+       Property Card (Portfolio Mode)
+       ============================================ */
+    .property-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-top: 16px;
+      position: relative;
+    }
+    
+    .property-card:first-child {
+      margin-top: 0;
+    }
+    
+    .property-card-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      background: var(--primary-glow);
+      color: var(--primary);
+      border-radius: 50%;
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    
+    /* ============================================
+       Results Section
+       ============================================ */
+    .results-section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .status-card {
+      padding: 24px;
+      border-radius: var(--radius-lg);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    
+    .status-card.pass {
+      background: linear-gradient(135deg, var(--success-bg), rgba(46, 204, 133, 0.05));
+      border: 1px solid var(--success);
+    }
+    
+    .status-card.warn {
+      background: linear-gradient(135deg, var(--warning-bg), rgba(245, 158, 11, 0.05));
+      border: 1px solid var(--warning);
+    }
+    
+    .status-card.fail {
+      background: linear-gradient(135deg, var(--danger-bg), rgba(239, 68, 68, 0.05));
+      border: 1px solid var(--danger);
+    }
+    
+    .status-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    
+    .status-text {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    
+    .status-card.pass .status-text { color: var(--success); }
+    .status-card.warn .status-text { color: var(--warning); }
+    .status-card.fail .status-text { color: var(--danger); }
+    
+    .status-description {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-top: 8px;
+    }
+    
+    /* Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    
+    @media (min-width: 600px) and (max-width: 899px) {
+      .metrics-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    
+    @media (min-width: 900px) {
+      .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    
+    @media (min-width: 1100px) {
+      .metrics-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    
+    .metric-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      transition: all 0.2s ease;
+    }
+    
+    .metric-card:hover {
+      border-color: var(--border-focus);
+      transform: translateY(-2px);
+    }
+    
+    .metric-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    
+    .metric-name {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .metric-status {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+    
+    .metric-status.pass { background: var(--success-bg); color: var(--success); }
+    .metric-status.warn { background: var(--warning-bg); color: var(--warning); }
+    .metric-status.fail { background: var(--danger-bg); color: var(--danger); }
+    .metric-status.info { background: var(--info-bg); color: var(--info); }
+    .metric-status.na   { background: rgba(115,115,115,0.15); color: var(--text-muted); }
+    
+    .metric-value {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    
+    .metric-card.pass .metric-value { color: var(--success); }
+    .metric-card.warn .metric-value { color: var(--warning); }
+    .metric-card.fail .metric-value { color: var(--danger); }
+    .metric-card.neutral .metric-value { color: var(--text); }
+    .metric-card.na .metric-value { color: var(--text-muted); }
+    
+    .metric-threshold {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    
+    .metric-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+    
+    .metric-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 0.5s ease;
+    }
+    
+    .metric-card.pass .metric-bar-fill { background: var(--success); }
+    .metric-card.warn .metric-bar-fill { background: var(--warning); }
+    .metric-card.fail .metric-bar-fill { background: var(--danger); }
+    .metric-card.neutral .metric-bar-fill { background: var(--primary); }
+    .metric-card.na .metric-bar-fill { background: var(--text-muted); }
+    
+    /* Repayment Comparison */
+    .repayment-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+    }
+    
+    .repayment-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text-secondary);
+    }
+    
+    .repayment-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    
+    .repayment-item {
+      background: var(--bg);
+      padding: 16px;
+      border-radius: var(--radius);
+      text-align: center;
+    }
+    
+    .repayment-item.active-type {
+      border: 1px solid var(--primary);
+      background: var(--primary-glow);
+    }
+    
+    .repayment-type {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    
+    .repayment-amount {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    
+    .repayment-period {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+    
+    /* WALE Summary */
+    .wale-summary {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+    
+    .wale-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    
+    .wale-header-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    
+    .wale-value-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .wale-value-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    
+    .wale-metric-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    
+    .wale-metric-value {
+      font-size: 16px;
+      font-weight: 700;
+    }
+    
+    .wale-metric-value.pass { color: var(--success); }
+    .wale-metric-value.warn { color: var(--warning); }
+    .wale-metric-value.fail { color: var(--danger); }
+    
+    .wale-tenant-list {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    
+    .wale-tenant-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+    }
+    
+    .wale-tenant-name {
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    
+    .wale-tenant-expiry {
+      font-weight: 600;
+    }
+
+    /* ============================================
+       Loan Term vs WALE Check
+       ============================================ */
+    .loan-wale-check {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .loan-wale-check.pass {
+      background: var(--success-bg);
+      border: 1px solid var(--success);
+      color: var(--success);
+    }
+
+    .loan-wale-check.fail {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+    }
+
+    .loan-wale-check .check-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .loan-wale-check .check-detail {
+      font-size: 12px;
+      opacity: 0.85;
+      margin-top: 2px;
+    }
+    
+    /* Policy Tips */
+    .policy-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+    
+    .policy-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    
+    .policy-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+    
+    .policy-list {
+      list-style: none;
+    }
+    
+    .policy-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    
+    .policy-item:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    
+    .policy-icon {
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    
+    .policy-icon.pass { color: var(--success); }
+    .policy-icon.warn { color: var(--warning); }
+    .policy-icon.fail { color: var(--danger); }
+    
+    /* Portfolio Property Results */
+    .portfolio-property-result {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+    
+    .portfolio-property-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .portfolio-property-name {
+      font-size: 15px;
+      font-weight: 600;
+    }
+    
+    .portfolio-property-tag {
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    
+    .portfolio-property-tag.pass {
+      background: var(--success-bg);
+      color: var(--success);
+    }
+    
+    .portfolio-property-tag.warn {
+      background: var(--warning-bg);
+      color: var(--warning);
+    }
+    
+    .portfolio-property-tag.fail {
+      background: var(--danger-bg);
+      color: var(--danger);
+    }
+    
+    .portfolio-metrics-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 12px;
+    }
+    
+    .portfolio-metric-item {
+      text-align: center;
+      padding: 10px;
+      background: var(--bg);
+      border-radius: var(--radius-sm);
+    }
+    
+    .portfolio-metric-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .portfolio-metric-val {
+      font-size: 18px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+    
+    .portfolio-metric-val.pass { color: var(--success); }
+    .portfolio-metric-val.warn { color: var(--warning); }
+    .portfolio-metric-val.fail { color: var(--danger); }
+    .portfolio-metric-val.neutral { color: var(--text); }
+    .portfolio-metric-val.na { color: var(--text-muted); }
+    
+    /* Actions */
+    .actions-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .actions-row .btn {
+      flex: 1;
+      min-width: 120px;
+    }
+    
+    /* ============================================
+       Empty State
+       ============================================ */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 400px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+    
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+    
+    .empty-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    
+    .empty-description {
+      font-size: 14px;
+      max-width: 280px;
+    }
+    
+    /* ============================================
+       Footer
+       ============================================ */
+    .footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+    
+    .footer a {
+      color: var(--primary);
+      text-decoration: none;
+    }
+    
+    .footer a:hover {
+      text-decoration: underline;
+    }
+    
+    /* ============================================
+       Divider
+       ============================================ */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 20px 0;
+    }
+    
+    /* ============================================
+       Animations
+       ============================================ */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .animate-in {
+      animation: fadeIn 0.3s ease forwards;
+    }
+    
+    @keyframes slideDown {
+      from { opacity: 0; max-height: 0; }
+      to { opacity: 1; max-height: 2000px; }
+    }
+    
+    /* ============================================
+       Scrollbar
+       ============================================ */
+    .input-panel {
+      max-height: calc(100vh - 120px);
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    
+    .input-panel::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    .input-panel::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    
+    .input-panel::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px;
+    }
+    
+    @media (max-width: 899px) {
+      .input-panel {
+        max-height: none;
+        overflow-y: visible;
+      }
+    }
+
+    /* ============================================
+       V4: Toast Notification
+       ============================================ */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--card);
+      border: 1px solid var(--primary);
+      color: var(--primary);
+      padding: 10px 24px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      z-index: 9999;
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ============================================
+       V4: WALE Contribution Chart (Portfolio)
+       ============================================ */
+    .wale-contrib-chart {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+
+    .wale-contrib-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .wale-contrib-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .wale-contrib-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .wale-contrib-table th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .wale-contrib-table td {
+      font-size: 12px;
+      color: var(--text-secondary);
+      padding: 10px 6px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .wale-contrib-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .wale-contrib-bar-cell {
+      width: 35%;
+    }
+
+    .wale-contrib-bar-bg {
+      width: 100%;
+      height: 18px;
+      background: var(--bg);
+      border-radius: 9px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .wale-contrib-bar-fill {
+      height: 100%;
+      border-radius: 9px;
+      transition: width 0.5s ease;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 6px;
+      font-size: 9px;
+      font-weight: 700;
+      color: white;
+      min-width: 20px;
+    }
+
+    .wale-bar-short { background: linear-gradient(90deg, #EF4444, #F87171); }
+    .wale-bar-medium { background: linear-gradient(90deg, #F59E0B, #FBBF24); }
+    .wale-bar-long { background: linear-gradient(90deg, #2ECC85, #34D399); }
+
+    .wale-contrib-footer {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .wale-contrib-legend {
+      display: flex;
+      gap: 16px;
+      margin-top: 10px;
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .wale-contrib-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .wale-legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* ============================================
+       V4: Coming Soon Modal
+       ============================================ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal-content {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      max-width: 400px;
+      text-align: center;
+      transform: scale(0.9);
+      transition: transform 0.2s ease;
+    }
+    .modal-overlay.show .modal-content {
+      transform: scale(1);
+    }
+    .modal-icon { font-size: 48px; margin-bottom: 16px; }
+    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .modal-desc { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+    .modal-close {
+      padding: 10px 24px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* ============================================
+       V4: Print / PDF Styles
+       ============================================ */
+    @media print {
+      /* Force light mode for printing */
+      :root {
+        --bg: #ffffff !important;
+        --bg-elevated: #ffffff !important;
+        --card: #ffffff !important;
+        --card-hover: #fafafa !important;
+        --border: #e0e0e0 !important;
+        --border-focus: #d0d0d0 !important;
+        --text: #000000 !important;
+        --text-secondary: #333333 !important;
+        --text-muted: #666666 !important;
+        --input-bg: #ffffff !important;
+        --primary-glow: rgba(46, 204, 133, 0.1) !important;
+        --primary-glow-strong: rgba(46, 204, 133, 0.2) !important;
+        --success-bg: rgba(46, 204, 133, 0.08) !important;
+        --warning-bg: rgba(245, 158, 11, 0.08) !important;
+        --danger-bg: rgba(239, 68, 68, 0.08) !important;
+        --info-bg: rgba(59, 130, 246, 0.08) !important;
+      }
+
+      body {
+        background: white !important;
+        color: black !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .app-container {
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+
+      /* Hide interactive elements */
+      .header-right,
+      .mode-selector,
+      .input-panel,
+      .btn-add-property,
+      .actions-row,
+      .empty-state,
+      .toast,
+      .modal-overlay,
+      .theme-toggle,
+      .no-print {
+        display: none !important;
+      }
+
+      /* Show print header */
+      .print-header {
+        display: block !important;
+      }
+
+      /* Show print footer */
+      .print-footer {
+        display: block !important;
+      }
+
+      .results-panel {
+        width: 100% !important;
+      }
+
+      .main-grid {
+        display: block !important;
+      }
+
+      #resultsContainer {
+        display: flex !important;
+      }
+
+      .metric-card:hover {
+        transform: none !important;
+      }
+
+      .footer {
+        display: none !important;
+      }
+
+      /* Page break rules */
+      .portfolio-property-result {
+        break-inside: avoid;
+      }
+      .wale-contrib-chart {
+        break-inside: avoid;
+      }
+      .metric-card {
+        break-inside: avoid;
+      }
+    }
+
+    /* Print-only elements (hidden in screen) */
+    .print-header, .print-footer {
+      display: none;
+    }
+
+    .print-header {
+      text-align: center;
+      padding: 20px 0 30px;
+      border-bottom: 2px solid var(--primary);
+      margin-bottom: 24px;
+    }
+    .print-header-logo {
+      font-size: 28px;
+      font-weight: 700;
+      color: #2ECC85;
+    }
+    .print-header-sub {
+      font-size: 14px;
+      color: #666;
+      margin-top: 4px;
+    }
+    .print-header-date {
+      font-size: 12px;
+      color: #999;
+      margin-top: 8px;
+    }
+
+    .print-input-summary {
+      display: none;
+    }
+    @media print {
+      .print-input-summary {
+        display: block !important;
+        background: #f9f9f9;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        break-inside: avoid;
+      }
+      .print-input-summary h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: #333;
+      }
+      .print-input-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .print-input-item {
+        font-size: 12px;
+        color: #444;
+      }
+      .print-input-item strong {
+        color: #000;
+      }
+    }
+
+    .print-footer {
+      text-align: center;
+      padding: 20px 0;
+      border-top: 1px solid #e0e0e0;
+      margin-top: 30px;
+      font-size: 11px;
+      color: #999;
+    }
+    
+    /* ============================================
+       V4.1: Income Method Toggle & Calculated Net
+       ============================================ */
+    #calculatedNetIncome {
+      cursor: default;
+    }
+
+    .income-consistency-warning {
+      margin-top: 8px;
+    }
+
+    /* ============================================
+       Utilities
+       ============================================ */
+    .hidden { display: none !important; }
+    .text-center { text-align: center; }
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+    .mb-8 { margin-bottom: 8px; }
+    .text-muted { color: var(--text-muted); }
+    .text-sm { font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- V4: Print Header (only visible when printing) -->
+    <div class="print-header">
+      <div class="print-header-logo">Oney &amp; Co</div>
+      <div class="print-header-sub">Commercial Investment Servicing Calculator — V4.1</div>
+      <div class="print-header-date" id="printDate"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+      <div class="logo-section">
+        <svg class="logo-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#2ECC85"/>
+              <stop offset="100%" style="stop-color:#1FAD73"/>
+            </linearGradient>
+          </defs>
+          <g transform="translate(50, 50)">
+            <path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#greenGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/>
+            <path d="M0 -45 L0 -52" stroke="url(#greenGrad)" stroke-width="6" stroke-linecap="round"/>
+          </g>
+        </svg>
+        <div class="logo-text">
+          <h1>Oney Serve</h1>
+          <span class="tagline">Commercial Investment Servicing Calculator</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <span class="version-badge">V4.1 — Lease Doc</span>
+        <!-- V4: Save Button -->
+        <button class="btn-save" onclick="App.manualSave()" title="Save current data">💾 Save</button>
+        <!-- V4.1: Clear / Re-input Button -->
+        <button class="btn-clear" onclick="App.clearAll()" title="Clear all data and start fresh">🗑 Clear</button>
+        <button class="theme-toggle" id="themeToggle" onclick="App.toggleTheme()" title="Toggle dark/light mode" aria-label="Toggle theme">
+          <span class="icon-sun">☀️</span>
+          <span class="icon-moon">🌙</span>
+        </button>
+      </div>
+    </header>
+    
+    <!-- Mode Selector: Single Property vs Portfolio -->
+    <div class="mode-selector">
+      <div class="section-label">Assessment Mode</div>
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="modeSingle" onclick="App.setMode('single')">
+          🏢 Single Property
+        </button>
+        <button class="mode-btn" id="modePortfolio" onclick="App.setMode('portfolio')">
+          🏘️ Property Portfolio
+        </button>
+      </div>
+    </div>
+    
+    <!-- Main Content -->
+    <main class="main-grid">
+      <!-- ==========================================
+           INPUT PANEL
+           ========================================== -->
+      <div class="input-panel" id="inputPanel">
+        <!-- Single Property Input (shown by default) -->
+        <div id="singlePropertyInputs">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">📊</div>
+              <div>
+                <div class="card-title">Loan Assessment</div>
+                <div class="card-subtitle">Enter deal details</div>
+              </div>
+            </div>
+            
+            <!-- Loan Details -->
+            <div class="form-section">
+              <div class="section-label">Loan Details</div>
+              
+              <div class="form-group">
+                <label class="form-label">Loan Amount</label>
+                <div class="input-wrapper">
+                  <span class="input-prefix">$</span>
+                  <input type="text" id="loanAmount" class="has-prefix currency-input" placeholder="500,000" inputmode="numeric">
+                </div>
+                <div class="validation-hint" id="loanAmountHint"></div>
+              </div>
+              
+              <div class="row">
+                <div class="form-group">
+                  <label class="form-label">Interest Rate</label>
+                  <div class="input-wrapper">
+                    <input type="number" id="interestRate" class="has-suffix" value="7.50" step="0.01" inputmode="decimal">
+                    <span class="input-suffix">%</span>
+                  </div>
+                  <div class="validation-hint" id="interestRateHint"></div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Loan Term</label>
+                  <div class="input-wrapper">
+                    <input type="number" id="loanTerm" class="has-suffix" value="5" inputmode="numeric">
+                    <span class="input-suffix">yrs</span>
+                  </div>
+                  <div class="validation-hint" id="loanTermHint"></div>
+                </div>
+              </div>
+              
+              <!-- Repayment Type Toggle -->
+              <div class="form-group">
+                <label class="form-label">Repayment Type</label>
+                <div class="repayment-type-toggle">
+                  <button class="repayment-type-btn active" id="repayTypeIO" onclick="App.setRepaymentType('io')">Interest Only</button>
+                  <button class="repayment-type-btn" id="repayTypePI" onclick="App.setRepaymentType('pi')">P&I</button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Security -->
+            <div class="form-section">
+              <div class="section-label">Security</div>
+              
+              <div class="form-group">
+                <label class="form-label">Property Value</label>
+                <div class="input-wrapper">
+                  <span class="input-prefix">$</span>
+                  <input type="text" id="propertyValue" class="has-prefix currency-input" placeholder="800,000" inputmode="numeric">
+                </div>
+                <div class="validation-hint" id="propertyValueHint"></div>
+              </div>
+              
+              <div class="form-group">
+                <label class="form-label">Property Type</label>
+                <select id="propertyType" onchange="App.onPropertyTypeChange('single')">
+                  <option value="industrial">Industrial</option>
+                  <option value="office">Office</option>
+                  <option value="retail">Retail</option>
+                  <option value="mixed">Mixed Use</option>
+                  <option value="residentialComplex">Residential Complex/Building</option>
+                  <option value="otherNonSpecialised">Other Non-Specialised Commercial</option>
+                  <option value="specialised">Specialised Commercial</option>
+                </select>
+              </div>
+
+              <div id="propertyTypeDescWrapper" class="property-type-desc-wrapper hidden">
+                <label class="form-label">Please describe the property type</label>
+                <input type="text" id="propertyTypeDesc" placeholder="e.g. childcare centre, service station, pub, hotel">
+              </div>
+
+              <div id="specialisedHint" class="hidden text-sm text-muted mt-12" style="padding: 8px 12px; background: var(--warning-bg); border-radius: var(--radius-sm); color: var(--warning);">
+                ⚠️ Specialised: childcare, service stations, pubs, hotels, cinemas, etc. — LVR capped at 50%
+              </div>
+            </div>
+            
+            <!-- Income — V4.1: Added Passing Rent + Outgoings option -->
+            <div class="form-section">
+              <div class="section-label">Income</div>
+
+              <!-- V4.1: Income input method toggle -->
+              <div class="form-group">
+                <label class="form-label">Income Input Method</label>
+                <div class="repayment-type-toggle">
+                  <button class="repayment-type-btn active" id="incomeMethodNet" onclick="App.setIncomeMethod('net')">Net Rental</button>
+                  <button class="repayment-type-btn" id="incomeMethodGross" onclick="App.setIncomeMethod('gross')">Passing Rent + Outgoings</button>
+                </div>
+              </div>
+
+              <!-- Net Rental Income (default) -->
+              <div id="incomeNetWrapper">
+                <div class="form-group">
+                  <label class="form-label">Net Rental Income (p.a.)</label>
+                  <div class="input-wrapper">
+                    <span class="input-prefix">$</span>
+                    <input type="text" id="rentalIncome" class="has-prefix currency-input" placeholder="60,000" inputmode="numeric">
+                  </div>
+                  <div class="validation-hint" id="rentalIncomeHint"></div>
+                </div>
+              </div>
+
+              <!-- V4.1: Passing Rent + Outgoings -->
+              <div id="incomeGrossWrapper" class="hidden">
+                <div class="form-group">
+                  <label class="form-label">Passing Rent / Gross Rental (p.a.)</label>
+                  <div class="input-wrapper">
+                    <span class="input-prefix">$</span>
+                    <input type="text" id="passingRent" class="has-prefix currency-input" placeholder="80,000" inputmode="numeric">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Outgoings (p.a.)</label>
+                  <div class="input-wrapper">
+                    <span class="input-prefix">$</span>
+                    <input type="text" id="outgoings" class="has-prefix currency-input" placeholder="20,000" inputmode="numeric">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" style="color: var(--primary); font-weight: 600;">Calculated Net Rental Income</label>
+                  <div class="input-wrapper">
+                    <span class="input-prefix">$</span>
+                    <input type="text" id="calculatedNetIncome" class="has-prefix" readonly style="background: var(--primary-glow); border-color: var(--primary); color: var(--primary); font-weight: 600;" placeholder="—">
+                  </div>
+                </div>
+                <div class="validation-hint" id="grossIncomeHint"></div>
+              </div>
+
+              <!-- V4.1: Tenant income consistency warning -->
+              <div class="validation-hint income-consistency-warning" id="tenantIncomeConsistencyHint"></div>
+            </div>
+            
+            <!-- Tenant / Lease Section -->
+            <div class="form-section">
+              <div class="section-label">Lease Details (WALE)</div>
+              <div class="tenant-list" id="tenantList">
+                <!-- Default: one tenant -->
+                <div class="tenant-entry" data-tenant-id="0">
+                  <div class="tenant-row">
+                    <div class="form-group">
+                      <label class="form-label">Tenant Name</label>
+                      <input type="text" class="tenant-name" placeholder="Tenant 1">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Lease Expiry</label>
+                      <input type="date" class="tenant-expiry">
+                      <div class="validation-hint tenant-expiry-hint"></div>
+                    </div>
+                  </div>
+                  <div class="form-group mt-12">
+                    <label class="form-label">Annual Rent ($)</label>
+                    <div class="input-wrapper">
+                      <span class="input-prefix">$</span>
+                      <input type="text" class="tenant-rent has-prefix currency-input" placeholder="60,000" inputmode="numeric">
+                    </div>
+                  </div>
+                  <!-- V4: Lease Option -->
+                  <div class="lease-option-wrapper">
+                    <label class="form-label">Lease Option</label>
+                    <div class="lease-option-row">
+                      <input type="text" class="tenant-option" placeholder="e.g. 2x5yr option, 3+3+3">
+                      <button class="btn-no-option" onclick="App.toggleNoOption(this)" title="No option">No Option</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button class="btn-add-tenant mt-12" onclick="App.addTenant()">
+                + Add Tenant
+              </button>
+              <!-- V4: Import Tenancy Schedule placeholder -->
+              <button class="btn-import" onclick="App.showImportModal()">
+                📥 Import Tenancy Schedule
+              </button>
+            </div>
+            
+            <button class="btn btn-primary" id="calculateBtn" onclick="App.calculate()">
+              <span>⚡</span> Calculate Servicing
+            </button>
+          </div>
+        </div>
+        
+        <!-- Portfolio Input (hidden by default) -->
+        <div id="portfolioInputs" class="hidden">
+          <!-- Shared Loan Details -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-icon">🏦</div>
+              <div>
+                <div class="card-title">Portfolio Loan</div>
+                <div class="card-subtitle">Shared loan parameters</div>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <div class="section-label">Loan Details</div>
+              <div class="form-group">
+                <label class="form-label">Total Loan Amount</label>
+                <div class="input-wrapper">
+                  <span class="input-prefix">$</span>
+                  <input type="text" id="pLoanAmount" class="has-prefix currency-input" placeholder="2,000,000" inputmode="numeric">
+                </div>
+                <div class="validation-hint" id="pLoanAmountHint"></div>
+              </div>
+              <div class="row">
+                <div class="form-group">
+                  <label class="form-label">Interest Rate</label>
+                  <div class="input-wrapper">
+                    <input type="number" id="pInterestRate" class="has-suffix" value="7.50" step="0.01" inputmode="decimal">
+                    <span class="input-suffix">%</span>
+                  </div>
+                  <div class="validation-hint" id="pInterestRateHint"></div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Loan Term</label>
+                  <div class="input-wrapper">
+                    <input type="number" id="pLoanTerm" class="has-suffix" value="5" inputmode="numeric">
+                    <span class="input-suffix">yrs</span>
+                  </div>
+                  <div class="validation-hint" id="pLoanTermHint"></div>
+                </div>
+              </div>
+              
+              <!-- Repayment Type -->
+              <div class="form-group">
+                <label class="form-label">Repayment Type</label>
+                <div class="repayment-type-toggle">
+                  <button class="repayment-type-btn active" id="pRepayTypeIO" onclick="App.setRepaymentType('io', true)">Interest Only</button>
+                  <button class="repayment-type-btn" id="pRepayTypePI" onclick="App.setRepaymentType('pi', true)">P&I</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Portfolio Properties Container -->
+          <div id="portfolioPropertiesContainer">
+            <!-- Properties injected here by JS -->
+          </div>
+          
+          <button class="btn-add-property" onclick="App.addPortfolioProperty()">
+            + Add Property
+          </button>
+          
+          <div style="margin-top: 16px;">
+            <button class="btn btn-primary" onclick="App.calculatePortfolio()">
+              <span>⚡</span> Calculate Portfolio Servicing
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- ==========================================
+           RESULTS PANEL
+           ========================================== -->
+      <div class="results-panel">
+        <div id="emptyState" class="empty-state">
+          <div class="empty-icon">📈</div>
+          <div class="empty-title">Enter deal details</div>
+          <div class="empty-description">Fill in the loan information to see your multi-metric assessment with WALE analysis</div>
+        </div>
+        
+        <div id="resultsContainer" class="results-section hidden"></div>
+      </div>
+    </main>
+    
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Built by <a href="https://oneyco.com.au" target="_blank">Oney & Co</a></p>
+      <p style="margin-top: 8px;">Commercial lending tools for Australian brokers</p>
+    </footer>
+
+    <!-- V4: Print Footer (only visible when printing) -->
+    <div class="print-footer">
+      Generated by Oney Serve V4.1 — <a href="https://oneyco.com.au">oneyco.com.au</a>
+    </div>
+  </div>
+
+  <!-- V4: Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- V4: Coming Soon Modal -->
+  <div class="modal-overlay" id="importModal">
+    <div class="modal-content">
+      <div class="modal-icon">🚧</div>
+      <div class="modal-title">Coming Soon</div>
+      <div class="modal-desc">Tenancy Schedule Import Tool is under development. Stay tuned!</div>
+      <button class="modal-close" onclick="App.hideImportModal()">Got it</button>
+    </div>
+  </div>
+  
+  <script>
+    /**
+     * ============================================
+     * Oney Serve V4.1 — Commercial Investment Servicing Calculator
+     * Lease Doc Edition
+     * 
+     * V4.1 Changes:
+     *   1. Lease Expiry Alert — inline hints only, no repeated popups (warn-once)
+     *   2. Rental input method — Net Rental or Passing Rent + Outgoings toggle
+     *   3. Tenant income consistency check — compare tenant total vs entered net income
+     *   4. WALE + Option logic — <2yr considers option, >5yr ignores, 2-5yr reference only
+     *
+     * V4 Changes:
+     *   1. Auto-save / Save — localStorage persistence, toast notifications
+     *   2. Loan Term limits — IO max 5yr, P&I max 30yr, WALE vs Loan Term
+     *   3. Input data quality checks — validation hints, date checks, lease options
+     *   4. Tenancy Schedule Import — placeholder UI
+     *   5. Portfolio WALE contribution chart — CSS bar chart
+     *   6. PDF export — window.print() with @media print styles
+     * 
+     * Retained from V3:
+     *   - Dark/Light mode toggle
+     *   - Expanded property types
+     *   - Loan Term vs WALE comparison
+     *   - WALE + Lease Expiry risk analysis
+     *   - Repayment Type (IO vs P&I) with DSCR logic
+     *   - Portfolio Mode: multi-property aggregate
+     * 
+     * Architecture: Config → Calculator → Assessor → Validator → UIHelpers → App
+     * ============================================
+     */
+
+    // ============================================
+    // CONFIGURATION MODULE
+    // ============================================
+    const Config = {
+      default: {
+        name: 'Generic Commercial',
+        lvr: {
+          industrial: 65,
+          office: 65,
+          retail: 65,
+          mixed: 60,
+          residentialComplex: 70,
+          otherNonSpecialised: 70,
+          specialised: 50
+        },
+        icr: { minimum: 1.25, standard: 1.50, conservative: 2.00 },
+        dscr: { minimum: 1.20, standard: 1.25 },
+        wale: { low: 5, medium: 3 },
+        leaseExpiryWarningMonths: 24,
+        // V4: Loan term limits
+        loanTermMax: { io: 5, pi: 30 }
+      },
+
+      propertyTypeLabels: {
+        industrial: 'Industrial',
+        office: 'Office',
+        retail: 'Retail',
+        mixed: 'Mixed Use',
+        residentialComplex: 'Residential Complex/Building',
+        otherNonSpecialised: 'Other Non-Specialised Commercial',
+        specialised: 'Specialised Commercial'
+      },
+
+      typesRequiringDescription: ['otherNonSpecialised', 'specialised'],
+
+      // V4: localStorage key
+      STORAGE_KEY: 'oney-serve-v4-data',
+      AUTOSAVE_DELAY: 1000 // 1 second debounce
+    };
+
+    // ============================================
+    // CALCULATION ENGINE MODULE
+    // ============================================
+    const Calculator = {
+      calculateLVR(loan, value) {
+        if (!value || value === 0) return 0;
+        return (loan / value) * 100;
+      },
+
+      calculateICR(income, loan, rate) {
+        const annualInterest = loan * (rate / 100);
+        if (!annualInterest || annualInterest === 0) return 0;
+        return income / annualInterest;
+      },
+
+      calculateDSCR(income, loan, rate, term) {
+        const annualPI = this.calculatePIPayment(loan, rate, term) * 12;
+        if (!annualPI || annualPI === 0) return 0;
+        return income / annualPI;
+      },
+
+      calculateCashOnCash(income, loan, value, rate) {
+        const equity = value - loan;
+        if (!equity || equity <= 0) return 0;
+        const annualInterest = loan * (rate / 100);
+        const cashflow = income - annualInterest;
+        return (cashflow / equity) * 100;
+      },
+
+      calculateYield(income, value) {
+        if (!value || value === 0) return 0;
+        return (income / value) * 100;
+      },
+
+      calculateBreakevenRate(income, loan) {
+        if (!loan || loan === 0) return 0;
+        return (income / loan) * 100;
+      },
+
+      calculateIOPayment(loan, rate) {
+        return (loan * (rate / 100)) / 12;
+      },
+
+      calculatePIPayment(loan, rate, term) {
+        const monthlyRate = (rate / 100) / 12;
+        const payments = term * 12;
+        if (monthlyRate === 0) return loan / payments;
+        return loan * (monthlyRate * Math.pow(1 + monthlyRate, payments)) /
+               (Math.pow(1 + monthlyRate, payments) - 1);
+      },
+
+      /**
+       * V4.1: Parse option text to extract total option years
+       * Handles formats: "2x5yr", "3+3+3", "5yr option", "10", etc.
+       */
+      parseOptionYears(text) {
+        if (!text || text === 'No Option') return 0;
+        const cleaned = text.toLowerCase().replace(/\s+/g, '');
+
+        // Pattern: NxNyr (e.g., 2x5yr, 3x3year)
+        let match = cleaned.match(/(\d+)x(\d+)y/);
+        if (match) return parseInt(match[1]) * parseInt(match[2]);
+
+        // Pattern: N+N+N (e.g., 3+3+3, 5+5)
+        if (/^\d+(\+\d+)+$/.test(cleaned)) {
+          return cleaned.split('+').reduce((sum, n) => sum + parseInt(n), 0);
+        }
+
+        // Pattern: Nyr or Nyear (e.g., 5yr, 10year)
+        match = cleaned.match(/(\d+)y/);
+        if (match) return parseInt(match[1]);
+
+        // Pattern: just a number
+        match = cleaned.match(/^(\d+)$/);
+        if (match) return parseInt(match[1]);
+
+        return 0;
+      },
+
+      /**
+       * V4.1: WALE calculation with Option consideration logic
+       * - Lease < 2 years: considers Option in WALE (effectiveYears = remaining + option)
+       * - Lease 2-5 years: option as reference only, not in WALE
+       * - Lease > 5 years: option not mentioned
+       */
+      calculateWALE(tenants) {
+        const now = new Date();
+        let totalRent = 0;
+        let weightedYears = 0;
+        const details = [];
+
+        tenants.forEach(t => {
+          if (!t.expiryDate || !t.annualRent) return;
+          const expiry = new Date(t.expiryDate);
+          const yearsRemaining = Math.max(0, (expiry - now) / (365.25 * 24 * 60 * 60 * 1000));
+          const monthsRemaining = Math.max(0, yearsRemaining * 12);
+
+          // V4.1: Option consideration logic
+          let effectiveYears = yearsRemaining;
+          let optionNote = '';
+          const optionYears = this.parseOptionYears(t.leaseOption);
+
+          if (optionYears > 0 && t.leaseOption !== 'No Option' && yearsRemaining > 0) {
+            if (yearsRemaining < 2) {
+              // Lease < 2 years: consider option in WALE
+              effectiveYears = yearsRemaining + optionYears;
+              optionNote = 'Lease expiring within 2 years — Option considered in WALE assessment';
+            } else if (yearsRemaining <= 5) {
+              // Lease 2-5 years: option as reference only
+              optionNote = `Option: ${t.leaseOption} (reference only, not included in WALE)`;
+            }
+            // Lease > 5 years: no mention of option
+          }
+
+          totalRent += t.annualRent;
+          weightedYears += effectiveYears * t.annualRent;
+
+          details.push({
+            name: t.name || 'Unnamed',
+            expiryDate: t.expiryDate,
+            annualRent: t.annualRent,
+            leaseOption: t.leaseOption || '',
+            yearsRemaining,
+            effectiveYears,
+            optionNote,
+            monthsRemaining,
+            isExpired: yearsRemaining <= 0,
+            isExpiringSoon: monthsRemaining > 0 && monthsRemaining <= Config.default.leaseExpiryWarningMonths
+          });
+        });
+
+        const wale = totalRent > 0 ? weightedYears / totalRent : 0;
+        return { wale, tenantDetails: details, totalRent };
+      }
+    };
+
+    // ============================================
+    // ASSESSMENT MODULE
+    // ============================================
+    const Assessor = {
+      assessLVR(lvr, propertyType, policy = Config.default) {
+        const cap = policy.lvr[propertyType] || 70;
+        if (lvr <= cap - 10) {
+          return { status: 'pass', message: `Well within ${cap}% LVR cap` };
+        } else if (lvr <= cap) {
+          return { status: 'warn', message: `At upper limit (${cap}% cap)` };
+        } else {
+          return { status: 'fail', message: `Exceeds ${cap}% LVR cap` };
+        }
+      },
+
+      assessICR(icr, policy = Config.default) {
+        if (icr >= policy.icr.standard) {
+          return { status: 'pass', message: `Meets standard ${policy.icr.standard}x threshold` };
+        } else if (icr >= policy.icr.minimum) {
+          return { status: 'warn', message: `Above minimum (${policy.icr.minimum}x) but below standard` };
+        } else {
+          return { status: 'fail', message: `Below minimum ${policy.icr.minimum}x ICR` };
+        }
+      },
+
+      assessDSCR(dscr, policy = Config.default) {
+        if (dscr >= policy.dscr.standard) {
+          return { status: 'pass', message: `Meets ${policy.dscr.standard}x DSCR standard` };
+        } else if (dscr >= policy.dscr.minimum) {
+          return { status: 'warn', message: `Above minimum but needs review` };
+        } else {
+          return { status: 'fail', message: `Below minimum ${policy.dscr.minimum}x DSCR` };
+        }
+      },
+
+      assessWALE(wale) {
+        if (wale >= Config.default.wale.low) {
+          return { status: 'pass', message: `Low risk — WALE > ${Config.default.wale.low} years` };
+        } else if (wale >= Config.default.wale.medium) {
+          return { status: 'warn', message: `Medium risk — WALE ${Config.default.wale.medium}-${Config.default.wale.low} years` };
+        } else {
+          return { status: 'fail', message: `High risk — WALE < ${Config.default.wale.medium} years` };
+        }
+      },
+
+      /**
+       * V4: Assess Loan Term vs WALE
+       * Compare loan term (years) against WALE (years)
+       */
+      assessLoanTermVsWALE(loanTerm, wale) {
+        if (loanTerm <= wale) {
+          return {
+            status: 'pass',
+            message: 'Loan term within WALE coverage.',
+            detail: `Loan Term ${loanTerm} yrs ≤ WALE ${wale.toFixed(1)} yrs`
+          };
+        } else {
+          return {
+            status: 'fail',
+            message: 'Loan term exceeds WALE. Lease expiry risk during loan period.',
+            detail: `Loan Term ${loanTerm} yrs > WALE ${wale.toFixed(1)} yrs`
+          };
+        }
+      },
+
+      getOverallStatus(assessments) {
+        const statuses = Object.values(assessments).filter(a => a && a.status).map(a => a.status);
+        
+        if (statuses.includes('fail')) {
+          const failCount = statuses.filter(s => s === 'fail').length;
+          return {
+            status: 'fail',
+            icon: '✗',
+            text: 'Does Not Meet Criteria',
+            description: `${failCount} metric${failCount > 1 ? 's' : ''} outside acceptable thresholds`
+          };
+        } else if (statuses.includes('warn')) {
+          return {
+            status: 'warn',
+            icon: '⚠',
+            text: 'Review Required',
+            description: 'Some metrics at threshold limits — lender discretion may apply'
+          };
+        } else {
+          return {
+            status: 'pass',
+            icon: '✓',
+            text: 'Meets Criteria',
+            description: 'All key metrics within acceptable thresholds'
+          };
+        }
+      }
+    };
+
+    // ============================================
+    // V4: INPUT VALIDATION MODULE
+    // ============================================
+    const Validator = {
+      /**
+       * Validate and show inline hints for input quality
+       * Returns array of warning messages
+       */
+      validateSingleInputs() {
+        const warnings = [];
+
+        // Loan Amount
+        const loanVal = UIHelpers.parseNumber(document.getElementById('loanAmount').value);
+        const loanHint = document.getElementById('loanAmountHint');
+        const loanInput = document.getElementById('loanAmount');
+        if (loanVal < 0) {
+          this.showHint(loanHint, 'danger', '⚠ Loan amount cannot be negative');
+          loanInput.classList.add('input-danger');
+          warnings.push('Negative loan amount');
+        } else if (loanVal > 500000000) {
+          this.showHint(loanHint, 'warning', '⚠ Loan amount exceeds $500M — please verify');
+          loanInput.classList.add('input-warning');
+          warnings.push('Unusually large loan amount');
+        } else {
+          this.hideHint(loanHint);
+          loanInput.classList.remove('input-warning', 'input-danger');
+        }
+
+        // Interest Rate
+        const rate = parseFloat(document.getElementById('interestRate').value);
+        const rateHint = document.getElementById('interestRateHint');
+        const rateInput = document.getElementById('interestRate');
+        if (rate < 1) {
+          this.showHint(rateHint, 'warning', '⚠ Rate below 1% — unusually low for commercial');
+          rateInput.classList.add('input-warning');
+        } else if (rate > 15) {
+          this.showHint(rateHint, 'warning', '⚠ Rate above 15% — please verify');
+          rateInput.classList.add('input-warning');
+        } else {
+          this.hideHint(rateHint);
+          rateInput.classList.remove('input-warning', 'input-danger');
+        }
+
+        // Loan Term — V4: enforce limits based on repayment type
+        const term = parseInt(document.getElementById('loanTerm').value);
+        const termHint = document.getElementById('loanTermHint');
+        const termInput = document.getElementById('loanTerm');
+        const isIO = App.repaymentType === 'io';
+        const maxTerm = isIO ? Config.default.loanTermMax.io : Config.default.loanTermMax.pi;
+        if (term > maxTerm) {
+          this.showHint(termHint, 'danger', `⚠ Max ${maxTerm} years for ${isIO ? 'Interest Only' : 'P&I'}`);
+          termInput.classList.add('input-danger');
+          warnings.push(`Loan term exceeds ${maxTerm}yr limit`);
+        } else if (term <= 0) {
+          this.showHint(termHint, 'danger', '⚠ Loan term must be positive');
+          termInput.classList.add('input-danger');
+        } else {
+          this.hideHint(termHint);
+          termInput.classList.remove('input-warning', 'input-danger');
+        }
+
+        // Property Value
+        const propVal = UIHelpers.parseNumber(document.getElementById('propertyValue').value);
+        const propHint = document.getElementById('propertyValueHint');
+        const propInput = document.getElementById('propertyValue');
+        if (propVal < 0) {
+          this.showHint(propHint, 'danger', '⚠ Property value cannot be negative');
+          propInput.classList.add('input-danger');
+        } else if (propVal > 500000000) {
+          this.showHint(propHint, 'warning', '⚠ Property value exceeds $500M — please verify');
+          propInput.classList.add('input-warning');
+        } else {
+          this.hideHint(propHint);
+          propInput.classList.remove('input-warning', 'input-danger');
+        }
+
+        // Rental Income
+        const rental = UIHelpers.parseNumber(document.getElementById('rentalIncome').value);
+        const rentalHint = document.getElementById('rentalIncomeHint');
+        const rentalInput = document.getElementById('rentalIncome');
+        if (rental < 0) {
+          this.showHint(rentalHint, 'danger', '⚠ Rental income cannot be negative');
+          rentalInput.classList.add('input-danger');
+        } else if (propVal > 0 && rental > propVal) {
+          this.showHint(rentalHint, 'warning', '⚠ Rental income exceeds property value — unusual');
+          rentalInput.classList.add('input-warning');
+        } else {
+          this.hideHint(rentalHint);
+          rentalInput.classList.remove('input-warning', 'input-danger');
+        }
+
+        // LVR quick check
+        if (loanVal > 0 && propVal > 0) {
+          const quickLVR = (loanVal / propVal) * 100;
+          if (quickLVR > 100) {
+            this.showHint(propHint, 'danger', `⚠ LVR ${quickLVR.toFixed(0)}% — loan exceeds property value`);
+            propInput.classList.add('input-danger');
+          }
+        }
+
+        // Lease expiry date validation
+        this.validateLeaseExpiries('#tenantList');
+
+        return warnings;
+      },
+
+      validatePortfolioInputs() {
+        const warnings = [];
+
+        // Portfolio loan amount
+        const loanVal = UIHelpers.parseNumber(document.getElementById('pLoanAmount').value);
+        const loanHint = document.getElementById('pLoanAmountHint');
+        const loanInput = document.getElementById('pLoanAmount');
+        if (loanVal < 0) {
+          this.showHint(loanHint, 'danger', '⚠ Loan amount cannot be negative');
+          loanInput.classList.add('input-danger');
+        } else {
+          this.hideHint(loanHint);
+          loanInput.classList.remove('input-warning', 'input-danger');
+        }
+
+        // Portfolio interest rate
+        const rate = parseFloat(document.getElementById('pInterestRate').value);
+        const rateHint = document.getElementById('pInterestRateHint');
+        const rateInput = document.getElementById('pInterestRate');
+        if (rate < 1 || rate > 15) {
+          this.showHint(rateHint, 'warning', `⚠ Rate ${rate < 1 ? 'below 1%' : 'above 15%'} — please verify`);
+          rateInput.classList.add('input-warning');
+        } else {
+          this.hideHint(rateHint);
+          rateInput.classList.remove('input-warning', 'input-danger');
+        }
+
+        // Portfolio loan term
+        const term = parseInt(document.getElementById('pLoanTerm').value);
+        const termHint = document.getElementById('pLoanTermHint');
+        const termInput = document.getElementById('pLoanTerm');
+        const isIO = App.portfolioRepaymentType === 'io';
+        const maxTerm = isIO ? Config.default.loanTermMax.io : Config.default.loanTermMax.pi;
+        if (term > maxTerm) {
+          this.showHint(termHint, 'danger', `⚠ Max ${maxTerm} years for ${isIO ? 'Interest Only' : 'P&I'}`);
+          termInput.classList.add('input-danger');
+        } else {
+          this.hideHint(termHint);
+          termInput.classList.remove('input-warning', 'input-danger');
+        }
+
+        // Validate each property's lease expiries
+        document.querySelectorAll('#portfolioPropertiesContainer .pp-tenant-list').forEach(list => {
+          this.validateLeaseExpiries(list);
+        });
+
+        return warnings;
+      },
+
+      /**
+       * V4.1: Check lease expiry dates — uses inline hints only (no alert popups).
+       * Uses data-state attribute to avoid redundant DOM updates on every input event.
+       */
+      validateLeaseExpiries(container) {
+        const el = typeof container === 'string' ? document.querySelector(container) : container;
+        if (!el) return;
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+
+        el.querySelectorAll('.tenant-entry').forEach(entry => {
+          const expiryInput = entry.querySelector('.tenant-expiry');
+          let hint = entry.querySelector('.tenant-expiry-hint');
+          if (!hint) {
+            hint = document.createElement('div');
+            hint.className = 'validation-hint tenant-expiry-hint';
+            expiryInput.parentNode.appendChild(hint);
+          }
+
+          if (expiryInput.value) {
+            const expiryDate = new Date(expiryInput.value);
+            if (expiryDate < now) {
+              // V4.1: Only update DOM if state changed (avoid flicker on every keystroke)
+              if (hint.dataset.warnState !== 'expired') {
+                this.showHint(hint, 'danger', '⛔ Lease already expired');
+                hint.dataset.warnState = 'expired';
+                expiryInput.classList.add('input-danger');
+                entry.classList.add('expiring-soon');
+              }
+            } else {
+              if (hint.dataset.warnState) {
+                delete hint.dataset.warnState;
+                this.hideHint(hint);
+                expiryInput.classList.remove('input-danger');
+                entry.classList.remove('expiring-soon');
+              }
+            }
+          } else {
+            if (hint.dataset.warnState) {
+              delete hint.dataset.warnState;
+              this.hideHint(hint);
+              expiryInput.classList.remove('input-danger');
+              entry.classList.remove('expiring-soon');
+            }
+          }
+        });
+      },
+
+      showHint(el, type, message) {
+        if (!el) return;
+        el.className = `validation-hint show ${type}`;
+        el.textContent = message;
+      },
+
+      hideHint(el) {
+        if (!el) return;
+        el.className = 'validation-hint';
+        el.textContent = '';
+      }
+    };
+
+    // ============================================
+    // UI HELPERS MODULE
+    // ============================================
+    const UIHelpers = {
+      parseNumber(str) {
+        return parseFloat((str || '').replace(/,/g, '')) || 0;
+      },
+
+      formatNumber(num) {
+        return Math.round(num).toLocaleString();
+      },
+
+      formatCurrency(amount) {
+        return '$' + this.formatNumber(amount);
+      },
+
+      setupCurrencyInput(input) {
+        input.addEventListener('keyup', (e) => {
+          let value = e.target.value.replace(/,/g, '').replace(/[^0-9]/g, '');
+          if (value) e.target.value = parseInt(value).toLocaleString();
+        });
+      },
+
+      buildMetricCard(id, name, value, format, assessment, barWidth) {
+        const statusClass = assessment ? assessment.status : 'neutral';
+        const statusIcon = assessment
+          ? (assessment.status === 'pass' ? '✓' : assessment.status === 'warn' ? '!' : '✗')
+          : '📊';
+        const statusBadgeClass = assessment ? assessment.status : 'info';
+        const threshold = assessment ? assessment.message : '';
+
+        return `
+          <div class="metric-card ${statusClass}" id="${id}Card">
+            <div class="metric-header">
+              <span class="metric-name">${name}</span>
+              <span class="metric-status ${statusBadgeClass}">${statusIcon}</span>
+            </div>
+            <div class="metric-value">${format}</div>
+            <div class="metric-threshold">${threshold}</div>
+            <div class="metric-bar">
+              <div class="metric-bar-fill" style="width: ${Math.min(100, barWidth || 0)}%"></div>
+            </div>
+          </div>
+        `;
+      },
+
+      buildNAMetricCard(id, name, message) {
+        return `
+          <div class="metric-card na" id="${id}Card">
+            <div class="metric-header">
+              <span class="metric-name">${name}</span>
+              <span class="metric-status na">—</span>
+            </div>
+            <div class="metric-value">N/A</div>
+            <div class="metric-threshold">${message}</div>
+            <div class="metric-bar">
+              <div class="metric-bar-fill" style="width: 0%"></div>
+            </div>
+          </div>
+        `;
+      }
+    };
+
+    // ============================================
+    // MAIN APPLICATION
+    // ============================================
+    const App = {
+      mode: 'single',
+      repaymentType: 'io',
+      portfolioRepaymentType: 'io',
+      incomeMethod: 'net', // V4.1: 'net' or 'gross'
+      tenantCounter: 1,
+      portfolioProperties: [],
+      portfolioPropCounter: 0,
+      lastResults: null,
+      _autoSaveTimer: null,
+
+      // ── Initialization ──
+      init() {
+        this.initTheme();
+        this.bindCurrencyInputs();
+        this.bindPropertyTypeHint();
+        this.bindEnterKey();
+        this.addPortfolioProperty(); // default first property for portfolio
+
+        // V4: Restore saved data from localStorage
+        this.restoreData();
+
+        // V4: Bind auto-save (debounced) to all inputs
+        this.bindAutoSave();
+
+        // V4: Bind live validation
+        this.bindLiveValidation();
+      },
+
+      // ══════════════════════════════════════════
+      // THEME MANAGEMENT
+      // ══════════════════════════════════════════
+
+      initTheme() {
+        const saved = localStorage.getItem('oney-serve-theme');
+        if (saved === 'light') {
+          document.documentElement.classList.add('light');
+        }
+      },
+
+      toggleTheme() {
+        const html = document.documentElement;
+        const isLight = html.classList.toggle('light');
+        localStorage.setItem('oney-serve-theme', isLight ? 'light' : 'dark');
+      },
+
+      // ══════════════════════════════════════════
+      // V4: TOAST NOTIFICATIONS
+      // ══════════════════════════════════════════
+
+      showToast(message, duration = 2000) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(this._toastTimer);
+        this._toastTimer = setTimeout(() => {
+          toast.classList.remove('show');
+        }, duration);
+      },
+
+      // ══════════════════════════════════════════
+      // V4: AUTO-SAVE / SAVE / RESTORE
+      // ══════════════════════════════════════════
+
+      /** Gather all form data into a serializable object */
+      gatherFormData() {
+        const data = {
+          mode: this.mode,
+          repaymentType: this.repaymentType,
+          portfolioRepaymentType: this.portfolioRepaymentType,
+          incomeMethod: this.incomeMethod, // V4.1
+          // Single mode fields
+          single: {
+            loanAmount: document.getElementById('loanAmount').value,
+            interestRate: document.getElementById('interestRate').value,
+            loanTerm: document.getElementById('loanTerm').value,
+            propertyValue: document.getElementById('propertyValue').value,
+            propertyType: document.getElementById('propertyType').value,
+            propertyTypeDesc: document.getElementById('propertyTypeDesc')?.value || '',
+            rentalIncome: document.getElementById('rentalIncome').value,
+            passingRent: document.getElementById('passingRent')?.value || '', // V4.1
+            outgoings: document.getElementById('outgoings')?.value || '', // V4.1
+            tenants: this.gatherTenantsData('#tenantList')
+          },
+          // Portfolio mode fields
+          portfolio: {
+            loanAmount: document.getElementById('pLoanAmount').value,
+            interestRate: document.getElementById('pInterestRate').value,
+            loanTerm: document.getElementById('pLoanTerm').value,
+            properties: this.gatherPortfolioData()
+          }
+        };
+        return data;
+      },
+
+      gatherTenantsData(selector) {
+        const entries = document.querySelectorAll(`${selector} .tenant-entry`);
+        return Array.from(entries).map(entry => ({
+          name: entry.querySelector('.tenant-name')?.value || '',
+          expiry: entry.querySelector('.tenant-expiry')?.value || '',
+          rent: entry.querySelector('.tenant-rent')?.value || '',
+          option: entry.querySelector('.tenant-option')?.value || '',
+          noOption: entry.querySelector('.btn-no-option')?.classList.contains('active') || false
+        }));
+      },
+
+      gatherPortfolioData() {
+        const cards = document.querySelectorAll('#portfolioPropertiesContainer .property-card');
+        return Array.from(cards).map(card => {
+          const tenantList = card.querySelector('.pp-tenant-list');
+          return {
+            value: card.querySelector('.pp-value')?.value || '',
+            income: card.querySelector('.pp-income')?.value || '',
+            type: card.querySelector('.pp-type')?.value || 'industrial',
+            typeDesc: card.querySelector('.pp-type-desc')?.value || '',
+            tenants: tenantList ? this.gatherTenantsDataFromElement(tenantList) : []
+          };
+        });
+      },
+
+      gatherTenantsDataFromElement(listEl) {
+        const entries = listEl.querySelectorAll('.tenant-entry');
+        return Array.from(entries).map(entry => ({
+          name: entry.querySelector('.tenant-name')?.value || '',
+          expiry: entry.querySelector('.tenant-expiry')?.value || '',
+          rent: entry.querySelector('.tenant-rent')?.value || '',
+          option: entry.querySelector('.tenant-option')?.value || '',
+          noOption: entry.querySelector('.btn-no-option')?.classList.contains('active') || false
+        }));
+      },
+
+      /** Save to localStorage */
+      saveData(showNotification = true) {
+        try {
+          const data = this.gatherFormData();
+          localStorage.setItem(Config.STORAGE_KEY, JSON.stringify(data));
+          if (showNotification) this.showToast('💾 Auto-saved');
+        } catch (e) {
+          console.warn('Auto-save failed:', e);
+        }
+      },
+
+      /** Manual save with different toast */
+      manualSave() {
+        try {
+          const data = this.gatherFormData();
+          localStorage.setItem(Config.STORAGE_KEY, JSON.stringify(data));
+          this.showToast('✅ Saved successfully!');
+        } catch (e) {
+          this.showToast('❌ Save failed');
+        }
+      },
+
+      /** Restore data from localStorage */
+      restoreData() {
+        try {
+          const raw = localStorage.getItem(Config.STORAGE_KEY);
+          if (!raw) return;
+          const data = JSON.parse(raw);
+
+          // Restore mode (without clearing data)
+          if (data.mode) {
+            this.mode = data.mode;
+            document.getElementById('modeSingle').classList.toggle('active', data.mode === 'single');
+            document.getElementById('modePortfolio').classList.toggle('active', data.mode === 'portfolio');
+            document.getElementById('singlePropertyInputs').classList.toggle('hidden', data.mode !== 'single');
+            document.getElementById('portfolioInputs').classList.toggle('hidden', data.mode !== 'portfolio');
+          }
+
+          // V4.1: Restore income method
+          if (data.incomeMethod) {
+            this.incomeMethod = data.incomeMethod;
+            document.getElementById('incomeMethodNet').classList.toggle('active', data.incomeMethod === 'net');
+            document.getElementById('incomeMethodGross').classList.toggle('active', data.incomeMethod === 'gross');
+            document.getElementById('incomeNetWrapper').classList.toggle('hidden', data.incomeMethod !== 'net');
+            document.getElementById('incomeGrossWrapper').classList.toggle('hidden', data.incomeMethod !== 'gross');
+          }
+
+          // Restore repayment types
+          if (data.repaymentType) {
+            this.repaymentType = data.repaymentType;
+            document.getElementById('repayTypeIO').classList.toggle('active', data.repaymentType === 'io');
+            document.getElementById('repayTypePI').classList.toggle('active', data.repaymentType === 'pi');
+          }
+          if (data.portfolioRepaymentType) {
+            this.portfolioRepaymentType = data.portfolioRepaymentType;
+            document.getElementById('pRepayTypeIO').classList.toggle('active', data.portfolioRepaymentType === 'io');
+            document.getElementById('pRepayTypePI').classList.toggle('active', data.portfolioRepaymentType === 'pi');
+          }
+
+          // Restore single mode
+          if (data.single) {
+            const s = data.single;
+            document.getElementById('loanAmount').value = s.loanAmount || '';
+            document.getElementById('interestRate').value = s.interestRate || '7.50';
+            document.getElementById('loanTerm').value = s.loanTerm || '5';
+            document.getElementById('propertyValue').value = s.propertyValue || '';
+            document.getElementById('propertyType').value = s.propertyType || 'industrial';
+            if (document.getElementById('propertyTypeDesc')) {
+              document.getElementById('propertyTypeDesc').value = s.propertyTypeDesc || '';
+            }
+            document.getElementById('rentalIncome').value = s.rentalIncome || '';
+
+            // V4.1: Restore passing rent and outgoings
+            if (document.getElementById('passingRent')) {
+              document.getElementById('passingRent').value = s.passingRent || '';
+            }
+            if (document.getElementById('outgoings')) {
+              document.getElementById('outgoings').value = s.outgoings || '';
+            }
+            this.updateCalculatedNetIncome();
+
+            // Show/hide description field
+            this.onPropertyTypeChange('single');
+
+            // Restore tenants
+            if (s.tenants && s.tenants.length > 0) {
+              this.restoreTenants('#tenantList', s.tenants);
+            }
+          }
+
+          // Restore portfolio mode
+          if (data.portfolio) {
+            const p = data.portfolio;
+            document.getElementById('pLoanAmount').value = p.loanAmount || '';
+            document.getElementById('pInterestRate').value = p.interestRate || '7.50';
+            document.getElementById('pLoanTerm').value = p.loanTerm || '5';
+
+            // Restore portfolio properties
+            if (p.properties && p.properties.length > 0) {
+              // Remove existing default property
+              document.getElementById('portfolioPropertiesContainer').innerHTML = '';
+              this.portfolioPropCounter = 0;
+              this._ppTenantCounters = {};
+
+              p.properties.forEach((prop, idx) => {
+                this.addPortfolioProperty();
+                const card = document.querySelectorAll('#portfolioPropertiesContainer .property-card')[idx];
+                if (!card) return;
+                const valInput = card.querySelector('.pp-value');
+                const incInput = card.querySelector('.pp-income');
+                const typeSelect = card.querySelector('.pp-type');
+                const typeDesc = card.querySelector('.pp-type-desc');
+
+                if (valInput) valInput.value = prop.value || '';
+                if (incInput) incInput.value = prop.income || '';
+                if (typeSelect) typeSelect.value = prop.type || 'industrial';
+                if (typeDesc) typeDesc.value = prop.typeDesc || '';
+
+                // Show description if needed
+                this.onPropertyTypeChange(idx);
+
+                // Restore tenants for this property
+                const tenantList = card.querySelector('.pp-tenant-list');
+                if (tenantList && prop.tenants && prop.tenants.length > 0) {
+                  this.restorePortfolioTenants(tenantList, prop.tenants, idx);
+                }
+              });
+            }
+          }
+
+          this.showToast('📂 Data restored');
+        } catch (e) {
+          console.warn('Restore failed:', e);
+        }
+      },
+
+      /** Restore tenant entries into a tenant list container */
+      restoreTenants(selector, tenants) {
+        const list = document.querySelector(selector);
+        if (!list || !tenants.length) return;
+
+        // Clear existing
+        list.innerHTML = '';
+        this.tenantCounter = 0;
+
+        tenants.forEach((t, i) => {
+          const id = this.tenantCounter++;
+          const entry = document.createElement('div');
+          entry.className = 'tenant-entry';
+          entry.dataset.tenantId = id;
+          entry.innerHTML = `
+            ${i > 0 ? `<button class="tenant-remove-btn" onclick="App.removeTenant(${id})">×</button>` : ''}
+            <div class="tenant-row">
+              <div class="form-group">
+                <label class="form-label">Tenant Name</label>
+                <input type="text" class="tenant-name" placeholder="Tenant ${id + 1}" value="${this.escapeHtml(t.name)}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Lease Expiry</label>
+                <input type="date" class="tenant-expiry" value="${t.expiry || ''}">
+                <div class="validation-hint tenant-expiry-hint"></div>
+              </div>
+            </div>
+            <div class="form-group mt-12">
+              <label class="form-label">Annual Rent ($)</label>
+              <div class="input-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="text" class="tenant-rent has-prefix currency-input" placeholder="60,000" inputmode="numeric" value="${this.escapeHtml(t.rent)}">
+              </div>
+            </div>
+            <div class="lease-option-wrapper">
+              <label class="form-label">Lease Option</label>
+              <div class="lease-option-row">
+                <input type="text" class="tenant-option" placeholder="e.g. 2x5yr option, 3+3+3" value="${this.escapeHtml(t.option)}" ${t.noOption ? 'disabled' : ''}>
+                <button class="btn-no-option ${t.noOption ? 'active' : ''}" onclick="App.toggleNoOption(this)" title="No option">${t.noOption ? '✓ No Option' : 'No Option'}</button>
+              </div>
+            </div>
+          `;
+          list.appendChild(entry);
+          entry.querySelectorAll('.currency-input').forEach(input => UIHelpers.setupCurrencyInput(input));
+        });
+      },
+
+      restorePortfolioTenants(listEl, tenants, propIdx) {
+        if (!listEl || !tenants.length) return;
+        listEl.innerHTML = '';
+        if (!this._ppTenantCounters[propIdx]) this._ppTenantCounters[propIdx] = 0;
+
+        tenants.forEach((t, i) => {
+          const tid = this._ppTenantCounters[propIdx]++;
+          const entry = document.createElement('div');
+          entry.className = 'tenant-entry';
+          entry.dataset.tenantId = tid;
+          entry.innerHTML = `
+            ${i > 0 ? `<button class="tenant-remove-btn" onclick="this.closest('.tenant-entry').remove()">×</button>` : ''}
+            <div class="tenant-row">
+              <div class="form-group">
+                <label class="form-label">Tenant</label>
+                <input type="text" class="tenant-name" placeholder="Tenant ${tid + 1}" value="${this.escapeHtml(t.name)}">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Lease Expiry</label>
+                <input type="date" class="tenant-expiry" value="${t.expiry || ''}">
+                <div class="validation-hint tenant-expiry-hint"></div>
+              </div>
+            </div>
+            <div class="form-group mt-12">
+              <label class="form-label">Annual Rent ($)</label>
+              <div class="input-wrapper">
+                <span class="input-prefix">$</span>
+                <input type="text" class="tenant-rent has-prefix currency-input" placeholder="30,000" inputmode="numeric" value="${this.escapeHtml(t.rent)}">
+              </div>
+            </div>
+            <div class="lease-option-wrapper">
+              <label class="form-label">Lease Option</label>
+              <div class="lease-option-row">
+                <input type="text" class="tenant-option" placeholder="e.g. 2x5yr option" value="${this.escapeHtml(t.option)}" ${t.noOption ? 'disabled' : ''}>
+                <button class="btn-no-option ${t.noOption ? 'active' : ''}" onclick="App.toggleNoOption(this)" title="No option">${t.noOption ? '✓ No Option' : 'No Option'}</button>
+              </div>
+            </div>
+          `;
+          listEl.appendChild(entry);
+          entry.querySelectorAll('.currency-input').forEach(input => UIHelpers.setupCurrencyInput(input));
+        });
+      },
+
+      escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      },
+
+      /** Bind auto-save to all inputs (debounced) */
+      bindAutoSave() {
+        const handler = () => {
+          clearTimeout(this._autoSaveTimer);
+          this._autoSaveTimer = setTimeout(() => this.saveData(true), Config.AUTOSAVE_DELAY);
+        };
+
+        // Use event delegation on the app container
+        document.querySelector('.app-container').addEventListener('input', handler);
+        document.querySelector('.app-container').addEventListener('change', handler);
+      },
+
+      /** V4: Bind live validation on input changes — V4.1: added income calc & consistency check */
+      bindLiveValidation() {
+        const validateHandler = () => {
+          if (this.mode === 'single') {
+            Validator.validateSingleInputs();
+            this.updateCalculatedNetIncome(); // V4.1
+            this.checkTenantIncomeConsistency(); // V4.1
+          } else {
+            Validator.validatePortfolioInputs();
+          }
+        };
+
+        document.querySelector('.app-container').addEventListener('input', validateHandler);
+        document.querySelector('.app-container').addEventListener('change', validateHandler);
+      },
+
+      // ══════════════════════════════════════════
+      // PROPERTY TYPE DESCRIPTION
+      // ══════════════════════════════════════════
+
+      onPropertyTypeChange(context) {
+        if (context === 'single') {
+          const select = document.getElementById('propertyType');
+          const descWrapper = document.getElementById('propertyTypeDescWrapper');
+          const hint = document.getElementById('specialisedHint');
+          const value = select.value;
+          const needsDesc = Config.typesRequiringDescription.includes(value);
+          descWrapper.classList.toggle('hidden', !needsDesc);
+          hint.classList.toggle('hidden', value !== 'specialised');
+        } else {
+          const propCard = document.getElementById(`portfolioProp_${context}`);
+          if (!propCard) return;
+          const select = propCard.querySelector('.pp-type');
+          const descWrapper = propCard.querySelector('.pp-type-desc-wrapper');
+          if (select && descWrapper) {
+            const needsDesc = Config.typesRequiringDescription.includes(select.value);
+            descWrapper.classList.toggle('hidden', !needsDesc);
+          }
+        }
+      },
+
+      bindCurrencyInputs() {
+        // V4.1: includes passingRent and outgoings fields
+        document.querySelectorAll('#singlePropertyInputs .currency-input').forEach(
+          input => UIHelpers.setupCurrencyInput(input)
+        );
+        document.querySelectorAll('#portfolioInputs > .card .currency-input').forEach(
+          input => UIHelpers.setupCurrencyInput(input)
+        );
+      },
+
+      bindPropertyTypeHint() {},
+
+      bindEnterKey() {
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+            if (this.mode === 'single') this.calculate();
+            else this.calculatePortfolio();
+          }
+        });
+      },
+
+      // ══════════════════════════════════════════
+      // V4: MODE TOGGLE — preserve data
+      // ══════════════════════════════════════════
+      setMode(mode) {
+        // V4: Don't clear data when switching modes
+        this.mode = mode;
+        document.getElementById('modeSingle').classList.toggle('active', mode === 'single');
+        document.getElementById('modePortfolio').classList.toggle('active', mode === 'portfolio');
+        document.getElementById('singlePropertyInputs').classList.toggle('hidden', mode !== 'single');
+        document.getElementById('portfolioInputs').classList.toggle('hidden', mode !== 'portfolio');
+        // Hide results but don't destroy them
+        document.getElementById('resultsContainer').classList.add('hidden');
+        document.getElementById('emptyState').classList.remove('hidden');
+
+        // Re-run validation for the visible mode
+        if (mode === 'single') {
+          Validator.validateSingleInputs();
+        } else {
+          Validator.validatePortfolioInputs();
+        }
+      },
+
+      // ══════════════════════════════════════════
+      // V4: REPAYMENT TYPE — with loan term enforcement
+      // ══════════════════════════════════════════
+      setRepaymentType(type, isPortfolio = false) {
+        if (isPortfolio) {
+          this.portfolioRepaymentType = type;
+          document.getElementById('pRepayTypeIO').classList.toggle('active', type === 'io');
+          document.getElementById('pRepayTypePI').classList.toggle('active', type === 'pi');
+          // V4: Enforce loan term limit
+          this.enforceLoanTermLimit('pLoanTerm', 'pLoanTermHint', type);
+        } else {
+          this.repaymentType = type;
+          document.getElementById('repayTypeIO').classList.toggle('active', type === 'io');
+          document.getElementById('repayTypePI').classList.toggle('active', type === 'pi');
+          // V4: Enforce loan term limit
+          this.enforceLoanTermLimit('loanTerm', 'loanTermHint', type);
+        }
+      },
+
+      /** V4: Enforce max loan term and show warning */
+      enforceLoanTermLimit(inputId, hintId, repayType) {
+        const input = document.getElementById(inputId);
+        const hint = document.getElementById(hintId);
+        const maxTerm = repayType === 'io' ? Config.default.loanTermMax.io : Config.default.loanTermMax.pi;
+        const current = parseInt(input.value) || 0;
+
+        if (current > maxTerm) {
+          input.value = maxTerm;
+          Validator.showHint(hint, 'warning', `⚠ Adjusted to ${maxTerm} years (max for ${repayType === 'io' ? 'IO' : 'P&I'})`);
+          input.classList.add('input-warning');
+          setTimeout(() => {
+            Validator.hideHint(hint);
+            input.classList.remove('input-warning');
+          }, 3000);
+        }
+      },
+
+      // ══════════════════════════════════════════
+      // V4.1: INCOME INPUT METHOD (Net vs Passing Rent + Outgoings)
+      // ══════════════════════════════════════════
+
+      setIncomeMethod(method) {
+        this.incomeMethod = method;
+        document.getElementById('incomeMethodNet').classList.toggle('active', method === 'net');
+        document.getElementById('incomeMethodGross').classList.toggle('active', method === 'gross');
+        document.getElementById('incomeNetWrapper').classList.toggle('hidden', method !== 'net');
+        document.getElementById('incomeGrossWrapper').classList.toggle('hidden', method !== 'gross');
+
+        if (method === 'net') {
+          // Transfer calculated net to the net rental field if available
+          const calcNet = document.getElementById('calculatedNetIncome');
+          const netField = document.getElementById('rentalIncome');
+          if (calcNet && calcNet.value && calcNet.value !== '—' && calcNet.value !== '') {
+            netField.value = calcNet.value;
+          }
+        }
+
+        this.updateCalculatedNetIncome();
+        this.checkTenantIncomeConsistency();
+      },
+
+      /** V4.1: Get the effective net income regardless of input method */
+      getEffectiveNetIncome() {
+        if (this.incomeMethod === 'gross') {
+          const passingRent = UIHelpers.parseNumber(document.getElementById('passingRent')?.value);
+          const outgoings = UIHelpers.parseNumber(document.getElementById('outgoings')?.value);
+          return passingRent - outgoings;
+        }
+        return UIHelpers.parseNumber(document.getElementById('rentalIncome').value);
+      },
+
+      /** V4.1: Auto-calculate net from Passing Rent - Outgoings */
+      updateCalculatedNetIncome() {
+        const passingRent = UIHelpers.parseNumber(document.getElementById('passingRent')?.value);
+        const outgoings = UIHelpers.parseNumber(document.getElementById('outgoings')?.value);
+        const netField = document.getElementById('calculatedNetIncome');
+        const hint = document.getElementById('grossIncomeHint');
+        if (!netField) return;
+
+        if (passingRent > 0) {
+          const net = passingRent - outgoings;
+          netField.value = UIHelpers.formatNumber(net);
+          if (net <= 0) {
+            Validator.showHint(hint, 'danger', '⚠ Net income is negative or zero — outgoings exceed passing rent');
+          } else {
+            Validator.hideHint(hint);
+          }
+        } else {
+          netField.value = '';
+          Validator.hideHint(hint);
+        }
+      },
+
+      /** V4.1: Check tenant income total vs entered net rental income */
+      checkTenantIncomeConsistency() {
+        const tenants = this.getTenants();
+        const totalTenantRent = tenants.reduce((sum, t) => sum + (t.annualRent || 0), 0);
+        const netIncome = this.getEffectiveNetIncome();
+        const hint = document.getElementById('tenantIncomeConsistencyHint');
+
+        if (!hint) return;
+
+        if (totalTenantRent > 0 && netIncome > 0) {
+          const diff = Math.abs(totalTenantRent - netIncome);
+          const pctDiff = (diff / netIncome) * 100;
+
+          if (diff > 1000 && pctDiff > 5) {
+            Validator.showHint(hint, 'warning',
+              `⚠ Total tenant income (${UIHelpers.formatCurrency(totalTenantRent)}) differs from entered Net Rental Income (${UIHelpers.formatCurrency(netIncome)}). Please verify.`);
+          } else {
+            Validator.hideHint(hint);
+          }
+        } else {
+          Validator.hideHint(hint);
+        }
+      },
+
+      // ══════════════════════════════════════════
+      // V4: LEASE OPTION TOGGLE
+      // ══════════════════════════════════════════
+      toggleNoOption(btn) {
+        const isActive = btn.classList.toggle('active');
+        const optionInput = btn.parentElement.querySelector('.tenant-option');
+        if (isActive) {
+          optionInput.value = '';
+          optionInput.disabled = true;
+          btn.textContent = '✓ No Option';
+        } else {
+          optionInput.disabled = false;
+          btn.textContent = 'No Option';
+        }
+      },
+
+      // ══════════════════════════════════════════
+      // V4: IMPORT MODAL
+      // ══════════════════════════════════════════
+      showImportModal() {
+        document.getElementById('importModal').classList.add('show');
+      },
+      hideImportModal() {
+        document.getElementById('importModal').classList.remove('show');
+      },
+
+      // ══════════════════════════════════════════
+      // TENANT MANAGEMENT (Single Mode)
+      // ══════════════════════════════════════════
+      addTenant() {
+        const id = this.tenantCounter++;
+        const entry = document.createElement('div');
+        entry.className = 'tenant-entry';
+        entry.dataset.tenantId = id;
+        entry.innerHTML = `
+          <button class="tenant-remove-btn" onclick="App.removeTenant(${id})">×</button>
+          <div class="tenant-row">
+            <div class="form-group">
+              <label class="form-label">Tenant Name</label>
+              <input type="text" class="tenant-name" placeholder="Tenant ${id + 1}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Lease Expiry</label>
+              <input type="date" class="tenant-expiry">
+              <div class="validation-hint tenant-expiry-hint"></div>
+            </div>
+          </div>
+          <div class="form-group mt-12">
+            <label class="form-label">Annual Rent ($)</label>
+            <div class="input-wrapper">
+              <span class="input-prefix">$</span>
+              <input type="text" class="tenant-rent has-prefix currency-input" placeholder="30,000" inputmode="numeric">
+            </div>
+          </div>
+          <div class="lease-option-wrapper">
+            <label class="form-label">Lease Option</label>
+            <div class="lease-option-row">
+              <input type="text" class="tenant-option" placeholder="e.g. 2x5yr option, 3+3+3">
+              <button class="btn-no-option" onclick="App.toggleNoOption(this)" title="No option">No Option</button>
+            </div>
+          </div>
+        `;
+        document.getElementById('tenantList').appendChild(entry);
+        entry.querySelectorAll('.currency-input').forEach(
+          input => UIHelpers.setupCurrencyInput(input)
+        );
+      },
+
+      removeTenant(id) {
+        const entry = document.querySelector(`.tenant-entry[data-tenant-id="${id}"]`);
+        if (entry) entry.remove();
+      },
+
+      getTenants() {
+        const entries = document.querySelectorAll('#tenantList .tenant-entry');
+        return Array.from(entries).map(entry => {
+          const noOptionBtn = entry.querySelector('.btn-no-option');
+          const isNoOption = noOptionBtn && noOptionBtn.classList.contains('active');
+          return {
+            name: entry.querySelector('.tenant-name')?.value || '',
+            expiryDate: entry.querySelector('.tenant-expiry')?.value || '',
+            annualRent: UIHelpers.parseNumber(entry.querySelector('.tenant-rent')?.value),
+            leaseOption: isNoOption ? 'No Option' : (entry.querySelector('.tenant-option')?.value || '')
+          };
+        }).filter(t => t.expiryDate || t.annualRent);
+      },
+
+      // ── Portfolio Property Management ──
+      addPortfolioProperty() {
+        const idx = this.portfolioPropCounter++;
+        const container = document.getElementById('portfolioPropertiesContainer');
+        
+        const card = document.createElement('div');
+        card.className = 'property-card';
+        card.id = `portfolioProp_${idx}`;
+        card.innerHTML = `
+          <div class="card-header-actions">
+            <div class="card-header-left">
+              <span class="property-card-number">${idx + 1}</span>
+              <div>
+                <div class="card-title">Property ${idx + 1}</div>
+                <div class="card-subtitle">Security & income details</div>
+              </div>
+            </div>
+            ${idx > 0 ? `<button class="btn btn-danger-sm" onclick="App.removePortfolioProperty(${idx})">Remove</button>` : ''}
+          </div>
+          
+          <div class="form-section">
+            <div class="row">
+              <div class="form-group">
+                <label class="form-label">Property Value</label>
+                <div class="input-wrapper">
+                  <span class="input-prefix">$</span>
+                  <input type="text" class="pp-value has-prefix currency-input" placeholder="800,000" inputmode="numeric">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Net Rental (p.a.)</label>
+                <div class="input-wrapper">
+                  <span class="input-prefix">$</span>
+                  <input type="text" class="pp-income has-prefix currency-input" placeholder="60,000" inputmode="numeric">
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Property Type</label>
+              <select class="pp-type" onchange="App.onPropertyTypeChange(${idx})">
+                <option value="industrial">Industrial</option>
+                <option value="office">Office</option>
+                <option value="retail">Retail</option>
+                <option value="mixed">Mixed Use</option>
+                <option value="residentialComplex">Residential Complex/Building</option>
+                <option value="otherNonSpecialised">Other Non-Specialised Commercial</option>
+                <option value="specialised">Specialised Commercial</option>
+              </select>
+            </div>
+
+            <div class="pp-type-desc-wrapper property-type-desc-wrapper hidden">
+              <label class="form-label">Please describe the property type</label>
+              <input type="text" class="pp-type-desc" placeholder="e.g. childcare centre, service station, pub, hotel">
+            </div>
+          </div>
+          
+          <!-- Tenants for this property -->
+          <div class="form-section">
+            <div class="section-label">Lease Details</div>
+            <div class="pp-tenant-list" data-prop-idx="${idx}">
+              <div class="tenant-entry" data-tenant-id="0">
+                <div class="tenant-row">
+                  <div class="form-group">
+                    <label class="form-label">Tenant</label>
+                    <input type="text" class="tenant-name" placeholder="Tenant 1">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Lease Expiry</label>
+                    <input type="date" class="tenant-expiry">
+                    <div class="validation-hint tenant-expiry-hint"></div>
+                  </div>
+                </div>
+                <div class="form-group mt-12">
+                  <label class="form-label">Annual Rent ($)</label>
+                  <div class="input-wrapper">
+                    <span class="input-prefix">$</span>
+                    <input type="text" class="tenant-rent has-prefix currency-input" placeholder="60,000" inputmode="numeric">
+                  </div>
+                </div>
+                <div class="lease-option-wrapper">
+                  <label class="form-label">Lease Option</label>
+                  <div class="lease-option-row">
+                    <input type="text" class="tenant-option" placeholder="e.g. 2x5yr option">
+                    <button class="btn-no-option" onclick="App.toggleNoOption(this)" title="No option">No Option</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button class="btn-add-tenant mt-12" onclick="App.addPortfolioTenant(${idx})">
+              + Add Tenant
+            </button>
+            <button class="btn-import" onclick="App.showImportModal()">
+              📥 Import Tenancy Schedule
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+
+        card.querySelectorAll('.currency-input').forEach(
+          input => UIHelpers.setupCurrencyInput(input)
+        );
+      },
+
+      removePortfolioProperty(idx) {
+        const el = document.getElementById(`portfolioProp_${idx}`);
+        if (el) el.remove();
+        this.renumberPortfolioProperties();
+      },
+
+      renumberPortfolioProperties() {
+        const cards = document.querySelectorAll('#portfolioPropertiesContainer .property-card');
+        cards.forEach((card, i) => {
+          const num = card.querySelector('.property-card-number');
+          if (num) num.textContent = i + 1;
+          const title = card.querySelector('.card-title');
+          if (title) title.textContent = `Property ${i + 1}`;
+        });
+      },
+
+      _ppTenantCounters: {},
+
+      addPortfolioTenant(propIdx) {
+        if (!this._ppTenantCounters[propIdx]) this._ppTenantCounters[propIdx] = 1;
+        const tid = this._ppTenantCounters[propIdx]++;
+        const list = document.querySelector(`.pp-tenant-list[data-prop-idx="${propIdx}"]`);
+        if (!list) return;
+
+        const entry = document.createElement('div');
+        entry.className = 'tenant-entry';
+        entry.dataset.tenantId = tid;
+        entry.innerHTML = `
+          <button class="tenant-remove-btn" onclick="this.closest('.tenant-entry').remove()">×</button>
+          <div class="tenant-row">
+            <div class="form-group">
+              <label class="form-label">Tenant</label>
+              <input type="text" class="tenant-name" placeholder="Tenant ${tid + 1}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Lease Expiry</label>
+              <input type="date" class="tenant-expiry">
+              <div class="validation-hint tenant-expiry-hint"></div>
+            </div>
+          </div>
+          <div class="form-group mt-12">
+            <label class="form-label">Annual Rent ($)</label>
+            <div class="input-wrapper">
+              <span class="input-prefix">$</span>
+              <input type="text" class="tenant-rent has-prefix currency-input" placeholder="30,000" inputmode="numeric">
+            </div>
+          </div>
+          <div class="lease-option-wrapper">
+            <label class="form-label">Lease Option</label>
+            <div class="lease-option-row">
+              <input type="text" class="tenant-option" placeholder="e.g. 2x5yr option">
+              <button class="btn-no-option" onclick="App.toggleNoOption(this)" title="No option">No Option</button>
+            </div>
+          </div>
+        `;
+        list.appendChild(entry);
+        entry.querySelectorAll('.currency-input').forEach(
+          input => UIHelpers.setupCurrencyInput(input)
+        );
+      },
+
+      getPortfolioProperties() {
+        const cards = document.querySelectorAll('#portfolioPropertiesContainer .property-card');
+        return Array.from(cards).map((card, idx) => {
+          const tenantEntries = card.querySelectorAll('.tenant-entry');
+          const tenants = Array.from(tenantEntries).map(te => {
+            const noOptionBtn = te.querySelector('.btn-no-option');
+            const isNoOption = noOptionBtn && noOptionBtn.classList.contains('active');
+            return {
+              name: te.querySelector('.tenant-name')?.value || '',
+              expiryDate: te.querySelector('.tenant-expiry')?.value || '',
+              annualRent: UIHelpers.parseNumber(te.querySelector('.tenant-rent')?.value),
+              leaseOption: isNoOption ? 'No Option' : (te.querySelector('.tenant-option')?.value || '')
+            };
+          }).filter(t => t.expiryDate || t.annualRent);
+
+          const typeValue = card.querySelector('.pp-type')?.value || 'industrial';
+          const typeDesc = card.querySelector('.pp-type-desc')?.value || '';
+
+          return {
+            index: idx,
+            value: UIHelpers.parseNumber(card.querySelector('.pp-value')?.value),
+            income: UIHelpers.parseNumber(card.querySelector('.pp-income')?.value),
+            type: typeValue,
+            typeDescription: typeDesc,
+            tenants
+          };
+        });
+      },
+
+      // ══════════════════════════════════════════
+      // SINGLE PROPERTY CALCULATION
+      // ══════════════════════════════════════════
+      calculate() {
+        // V4: Run validation first
+        Validator.validateSingleInputs();
+        // V4.1: Check tenant income consistency
+        this.checkTenantIncomeConsistency();
+
+        const loan = UIHelpers.parseNumber(document.getElementById('loanAmount').value);
+        const rate = parseFloat(document.getElementById('interestRate').value) || 7.5;
+        let term = parseInt(document.getElementById('loanTerm').value) || 5;
+        const value = UIHelpers.parseNumber(document.getElementById('propertyValue').value);
+        const type = document.getElementById('propertyType').value;
+        const typeDescription = document.getElementById('propertyTypeDesc')?.value || '';
+        const income = this.getEffectiveNetIncome(); // V4.1: supports both net and gross methods
+        const isIO = this.repaymentType === 'io';
+
+        // V4: Enforce loan term limit
+        const maxTerm = isIO ? Config.default.loanTermMax.io : Config.default.loanTermMax.pi;
+        if (term > maxTerm) {
+          term = maxTerm;
+          document.getElementById('loanTerm').value = maxTerm;
+        }
+
+        if (!loan || !value) {
+          alert('Please enter loan amount and property value');
+          return;
+        }
+
+        // ── Calculate metrics ──
+        const lvr = Calculator.calculateLVR(loan, value);
+        const icr = Calculator.calculateICR(income, loan, rate);
+        const dscr = isIO ? null : Calculator.calculateDSCR(income, loan, rate, term);
+        const coc = Calculator.calculateCashOnCash(income, loan, value, rate);
+        const grossYield = Calculator.calculateYield(income, value);
+        const breakeven = Calculator.calculateBreakevenRate(income, loan);
+        const ioPayment = Calculator.calculateIOPayment(loan, rate);
+        const piPayment = Calculator.calculatePIPayment(loan, rate, term);
+        const monthlyPayment = isIO ? ioPayment : piPayment;
+
+        // ── WALE ──
+        const tenants = this.getTenants();
+        const waleResult = Calculator.calculateWALE(tenants);
+        const hasWALE = tenants.length > 0 && waleResult.wale > 0;
+
+        // V4: Loan Term vs WALE — compare against loan term (years)
+        let loanTermVsWALE = null;
+        if (hasWALE) {
+          loanTermVsWALE = Assessor.assessLoanTermVsWALE(term, waleResult.wale);
+        }
+
+        // ── Assess ──
+        const assessments = {
+          lvr: Assessor.assessLVR(lvr, type),
+          icr: Assessor.assessICR(icr)
+        };
+        if (!isIO) {
+          assessments.dscr = Assessor.assessDSCR(dscr);
+        }
+        if (hasWALE) {
+          assessments.wale = Assessor.assessWALE(waleResult.wale);
+        }
+        if (loanTermVsWALE) {
+          assessments.loanTermWale = loanTermVsWALE;
+        }
+        const overall = Assessor.getOverallStatus(assessments);
+
+        // V4.1: Include income method details for print/copy
+        const incomeMethod = this.incomeMethod;
+        const passingRent = incomeMethod === 'gross' ? UIHelpers.parseNumber(document.getElementById('passingRent')?.value) : 0;
+        const outgoingsVal = incomeMethod === 'gross' ? UIHelpers.parseNumber(document.getElementById('outgoings')?.value) : 0;
+
+        this.lastResults = {
+          mode: 'single',
+          inputs: { loan, rate, term, value, type, typeDescription, income, repaymentType: this.repaymentType, incomeMethod, passingRent, outgoings: outgoingsVal },
+          metrics: { lvr, icr, dscr, coc, grossYield, breakeven, ioPayment, piPayment, monthlyPayment },
+          waleResult, hasWALE, loanTermVsWALE, assessments, overall
+        };
+
+        this.renderSingleResults();
+      },
+
+      renderSingleResults() {
+        const { inputs, metrics, waleResult, hasWALE, loanTermVsWALE, assessments, overall } = this.lastResults;
+        const isIO = inputs.repaymentType === 'io';
+        const lvrCap = Config.default.lvr[inputs.type] || 70;
+        const typeLabel = Config.propertyTypeLabels[inputs.type] || inputs.type;
+        const fullTypeLabel = inputs.typeDescription
+          ? `${typeLabel} (${inputs.typeDescription})`
+          : typeLabel;
+
+        let html = '';
+
+        // V4: Print input summary (visible only in print)
+        html += this.buildPrintInputSummary();
+
+        // ── Status Card ──
+        html += `
+          <div class="status-card ${overall.status}">
+            <div class="status-icon">${overall.icon}</div>
+            <div class="status-text">${overall.text}</div>
+            <div class="status-description">${overall.description}</div>
+          </div>
+        `;
+
+        // ── Loan Term vs WALE Check ──
+        if (loanTermVsWALE) {
+          html += `
+            <div class="loan-wale-check ${loanTermVsWALE.status}">
+              <span class="check-icon">${loanTermVsWALE.status === 'pass' ? '✅' : '❌'}</span>
+              <div>
+                <div>${loanTermVsWALE.message}</div>
+                <div class="check-detail">${loanTermVsWALE.detail}</div>
+              </div>
+            </div>
+          `;
+        }
+
+        // ── Metrics Grid ──
+        html += '<div class="metrics-grid">';
+
+        html += UIHelpers.buildMetricCard('lvr', 'LVR', metrics.lvr,
+          metrics.lvr.toFixed(1) + '%', assessments.lvr, metrics.lvr);
+
+        html += UIHelpers.buildMetricCard('icr', 'ICR', metrics.icr,
+          metrics.icr.toFixed(2) + 'x', assessments.icr, (metrics.icr / 2.5) * 100);
+
+        if (isIO) {
+          html += UIHelpers.buildNAMetricCard('dscr', 'DSCR', 'N/A for Interest Only — use ICR');
+        } else {
+          html += UIHelpers.buildMetricCard('dscr', 'DSCR', metrics.dscr,
+            metrics.dscr.toFixed(2) + 'x', assessments.dscr, (metrics.dscr / 2) * 100);
+        }
+
+        if (hasWALE) {
+          html += UIHelpers.buildMetricCard('wale', 'WALE', waleResult.wale,
+            waleResult.wale.toFixed(1) + ' yrs', assessments.wale,
+            Math.min(100, (waleResult.wale / 10) * 100));
+        }
+
+        html += UIHelpers.buildMetricCard('coc', 'Cash on Cash', metrics.coc,
+          metrics.coc.toFixed(1) + '%', null, Math.min(100, metrics.coc * 5));
+
+        html += UIHelpers.buildMetricCard('yield', 'Gross Yield', metrics.grossYield,
+          metrics.grossYield.toFixed(2) + '%', null, Math.min(100, metrics.grossYield * 10));
+
+        html += UIHelpers.buildMetricCard('breakeven', 'Breakeven Rate', metrics.breakeven,
+          metrics.breakeven.toFixed(2) + '%', null, Math.min(100, (metrics.breakeven / 15) * 100));
+
+        html += '</div>';
+
+        // ── Repayment Comparison ──
+        html += `
+          <div class="repayment-card">
+            <div class="repayment-title">💰 Monthly Repayment</div>
+            <div class="repayment-grid">
+              <div class="repayment-item ${isIO ? 'active-type' : ''}">
+                <div class="repayment-type">Interest Only</div>
+                <div class="repayment-amount">${UIHelpers.formatCurrency(metrics.ioPayment)}</div>
+                <div class="repayment-period">per month</div>
+              </div>
+              <div class="repayment-item ${!isIO ? 'active-type' : ''}">
+                <div class="repayment-type">Principal & Interest</div>
+                <div class="repayment-amount">${UIHelpers.formatCurrency(metrics.piPayment)}</div>
+                <div class="repayment-period">per month</div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // ── WALE Detail ──
+        if (hasWALE) {
+          html += this.renderWALESummary(waleResult, assessments.wale);
+        }
+
+        // ── Policy Notes ──
+        const notes = [
+          {
+            status: assessments.lvr.status,
+            text: `LVR ${metrics.lvr.toFixed(1)}% — ${fullTypeLabel} capped at ${lvrCap}%`
+          },
+          {
+            status: assessments.icr.status,
+            text: `ICR ${metrics.icr.toFixed(2)}x — Most lenders require 1.50x, some accept 1.25x`
+          }
+        ];
+
+        if (isIO) {
+          notes.push({
+            status: 'info',
+            text: `DSCR not applicable for Interest Only — assessed on ICR only`
+          });
+        } else {
+          notes.push({
+            status: assessments.dscr.status,
+            text: `DSCR ${metrics.dscr.toFixed(2)}x — Based on P&I repayments over ${inputs.term} years`
+          });
+        }
+
+        if (hasWALE) {
+          notes.push({
+            status: assessments.wale.status,
+            text: `WALE ${waleResult.wale.toFixed(1)} years — ${assessments.wale.message}`
+          });
+        }
+
+        if (loanTermVsWALE) {
+          notes.push({
+            status: loanTermVsWALE.status,
+            text: `Loan Term vs WALE — ${loanTermVsWALE.message} (${loanTermVsWALE.detail})`
+          });
+        }
+
+        notes.push({
+          status: metrics.breakeven > inputs.rate ? 'pass' : 'warn',
+          text: `Breakeven rate ${metrics.breakeven.toFixed(2)}% — ${
+            metrics.breakeven > inputs.rate ? 'Buffer above current rate' : 'Below current rate, limited headroom'
+          }`
+        });
+
+        // V4.1: Add option consideration notes from WALE tenant details
+        if (hasWALE) {
+          waleResult.tenantDetails.forEach(t => {
+            if (t.optionNote) {
+              notes.push({
+                status: 'info',
+                text: `${t.name}: ${t.optionNote}`
+              });
+            }
+          });
+        }
+
+        if (inputs.type === 'specialised') {
+          notes.push({
+            status: 'warn',
+            text: `Specialised commercial property — LVR limited to 50%, limited lender appetite`
+          });
+        }
+
+        html += `
+          <div class="policy-card">
+            <div class="policy-header">
+              <span>💡</span>
+              <span class="policy-title">Assessment Notes</span>
+            </div>
+            <ul class="policy-list">
+              ${notes.map(n => `
+                <li class="policy-item">
+                  <span class="policy-icon ${n.status}">${
+                    n.status === 'pass' ? '✓' : n.status === 'warn' ? '⚠' : n.status === 'info' ? 'ℹ' : '✗'
+                  }</span>
+                  <span>${n.text}</span>
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+        `;
+
+        // ── Actions ──
+        html += `
+          <div class="actions-row">
+            <button class="btn btn-secondary" onclick="App.copyResults()">📋 Copy Results</button>
+            <button class="btn btn-secondary" onclick="App.exportPDF()">📄 Export PDF</button>
+            <button class="btn btn-secondary" onclick="App.reset()">🔄 Reset</button>
+          </div>
+        `;
+
+        document.getElementById('resultsContainer').innerHTML = html;
+        document.getElementById('emptyState').classList.add('hidden');
+        document.getElementById('resultsContainer').classList.remove('hidden');
+        document.getElementById('resultsContainer').classList.add('animate-in');
+      },
+
+      // ══════════════════════════════════════════
+      // PORTFOLIO CALCULATION
+      // ══════════════════════════════════════════
+      calculatePortfolio() {
+        // V4: Run validation first
+        Validator.validatePortfolioInputs();
+
+        const loan = UIHelpers.parseNumber(document.getElementById('pLoanAmount').value);
+        const rate = parseFloat(document.getElementById('pInterestRate').value) || 7.5;
+        let term = parseInt(document.getElementById('pLoanTerm').value) || 5;
+        const isIO = this.portfolioRepaymentType === 'io';
+
+        // V4: Enforce loan term limit
+        const maxTerm = isIO ? Config.default.loanTermMax.io : Config.default.loanTermMax.pi;
+        if (term > maxTerm) {
+          term = maxTerm;
+          document.getElementById('pLoanTerm').value = maxTerm;
+        }
+
+        if (!loan) {
+          alert('Please enter total loan amount');
+          return;
+        }
+
+        const properties = this.getPortfolioProperties();
+        if (properties.length === 0) {
+          alert('Please add at least one property');
+          return;
+        }
+
+        let totalValue = 0;
+        let totalIncome = 0;
+        const propertyResults = [];
+        let allTenants = [];
+
+        properties.forEach((prop, idx) => {
+          totalValue += prop.value;
+          totalIncome += prop.income;
+
+          const waleResult = Calculator.calculateWALE(prop.tenants);
+          const hasWALE = prop.tenants.length > 0 && waleResult.wale > 0;
+
+          allTenants = allTenants.concat(prop.tenants);
+
+          propertyResults.push({
+            ...prop,
+            waleResult,
+            hasWALE,
+            typeLabel: Config.propertyTypeLabels[prop.type] || prop.type,
+            fullTypeLabel: prop.typeDescription
+              ? `${Config.propertyTypeLabels[prop.type] || prop.type} (${prop.typeDescription})`
+              : (Config.propertyTypeLabels[prop.type] || prop.type),
+            lvrCap: Config.default.lvr[prop.type] || 70
+          });
+        });
+
+        const lvr = Calculator.calculateLVR(loan, totalValue);
+        const icr = Calculator.calculateICR(totalIncome, loan, rate);
+        const dscr = isIO ? null : Calculator.calculateDSCR(totalIncome, loan, rate, term);
+        const coc = Calculator.calculateCashOnCash(totalIncome, loan, totalValue, rate);
+        const grossYield = Calculator.calculateYield(totalIncome, totalValue);
+        const breakeven = Calculator.calculateBreakevenRate(totalIncome, loan);
+        const ioPayment = Calculator.calculateIOPayment(loan, rate);
+        const piPayment = Calculator.calculatePIPayment(loan, rate, term);
+
+        const combinedWALE = Calculator.calculateWALE(allTenants);
+        const hasCombinedWALE = allTenants.length > 0 && combinedWALE.wale > 0;
+
+        // V4: Loan Term vs combined WALE
+        let loanTermVsWALE = null;
+        if (hasCombinedWALE) {
+          loanTermVsWALE = Assessor.assessLoanTermVsWALE(term, combinedWALE.wale);
+        }
+
+        const lowestCap = Math.min(...propertyResults.map(p => p.lvrCap));
+        const portfolioAssessments = {
+          lvr: Assessor.assessLVR(lvr, 'otherNonSpecialised'),
+          icr: Assessor.assessICR(icr)
+        };
+
+        if (lvr <= lowestCap - 10) {
+          portfolioAssessments.lvr = { status: 'pass', message: `Portfolio LVR within caps` };
+        } else if (lvr <= lowestCap) {
+          portfolioAssessments.lvr = { status: 'warn', message: `Portfolio LVR at limit (lowest cap ${lowestCap}%)` };
+        } else {
+          const highestCap = Math.max(...propertyResults.map(p => p.lvrCap));
+          if (lvr > highestCap) {
+            portfolioAssessments.lvr = { status: 'fail', message: `Exceeds all LVR caps` };
+          } else {
+            portfolioAssessments.lvr = { status: 'warn', message: `Exceeds some property type LVR caps` };
+          }
+        }
+
+        if (!isIO && dscr !== null) {
+          portfolioAssessments.dscr = Assessor.assessDSCR(dscr);
+        }
+        if (hasCombinedWALE) {
+          portfolioAssessments.wale = Assessor.assessWALE(combinedWALE.wale);
+        }
+        if (loanTermVsWALE) {
+          portfolioAssessments.loanTermWale = loanTermVsWALE;
+        }
+
+        const overall = Assessor.getOverallStatus(portfolioAssessments);
+
+        propertyResults.forEach(prop => {
+          prop.assessments = {};
+          if (prop.value > 0) {
+            prop.assessments.lvrNote = Assessor.assessLVR(lvr, prop.type);
+          }
+          if (prop.hasWALE) {
+            prop.assessments.wale = Assessor.assessWALE(prop.waleResult.wale);
+          }
+        });
+
+        this.lastResults = {
+          mode: 'portfolio',
+          inputs: { loan, rate, term, repaymentType: this.portfolioRepaymentType },
+          metrics: { lvr, icr, dscr, coc, grossYield, breakeven, ioPayment, piPayment },
+          totalValue, totalIncome,
+          propertyResults,
+          combinedWALE, hasCombinedWALE, loanTermVsWALE,
+          portfolioAssessments, overall
+        };
+
+        this.renderPortfolioResults();
+      },
+
+      renderPortfolioResults() {
+        const { inputs, metrics, totalValue, totalIncome, propertyResults, combinedWALE, hasCombinedWALE, loanTermVsWALE, portfolioAssessments, overall } = this.lastResults;
+        const isIO = inputs.repaymentType === 'io';
+
+        let html = '';
+
+        // V4: Print input summary
+        html += this.buildPrintInputSummary();
+
+        // ── Portfolio Status ──
+        html += `
+          <div class="status-card ${overall.status}">
+            <div class="status-icon">${overall.icon}</div>
+            <div class="status-text">${overall.text}</div>
+            <div class="status-description">${overall.description} — ${propertyResults.length} properties in portfolio</div>
+          </div>
+        `;
+
+        // ── Loan Term vs WALE Check ──
+        if (loanTermVsWALE) {
+          html += `
+            <div class="loan-wale-check ${loanTermVsWALE.status}">
+              <span class="check-icon">${loanTermVsWALE.status === 'pass' ? '✅' : '❌'}</span>
+              <div>
+                <div>${loanTermVsWALE.message}</div>
+                <div class="check-detail">${loanTermVsWALE.detail}</div>
+              </div>
+            </div>
+          `;
+        }
+
+        // ── Portfolio Summary Metrics ──
+        html += '<div class="metrics-grid">';
+
+        html += UIHelpers.buildMetricCard('pLvr', 'Portfolio LVR', metrics.lvr,
+          metrics.lvr.toFixed(1) + '%', portfolioAssessments.lvr, metrics.lvr);
+
+        html += UIHelpers.buildMetricCard('pIcr', 'Portfolio ICR', metrics.icr,
+          metrics.icr.toFixed(2) + 'x', portfolioAssessments.icr, (metrics.icr / 2.5) * 100);
+
+        if (isIO) {
+          html += UIHelpers.buildNAMetricCard('pDscr', 'Portfolio DSCR', 'N/A for Interest Only');
+        } else {
+          html += UIHelpers.buildMetricCard('pDscr', 'Portfolio DSCR', metrics.dscr,
+            metrics.dscr.toFixed(2) + 'x', portfolioAssessments.dscr, (metrics.dscr / 2) * 100);
+        }
+
+        if (hasCombinedWALE) {
+          html += UIHelpers.buildMetricCard('pWale', 'Combined WALE', combinedWALE.wale,
+            combinedWALE.wale.toFixed(1) + ' yrs', portfolioAssessments.wale,
+            Math.min(100, (combinedWALE.wale / 10) * 100));
+        }
+
+        html += UIHelpers.buildMetricCard('pYield', 'Portfolio Yield', metrics.grossYield,
+          metrics.grossYield.toFixed(2) + '%', null, Math.min(100, metrics.grossYield * 10));
+
+        html += UIHelpers.buildMetricCard('pBreakeven', 'Breakeven Rate', metrics.breakeven,
+          metrics.breakeven.toFixed(2) + '%', null, Math.min(100, (metrics.breakeven / 15) * 100));
+
+        html += '</div>';
+
+        // ── Repayment ──
+        html += `
+          <div class="repayment-card">
+            <div class="repayment-title">💰 Portfolio Monthly Repayment</div>
+            <div class="repayment-grid">
+              <div class="repayment-item ${isIO ? 'active-type' : ''}">
+                <div class="repayment-type">Interest Only</div>
+                <div class="repayment-amount">${UIHelpers.formatCurrency(metrics.ioPayment)}</div>
+                <div class="repayment-period">per month</div>
+              </div>
+              <div class="repayment-item ${!isIO ? 'active-type' : ''}">
+                <div class="repayment-type">Principal & Interest</div>
+                <div class="repayment-amount">${UIHelpers.formatCurrency(metrics.piPayment)}</div>
+                <div class="repayment-period">per month</div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // ── Combined WALE Detail ──
+        if (hasCombinedWALE) {
+          html += this.renderWALESummary(combinedWALE, portfolioAssessments.wale, 'Portfolio WALE Analysis');
+        }
+
+        // ── V4: WALE Contribution Chart ──
+        if (hasCombinedWALE && propertyResults.length > 1) {
+          html += this.renderWALEContributionChart(propertyResults, combinedWALE);
+        }
+
+        // ── Individual Property Breakdown ──
+        html += `<div class="section-label" style="margin-top: 8px;">Individual Property Assessment</div>`;
+
+        propertyResults.forEach((prop, idx) => {
+          const propOverall = Assessor.getOverallStatus({
+            ...(prop.assessments.lvrNote ? { lvr: prop.assessments.lvrNote } : {}),
+            ...(prop.assessments.wale ? { wale: prop.assessments.wale } : {})
+          });
+
+          html += `
+            <div class="portfolio-property-result" style="margin-top: 12px;">
+              <div class="portfolio-property-header">
+                <span class="property-card-number">${idx + 1}</span>
+                <span class="portfolio-property-name">${prop.fullTypeLabel}</span>
+                <span class="portfolio-property-tag ${propOverall.status}">${propOverall.icon} ${propOverall.text}</span>
+              </div>
+              <div class="portfolio-metrics-row">
+                <div class="portfolio-metric-item">
+                  <div class="portfolio-metric-label">Value</div>
+                  <div class="portfolio-metric-val neutral">${UIHelpers.formatCurrency(prop.value)}</div>
+                </div>
+                <div class="portfolio-metric-item">
+                  <div class="portfolio-metric-label">Rental p.a.</div>
+                  <div class="portfolio-metric-val neutral">${UIHelpers.formatCurrency(prop.income)}</div>
+                </div>
+                <div class="portfolio-metric-item">
+                  <div class="portfolio-metric-label">LVR Cap</div>
+                  <div class="portfolio-metric-val ${prop.assessments.lvrNote ? prop.assessments.lvrNote.status : 'neutral'}">${prop.lvrCap}%</div>
+                </div>
+                <div class="portfolio-metric-item">
+                  <div class="portfolio-metric-label">Yield</div>
+                  <div class="portfolio-metric-val neutral">${prop.value > 0 ? ((prop.income / prop.value) * 100).toFixed(1) : '0.0'}%</div>
+                </div>
+                ${prop.hasWALE ? `
+                  <div class="portfolio-metric-item">
+                    <div class="portfolio-metric-label">WALE</div>
+                    <div class="portfolio-metric-val ${prop.assessments.wale ? prop.assessments.wale.status : 'neutral'}">${prop.waleResult.wale.toFixed(1)} yrs</div>
+                  </div>
+                ` : ''}
+              </div>
+              ${prop.hasWALE && prop.waleResult.tenantDetails.length > 0 ? `
+                <div class="wale-tenant-list" style="margin-top: 12px;">
+                  ${prop.waleResult.tenantDetails.map(t => {
+                    const hasOptionBoost = t.effectiveYears && t.effectiveYears > t.yearsRemaining;
+                    return `
+                    <div class="wale-tenant-row" style="flex-wrap:wrap;">
+                      <span class="wale-tenant-name">${t.name}${t.leaseOption ? ` <span style="font-size:10px;color:var(--text-muted)">(${t.leaseOption})</span>` : ''}</span>
+                      <span>
+                        <span class="wale-tenant-expiry ${t.isExpired ? 'fail' : t.isExpiringSoon ? 'warn' : 'pass'}" style="color: var(--${t.isExpired ? 'danger' : t.isExpiringSoon ? 'warning' : 'success'})">
+                          ${t.isExpired ? '⛔ EXPIRED' : t.yearsRemaining.toFixed(1) + ' yrs'}
+                          ${t.isExpiringSoon ? ' ⚠️' : ''}
+                        </span>
+                        ${hasOptionBoost ? `<span style="font-size:10px;color:var(--info);margin-left:4px;">📎 ${t.effectiveYears.toFixed(1)} yrs w/ option</span>` : ''}
+                      </span>
+                      ${t.optionNote ? `<div style="width:100%;font-size:10px;color:var(--info);margin-top:2px;">ℹ️ ${t.optionNote}</div>` : ''}
+                    </div>`;
+                  }).join('')}
+                </div>
+              ` : ''}
+            </div>
+          `;
+        });
+
+        // ── Portfolio Summary ──
+        html += `
+          <div class="policy-card" style="margin-top: 12px;">
+            <div class="policy-header">
+              <span>📊</span>
+              <span class="policy-title">Portfolio Summary</span>
+            </div>
+            <ul class="policy-list">
+              <li class="policy-item">
+                <span class="policy-icon pass">🏢</span>
+                <span>${propertyResults.length} properties — Total value ${UIHelpers.formatCurrency(totalValue)}, Total income ${UIHelpers.formatCurrency(totalIncome)} p.a.</span>
+              </li>
+              <li class="policy-item">
+                <span class="policy-icon ${portfolioAssessments.lvr.status}">${portfolioAssessments.lvr.status === 'pass' ? '✓' : portfolioAssessments.lvr.status === 'warn' ? '⚠' : '✗'}</span>
+                <span>Portfolio LVR ${metrics.lvr.toFixed(1)}% against ${UIHelpers.formatCurrency(inputs.loan)} loan</span>
+              </li>
+              ${loanTermVsWALE ? `
+                <li class="policy-item">
+                  <span class="policy-icon ${loanTermVsWALE.status}">${loanTermVsWALE.status === 'pass' ? '✓' : '✗'}</span>
+                  <span>Loan Term vs WALE — ${loanTermVsWALE.message}</span>
+                </li>
+              ` : ''}
+              ${propertyResults.some(p => p.type === 'specialised') ? `
+                <li class="policy-item">
+                  <span class="policy-icon warn">⚠</span>
+                  <span>Portfolio includes specialised commercial property — LVR capped at 50% for those assets</span>
+                </li>
+              ` : ''}
+              ${/* V4.1: Option consideration notes from all properties */
+                hasCombinedWALE ? combinedWALE.tenantDetails.filter(t => t.optionNote).map(t => `
+                <li class="policy-item">
+                  <span class="policy-icon info">ℹ</span>
+                  <span>${t.name}: ${t.optionNote}</span>
+                </li>
+              `).join('') : ''}
+            </ul>
+          </div>
+        `;
+
+        // ── Actions ──
+        html += `
+          <div class="actions-row">
+            <button class="btn btn-secondary" onclick="App.copyResults()">📋 Copy Results</button>
+            <button class="btn btn-secondary" onclick="App.exportPDF()">📄 Export PDF</button>
+            <button class="btn btn-secondary" onclick="App.reset()">🔄 Reset</button>
+          </div>
+        `;
+
+        document.getElementById('resultsContainer').innerHTML = html;
+        document.getElementById('emptyState').classList.add('hidden');
+        document.getElementById('resultsContainer').classList.remove('hidden');
+        document.getElementById('resultsContainer').classList.add('animate-in');
+      },
+
+      // ══════════════════════════════════════════
+      // V4: WALE CONTRIBUTION CHART (Portfolio)
+      // ══════════════════════════════════════════
+
+      renderWALEContributionChart(propertyResults, combinedWALE) {
+        const totalRent = combinedWALE.totalRent;
+        if (totalRent <= 0) return '';
+
+        let rows = '';
+        propertyResults.forEach((prop, idx) => {
+          if (!prop.hasWALE || !prop.waleResult.totalRent) return;
+
+          const propRent = prop.waleResult.totalRent;
+          const incomeShare = (propRent / totalRent) * 100;
+          const waleYrs = prop.waleResult.wale;
+          const waleContrib = (propRent / totalRent) * waleYrs;
+
+          // Color coding: <3yr = red, 3-5yr = yellow, >5yr = green
+          let barClass = 'wale-bar-long';
+          if (waleYrs < 3) barClass = 'wale-bar-short';
+          else if (waleYrs < 5) barClass = 'wale-bar-medium';
+
+          // Bar width relative to max WALE in the set
+          const maxWale = Math.max(...propertyResults.filter(p => p.hasWALE).map(p => p.waleResult.wale), 1);
+          const barWidth = Math.max(10, (waleYrs / maxWale) * 100);
+
+          rows += `
+            <tr>
+              <td style="font-weight:600;">Property ${idx + 1}</td>
+              <td>${UIHelpers.formatCurrency(propRent)}</td>
+              <td>${incomeShare.toFixed(1)}%</td>
+              <td class="wale-contrib-bar-cell">
+                <div class="wale-contrib-bar-bg">
+                  <div class="wale-contrib-bar-fill ${barClass}" style="width: ${barWidth}%">
+                    ${waleYrs.toFixed(1)}
+                  </div>
+                </div>
+              </td>
+              <td style="font-weight:600;">${waleContrib.toFixed(2)}</td>
+            </tr>
+          `;
+        });
+
+        return `
+          <div class="wale-contrib-chart">
+            <div class="wale-contrib-header">
+              <span>📊</span>
+              <span class="wale-contrib-title">WALE Contribution Analysis</span>
+            </div>
+            <table class="wale-contrib-table">
+              <thead>
+                <tr>
+                  <th>Property</th>
+                  <th>Rental p.a.</th>
+                  <th>Income %</th>
+                  <th>Lease Remaining</th>
+                  <th>WALE Contribution</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rows}
+              </tbody>
+            </table>
+            <div class="wale-contrib-footer">
+              <span style="color:var(--text-secondary)">Total Rental: ${UIHelpers.formatCurrency(totalRent)} p.a.</span>
+              <span style="color:var(--primary)">Combined WALE: ${combinedWALE.wale.toFixed(2)} yrs</span>
+            </div>
+            <div class="wale-contrib-legend">
+              <span class="wale-contrib-legend-item"><span class="wale-legend-dot" style="background:#EF4444"></span> Short (&lt;3 yrs)</span>
+              <span class="wale-contrib-legend-item"><span class="wale-legend-dot" style="background:#F59E0B"></span> Medium (3-5 yrs)</span>
+              <span class="wale-contrib-legend-item"><span class="wale-legend-dot" style="background:#2ECC85"></span> Long (&gt;5 yrs)</span>
+            </div>
+          </div>
+        `;
+      },
+
+      // ══════════════════════════════════════════
+      // SHARED RENDER HELPERS
+      // ══════════════════════════════════════════
+
+      renderWALESummary(waleResult, assessment, title = 'WALE Analysis') {
+        let html = `
+          <div class="wale-summary">
+            <div class="wale-header">
+              <span>📅</span>
+              <span class="wale-header-title">${title}</span>
+            </div>
+            <div class="wale-value-row">
+              <span class="wale-metric-label">Weighted Average Lease Expiry</span>
+              <span class="wale-metric-value ${assessment.status}">${waleResult.wale.toFixed(2)} years</span>
+            </div>
+            <div class="wale-value-row">
+              <span class="wale-metric-label">Risk Level</span>
+              <span class="wale-metric-value ${assessment.status}">
+                ${assessment.status === 'pass' ? '✅ Low Risk' : assessment.status === 'warn' ? '⚠️ Medium Risk' : '❌ High Risk'}
+              </span>
+            </div>
+        `;
+
+        if (waleResult.tenantDetails.length > 0) {
+          html += `<div class="wale-tenant-list">`;
+          waleResult.tenantDetails.forEach(t => {
+            const statusClass = t.isExpired ? 'danger' : t.isExpiringSoon ? 'warning' : 'pass';
+            // V4.1: Show option note and effective years if option was considered
+            const hasOptionBoost = t.effectiveYears && t.effectiveYears > t.yearsRemaining;
+            html += `
+              <div class="wale-tenant-row" style="flex-wrap:wrap;">
+                <span class="wale-tenant-name">${t.name}${t.leaseOption ? ` <span style="font-size:10px;color:var(--text-muted)">(${t.leaseOption})</span>` : ''}</span>
+                <span>
+                  <span class="lease-expiry-tag ${statusClass}">
+                    ${t.isExpired ? '⛔ EXPIRED' :
+                      t.isExpiringSoon ? `⚠️ ${t.yearsRemaining.toFixed(1)} yrs (expiring soon)` :
+                      `✅ ${t.yearsRemaining.toFixed(1)} yrs`}
+                  </span>
+                  ${hasOptionBoost ? `<span class="lease-expiry-tag" style="background:var(--info-bg);color:var(--info);margin-left:4px;">📎 ${t.effectiveYears.toFixed(1)} yrs w/ option</span>` : ''}
+                </span>
+                ${t.optionNote ? `<div style="width:100%;font-size:10px;color:var(--info);margin-top:2px;padding-left:4px;">ℹ️ ${t.optionNote}</div>` : ''}
+              </div>
+            `;
+          });
+          html += '</div>';
+        }
+
+        html += '</div>';
+        return html;
+      },
+
+      // ══════════════════════════════════════════
+      // V4: PRINT INPUT SUMMARY (visible in PDF only)
+      // ══════════════════════════════════════════
+
+      buildPrintInputSummary() {
+        if (!this.lastResults) return '';
+        const r = this.lastResults;
+
+        if (r.mode === 'single') {
+          const { inputs } = r;
+          const typeLabel = Config.propertyTypeLabels[inputs.type] || inputs.type;
+          const fullType = inputs.typeDescription ? `${typeLabel} (${inputs.typeDescription})` : typeLabel;
+          return `
+            <div class="print-input-summary">
+              <h3>📋 Deal Summary</h3>
+              <div class="print-input-grid">
+                <div class="print-input-item"><strong>Loan Amount:</strong> ${UIHelpers.formatCurrency(inputs.loan)}</div>
+                <div class="print-input-item"><strong>Property Value:</strong> ${UIHelpers.formatCurrency(inputs.value)}</div>
+                <div class="print-input-item"><strong>Interest Rate:</strong> ${inputs.rate}%</div>
+                <div class="print-input-item"><strong>Loan Term:</strong> ${inputs.term} years</div>
+                <div class="print-input-item"><strong>Repayment:</strong> ${inputs.repaymentType === 'io' ? 'Interest Only' : 'P&I'}</div>
+                <div class="print-input-item"><strong>Property Type:</strong> ${fullType}</div>
+                <div class="print-input-item"><strong>Net Rental:</strong> ${UIHelpers.formatCurrency(inputs.income)} p.a.</div>
+                ${inputs.incomeMethod === 'gross' ? `
+                <div class="print-input-item"><strong>Passing Rent:</strong> ${UIHelpers.formatCurrency(inputs.passingRent || 0)} p.a.</div>
+                <div class="print-input-item"><strong>Outgoings:</strong> ${UIHelpers.formatCurrency(inputs.outgoings || 0)} p.a.</div>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        } else {
+          const { inputs, totalValue, totalIncome, propertyResults } = r;
+          return `
+            <div class="print-input-summary">
+              <h3>📋 Portfolio Summary</h3>
+              <div class="print-input-grid">
+                <div class="print-input-item"><strong>Total Loan:</strong> ${UIHelpers.formatCurrency(inputs.loan)}</div>
+                <div class="print-input-item"><strong>Total Value:</strong> ${UIHelpers.formatCurrency(totalValue)}</div>
+                <div class="print-input-item"><strong>Total Rental:</strong> ${UIHelpers.formatCurrency(totalIncome)} p.a.</div>
+                <div class="print-input-item"><strong>Properties:</strong> ${propertyResults.length}</div>
+                <div class="print-input-item"><strong>Interest Rate:</strong> ${inputs.rate}%</div>
+                <div class="print-input-item"><strong>Loan Term:</strong> ${inputs.term} years</div>
+                <div class="print-input-item"><strong>Repayment:</strong> ${inputs.repaymentType === 'io' ? 'Interest Only' : 'P&I'}</div>
+              </div>
+            </div>
+          `;
+        }
+      },
+
+      // ══════════════════════════════════════════
+      // V4: PDF EXPORT
+      // ══════════════════════════════════════════
+
+      exportPDF() {
+        if (!this.lastResults) {
+          this.showToast('⚠️ Calculate first, then export');
+          return;
+        }
+
+        // Set date for print header
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('en-AU', {
+          year: 'numeric', month: 'long', day: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        });
+        document.getElementById('printDate').textContent = `Generated: ${dateStr}`;
+
+        window.print();
+      },
+
+      // ══════════════════════════════════════════
+      // COPY / RESET
+      // ══════════════════════════════════════════
+
+      copyResults() {
+        if (!this.lastResults) return;
+
+        let text = '';
+        if (this.lastResults.mode === 'single') {
+          text = this.buildSingleCopyText();
+        } else {
+          text = this.buildPortfolioCopyText();
+        }
+
+        navigator.clipboard.writeText(text).then(() => {
+          this.showToast('✅ Copied to clipboard!');
+        });
+      },
+
+      buildSingleCopyText() {
+        const { inputs, metrics, waleResult, hasWALE, loanTermVsWALE, overall } = this.lastResults;
+        const typeLabel = Config.propertyTypeLabels[inputs.type] || inputs.type;
+        const fullTypeLabel = inputs.typeDescription
+          ? `${typeLabel} (${inputs.typeDescription})`
+          : typeLabel;
+        const isIO = inputs.repaymentType === 'io';
+
+        let text = `COMMERCIAL SERVICING ASSESSMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 DEAL SUMMARY
+Loan Amount: ${UIHelpers.formatCurrency(inputs.loan)}
+Property Value: ${UIHelpers.formatCurrency(inputs.value)}
+Property Type: ${fullTypeLabel}
+Interest Rate: ${inputs.rate}%
+Loan Term: ${inputs.term} years
+Repayment Type: ${isIO ? 'Interest Only' : 'Principal & Interest'}
+Net Rental Income: ${UIHelpers.formatCurrency(inputs.income)} p.a.${inputs.incomeMethod === 'gross' ? `
+  (Passing Rent: ${UIHelpers.formatCurrency(inputs.passingRent)} — Outgoings: ${UIHelpers.formatCurrency(inputs.outgoings)})` : ''}
+
+📊 KEY METRICS
+LVR: ${metrics.lvr.toFixed(1)}%
+ICR: ${metrics.icr.toFixed(2)}x
+DSCR: ${isIO ? 'N/A (IO)' : metrics.dscr.toFixed(2) + 'x'}
+Cash on Cash: ${metrics.coc.toFixed(1)}%
+Gross Yield: ${metrics.grossYield.toFixed(2)}%
+Breakeven Rate: ${metrics.breakeven.toFixed(2)}%`;
+
+        if (hasWALE) {
+          text += `\n\n📅 WALE: ${waleResult.wale.toFixed(2)} years`;
+          waleResult.tenantDetails.forEach(t => {
+            let line = `\n  • ${t.name}: ${t.isExpired ? 'EXPIRED' : t.yearsRemaining.toFixed(1) + ' years remaining'}${t.isExpiringSoon ? ' ⚠️' : ''}`;
+            if (t.leaseOption) line += ` | Option: ${t.leaseOption}`;
+            // V4.1: Show effective years if option was considered
+            if (t.effectiveYears && t.effectiveYears > t.yearsRemaining) {
+              line += ` | Effective: ${t.effectiveYears.toFixed(1)} yrs (w/ option)`;
+            }
+            if (t.optionNote) line += `\n    ℹ️ ${t.optionNote}`;
+            text += line;
+          });
+        }
+
+        if (loanTermVsWALE) {
+          text += `\n\n🔍 LOAN TERM vs WALE`;
+          text += `\n${loanTermVsWALE.status === 'pass' ? '✅' : '❌'} ${loanTermVsWALE.message}`;
+          text += `\n${loanTermVsWALE.detail}`;
+        }
+
+        text += `\n
+💰 REPAYMENTS
+Interest Only: ${UIHelpers.formatCurrency(metrics.ioPayment)}/month
+P&I: ${UIHelpers.formatCurrency(metrics.piPayment)}/month
+
+${overall.icon} OVERALL: ${overall.text}
+${overall.description}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generated by Oney & Co — Oney Serve V4.1
+oneyco.com.au`;
+        return text;
+      },
+
+      buildPortfolioCopyText() {
+        const { inputs, metrics, totalValue, totalIncome, propertyResults, combinedWALE, hasCombinedWALE, loanTermVsWALE, overall } = this.lastResults;
+        const isIO = inputs.repaymentType === 'io';
+
+        let text = `PORTFOLIO SERVICING ASSESSMENT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 PORTFOLIO SUMMARY
+Total Loan: ${UIHelpers.formatCurrency(inputs.loan)}
+Total Property Value: ${UIHelpers.formatCurrency(totalValue)}
+Total Rental Income: ${UIHelpers.formatCurrency(totalIncome)} p.a.
+Properties: ${propertyResults.length}
+Interest Rate: ${inputs.rate}%
+Loan Term: ${inputs.term} years
+Repayment Type: ${isIO ? 'Interest Only' : 'Principal & Interest'}
+
+📊 PORTFOLIO METRICS
+LVR: ${metrics.lvr.toFixed(1)}%
+ICR: ${metrics.icr.toFixed(2)}x
+DSCR: ${isIO ? 'N/A (IO)' : metrics.dscr.toFixed(2) + 'x'}
+Gross Yield: ${metrics.grossYield.toFixed(2)}%
+Breakeven Rate: ${metrics.breakeven.toFixed(2)}%`;
+
+        if (hasCombinedWALE) {
+          text += `\nCombined WALE: ${combinedWALE.wale.toFixed(2)} years`;
+        }
+
+        if (loanTermVsWALE) {
+          text += `\n\n🔍 LOAN TERM vs WALE`;
+          text += `\n${loanTermVsWALE.status === 'pass' ? '✅' : '❌'} ${loanTermVsWALE.message}`;
+          text += `\n${loanTermVsWALE.detail}`;
+        }
+
+        text += '\n\n🏢 INDIVIDUAL PROPERTIES';
+        propertyResults.forEach((p, i) => {
+          text += `\n\n  Property ${i + 1}: ${p.fullTypeLabel}`;
+          text += `\n  Value: ${UIHelpers.formatCurrency(p.value)} | Rental: ${UIHelpers.formatCurrency(p.income)} p.a.`;
+          text += `\n  LVR Cap: ${p.lvrCap}% | Yield: ${p.value > 0 ? ((p.income / p.value) * 100).toFixed(1) : '0.0'}%`;
+          if (p.hasWALE) {
+            text += `\n  WALE: ${p.waleResult.wale.toFixed(1)} years`;
+            p.waleResult.tenantDetails.forEach(t => {
+              let line = `\n    • ${t.name}: ${t.isExpired ? 'EXPIRED' : t.yearsRemaining.toFixed(1) + 'yr'}`;
+              if (t.leaseOption) line += ` | Option: ${t.leaseOption}`;
+              // V4.1: Show effective years if option was considered
+              if (t.effectiveYears && t.effectiveYears > t.yearsRemaining) {
+                line += ` | Effective: ${t.effectiveYears.toFixed(1)} yrs (w/ option)`;
+              }
+              if (t.optionNote) line += `\n      ℹ️ ${t.optionNote}`;
+              text += line;
+            });
+          }
+        });
+
+        text += `\n
+💰 REPAYMENTS
+IO: ${UIHelpers.formatCurrency(metrics.ioPayment)}/month
+P&I: ${UIHelpers.formatCurrency(metrics.piPayment)}/month
+
+${overall.icon} OVERALL: ${overall.text}
+${overall.description}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generated by Oney & Co — Oney Serve V4.1
+oneyco.com.au`;
+        return text;
+      },
+
+      reset() {
+        if (this.mode === 'single') {
+          document.getElementById('loanAmount').value = '';
+          document.getElementById('propertyValue').value = '';
+          document.getElementById('rentalIncome').value = '';
+          document.getElementById('interestRate').value = '7.50';
+          document.getElementById('loanTerm').value = '5';
+          document.getElementById('propertyType').selectedIndex = 0;
+          if (document.getElementById('propertyTypeDesc')) {
+            document.getElementById('propertyTypeDesc').value = '';
+          }
+          document.getElementById('propertyTypeDescWrapper').classList.add('hidden');
+          document.getElementById('specialisedHint').classList.add('hidden');
+          this.setRepaymentType('io');
+
+          // V4.1: Reset income method
+          this.setIncomeMethod('net');
+          if (document.getElementById('passingRent')) document.getElementById('passingRent').value = '';
+          if (document.getElementById('outgoings')) document.getElementById('outgoings').value = '';
+          if (document.getElementById('calculatedNetIncome')) document.getElementById('calculatedNetIncome').value = '';
+          Validator.hideHint(document.getElementById('grossIncomeHint'));
+          Validator.hideHint(document.getElementById('tenantIncomeConsistencyHint'));
+          // Reset tenants
+          document.getElementById('tenantList').innerHTML = `
+            <div class="tenant-entry" data-tenant-id="0">
+              <div class="tenant-row">
+                <div class="form-group">
+                  <label class="form-label">Tenant Name</label>
+                  <input type="text" class="tenant-name" placeholder="Tenant 1">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Lease Expiry</label>
+                  <input type="date" class="tenant-expiry">
+                  <div class="validation-hint tenant-expiry-hint"></div>
+                </div>
+              </div>
+              <div class="form-group mt-12">
+                <label class="form-label">Annual Rent ($)</label>
+                <div class="input-wrapper">
+                  <span class="input-prefix">$</span>
+                  <input type="text" class="tenant-rent has-prefix currency-input" placeholder="60,000" inputmode="numeric">
+                </div>
+              </div>
+              <div class="lease-option-wrapper">
+                <label class="form-label">Lease Option</label>
+                <div class="lease-option-row">
+                  <input type="text" class="tenant-option" placeholder="e.g. 2x5yr option, 3+3+3">
+                  <button class="btn-no-option" onclick="App.toggleNoOption(this)" title="No option">No Option</button>
+                </div>
+              </div>
+            </div>
+          `;
+          document.querySelectorAll('#tenantList .currency-input').forEach(
+            input => UIHelpers.setupCurrencyInput(input)
+          );
+          this.tenantCounter = 1;
+
+          // Clear validation hints
+          document.querySelectorAll('#singlePropertyInputs .validation-hint').forEach(h => {
+            h.className = 'validation-hint';
+            h.textContent = '';
+          });
+          document.querySelectorAll('#singlePropertyInputs .input-warning, #singlePropertyInputs .input-danger').forEach(el => {
+            el.classList.remove('input-warning', 'input-danger');
+          });
+        } else {
+          document.getElementById('pLoanAmount').value = '';
+          document.getElementById('pInterestRate').value = '7.50';
+          document.getElementById('pLoanTerm').value = '5';
+          this.setRepaymentType('io', true);
+          document.getElementById('portfolioPropertiesContainer').innerHTML = '';
+          this.portfolioPropCounter = 0;
+          this._ppTenantCounters = {};
+          this.addPortfolioProperty();
+
+          // Clear validation hints
+          document.querySelectorAll('#portfolioInputs .validation-hint').forEach(h => {
+            h.className = 'validation-hint';
+            h.textContent = '';
+          });
+        }
+
+        document.getElementById('resultsContainer').classList.add('hidden');
+        document.getElementById('resultsContainer').innerHTML = '';
+        document.getElementById('emptyState').classList.remove('hidden');
+        this.lastResults = null;
+
+        // V4: Clear saved data
+        localStorage.removeItem(Config.STORAGE_KEY);
+        this.showToast('🔄 Reset complete');
+      },
+
+      // ══════════════════════════════════════════
+      // V4.1: CLEAR ALL — full wipe with confirmation
+      // ══════════════════════════════════════════
+      clearAll() {
+        if (!confirm('Clear all data? This cannot be undone.')) return;
+
+        // Reset both modes regardless of which is active
+        const originalMode = this.mode;
+
+        // Force single mode reset
+        this.mode = 'single';
+        this.reset();
+
+        // Force portfolio mode reset
+        this.mode = 'portfolio';
+        this.reset();
+
+        // Restore to single mode (default)
+        this.mode = 'single';
+        document.getElementById('modeSingle').classList.add('active');
+        document.getElementById('modePortfolio').classList.remove('active');
+        document.getElementById('singlePropertyInputs').classList.remove('hidden');
+        document.getElementById('portfolioInputs').classList.add('hidden');
+
+        // Ensure localStorage is wiped
+        localStorage.removeItem(Config.STORAGE_KEY);
+
+        this.showToast('🗑 All data cleared');
+      }
+    };
+
+    // Initialize on DOM ready
+    document.addEventListener('DOMContentLoaded', () => App.init());
+  </script>
+</body>
+</html>
