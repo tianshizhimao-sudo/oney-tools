@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Flow & Structure Visualiser | Oney & Co</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><path d='M0-38A38 38 0 1 0 0-37.99' fill='none' stroke='url(%23g)' stroke-width='8' stroke-linecap='round' stroke-dasharray='227 12'/><path d='M0-45L0-52' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --bg-secondary: #111111;
+      --card: #1a1a1a;
+      --border: #262626;
+      --accent: #1FAD73;
+      --accent-light: #2ECC85;
+      --accent-glow: rgba(31, 173, 115, 0.15);
+      --text: #ffffff;
+      --text-muted: #a3a3a3;
+      --gold: #f59e0b;
+      --gold-glow: rgba(245, 158, 11, 0.15);
+      
+      /* Entity Colors */
+      --person-color: #a5d8ff;
+      --company-color: #b2f2bb;
+      --trust-color: #ffec99;
+      --smsf-color: #d0bfff;
+      --property-color: #ffc9c9;
+      --bank-color: #f3d9fa;
+    }
+
+    /* Light theme */
+    [data-theme="light"] {
+      --bg: #ffffff;
+      --bg-secondary: #f8f9fa;
+      --card: #ffffff;
+      --border: #e9ecef;
+      --text: #212529;
+      --text-muted: #6c757d;
+      --accent: #1FAD73;
+      --accent-light: #2ECC85;
+      --accent-glow: rgba(31, 173, 115, 0.15);
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      transition: all 0.3s ease;
+    }
+
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 32px;
+      height: 32px;
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .theme-toggle {
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle:hover {
+      background: var(--bg-secondary);
+    }
+
+    .back-btn {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* Main Layout */
+    .main-container {
+      display: flex;
+      margin-top: 60px;
+      height: calc(100vh - 60px);
+    }
+
+    .left-panel {
+      width: 350px;
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      padding: 20px;
+      overflow-y: auto;
+      flex-shrink: 0;
+    }
+
+    .right-panel {
+      flex: 1;
+      background: var(--bg-secondary);
+      position: relative;
+    }
+
+    /* Panel Sections */
+    .panel-section {
+      margin-bottom: 24px;
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-glow);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .form-row .form-group {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 16px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      background: var(--bg-secondary);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-light);
+      border-color: var(--accent-light);
+    }
+
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .btn-full {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* Templates */
+    .template-buttons {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .template-btn {
+      padding: 12px;
+      text-align: left;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .template-btn:hover {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+    }
+
+    .template-title {
+      font-weight: 600;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
+    .template-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Entity Colors */
+    .entity-color {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .entity-person { background: var(--person-color); }
+    .entity-company { background: var(--company-color); }
+    .entity-trust { background: var(--trust-color); }
+    .entity-smsf { background: var(--smsf-color); }
+    .entity-property { background: var(--property-color); }
+    .entity-bank { background: var(--bank-color); }
+
+    /* Network Container */
+    .network-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    #network {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Export Controls */
+    .export-controls {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    /* Legend */
+    .legend {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      max-width: 300px;
+      z-index: 10;
+    }
+
+    .legend-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .legend-items {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Current Entities */
+    .current-entities {
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .entity-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .entity-info {
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+    }
+
+    .entity-name {
+      font-weight: 500;
+    }
+
+    .entity-type {
+      color: var(--text-muted);
+      margin-left: 8px;
+    }
+
+    .delete-entity {
+      background: none;
+      border: none;
+      color: #ef4444;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      transition: background 0.2s ease;
+    }
+
+    .delete-entity:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .left-panel {
+        width: 100%;
+        height: 40vh;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .main-container {
+        flex-direction: column;
+      }
+
+      .right-panel {
+        height: 60vh;
+      }
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  
+  <!-- Header -->
+  <div class="header">
+    <div class="logo-section">
+      <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#2ECC85"/>
+            <stop offset="100%" style="stop-color:#1FAD73"/>
+          </linearGradient>
+        </defs>
+        <g transform="translate(50, 50)">
+          <path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#greenGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/>
+          <path d="M0 -45 L0 -52" stroke="url(#greenGrad)" stroke-width="6" stroke-linecap="round"/>
+        </g>
+      </svg>
+      <div class="header-title">Flow & Structure Visualiser</div>
+    </div>
+    
+    <div class="header-controls">
+      <button class="theme-toggle" id="themeToggle">🌙</button>
+      <a href="index.html" class="back-btn">← Back to Oney Tools</a>
+    </div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="main-container">
+    
+    <!-- Left Panel -->
+    <div class="left-panel">
+      
+      <!-- Quick Templates -->
+      <div class="panel-section">
+        <div class="section-title">Quick Templates</div>
+        <div class="template-buttons">
+          <button class="template-btn" onclick="loadTemplate('simple-borrower')">
+            <div class="template-title">Simple Borrower</div>
+            <div class="template-desc">Individual + Property + Lender</div>
+          </button>
+          <button class="template-btn" onclick="loadTemplate('trust-structure')">
+            <div class="template-title">Trust Structure</div>
+            <div class="template-desc">Trust + Trustee Company + Beneficiaries</div>
+          </button>
+          <button class="template-btn" onclick="loadTemplate('company-group')">
+            <div class="template-title">Company Group</div>
+            <div class="template-desc">Holding Company + Subsidiaries + Directors</div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Add Entity -->
+      <div class="panel-section">
+        <div class="section-title">Add Entity</div>
+        
+        <div class="form-group">
+          <label class="form-label">Entity Name</label>
+          <input type="text" class="form-input" id="entityName" placeholder="Enter entity name">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Entity Type</label>
+          <select class="form-select" id="entityType">
+            <option value="person">👤 Person/Borrower</option>
+            <option value="company">🏢 Company</option>
+            <option value="trust">🏛️ Trust</option>
+            <option value="smsf">🏦 SMSF</option>
+            <option value="property">🏠 Property</option>
+            <option value="bank">🏧 Bank/Lender</option>
+          </select>
+        </div>
+        
+        <button class="btn btn-primary btn-full" onclick="addEntity()">Add Entity</button>
+      </div>
+
+      <!-- Add Relationship -->
+      <div class="panel-section">
+        <div class="section-title">Add Relationship</div>
+        
+        <div class="form-group">
+          <label class="form-label">From Entity</label>
+          <select class="form-select" id="fromEntity"></select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">To Entity</label>
+          <select class="form-select" id="toEntity"></select>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Relationship Type</label>
+          <select class="form-select" id="relationshipType">
+            <option value="ownership">Owns %</option>
+            <option value="director">Director of</option>
+            <option value="guarantor">Guarantor for</option>
+            <option value="income">Income from</option>
+            <option value="loan">Loan</option>
+            <option value="rental">Rental Income</option>
+            <option value="business">Business Income</option>
+            <option value="salary">Salary</option>
+          </select>
+        </div>
+        
+        <div class="form-group" id="percentageGroup" style="display: none;">
+          <label class="form-label">Percentage (%)</label>
+          <input type="number" class="form-input" id="percentage" min="0" max="100" placeholder="0-100">
+        </div>
+        
+        <div class="form-group" id="amountGroup" style="display: none;">
+          <label class="form-label">Amount ($)</label>
+          <input type="text" class="form-input" id="amount" placeholder="e.g., 500,000">
+        </div>
+        
+        <button class="btn btn-primary btn-full" onclick="addRelationship()">Add Relationship</button>
+      </div>
+
+      <!-- Current Entities -->
+      <div class="panel-section">
+        <div class="section-title">Current Entities</div>
+        <div class="current-entities" id="currentEntities">
+          <div style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 20px;">
+            No entities added yet
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="panel-section">
+        <div class="section-title">Actions</div>
+        <button class="btn btn-full" onclick="clearAll()" style="margin-bottom: 8px;">Clear All</button>
+        <button class="btn btn-full" onclick="exportPNG()">Export as PNG</button>
+      </div>
+
+    </div>
+
+    <!-- Right Panel -->
+    <div class="right-panel">
+      
+      <!-- Export Controls -->
+      <div class="export-controls">
+        <button class="btn btn-small" onclick="fitNetwork()">Fit View</button>
+      </div>
+
+      <!-- Network Container -->
+      <div class="network-container">
+        <div id="network"></div>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend">
+        <div class="legend-title">Entity Types</div>
+        <div class="legend-items">
+          <div class="legend-item">
+            <span class="entity-color entity-person"></span>
+            Person/Borrower
+          </div>
+          <div class="legend-item">
+            <span class="entity-color entity-company"></span>
+            Company
+          </div>
+          <div class="legend-item">
+            <span class="entity-color entity-trust"></span>
+            Trust
+          </div>
+          <div class="legend-item">
+            <span class="entity-color entity-smsf"></span>
+            SMSF
+          </div>
+          <div class="legend-item">
+            <span class="entity-color entity-property"></span>
+            Property
+          </div>
+          <div class="legend-item">
+            <span class="entity-color entity-bank"></span>
+            Bank/Lender
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Load vis-network -->
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  
+  <script>
+    // Global variables
+    let network = null;
+    let nodes = new vis.DataSet([]);
+    let edges = new vis.DataSet([]);
+    let entityCounter = 0;
+
+    // Entity color mapping
+    const entityColors = {
+      person: '#a5d8ff',
+      company: '#b2f2bb', 
+      trust: '#ffec99',
+      smsf: '#d0bfff',
+      property: '#ffc9c9',
+      bank: '#f3d9fa'
+    };
+
+    // Relationship styling
+    const relationshipStyles = {
+      ownership: { color: '#2ECC85', dashes: false, arrows: 'to', width: 2 },
+      director: { color: '#a3a3a3', dashes: [5, 5], arrows: 'to', width: 1 },
+      guarantor: { color: '#ef4444', dashes: false, arrows: 'to', width: 2 },
+      income: { color: '#2ECC85', dashes: false, arrows: 'to', width: 2 },
+      loan: { color: '#2ECC85', dashes: false, arrows: 'to', width: 3 },
+      rental: { color: '#2ECC85', dashes: false, arrows: 'to', width: 2 },
+      business: { color: '#2ECC85', dashes: false, arrows: 'to', width: 2 },
+      salary: { color: '#2ECC85', dashes: false, arrows: 'to', width: 2 }
+    };
+
+    // Initialize the application
+    function init() {
+      initializeNetwork();
+      updateEntitySelects();
+      loadFromStorage();
+      setupEventListeners();
+    }
+
+    // Initialize the vis-network
+    function initializeNetwork() {
+      const container = document.getElementById('network');
+      const data = { nodes: nodes, edges: edges };
+      const options = {
+        nodes: {
+          borderWidth: 2,
+          borderWidthSelected: 3,
+          size: 30,
+          font: {
+            color: 'white',
+            size: 12,
+            face: 'Inter'
+          },
+          margin: 10
+        },
+        edges: {
+          width: 2,
+          font: {
+            color: '#a3a3a3',
+            size: 10,
+            face: 'Inter'
+          },
+          smooth: {
+            type: 'continuous'
+          }
+        },
+        physics: {
+          stabilization: { iterations: 100 },
+          barnesHut: {
+            gravitationalConstant: -2000,
+            springConstant: 0.001,
+            springLength: 200
+          }
+        },
+        interaction: {
+          dragNodes: true,
+          dragView: true,
+          zoomView: true
+        }
+      };
+      
+      network = new vis.Network(container, data, options);
+    }
+
+    // Add entity
+    function addEntity() {
+      const name = document.getElementById('entityName').value.trim();
+      const type = document.getElementById('entityType').value;
+      
+      if (!name) {
+        alert('Please enter an entity name');
+        return;
+      }
+      
+      const id = ++entityCounter;
+      
+      nodes.add({
+        id: id,
+        label: name,
+        color: {
+          background: entityColors[type],
+          border: getDarkerColor(entityColors[type])
+        },
+        type: type
+      });
+      
+      document.getElementById('entityName').value = '';
+      updateEntitySelects();
+      updateCurrentEntities();
+      saveToStorage();
+    }
+
+    // Add relationship
+    function addRelationship() {
+      const fromId = parseInt(document.getElementById('fromEntity').value);
+      const toId = parseInt(document.getElementById('toEntity').value);
+      const type = document.getElementById('relationshipType').value;
+      const percentage = document.getElementById('percentage').value;
+      const amount = document.getElementById('amount').value;
+      
+      if (!fromId || !toId) {
+        alert('Please select both entities');
+        return;
+      }
+      
+      if (fromId === toId) {
+        alert('Cannot create relationship from entity to itself');
+        return;
+      }
+      
+      let label = '';
+      if (type === 'ownership' && percentage) {
+        label = percentage + '%';
+      } else if (['loan', 'rental', 'business', 'salary'].includes(type) && amount) {
+        label = '$' + amount;
+      }
+      
+      const style = relationshipStyles[type];
+      
+      edges.add({
+        id: `${fromId}-${toId}-${Date.now()}`,
+        from: fromId,
+        to: toId,
+        label: label,
+        color: style.color,
+        dashes: style.dashes,
+        arrows: style.arrows,
+        width: style.width,
+        type: type
+      });
+      
+      // Reset form
+      document.getElementById('fromEntity').selectedIndex = 0;
+      document.getElementById('toEntity').selectedIndex = 0;
+      document.getElementById('relationshipType').selectedIndex = 0;
+      document.getElementById('percentage').value = '';
+      document.getElementById('amount').value = '';
+      hideRelationshipFields();
+      
+      saveToStorage();
+    }
+
+    // Update entity select dropdowns
+    function updateEntitySelects() {
+      const fromSelect = document.getElementById('fromEntity');
+      const toSelect = document.getElementById('toEntity');
+      
+      const currentEntities = nodes.get();
+      
+      // Clear existing options
+      fromSelect.innerHTML = '<option value="">Select entity</option>';
+      toSelect.innerHTML = '<option value="">Select entity</option>';
+      
+      currentEntities.forEach(entity => {
+        const option1 = new Option(`${entity.label} (${entity.type})`, entity.id);
+        const option2 = new Option(`${entity.label} (${entity.type})`, entity.id);
+        fromSelect.add(option1);
+        toSelect.add(option2);
+      });
+    }
+
+    // Update current entities list
+    function updateCurrentEntities() {
+      const container = document.getElementById('currentEntities');
+      const currentEntities = nodes.get();
+      
+      if (currentEntities.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 20px;">No entities added yet</div>';
+        return;
+      }
+      
+      container.innerHTML = currentEntities.map(entity => `
+        <div class="entity-item">
+          <div class="entity-info">
+            <span class="entity-color entity-${entity.type}"></span>
+            <span class="entity-name">${entity.label}</span>
+            <span class="entity-type">(${entity.type})</span>
+          </div>
+          <button class="delete-entity" onclick="deleteEntity(${entity.id})" title="Delete entity">×</button>
+        </div>
+      `).join('');
+    }
+
+    // Delete entity
+    function deleteEntity(id) {
+      nodes.remove(id);
+      // Remove related edges
+      const relatedEdges = edges.get({
+        filter: edge => edge.from === id || edge.to === id
+      });
+      edges.remove(relatedEdges.map(edge => edge.id));
+      
+      updateEntitySelects();
+      updateCurrentEntities();
+      saveToStorage();
+    }
+
+    // Clear all
+    function clearAll() {
+      if (confirm('Are you sure you want to clear all entities and relationships?')) {
+        nodes.clear();
+        edges.clear();
+        entityCounter = 0;
+        updateEntitySelects();
+        updateCurrentEntities();
+        saveToStorage();
+      }
+    }
+
+    // Load template
+    function loadTemplate(templateName) {
+      clearAll();
+      
+      switch (templateName) {
+        case 'simple-borrower':
+          loadSimpleBorrowerTemplate();
+          break;
+        case 'trust-structure':
+          loadTrustStructureTemplate();
+          break;
+        case 'company-group':
+          loadCompanyGroupTemplate();
+          break;
+      }
+    }
+
+    // Template: Simple Borrower
+    function loadSimpleBorrowerTemplate() {
+      // Add entities
+      nodes.add([
+        { id: 1, label: 'John Smith', color: { background: entityColors.person, border: getDarkerColor(entityColors.person) }, type: 'person' },
+        { id: 2, label: 'Investment Property', color: { background: entityColors.property, border: getDarkerColor(entityColors.property) }, type: 'property' },
+        { id: 3, label: 'ANZ Bank', color: { background: entityColors.bank, border: getDarkerColor(entityColors.bank) }, type: 'bank' }
+      ]);
+      
+      // Add relationships
+      edges.add([
+        { id: 'loan-1', from: 3, to: 1, label: '$800,000', ...relationshipStyles.loan },
+        { id: 'owner-1', from: 1, to: 2, label: '100%', ...relationshipStyles.ownership },
+        { id: 'rental-1', from: 2, to: 1, label: '$600/week', ...relationshipStyles.rental }
+      ]);
+      
+      entityCounter = 3;
+      updateEntitySelects();
+      updateCurrentEntities();
+      saveToStorage();
+    }
+
+    // Template: Trust Structure
+    function loadTrustStructureTemplate() {
+      nodes.add([
+        { id: 1, label: 'Smith Family Trust', color: { background: entityColors.trust, border: getDarkerColor(entityColors.trust) }, type: 'trust' },
+        { id: 2, label: 'Smith Trustee Pty Ltd', color: { background: entityColors.company, border: getDarkerColor(entityColors.company) }, type: 'company' },
+        { id: 3, label: 'John Smith', color: { background: entityColors.person, border: getDarkerColor(entityColors.person) }, type: 'person' },
+        { id: 4, label: 'Jane Smith', color: { background: entityColors.person, border: getDarkerColor(entityColors.person) }, type: 'person' }
+      ]);
+      
+      edges.add([
+        { id: 'trustee-1', from: 2, to: 1, label: 'Trustee', ...relationshipStyles.director },
+        { id: 'director-1', from: 3, to: 2, label: 'Director', ...relationshipStyles.director },
+        { id: 'director-2', from: 4, to: 2, label: 'Director', ...relationshipStyles.director }
+      ]);
+      
+      entityCounter = 4;
+      updateEntitySelects();
+      updateCurrentEntities();
+      saveToStorage();
+    }
+
+    // Template: Company Group
+    function loadCompanyGroupTemplate() {
+      nodes.add([
+        { id: 1, label: 'Holdings Pty Ltd', color: { background: entityColors.company, border: getDarkerColor(entityColors.company) }, type: 'company' },
+        { id: 2, label: 'Trading Co Pty Ltd', color: { background: entityColors.company, border: getDarkerColor(entityColors.company) }, type: 'company' },
+        { id: 3, label: 'Property Co Pty Ltd', color: { background: entityColors.company, border: getDarkerColor(entityColors.company) }, type: 'company' },
+        { id: 4, label: 'John Smith', color: { background: entityColors.person, border: getDarkerColor(entityColors.person) }, type: 'person' }
+      ]);
+      
+      edges.add([
+        { id: 'owns-1', from: 1, to: 2, label: '100%', ...relationshipStyles.ownership },
+        { id: 'owns-2', from: 1, to: 3, label: '100%', ...relationshipStyles.ownership },
+        { id: 'director-1', from: 4, to: 1, label: 'Director', ...relationshipStyles.director },
+        { id: 'owns-3', from: 4, to: 1, label: '100%', ...relationshipStyles.ownership }
+      ]);
+      
+      entityCounter = 4;
+      updateEntitySelects();
+      updateCurrentEntities();
+      saveToStorage();
+    }
+
+    // Fit network to view
+    function fitNetwork() {
+      if (network) {
+        network.fit();
+      }
+    }
+
+    // Export as PNG
+    function exportPNG() {
+      const canvas = document.querySelector('#network canvas');
+      if (canvas) {
+        const link = document.createElement('a');
+        link.download = 'flow-structure.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      }
+    }
+
+    // Theme toggle
+    function toggleTheme() {
+      const currentTheme = document.body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.body.setAttribute('data-theme', newTheme);
+      document.getElementById('themeToggle').textContent = newTheme === 'dark' ? '🌙' : '☀️';
+      localStorage.setItem('theme', newTheme);
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+      
+      document.getElementById('relationshipType').addEventListener('change', function() {
+        const type = this.value;
+        const percentageGroup = document.getElementById('percentageGroup');
+        const amountGroup = document.getElementById('amountGroup');
+        
+        hideRelationshipFields();
+        
+        if (type === 'ownership') {
+          percentageGroup.style.display = 'block';
+        } else if (['loan', 'rental', 'business', 'salary'].includes(type)) {
+          amountGroup.style.display = 'block';
+        }
+      });
+      
+      // Load saved theme
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      document.body.setAttribute('data-theme', savedTheme);
+      document.getElementById('themeToggle').textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+    }
+
+    // Hide relationship fields
+    function hideRelationshipFields() {
+      document.getElementById('percentageGroup').style.display = 'none';
+      document.getElementById('amountGroup').style.display = 'none';
+    }
+
+    // Utility functions
+    function getDarkerColor(color) {
+      // Simple color darkening
+      return color.replace(/[0-9a-f]/gi, function(match) {
+        const val = parseInt(match, 16);
+        return Math.max(0, val - 3).toString(16);
+      });
+    }
+
+    // Local storage functions
+    function saveToStorage() {
+      const data = {
+        nodes: nodes.get(),
+        edges: edges.get(),
+        entityCounter: entityCounter
+      };
+      localStorage.setItem('flow-visualiser-data', JSON.stringify(data));
+    }
+
+    function loadFromStorage() {
+      const saved = localStorage.getItem('flow-visualiser-data');
+      if (saved) {
+        const data = JSON.parse(saved);
+        nodes.clear();
+        edges.clear();
+        nodes.add(data.nodes || []);
+        edges.add(data.edges || []);
+        entityCounter = data.entityCounter || 0;
+        updateEntitySelects();
+        updateCurrentEntities();
+      }
+    }
+
+    // Initialize when page loads
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+
+</body>
+</html>
