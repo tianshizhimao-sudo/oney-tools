@@ -745,6 +745,7 @@
         <span class="icon-sun">☀️</span>
         <span class="icon-moon">🌙</span>
       </button>
+      <button class="btn btn-primary" onclick="refreshRatesFromAPI()" id="refreshBtn">🔄 Refresh Rates</button>
       <button class="btn" onclick="exportCSV()">📥 Export CSV</button>
       <button class="btn btn-danger" onclick="confirmClearAll()">🗑️ Clear All</button>
     </div>
@@ -838,7 +839,7 @@
 
 <!-- Footer -->
 <div class="footer">
-  Oney & Co — Competitor Rate Tracker · Built for internal use · Data stored locally in your browser
+  Oney & Co — Competitor Rate Tracker · Rate data sourced from <a href="https://www.cdr.gov.au/" target="_blank" style="color:var(--green)">CDR Open Banking API</a> · Manual edits stored locally in your browser
 </div>
 
 <script>
@@ -930,6 +931,7 @@ const BANKS = [
   { name: 'Bankwest', tier: 'nonmajor' },
   { name: 'St George', tier: 'nonmajor' },
   { name: 'Suncorp', tier: 'nonmajor' },
+  { name: 'Bendigo', tier: 'nonmajor' },
   { name: 'Pepper', tier: 'nonbank' },
   { name: 'Liberty', tier: 'nonbank' },
   { name: 'La Trobe', tier: 'nonbank' },
@@ -1325,10 +1327,200 @@ function showToast(msg, icon = '✅') {
   toast._timeout = setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
+// ── CDR Auto-Fetch from rates.json ──
+
+// Mapping from CDR bank keys to our display bank names
+const CDR_BANK_MAP = {
+  CBA: 'CBA',
+  Westpac: 'Westpac',
+  NAB: 'NAB',
+  ANZ: 'ANZ',
+  Macquarie: 'Macquarie',
+  ING: 'ING',
+  Bendigo: 'Bendigo',
+};
+
+// Which CDR products to use as primary for each bank (for the tracker grid)
+// Format: { bankKey: { variable: productName, fixed: productName } }
+const CDR_PRIMARY_PRODUCTS = {
+  CBA: { variable: 'Digi Home Loan (OO)', variableInv: 'Digi Home Loan (Inv)' },
+  Westpac: { variable: 'Flexi First (OO)', variableInv: 'Flexi First (Inv)', fixed: 'Fixed Rate' },
+  NAB: { variable: 'Base Variable', variableAlt: 'Tailored' },
+  ANZ: { variable: 'Simplicity PLUS', fixed: 'Fixed Rate' },
+  Macquarie: { variable: 'Basic Home Loan' },
+  ING: { variable: 'Mortgage Simplifier', fixed: 'Fixed Rate' },
+  Bendigo: { variable: 'Easy Home Loan' },
+};
+
+let cdrData = null;
+
+function getRatesJsonUrl() {
+  // Try relative path (works on GitHub Pages and local server)
+  return 'data/rates.json';
+}
+
+async function fetchRatesJson() {
+  const url = getRatesJsonUrl();
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.json();
+}
+
+// Find the best variable rate from a product's rate entries for a given LVR bucket
+function findBestRate(rates, lvrMax, rateType, repayment, purpose) {
+  if (!rates || !Array.isArray(rates)) return null;
+
+  // Filter matching rates
+  let candidates = rates.filter(r => {
+    if (rateType && r.lendingRateType !== rateType) return false;
+    if (repayment && r.repaymentType !== repayment) return false;
+    if (purpose && r.loanPurpose && r.loanPurpose !== purpose) return false;
+    return true;
+  });
+
+  if (candidates.length === 0) return null;
+
+  // Find the rate matching LVR tier, or the lowest available
+  let lvrMatch = null;
+  if (lvrMax) {
+    const numLvr = parseInt(lvrMax);
+    lvrMatch = candidates.filter(r => {
+      if (r.lvrMax === null && r.lvrMin === null) return true; // No LVR restriction
+      if (r.lvrMax && numLvr <= r.lvrMax) return true;
+      return false;
+    });
+    // Sort: prefer the tightest LVR bracket that contains our target
+    lvrMatch.sort((a, b) => {
+      const aMax = a.lvrMax || 999;
+      const bMax = b.lvrMax || 999;
+      return aMax - bMax;
+    });
+  }
+
+  const best = (lvrMatch && lvrMatch.length > 0) ? lvrMatch[0] : candidates[0];
+  return best ? best.ratePercent : null;
+}
+
+function mapCDRToTracker(data) {
+  const cat = 'residential'; // CDR data maps to residential
+  let populated = 0;
+
+  for (const [cdrBank, displayBank] of Object.entries(CDR_BANK_MAP)) {
+    const bankData = data.banks[cdrBank];
+    if (!bankData || !bankData.success) continue;
+
+    const primary = CDR_PRIMARY_PRODUCTS[cdrBank];
+    if (!primary) continue;
+
+    // Variable rate
+    if (primary.variable) {
+      const product = bankData.products[primary.variable];
+      if (product && product.rates) {
+        for (const lvr of LVRS) {
+          const lvrNum = lvr.key === '80+' ? 90 : parseInt(lvr.key);
+          const rate = findBestRate(product.rates, lvrNum, 'VARIABLE', 'PRINCIPAL_AND_INTEREST', 'OWNER_OCCUPIED');
+          if (rate) {
+            const key = makeKey(cat, displayBank, 'variable', lvr.key);
+            if (!rateData[key] || rateData[key].source !== 'manual') {
+              rateData[key] = {
+                value: rate,
+                prev: rateData[key] ? rateData[key].value : null,
+                updated: data.fetchedAt,
+                source: 'cdr',
+              };
+              populated++;
+            }
+          }
+        }
+      }
+    }
+
+    // Fixed rates (1yr, 2yr, 3yr)
+    const fixedProduct = primary.fixed;
+    if (fixedProduct && bankData.products[fixedProduct]) {
+      const product = bankData.products[fixedProduct];
+      if (product && product.rates) {
+        const fixedMap = { 1: 'fixed1', 2: 'fixed2', 3: 'fixed3' };
+        for (const [years, productKey] of Object.entries(fixedMap)) {
+          for (const lvr of LVRS) {
+            const lvrNum = lvr.key === '80+' ? 90 : parseInt(lvr.key);
+            const fixedRates = product.rates.filter(r =>
+              r.lendingRateType === 'FIXED' && r.fixedYears === parseInt(years)
+            );
+            const rate = findBestRate(fixedRates, lvrNum, null, 'PRINCIPAL_AND_INTEREST', 'OWNER_OCCUPIED');
+            if (rate) {
+              const key = makeKey(cat, displayBank, productKey, lvr.key);
+              if (!rateData[key] || rateData[key].source !== 'manual') {
+                rateData[key] = {
+                  value: rate,
+                  prev: rateData[key] ? rateData[key].value : null,
+                  updated: data.fetchedAt,
+                  source: 'cdr',
+                };
+                populated++;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return populated;
+}
+
+function updateCDRStatus(data) {
+  const el = document.getElementById('lastUpdatedGlobal');
+  if (data && data.fetchedAt) {
+    const d = new Date(data.fetchedAt);
+    const dateStr = d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+    const timeStr = d.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
+    el.innerHTML = `🤖 CDR data: ${dateStr} ${timeStr} &nbsp;|&nbsp; <span style="color:var(--green)">${data.stats.successBanks}/${data.stats.totalBanks} banks</span>`;
+  }
+}
+
+async function loadRatesFromCDR(showToastMsg = true) {
+  try {
+    const btn = document.getElementById('refreshBtn');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Loading...'; }
+
+    const data = await fetchRatesJson();
+    cdrData = data;
+
+    const count = mapCDRToTracker(data);
+    saveData();
+    renderTables();
+    updateCDRStatus(data);
+
+    if (showToastMsg && count > 0) {
+      showToast(`CDR rates loaded: ${count} rate entries from ${data.stats.successBanks} banks`, '🤖');
+    }
+
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 Refresh Rates'; }
+    return true;
+  } catch (err) {
+    console.warn('Could not load rates.json:', err.message);
+    const btn = document.getElementById('refreshBtn');
+    if (btn) { btn.disabled = false; btn.textContent = '🔄 Refresh Rates'; }
+
+    if (showToastMsg) {
+      showToast('CDR rates unavailable — using manual data', '⚠️');
+    }
+    return false;
+  }
+}
+
+async function refreshRatesFromAPI() {
+  await loadRatesFromCDR(true);
+}
+
 // ── Init ──
 loadData();
 renderTables();
 updateGlobalTimestamp();
+
+// Auto-load CDR rates on page load
+loadRatesFromCDR(false);
 </script>
 </body>
 </html>

@@ -1,0 +1,76 @@
+name: Fetch Bank Rates
+
+on:
+  schedule:
+    # Monday 8am AEST = Sunday 10pm UTC (22:00)
+    - cron: '0 22 * * 0'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual trigger (e.g., RBA decision day)'
+        required: false
+        default: 'Manual refresh'
+
+permissions:
+  contents: write
+
+jobs:
+  fetch-rates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Fetch rates from CDR APIs
+        run: node scripts/fetch-rates.js
+
+      - name: Check for changes
+        id: check
+        run: |
+          git add data/rates.json
+          if git diff --staged --quiet; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "📋 No rate changes detected"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "📋 Rate changes detected"
+          fi
+
+      - name: Commit and push
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          TRIGGER="${{ github.event_name }}"
+          if [ "$TRIGGER" = "workflow_dispatch" ]; then
+            REASON="${{ github.event.inputs.reason }}"
+            git commit -m "data: update bank rates $(date -u +%Y-%m-%d) ($REASON)"
+          else
+            git commit -m "data: update bank rates $(date -u +%Y-%m-%d)"
+          fi
+          git push
+
+      - name: Summary
+        run: |
+          echo "## 🏦 Rate Fetch Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f data/rates.json ]; then
+            BANKS=$(node -e "const d=require('./data/rates.json'); console.log(d.stats.successBanks + '/' + d.stats.totalBanks)")
+            PRODUCTS=$(node -e "const d=require('./data/rates.json'); console.log(d.stats.successProducts + '/' + d.stats.totalProducts)")
+            ERRORS=$(node -e "const d=require('./data/rates.json'); console.log(d.errors.length)")
+            FETCHED=$(node -e "const d=require('./data/rates.json'); console.log(d.fetchedAtAEST)")
+            echo "- **Banks**: $BANKS successful" >> $GITHUB_STEP_SUMMARY
+            echo "- **Products**: $PRODUCTS successful" >> $GITHUB_STEP_SUMMARY
+            echo "- **Errors**: $ERRORS" >> $GITHUB_STEP_SUMMARY
+            echo "- **Fetched at**: $FETCHED AEST" >> $GITHUB_STEP_SUMMARY
+            echo "- **Changes committed**: ${{ steps.check.outputs.changed }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ rates.json not generated" >> $GITHUB_STEP_SUMMARY
+          fi
