@@ -19,8 +19,8 @@
       --accent-glow: rgba(31, 173, 115, 0.15);
       --text: #ffffff;
       --text-muted: #a3a3a3;
-      --gold: #f59e0b;
-      --gold-glow: rgba(245, 158, 11, 0.15);
+      --font-color-dark: #ffffff;
+      --font-color-light: #1a1a1a;
       
       /* Entity Colors */
       --person-color: #a5d8ff;
@@ -244,6 +244,17 @@
       justify-content: center;
     }
 
+    .btn-danger {
+      background: #ef4444;
+      border-color: #ef4444;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+      border-color: #dc2626;
+    }
+
     /* Templates */
     .template-buttons {
       display: grid;
@@ -357,7 +368,7 @@
       overflow-y: auto;
     }
 
-    .entity-item {
+    .entity-item, .relationship-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -365,22 +376,23 @@
       border-bottom: 1px solid var(--border);
     }
 
-    .entity-info {
+    .entity-info, .relationship-info {
       display: flex;
       align-items: center;
       font-size: 12px;
     }
 
-    .entity-name {
+    .entity-name, .relationship-label {
       font-weight: 500;
     }
 
     .entity-type {
       color: var(--text-muted);
       margin-left: 8px;
+      font-size: 10px;
     }
 
-    .delete-entity {
+    .delete-entity, .delete-relationship {
       background: none;
       border: none;
       color: #ef4444;
@@ -388,10 +400,18 @@
       padding: 4px;
       border-radius: 4px;
       transition: background 0.2s ease;
+      font-size: 16px;
+      font-weight: bold;
     }
 
-    .delete-entity:hover {
+    .delete-entity:hover, .delete-relationship:hover {
       background: rgba(239, 68, 68, 0.1);
+    }
+
+    /* Current Relationships */
+    .current-relationships {
+      max-height: 200px;
+      overflow-y: auto;
     }
 
     /* Responsive */
@@ -464,14 +484,9 @@
         </div>
       </div>
 
-      <!-- Add Entity -->
+      <!-- Add Entity (Simplified) -->
       <div class="panel-section">
-        <div class="section-title">Add Entity</div>
-        
-        <div class="form-group">
-          <label class="form-label">Entity Name</label>
-          <input type="text" class="form-input" id="entityName" placeholder="Enter entity name">
-        </div>
+        <div class="section-title">Step 1: Add Entities</div>
         
         <div class="form-group">
           <label class="form-label">Entity Type</label>
@@ -485,21 +500,30 @@
           </select>
         </div>
         
-        <button class="btn btn-primary btn-full" onclick="addEntity()">Add Entity</button>
+        <div class="form-group">
+          <label class="form-label">Name</label>
+          <input type="text" class="form-input" id="entityName" placeholder="Enter name">
+        </div>
+        
+        <button class="btn btn-primary btn-full" onclick="addEntity()">Add</button>
       </div>
 
       <!-- Add Relationship -->
       <div class="panel-section">
-        <div class="section-title">Add Relationship</div>
+        <div class="section-title">Step 2: Add Relationships</div>
         
         <div class="form-group">
-          <label class="form-label">From Entity</label>
-          <select class="form-select" id="fromEntity"></select>
+          <label class="form-label">From</label>
+          <select class="form-select" id="fromEntity">
+            <option value="">Select entity</option>
+          </select>
         </div>
         
         <div class="form-group">
-          <label class="form-label">To Entity</label>
-          <select class="form-select" id="toEntity"></select>
+          <label class="form-label">To</label>
+          <select class="form-select" id="toEntity">
+            <option value="">Select entity</option>
+          </select>
         </div>
         
         <div class="form-group">
@@ -539,11 +563,21 @@
         </div>
       </div>
 
+      <!-- Current Relationships -->
+      <div class="panel-section">
+        <div class="section-title">Current Relationships</div>
+        <div class="current-relationships" id="currentRelationships">
+          <div style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 20px;">
+            No relationships added yet
+          </div>
+        </div>
+      </div>
+
       <!-- Actions -->
       <div class="panel-section">
         <div class="section-title">Actions</div>
-        <button class="btn btn-full" onclick="clearAll()" style="margin-bottom: 8px;">Clear All</button>
-        <button class="btn btn-full" onclick="exportPNG()">Export as PNG</button>
+        <button class="btn btn-full" onclick="exportPNG()" style="margin-bottom: 8px;">Export as PNG</button>
+        <button class="btn btn-danger btn-full" onclick="clearAll()">Clear All</button>
       </div>
 
     </div>
@@ -567,27 +601,27 @@
         <div class="legend-items">
           <div class="legend-item">
             <span class="entity-color entity-person"></span>
-            Person/Borrower
+            Person (●)
           </div>
           <div class="legend-item">
             <span class="entity-color entity-company"></span>
-            Company
+            Company (■)
           </div>
           <div class="legend-item">
             <span class="entity-color entity-trust"></span>
-            Trust
+            Trust (♦)
           </div>
           <div class="legend-item">
             <span class="entity-color entity-smsf"></span>
-            SMSF
+            SMSF (▲)
           </div>
           <div class="legend-item">
             <span class="entity-color entity-property"></span>
-            Property
+            Property (■)
           </div>
           <div class="legend-item">
             <span class="entity-color entity-bank"></span>
-            Bank/Lender
+            Bank (⬢)
           </div>
         </div>
       </div>
@@ -605,14 +639,38 @@
     let edges = new vis.DataSet([]);
     let entityCounter = 0;
 
-    // Entity color mapping
-    const entityColors = {
-      person: '#a5d8ff',
-      company: '#b2f2bb', 
-      trust: '#ffec99',
-      smsf: '#d0bfff',
-      property: '#ffc9c9',
-      bank: '#f3d9fa'
+    // Entity configuration with shapes and colors
+    const entityConfig = {
+      person: { 
+        shape: 'dot', 
+        color: '#a5d8ff',
+        label: 'Person'
+      },
+      company: { 
+        shape: 'box', 
+        color: '#b2f2bb',
+        label: 'Company'
+      },
+      trust: { 
+        shape: 'diamond', 
+        color: '#ffec99',
+        label: 'Trust'
+      },
+      smsf: { 
+        shape: 'triangle', 
+        color: '#d0bfff',
+        label: 'SMSF'
+      },
+      property: { 
+        shape: 'square', 
+        color: '#ffc9c9',
+        label: 'Property'
+      },
+      bank: { 
+        shape: 'hexagon', 
+        color: '#f3d9fa',
+        label: 'Bank'
+      }
     };
 
     // Relationship styling
@@ -635,6 +693,12 @@
       setupEventListeners();
     }
 
+    // Get current font color based on theme
+    function getCurrentFontColor() {
+      const currentTheme = document.body.getAttribute('data-theme');
+      return currentTheme === 'dark' ? '#ffffff' : '#1a1a1a';
+    }
+
     // Initialize the vis-network
     function initializeNetwork() {
       const container = document.getElementById('network');
@@ -645,7 +709,7 @@
           borderWidthSelected: 3,
           size: 30,
           font: {
-            color: 'white',
+            color: getCurrentFontColor(),
             size: 12,
             face: 'Inter'
           },
@@ -680,29 +744,58 @@
       network = new vis.Network(container, data, options);
     }
 
-    // Add entity
+    // Update all node font colors when theme changes
+    function updateNodeFontColors() {
+      const currentNodes = nodes.get();
+      const fontColor = getCurrentFontColor();
+      
+      currentNodes.forEach(node => {
+        nodes.update({
+          id: node.id,
+          font: {
+            ...node.font,
+            color: fontColor
+          }
+        });
+      });
+    }
+
+    // Add entity (simplified)
     function addEntity() {
       const name = document.getElementById('entityName').value.trim();
       const type = document.getElementById('entityType').value;
       
       if (!name) {
-        alert('Please enter an entity name');
+        alert('Please enter a name');
         return;
       }
       
       const id = ++entityCounter;
+      const config = entityConfig[type];
+      
+      // Create label with entity type underneath
+      const entityLabel = `${name}\n[${config.label}]`;
       
       nodes.add({
         id: id,
-        label: name,
+        label: entityLabel,
+        shape: config.shape,
         color: {
-          background: entityColors[type],
-          border: getDarkerColor(entityColors[type])
+          background: config.color,
+          border: getDarkerColor(config.color)
         },
-        type: type
+        font: {
+          color: getCurrentFontColor(),
+          size: 12,
+          face: 'Inter'
+        },
+        type: type,
+        entityName: name
       });
       
+      // Reset form
       document.getElementById('entityName').value = '';
+      
       updateEntitySelects();
       updateCurrentEntities();
       saveToStorage();
@@ -734,9 +827,10 @@
       }
       
       const style = relationshipStyles[type];
+      const edgeId = `${fromId}-${toId}-${Date.now()}`;
       
       edges.add({
-        id: `${fromId}-${toId}-${Date.now()}`,
+        id: edgeId,
         from: fromId,
         to: toId,
         label: label,
@@ -744,7 +838,9 @@
         dashes: style.dashes,
         arrows: style.arrows,
         width: style.width,
-        type: type
+        type: type,
+        percentage: percentage,
+        amount: amount
       });
       
       // Reset form
@@ -755,6 +851,7 @@
       document.getElementById('amount').value = '';
       hideRelationshipFields();
       
+      updateCurrentRelationships();
       saveToStorage();
     }
 
@@ -770,8 +867,8 @@
       toSelect.innerHTML = '<option value="">Select entity</option>';
       
       currentEntities.forEach(entity => {
-        const option1 = new Option(`${entity.label} (${entity.type})`, entity.id);
-        const option2 = new Option(`${entity.label} (${entity.type})`, entity.id);
+        const option1 = new Option(`${entity.entityName} (${entity.type})`, entity.id);
+        const option2 = new Option(`${entity.entityName} (${entity.type})`, entity.id);
         fromSelect.add(option1);
         toSelect.add(option2);
       });
@@ -791,12 +888,39 @@
         <div class="entity-item">
           <div class="entity-info">
             <span class="entity-color entity-${entity.type}"></span>
-            <span class="entity-name">${entity.label}</span>
-            <span class="entity-type">(${entity.type})</span>
+            <span class="entity-name">${entity.entityName}</span>
+            <span class="entity-type">[${entityConfig[entity.type].label}]</span>
           </div>
           <button class="delete-entity" onclick="deleteEntity(${entity.id})" title="Delete entity">×</button>
         </div>
       `).join('');
+    }
+
+    // Update current relationships list
+    function updateCurrentRelationships() {
+      const container = document.getElementById('currentRelationships');
+      const currentRelationships = edges.get();
+      
+      if (currentRelationships.length === 0) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 12px; text-align: center; padding: 20px;">No relationships added yet</div>';
+        return;
+      }
+      
+      container.innerHTML = currentRelationships.map(rel => {
+        const fromEntity = nodes.get(rel.from);
+        const toEntity = nodes.get(rel.to);
+        let description = `${fromEntity.entityName} → ${toEntity.entityName} (${rel.type})`;
+        if (rel.label) description += ` ${rel.label}`;
+        
+        return `
+          <div class="relationship-item">
+            <div class="relationship-info">
+              <span class="relationship-label">${description}</span>
+            </div>
+            <button class="delete-relationship" onclick="deleteRelationship('${rel.id}')" title="Delete relationship">×</button>
+          </div>
+        `;
+      }).join('');
     }
 
     // Delete entity
@@ -810,6 +934,14 @@
       
       updateEntitySelects();
       updateCurrentEntities();
+      updateCurrentRelationships();
+      saveToStorage();
+    }
+
+    // Delete relationship
+    function deleteRelationship(edgeId) {
+      edges.remove(edgeId);
+      updateCurrentRelationships();
       saveToStorage();
     }
 
@@ -821,6 +953,7 @@
         entityCounter = 0;
         updateEntitySelects();
         updateCurrentEntities();
+        updateCurrentRelationships();
         saveToStorage();
       }
     }
@@ -844,66 +977,163 @@
 
     // Template: Simple Borrower
     function loadSimpleBorrowerTemplate() {
+      const fontColor = getCurrentFontColor();
+      
       // Add entities
       nodes.add([
-        { id: 1, label: 'John Smith', color: { background: entityColors.person, border: getDarkerColor(entityColors.person) }, type: 'person' },
-        { id: 2, label: 'Investment Property', color: { background: entityColors.property, border: getDarkerColor(entityColors.property) }, type: 'property' },
-        { id: 3, label: 'ANZ Bank', color: { background: entityColors.bank, border: getDarkerColor(entityColors.bank) }, type: 'bank' }
+        { 
+          id: 1, 
+          label: 'John Smith\n[Person]', 
+          shape: 'dot',
+          color: { background: entityConfig.person.color, border: getDarkerColor(entityConfig.person.color) }, 
+          type: 'person',
+          entityName: 'John Smith',
+          font: { color: fontColor, size: 12, face: 'Inter' }
+        },
+        { 
+          id: 2, 
+          label: 'Investment Property\n[Property]', 
+          shape: 'square',
+          color: { background: entityConfig.property.color, border: getDarkerColor(entityConfig.property.color) }, 
+          type: 'property',
+          entityName: 'Investment Property',
+          font: { color: fontColor, size: 12, face: 'Inter' }
+        },
+        { 
+          id: 3, 
+          label: 'ANZ Bank\n[Bank]', 
+          shape: 'hexagon',
+          color: { background: entityConfig.bank.color, border: getDarkerColor(entityConfig.bank.color) }, 
+          type: 'bank',
+          entityName: 'ANZ Bank',
+          font: { color: fontColor, size: 12, face: 'Inter' }
+        }
       ]);
       
       // Add relationships
       edges.add([
-        { id: 'loan-1', from: 3, to: 1, label: '$800,000', ...relationshipStyles.loan },
-        { id: 'owner-1', from: 1, to: 2, label: '100%', ...relationshipStyles.ownership },
-        { id: 'rental-1', from: 2, to: 1, label: '$600/week', ...relationshipStyles.rental }
+        { id: 'loan-1', from: 3, to: 1, label: '$800,000', ...relationshipStyles.loan, type: 'loan', amount: '800,000' },
+        { id: 'owner-1', from: 1, to: 2, label: '100%', ...relationshipStyles.ownership, type: 'ownership', percentage: '100' },
+        { id: 'rental-1', from: 2, to: 1, label: '$600/week', ...relationshipStyles.rental, type: 'rental', amount: '600/week' }
       ]);
       
       entityCounter = 3;
       updateEntitySelects();
       updateCurrentEntities();
+      updateCurrentRelationships();
       saveToStorage();
     }
 
     // Template: Trust Structure
     function loadTrustStructureTemplate() {
+      const fontColor = getCurrentFontColor();
+      
       nodes.add([
-        { id: 1, label: 'Smith Family Trust', color: { background: entityColors.trust, border: getDarkerColor(entityColors.trust) }, type: 'trust' },
-        { id: 2, label: 'Smith Trustee Pty Ltd', color: { background: entityColors.company, border: getDarkerColor(entityColors.company) }, type: 'company' },
-        { id: 3, label: 'John Smith', color: { background: entityColors.person, border: getDarkerColor(entityColors.person) }, type: 'person' },
-        { id: 4, label: 'Jane Smith', color: { background: entityColors.person, border: getDarkerColor(entityColors.person) }, type: 'person' }
+        { 
+          id: 1, 
+          label: 'Smith Family Trust\n[Trust]', 
+          shape: 'diamond',
+          color: { background: entityConfig.trust.color, border: getDarkerColor(entityConfig.trust.color) }, 
+          type: 'trust',
+          entityName: 'Smith Family Trust',
+          font: { color: fontColor, size: 12, face: 'Inter' }
+        },
+        { 
+          id: 2, 
+          label: 'Smith Trustee Pty Ltd\n[Company]', 
+          shape: 'box',
+          color: { background: entityConfig.company.color, border: getDarkerColor(entityConfig.company.color) }, 
+          type: 'company',
+          entityName: 'Smith Trustee Pty Ltd',
+          font: { color: fontColor, size: 12, face: 'Inter' }
+        },
+        { 
+          id: 3, 
+          label: 'John Smith\n[Person]', 
+          shape: 'dot',
+          color: { background: entityConfig.person.color, border: getDarkerColor(entityConfig.person.color) }, 
+          type: 'person',
+          entityName: 'John Smith',
+          font: { color: fontColor, size: 12, face: 'Inter' }
+        },
+        { 
+          id: 4, 
+          label: 'Jane Smith\n[Person]', 
+          shape: 'dot',
+          color: { background: entityConfig.person.color, border: getDarkerColor(entityConfig.person.color) }, 
+          type: 'person',
+          entityName: 'Jane Smith',
+          font: { color: fontColor, size: 12, face: 'Inter' }
+        }
       ]);
       
       edges.add([
-        { id: 'trustee-1', from: 2, to: 1, label: 'Trustee', ...relationshipStyles.director },
-        { id: 'director-1', from: 3, to: 2, label: 'Director', ...relationshipStyles.director },
-        { id: 'director-2', from: 4, to: 2, label: 'Director', ...relationshipStyles.director }
+        { id: 'trustee-1', from: 2, to: 1, label: 'Trustee', ...relationshipStyles.director, type: 'director' },
+        { id: 'director-1', from: 3, to: 2, label: 'Director', ...relationshipStyles.director, type: 'director' },
+        { id: 'director-2', from: 4, to: 2, label: 'Director', ...relationshipStyles.director, type: 'director' }
       ]);
       
       entityCounter = 4;
       updateEntitySelects();
       updateCurrentEntities();
+      updateCurrentRelationships();
       saveToStorage();
     }
 
     // Template: Company Group
     function loadCompanyGroupTemplate() {
+      const fontColor = getCurrentFontColor();
+      
       nodes.add([
-        { id: 1, label: 'Holdings Pty Ltd', color: { background: entityColors.company, border: getDarkerColor(entityColors.company) }, type: 'company' },
-        { id: 2, label: 'Trading Co Pty Ltd', color: { background: entityColors.company, border: getDarkerColor(entityColors.company) }, type: 'company' },
-        { id: 3, label: 'Property Co Pty Ltd', color: { background: entityColors.company, border: getDarkerColor(entityColors.company) }, type: 'company' },
-        { id: 4, label: 'John Smith', color: { background: entityColors.person, border: getDarkerColor(entityColors.person) }, type: 'person' }
+        { 
+          id: 1, 
+          label: 'Holdings Pty Ltd\n[Company]', 
+          shape: 'box',
+          color: { background: entityConfig.company.color, border: getDarkerColor(entityConfig.company.color) }, 
+          type: 'company',
+          entityName: 'Holdings Pty Ltd',
+          font: { color: fontColor, size: 12, face: 'Inter' }
+        },
+        { 
+          id: 2, 
+          label: 'Trading Co Pty Ltd\n[Company]', 
+          shape: 'box',
+          color: { background: entityConfig.company.color, border: getDarkerColor(entityConfig.company.color) }, 
+          type: 'company',
+          entityName: 'Trading Co Pty Ltd',
+          font: { color: fontColor, size: 12, face: 'Inter' }
+        },
+        { 
+          id: 3, 
+          label: 'Property Co Pty Ltd\n[Company]', 
+          shape: 'box',
+          color: { background: entityConfig.company.color, border: getDarkerColor(entityConfig.company.color) }, 
+          type: 'company',
+          entityName: 'Property Co Pty Ltd',
+          font: { color: fontColor, size: 12, face: 'Inter' }
+        },
+        { 
+          id: 4, 
+          label: 'John Smith\n[Person]', 
+          shape: 'dot',
+          color: { background: entityConfig.person.color, border: getDarkerColor(entityConfig.person.color) }, 
+          type: 'person',
+          entityName: 'John Smith',
+          font: { color: fontColor, size: 12, face: 'Inter' }
+        }
       ]);
       
       edges.add([
-        { id: 'owns-1', from: 1, to: 2, label: '100%', ...relationshipStyles.ownership },
-        { id: 'owns-2', from: 1, to: 3, label: '100%', ...relationshipStyles.ownership },
-        { id: 'director-1', from: 4, to: 1, label: 'Director', ...relationshipStyles.director },
-        { id: 'owns-3', from: 4, to: 1, label: '100%', ...relationshipStyles.ownership }
+        { id: 'owns-1', from: 1, to: 2, label: '100%', ...relationshipStyles.ownership, type: 'ownership', percentage: '100' },
+        { id: 'owns-2', from: 1, to: 3, label: '100%', ...relationshipStyles.ownership, type: 'ownership', percentage: '100' },
+        { id: 'director-1', from: 4, to: 1, label: 'Director', ...relationshipStyles.director, type: 'director' },
+        { id: 'owns-3', from: 4, to: 1, label: '100%', ...relationshipStyles.ownership, type: 'ownership', percentage: '100' }
       ]);
       
       entityCounter = 4;
       updateEntitySelects();
       updateCurrentEntities();
+      updateCurrentRelationships();
       saveToStorage();
     }
 
@@ -932,6 +1162,9 @@
       document.body.setAttribute('data-theme', newTheme);
       document.getElementById('themeToggle').textContent = newTheme === 'dark' ? '🌙' : '☀️';
       localStorage.setItem('theme', newTheme);
+      
+      // Update font colors for all nodes when theme changes
+      updateNodeFontColors();
     }
 
     // Setup event listeners
@@ -989,11 +1222,28 @@
         const data = JSON.parse(saved);
         nodes.clear();
         edges.clear();
-        nodes.add(data.nodes || []);
-        edges.add(data.edges || []);
+        
+        if (data.nodes && data.nodes.length > 0) {
+          // Update font colors for loaded nodes
+          const fontColor = getCurrentFontColor();
+          const updatedNodes = data.nodes.map(node => ({
+            ...node,
+            font: {
+              ...node.font,
+              color: fontColor
+            }
+          }));
+          nodes.add(updatedNodes);
+        }
+        
+        if (data.edges) {
+          edges.add(data.edges);
+        }
+        
         entityCounter = data.entityCounter || 0;
         updateEntitySelects();
         updateCurrentEntities();
+        updateCurrentRelationships();
       }
     }
 
