@@ -413,7 +413,7 @@
 <h2 style="color:#fff;font-size:20px;margin-bottom:8px;">Oney &amp; Co</h2>
 <p style="color:#737373;font-size:14px;margin-bottom:24px;">This tool is in development. Enter password to access.</p>
 <input id="oney-pw" type="password" placeholder="Password" autocomplete="off" style="width:100%;padding:12px 16px;background:#141414;border:1px solid #262626;border-radius:8px;color:#fff;font-size:16px;outline:none;margin-bottom:12px;text-align:center;" onkeydown="if(event.key==='Enter')document.getElementById('oney-unlock').click()">
-<button id="oney-unlock" onclick="if(document.getElementById('oney-pw').value==='oney2026'){document.getElementById('oney-gate').remove();sessionStorage.setItem('oney-auth','1')}else{document.getElementById('oney-pw').style.borderColor='#EF4444';document.getElementById('oney-pw').value=''}" style="width:100%;padding:12px;background:linear-gradient(135deg,#2ECC85,#1FAD73);border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;">Unlock</button>
+<button id="oney-unlock" onclick="oneyCheck()" style="width:100%;padding:12px;background:linear-gradient(135deg,#2ECC85,#1FAD73);border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;">Unlock</button>
 </div></div>
 <script>if(sessionStorage.getItem("oney-auth")==="1"){var g=document.getElementById("oney-gate");if(g)g.remove();}</script>
 <!-- PASSWORD GATE END -->
@@ -699,5 +699,8 @@
       if (e.target === this) toggleAdmin();
     });
   </script>
+<script>
+async function oneyCheck(){const p=document.getElementById('oney-pw').value;const b=new TextEncoder().encode(p);const h=await crypto.subtle.digest('SHA-256',b);const a=Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,'0')).join('');if(a==='f308fbb3be1b721be5343e64a43e8e51f5a462a2bc58968e7ce1869f367c90cd'){document.getElementById('oney-gate').remove();sessionStorage.setItem('oney-auth','1')}else{document.getElementById('oney-pw').style.borderColor='#EF4444';document.getElementById('oney-pw').value=''}}
+</script>
 </body>
 </html>
