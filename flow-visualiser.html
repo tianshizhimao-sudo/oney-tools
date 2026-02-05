@@ -255,6 +255,19 @@
       border-color: #dc2626;
     }
 
+    /* Layout Toggle Button */
+    .layout-toggle {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+
+    .layout-toggle:hover {
+      background: var(--accent-light);
+      border-color: var(--accent-light);
+    }
+
     /* Templates */
     .template-buttons {
       display: grid;
@@ -414,6 +427,46 @@
       overflow-y: auto;
     }
 
+    /* Edit Modal */
+    .edit-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .edit-modal-content {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 400px;
+      width: 90%;
+    }
+
+    .edit-modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    .edit-modal-buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .edit-modal-buttons .btn {
+      flex: 1;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .left-panel {
@@ -456,6 +509,32 @@
     <div class="header-controls">
       <button class="theme-toggle" id="themeToggle">🌙</button>
       <a href="index.html" class="back-btn">← Back to Oney Tools</a>
+    </div>
+  </div>
+
+  <!-- Edit Modal -->
+  <div class="edit-modal" id="editModal">
+    <div class="edit-modal-content">
+      <div class="edit-modal-title">Edit Entity</div>
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input type="text" class="form-input" id="editEntityName" placeholder="Enter name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <select class="form-select" id="editEntityType">
+          <option value="person">👤 Person/Borrower</option>
+          <option value="company">🏢 Company</option>
+          <option value="trust">🏛️ Trust</option>
+          <option value="smsf">🏦 SMSF</option>
+          <option value="property">🏠 Property</option>
+          <option value="bank">🏧 Bank/Lender</option>
+        </select>
+      </div>
+      <div class="edit-modal-buttons">
+        <button class="btn" onclick="cancelEdit()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveEdit()">Save</button>
+      </div>
     </div>
   </div>
 
@@ -587,6 +666,7 @@
       
       <!-- Export Controls -->
       <div class="export-controls">
+        <button class="btn layout-toggle btn-small" id="layoutToggle" onclick="toggleLayout()">Structured</button>
         <button class="btn btn-small" onclick="fitNetwork()">Fit View</button>
       </div>
 
@@ -638,38 +718,46 @@
     let nodes = new vis.DataSet([]);
     let edges = new vis.DataSet([]);
     let entityCounter = 0;
+    let isStructuredLayout = true;
+    let currentEditingNodeId = null;
 
-    // Entity configuration with shapes and colors
+    // Entity configuration with shapes, colors, and hierarchy levels
     const entityConfig = {
       person: { 
         shape: 'dot', 
         color: '#a5d8ff',
-        label: 'Person'
+        label: 'Person',
+        level: 2 // Individuals
       },
       company: { 
         shape: 'box', 
         color: '#b2f2bb',
-        label: 'Company'
+        label: 'Company',
+        level: 0 // Borrowing entity (default, can be overridden)
       },
       trust: { 
         shape: 'diamond', 
         color: '#ffec99',
-        label: 'Trust'
+        label: 'Trust',
+        level: 0 // Borrowing entity
       },
       smsf: { 
         shape: 'triangle', 
         color: '#d0bfff',
-        label: 'SMSF'
+        label: 'SMSF',
+        level: 0 // Borrowing entity
       },
       property: { 
         shape: 'square', 
         color: '#ffc9c9',
-        label: 'Property'
+        label: 'Property',
+        level: 3 // Security
       },
       bank: { 
         shape: 'hexagon', 
         color: '#f3d9fa',
-        label: 'Bank'
+        label: 'Bank',
+        level: 3 // Security
       }
     };
 
@@ -685,12 +773,30 @@
       salary: { color: '#2ECC85', dashes: false, arrows: 'to', width: 2 }
     };
 
+    // Get entity level for hierarchical layout
+    function getEntityLevel(type, relationships = []) {
+      // Basic level assignment
+      const baseLevel = entityConfig[type]?.level || 1;
+      
+      // Simple logic: if it's a company, check if it's a trustee (should be level 1)
+      if (type === 'company') {
+        // Check if this company has director relationships (trustee companies)
+        const hasDirectorRole = relationships.some(rel => 
+          rel.type === 'director' && rel.to === relationships.nodeId
+        );
+        return hasDirectorRole ? 1 : baseLevel;
+      }
+      
+      return baseLevel;
+    }
+
     // Initialize the application
     function init() {
       initializeNetwork();
       updateEntitySelects();
       loadFromStorage();
       setupEventListeners();
+      updateLayoutButton();
     }
 
     // Get current font color based on theme
@@ -699,11 +805,9 @@
       return currentTheme === 'dark' ? '#ffffff' : '#1a1a1a';
     }
 
-    // Initialize the vis-network
-    function initializeNetwork() {
-      const container = document.getElementById('network');
-      const data = { nodes: nodes, edges: edges };
-      const options = {
+    // Get network options based on layout mode
+    function getNetworkOptions() {
+      const baseOptions = {
         nodes: {
           borderWidth: 2,
           borderWidthSelected: 3,
@@ -726,22 +830,157 @@
             type: 'continuous'
           }
         },
-        physics: {
-          stabilization: { iterations: 100 },
-          barnesHut: {
-            gravitationalConstant: -2000,
-            springConstant: 0.001,
-            springLength: 200
-          }
-        },
         interaction: {
           dragNodes: true,
           dragView: true,
           zoomView: true
         }
       };
+
+      if (isStructuredLayout) {
+        // Hierarchical layout
+        baseOptions.layout = {
+          hierarchical: {
+            direction: 'UD', // Up-Down
+            sortMethod: 'directed',
+            levelSeparation: 150,
+            nodeSpacing: 200,
+            treeSpacing: 200,
+            blockShifting: true,
+            edgeMinimization: true,
+            parentCentralization: true
+          }
+        };
+        baseOptions.physics = {
+          enabled: false
+        };
+      } else {
+        // Free flow physics layout
+        baseOptions.physics = {
+          stabilization: { iterations: 100 },
+          barnesHut: {
+            gravitationalConstant: -2000,
+            springConstant: 0.001,
+            springLength: 200
+          }
+        };
+      }
+
+      return baseOptions;
+    }
+
+    // Initialize the vis-network
+    function initializeNetwork() {
+      const container = document.getElementById('network');
+      const data = { nodes: nodes, edges: edges };
+      const options = getNetworkOptions();
       
       network = new vis.Network(container, data, options);
+      
+      // Add double-click event listener for editing
+      network.on('doubleClick', function (params) {
+        if (params.nodes.length > 0) {
+          const nodeId = params.nodes[0];
+          openEditModal(nodeId);
+        }
+      });
+    }
+
+    // Open edit modal for a node
+    function openEditModal(nodeId) {
+      const node = nodes.get(nodeId);
+      if (!node) return;
+      
+      currentEditingNodeId = nodeId;
+      document.getElementById('editEntityName').value = node.entityName;
+      document.getElementById('editEntityType').value = node.type;
+      document.getElementById('editModal').style.display = 'flex';
+    }
+
+    // Save edit changes
+    function saveEdit() {
+      const newName = document.getElementById('editEntityName').value.trim();
+      const newType = document.getElementById('editEntityType').value;
+      
+      if (!newName) {
+        alert('Please enter a name');
+        return;
+      }
+      
+      if (currentEditingNodeId) {
+        const config = entityConfig[newType];
+        const entityLabel = `${newName}\n[${config.label}]`;
+        const entityLevel = getEntityLevel(newType);
+        
+        nodes.update({
+          id: currentEditingNodeId,
+          label: entityLabel,
+          shape: config.shape,
+          color: {
+            background: config.color,
+            border: getDarkerColor(config.color)
+          },
+          font: {
+            color: getCurrentFontColor(),
+            size: 12,
+            face: 'Inter'
+          },
+          type: newType,
+          entityName: newName,
+          level: entityLevel
+        });
+        
+        updateEntitySelects();
+        updateCurrentEntities();
+        saveToStorage();
+        cancelEdit();
+      }
+    }
+
+    // Cancel edit
+    function cancelEdit() {
+      currentEditingNodeId = null;
+      document.getElementById('editModal').style.display = 'none';
+    }
+
+    // Toggle layout between structured and free flow
+    function toggleLayout() {
+      isStructuredLayout = !isStructuredLayout;
+      updateLayoutButton();
+      
+      // Reinitialize network with new layout
+      if (network) {
+        network.destroy();
+      }
+      initializeNetwork();
+      
+      // Update all nodes with level information for hierarchical layout
+      if (isStructuredLayout) {
+        updateNodeLevels();
+      }
+      
+      // Save layout preference
+      localStorage.setItem('flow-visualiser-layout', isStructuredLayout ? 'structured' : 'freeflow');
+    }
+
+    // Update layout button text
+    function updateLayoutButton() {
+      const button = document.getElementById('layoutToggle');
+      button.textContent = isStructuredLayout ? 'Structured' : 'Free Flow';
+    }
+
+    // Update node levels for hierarchical layout
+    function updateNodeLevels() {
+      const currentNodes = nodes.get();
+      const currentEdges = edges.get();
+      
+      currentNodes.forEach(node => {
+        const entityLevel = getEntityLevel(node.type, currentEdges);
+        nodes.update({
+          id: node.id,
+          level: entityLevel
+        });
+      });
     }
 
     // Update all node font colors when theme changes
@@ -772,11 +1011,12 @@
       
       const id = ++entityCounter;
       const config = entityConfig[type];
+      const entityLevel = getEntityLevel(type);
       
       // Create label with entity type underneath
       const entityLabel = `${name}\n[${config.label}]`;
       
-      nodes.add({
+      const nodeData = {
         id: id,
         label: entityLabel,
         shape: config.shape,
@@ -790,8 +1030,11 @@
           face: 'Inter'
         },
         type: type,
-        entityName: name
-      });
+        entityName: name,
+        level: entityLevel
+      };
+      
+      nodes.add(nodeData);
       
       // Reset form
       document.getElementById('entityName').value = '';
@@ -979,7 +1222,7 @@
     function loadSimpleBorrowerTemplate() {
       const fontColor = getCurrentFontColor();
       
-      // Add entities
+      // Add entities with hierarchical levels
       nodes.add([
         { 
           id: 1, 
@@ -988,7 +1231,8 @@
           color: { background: entityConfig.person.color, border: getDarkerColor(entityConfig.person.color) }, 
           type: 'person',
           entityName: 'John Smith',
-          font: { color: fontColor, size: 12, face: 'Inter' }
+          font: { color: fontColor, size: 12, face: 'Inter' },
+          level: 2
         },
         { 
           id: 2, 
@@ -997,7 +1241,8 @@
           color: { background: entityConfig.property.color, border: getDarkerColor(entityConfig.property.color) }, 
           type: 'property',
           entityName: 'Investment Property',
-          font: { color: fontColor, size: 12, face: 'Inter' }
+          font: { color: fontColor, size: 12, face: 'Inter' },
+          level: 3
         },
         { 
           id: 3, 
@@ -1006,7 +1251,8 @@
           color: { background: entityConfig.bank.color, border: getDarkerColor(entityConfig.bank.color) }, 
           type: 'bank',
           entityName: 'ANZ Bank',
-          font: { color: fontColor, size: 12, face: 'Inter' }
+          font: { color: fontColor, size: 12, face: 'Inter' },
+          level: 3
         }
       ]);
       
@@ -1036,7 +1282,8 @@
           color: { background: entityConfig.trust.color, border: getDarkerColor(entityConfig.trust.color) }, 
           type: 'trust',
           entityName: 'Smith Family Trust',
-          font: { color: fontColor, size: 12, face: 'Inter' }
+          font: { color: fontColor, size: 12, face: 'Inter' },
+          level: 0
         },
         { 
           id: 2, 
@@ -1045,7 +1292,8 @@
           color: { background: entityConfig.company.color, border: getDarkerColor(entityConfig.company.color) }, 
           type: 'company',
           entityName: 'Smith Trustee Pty Ltd',
-          font: { color: fontColor, size: 12, face: 'Inter' }
+          font: { color: fontColor, size: 12, face: 'Inter' },
+          level: 1
         },
         { 
           id: 3, 
@@ -1054,7 +1302,8 @@
           color: { background: entityConfig.person.color, border: getDarkerColor(entityConfig.person.color) }, 
           type: 'person',
           entityName: 'John Smith',
-          font: { color: fontColor, size: 12, face: 'Inter' }
+          font: { color: fontColor, size: 12, face: 'Inter' },
+          level: 2
         },
         { 
           id: 4, 
@@ -1063,7 +1312,8 @@
           color: { background: entityConfig.person.color, border: getDarkerColor(entityConfig.person.color) }, 
           type: 'person',
           entityName: 'Jane Smith',
-          font: { color: fontColor, size: 12, face: 'Inter' }
+          font: { color: fontColor, size: 12, face: 'Inter' },
+          level: 2
         }
       ]);
       
@@ -1092,7 +1342,8 @@
           color: { background: entityConfig.company.color, border: getDarkerColor(entityConfig.company.color) }, 
           type: 'company',
           entityName: 'Holdings Pty Ltd',
-          font: { color: fontColor, size: 12, face: 'Inter' }
+          font: { color: fontColor, size: 12, face: 'Inter' },
+          level: 0
         },
         { 
           id: 2, 
@@ -1101,7 +1352,8 @@
           color: { background: entityConfig.company.color, border: getDarkerColor(entityConfig.company.color) }, 
           type: 'company',
           entityName: 'Trading Co Pty Ltd',
-          font: { color: fontColor, size: 12, face: 'Inter' }
+          font: { color: fontColor, size: 12, face: 'Inter' },
+          level: 1
         },
         { 
           id: 3, 
@@ -1110,7 +1362,8 @@
           color: { background: entityConfig.company.color, border: getDarkerColor(entityConfig.company.color) }, 
           type: 'company',
           entityName: 'Property Co Pty Ltd',
-          font: { color: fontColor, size: 12, face: 'Inter' }
+          font: { color: fontColor, size: 12, face: 'Inter' },
+          level: 1
         },
         { 
           id: 4, 
@@ -1119,7 +1372,8 @@
           color: { background: entityConfig.person.color, border: getDarkerColor(entityConfig.person.color) }, 
           type: 'person',
           entityName: 'John Smith',
-          font: { color: fontColor, size: 12, face: 'Inter' }
+          font: { color: fontColor, size: 12, face: 'Inter' },
+          level: 2
         }
       ]);
       
@@ -1185,10 +1439,23 @@
         }
       });
       
+      // Close modal when clicking outside
+      document.getElementById('editModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          cancelEdit();
+        }
+      });
+      
       // Load saved theme
       const savedTheme = localStorage.getItem('theme') || 'dark';
       document.body.setAttribute('data-theme', savedTheme);
       document.getElementById('themeToggle').textContent = savedTheme === 'dark' ? '🌙' : '☀️';
+      
+      // Load saved layout preference
+      const savedLayout = localStorage.getItem('flow-visualiser-layout');
+      if (savedLayout) {
+        isStructuredLayout = savedLayout === 'structured';
+      }
     }
 
     // Hide relationship fields
@@ -1224,15 +1491,19 @@
         edges.clear();
         
         if (data.nodes && data.nodes.length > 0) {
-          // Update font colors for loaded nodes
+          // Update font colors for loaded nodes and ensure level property
           const fontColor = getCurrentFontColor();
-          const updatedNodes = data.nodes.map(node => ({
-            ...node,
-            font: {
-              ...node.font,
-              color: fontColor
-            }
-          }));
+          const updatedNodes = data.nodes.map(node => {
+            const level = node.level !== undefined ? node.level : getEntityLevel(node.type);
+            return {
+              ...node,
+              font: {
+                ...node.font,
+                color: fontColor
+              },
+              level: level
+            };
+          });
           nodes.add(updatedNodes);
         }
         
