@@ -37,6 +37,12 @@ const BANKS = {
       'Flexi First (Inv)': 'HLVariableFlexiInvestment',
       'Rocket Loan (OO)': 'HLVariableOffsetOwnerOccupied',
       'Fixed Rate': 'HLFixed',
+      // Commercial products
+      'Secured Business Loan': 'SecuredBusinessLoan',
+      'Business Overdraft': 'BusinessOverdraft',
+      'Unsecured Business Overdraft': 'UnsecuredBusinessOverdraft',
+      'Unsecured Business Loan': 'UnsecuredBusinessLoan',
+      'Bank Bill Business Loan': 'BankBillBusinessLoan',
     }
   },
   NAB: {

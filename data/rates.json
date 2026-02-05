@@ -1,6 +1,6 @@
 {
-  "fetchedAt": "2026-02-05T02:33:02.306Z",
-  "fetchedAtAEST": "05/02/2026, 1:33:02 pm",
+  "fetchedAt": "2026-02-05T02:43:46.454Z",
+  "fetchedAtAEST": "05/02/2026, 1:43:46 pm",
   "banks": {
     "CBA": {
       "displayName": "Commonwealth Bank",
@@ -400,7 +400,7 @@
           }
         }
       },
-      "fetchedAt": "2026-02-05T02:33:02.316Z",
+      "fetchedAt": "2026-02-05T02:43:46.464Z",
       "success": true
     },
     "Westpac": {
@@ -2768,9 +2768,248 @@
               "inv": {}
             }
           }
+        },
+        "Secured Business Loan": {
+          "productId": "SecuredBusinessLoan",
+          "name": "Secured Business Loan",
+          "description": "Make your business plans happen with a Westpac business loan.",
+          "lastUpdated": "2025-09-17T04:19:26Z",
+          "rates": [
+            {
+              "lendingRateType": "VARIABLE",
+              "rate": 0.0716,
+              "ratePercent": 7.16,
+              "comparisonRate": null,
+              "comparisonRatePercent": null,
+              "repaymentType": null,
+              "loanPurpose": null,
+              "fixedYears": null,
+              "lvrMin": null,
+              "lvrMax": null,
+              "additionalInfo": "Base Rate, a Margin may apply",
+              "additionalInfoUri": null
+            }
+          ],
+          "summary": {
+            "variable": {
+              "oo": {
+                "default": {
+                  "default": 7.16
+                }
+              },
+              "inv": {}
+            },
+            "fixed": {
+              "oo": {},
+              "inv": {}
+            }
+          }
+        },
+        "Business Overdraft": {
+          "productId": "BusinessOverdraft",
+          "name": "Business Overdraft",
+          "description": "Provides cash flow relief with funds to cover business expenses, such as invoices and wages until you?re paid.",
+          "lastUpdated": "2025-12-18T02:53:54Z",
+          "rates": [
+            {
+              "lendingRateType": "VARIABLE",
+              "rate": 0.0736,
+              "ratePercent": 7.36,
+              "comparisonRate": null,
+              "comparisonRatePercent": null,
+              "repaymentType": null,
+              "loanPurpose": null,
+              "fixedYears": null,
+              "lvrMin": null,
+              "lvrMax": null,
+              "additionalInfo": null,
+              "additionalInfoUri": null
+            }
+          ],
+          "summary": {
+            "variable": {
+              "oo": {
+                "default": {
+                  "default": 7.36
+                }
+              },
+              "inv": {}
+            },
+            "fixed": {
+              "oo": {},
+              "inv": {}
+            }
+          }
+        },
+        "Unsecured Business Overdraft": {
+          "productId": "UnsecuredBusinessOverdraft",
+          "name": "Unsecured Business Overdraft",
+          "description": "Now it's quick and easy to apply for unsecured funds to expand your business.",
+          "lastUpdated": "2025-12-18T02:53:54Z",
+          "rates": [
+            {
+              "lendingRateType": "VARIABLE",
+              "rate": 0.1296,
+              "ratePercent": 12.96,
+              "comparisonRate": null,
+              "comparisonRatePercent": null,
+              "repaymentType": null,
+              "loanPurpose": null,
+              "fixedYears": null,
+              "lvrMin": null,
+              "lvrMax": null,
+              "additionalInfo": null,
+              "additionalInfoUri": null
+            }
+          ],
+          "summary": {
+            "variable": {
+              "oo": {
+                "default": {
+                  "default": 12.96
+                }
+              },
+              "inv": {}
+            },
+            "fixed": {
+              "oo": {},
+              "inv": {}
+            }
+          }
+        },
+        "Unsecured Business Loan": {
+          "productId": "UnsecuredBusinessLoan",
+          "name": "Unsecured Business Loan",
+          "description": "Our offering to help your business in challenging times",
+          "lastUpdated": "2026-02-04T00:19:26Z",
+          "rates": [
+            {
+              "lendingRateType": "FIXED",
+              "rate": 0.1334,
+              "ratePercent": 13.34,
+              "comparisonRate": null,
+              "comparisonRatePercent": null,
+              "repaymentType": null,
+              "loanPurpose": null,
+              "fixedYears": 1,
+              "lvrMin": null,
+              "lvrMax": null,
+              "additionalInfo": null,
+              "additionalInfoUri": null
+            },
+            {
+              "lendingRateType": "FIXED",
+              "rate": 0.1335,
+              "ratePercent": 13.35,
+              "comparisonRate": null,
+              "comparisonRatePercent": null,
+              "repaymentType": null,
+              "loanPurpose": null,
+              "fixedYears": 2,
+              "lvrMin": null,
+              "lvrMax": null,
+              "additionalInfo": null,
+              "additionalInfoUri": null
+            },
+            {
+              "lendingRateType": "FIXED",
+              "rate": 0.135,
+              "ratePercent": 13.5,
+              "comparisonRate": null,
+              "comparisonRatePercent": null,
+              "repaymentType": null,
+              "loanPurpose": null,
+              "fixedYears": 3,
+              "lvrMin": null,
+              "lvrMax": null,
+              "additionalInfo": null,
+              "additionalInfoUri": null
+            },
+            {
+              "lendingRateType": "FIXED",
+              "rate": 0.1364,
+              "ratePercent": 13.64,
+              "comparisonRate": null,
+              "comparisonRatePercent": null,
+              "repaymentType": null,
+              "loanPurpose": null,
+              "fixedYears": 4,
+              "lvrMin": null,
+              "lvrMax": null,
+              "additionalInfo": null,
+              "additionalInfoUri": null
+            },
+            {
+              "lendingRateType": "FIXED",
+              "rate": 0.137,
+              "ratePercent": 13.7,
+              "comparisonRate": null,
+              "comparisonRatePercent": null,
+              "repaymentType": null,
+              "loanPurpose": null,
+              "fixedYears": 5,
+              "lvrMin": null,
+              "lvrMax": null,
+              "additionalInfo": null,
+              "additionalInfoUri": null
+            }
+          ],
+          "summary": {
+            "variable": {
+              "oo": {},
+              "inv": {}
+            },
+            "fixed": {
+              "oo": {
+                "1yr": {
+                  "default": {
+                    "default": 13.34
+                  }
+                },
+                "2yr": {
+                  "default": {
+                    "default": 13.35
+                  }
+                },
+                "3yr": {
+                  "default": {
+                    "default": 13.5
+                  }
+                },
+                "4yr": {
+                  "default": {
+                    "default": 13.64
+                  }
+                },
+                "5yr": {
+                  "default": {
+                    "default": 13.7
+                  }
+                }
+              },
+              "inv": {}
+            }
+          }
+        },
+        "Bank Bill Business Loan": {
+          "productId": "BankBillBusinessLoan",
+          "name": "Bank Bill Business Loan",
+          "description": "For business loans from $250K with cash flow-friendly repayment options to help assist with acquisitions, capital investment or refinancing.",
+          "lastUpdated": "2025-12-09T05:50:34Z",
+          "rates": [],
+          "summary": {
+            "variable": {
+              "oo": {},
+              "inv": {}
+            },
+            "fixed": {
+              "oo": {},
+              "inv": {}
+            }
+          }
         }
       },
-      "fetchedAt": "2026-02-05T02:33:04.790Z",
+      "fetchedAt": "2026-02-05T02:43:48.053Z",
       "success": true
     },
     "NAB": {
@@ -5279,7 +5518,7 @@
           }
         }
       },
-      "fetchedAt": "2026-02-05T02:33:11.648Z",
+      "fetchedAt": "2026-02-05T02:43:58.583Z",
       "success": true
     },
     "ANZ": {
@@ -7417,7 +7656,7 @@
           }
         }
       },
-      "fetchedAt": "2026-02-05T02:33:12.657Z",
+      "fetchedAt": "2026-02-05T02:43:59.420Z",
       "success": true
     },
     "Macquarie": {
@@ -9614,7 +9853,7 @@
           }
         }
       },
-      "fetchedAt": "2026-02-05T02:33:13.398Z",
+      "fetchedAt": "2026-02-05T02:43:59.998Z",
       "success": true
     },
     "ING": {
@@ -11577,7 +11816,7 @@
           }
         }
       },
-      "fetchedAt": "2026-02-05T02:33:14.429Z",
+      "fetchedAt": "2026-02-05T02:44:01.183Z",
       "success": true
     },
     "Bendigo": {
@@ -13510,7 +13749,7 @@
           }
         }
       },
-      "fetchedAt": "2026-02-05T02:33:17.402Z",
+      "fetchedAt": "2026-02-05T02:44:03.374Z",
       "success": true
     }
   },
@@ -13519,8 +13758,8 @@
     "totalBanks": 7,
     "successBanks": 7,
     "failedBanks": 0,
-    "totalProducts": 20,
-    "successProducts": 20,
+    "totalProducts": 25,
+    "successProducts": 25,
     "failedProducts": 0
   }
 }

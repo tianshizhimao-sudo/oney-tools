@@ -23,6 +23,11 @@
     --red: #ff4d6a;
     --red-bg: rgba(255,77,106,0.08);
     --green-bg: rgba(46,204,133,0.08);
+    --yellow: #f59e0b;
+    --yellow-bg: rgba(245,158,11,0.12);
+    --yellow-border: rgba(245,158,11,0.3);
+    --blue: #60a5fa;
+    --purple: #c084fc;
     --radius: 12px;
     --radius-sm: 8px;
     --logo-text: #e8e8ec;
@@ -41,6 +46,8 @@
     --red: #dc2626;
     --red-bg: rgba(220,38,38,0.08);
     --green-bg: rgba(46,204,133,0.10);
+    --yellow-bg: rgba(245,158,11,0.10);
+    --yellow-border: rgba(245,158,11,0.4);
     --logo-text: #0a0a0a;
   }
 
@@ -48,7 +55,8 @@
 
   body, .header, .main, .stat-card, .table-wrap, .btn, th, td,
   .tab-btn, select.filter-select, .modal, .toast, .legend, .footer,
-  .rate-input, .form-group input, .form-group select, .rba-card {
+  .rate-input, .form-group input, .form-group select, .rba-card,
+  .mode-toggle, .step-card, .rate-card-grid, .comm-rate-card, .comm-disclaimer {
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
   }
 
@@ -224,6 +232,66 @@
     max-width: 1600px;
     margin: 0 auto;
     padding: 24px;
+  }
+
+  /* ══ MODE TOGGLE (Residential / Commercial) ══ */
+  .mode-toggle {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .mode-btn {
+    flex: 1;
+    max-width: 300px;
+    padding: 16px 24px;
+    border-radius: var(--radius);
+    border: 2px solid var(--border);
+    background: var(--bg2);
+    color: var(--text2);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+
+  .mode-btn:hover {
+    border-color: var(--green);
+    color: var(--text);
+    background: var(--bg3);
+  }
+
+  .mode-btn.active {
+    border-color: var(--green);
+    background: var(--green-bg);
+    color: var(--green);
+    box-shadow: 0 0 0 3px rgba(46,204,133,0.1);
+  }
+
+  .mode-btn .mode-icon {
+    font-size: 24px;
+  }
+
+  .mode-btn .mode-label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .mode-btn .mode-label small {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text3);
+  }
+
+  .mode-btn.active .mode-label small {
+    color: var(--green);
+    opacity: 0.7;
   }
 
   /* RBA Decision Day Card */
@@ -669,6 +737,306 @@
     color: var(--text2);
   }
 
+  /* ══ COMMERCIAL MODE STYLES ══ */
+
+  /* Step Progress */
+  .comm-steps-progress {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text3);
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+
+  .step-indicator.active {
+    color: var(--green);
+    border-color: var(--green);
+    background: var(--green-bg);
+  }
+
+  .step-indicator.completed {
+    color: var(--green);
+    border-color: rgba(46,204,133,0.3);
+    background: var(--green-bg);
+    cursor: pointer;
+  }
+
+  .step-indicator.completed:hover {
+    border-color: var(--green);
+  }
+
+  .step-arrow {
+    color: var(--text3);
+    font-size: 14px;
+  }
+
+  /* Step Cards */
+  .step-section {
+    margin-bottom: 24px;
+  }
+
+  .step-section h3 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .step-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+  }
+
+  .step-card {
+    background: var(--bg2);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 8px;
+  }
+
+  .step-card:hover {
+    border-color: var(--green);
+    background: var(--bg3);
+    transform: translateY(-2px);
+  }
+
+  .step-card.selected {
+    border-color: var(--green);
+    background: var(--green-bg);
+    box-shadow: 0 0 0 3px rgba(46,204,133,0.1);
+  }
+
+  .step-card .card-icon {
+    font-size: 36px;
+    margin-bottom: 4px;
+  }
+
+  .step-card .card-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .step-card.selected .card-title {
+    color: var(--green);
+  }
+
+  .step-card .card-desc {
+    font-size: 12px;
+    color: var(--text3);
+    line-height: 1.4;
+  }
+
+  /* Commercial Disclaimer */
+  .comm-disclaimer {
+    background: var(--yellow-bg);
+    border: 1px solid var(--yellow-border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .comm-disclaimer .disc-icon {
+    font-size: 24px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .comm-disclaimer strong {
+    color: var(--yellow);
+  }
+
+  /* Commercial Rate Cards */
+  .comm-rate-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .comm-rate-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    transition: all 0.2s;
+  }
+
+  .comm-rate-card:hover {
+    border-color: var(--green);
+    transform: translateY(-1px);
+  }
+
+  .comm-rate-card .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .comm-rate-card .bank-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .comm-rate-card .bank-label {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .comm-rate-card .tier-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+    margin-left: auto;
+  }
+
+  .comm-rate-card .rate-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+  }
+
+  .comm-rate-card .rate-label {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
+  .comm-rate-card .rate-num {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--green);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .comm-rate-card .rate-num.contact {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text3);
+    font-style: italic;
+  }
+
+  .comm-rate-card .rate-note {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  .comm-rate-card .rate-source {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--green-bg);
+    color: var(--green);
+    font-weight: 600;
+    margin-top: 8px;
+  }
+
+  .comm-rate-card .rate-source.manual-source {
+    background: rgba(168,85,247,0.12);
+    color: var(--purple);
+  }
+
+  /* Back button in steps */
+  .step-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg3);
+    color: var(--text2);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+    margin-bottom: 16px;
+  }
+
+  .step-back-btn:hover {
+    border-color: var(--green);
+    color: var(--green);
+    background: var(--bg4);
+  }
+
+  /* Commercial summary header */
+  .comm-selection-summary {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .comm-selection-summary .sel-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: var(--green-bg);
+    border: 1px solid rgba(46,204,133,0.2);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green);
+  }
+
+  .comm-selection-summary .sel-arrow {
+    color: var(--text3);
+    font-size: 14px;
+  }
+
   /* Footer */
   .footer {
     text-align: center;
@@ -691,6 +1059,12 @@
     .rba-card { flex-direction: column; align-items: flex-start; }
     .rba-countdown { width: 100%; justify-content: center; }
     .countdown-value { font-size: 20px; }
+    .mode-toggle { flex-direction: column; }
+    .mode-btn { max-width: 100%; }
+    .step-cards { grid-template-columns: 1fr; }
+    .comm-rate-grid { grid-template-columns: 1fr; }
+    .comm-steps-progress { gap: 4px; }
+    .step-indicator { font-size: 11px; padding: 4px 10px; }
   }
 
   @media (max-width: 480px) {
@@ -718,6 +1092,19 @@
     .header { position: relative; }
     .theme-toggle, .back-btn { display: none; }
   }
+
+  /* Fade transition */
+  .fade-in {
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Hide sections */
+  .hidden { display: none !important; }
 </style>
 </head>
 <body>
@@ -746,88 +1133,139 @@
         <span class="icon-moon">🌙</span>
       </button>
       <button class="btn btn-primary" onclick="refreshRatesFromAPI()" id="refreshBtn">🔄 Refresh Rates</button>
-      <button class="btn" onclick="exportCSV()">📥 Export CSV</button>
-      <button class="btn btn-danger" onclick="confirmClearAll()">🗑️ Clear All</button>
+      <button class="btn" onclick="exportCSV()" id="exportBtn">📥 Export CSV</button>
+      <button class="btn btn-danger" onclick="confirmClearAll()" id="clearBtn">🗑️ Clear All</button>
     </div>
   </div>
 </div>
 
 <div class="main">
 
-  <!-- RBA Decision Day -->
-  <div class="rba-card" id="rbaCard">
-    <div class="rba-left">
-      <div class="rba-icon">🏛️</div>
-      <div class="rba-info">
-        <span class="rba-label">Next RBA Decision Day</span>
-        <span class="rba-date" id="rbaDate">—</span>
+  <!-- ══ MODE TOGGLE ══ -->
+  <div class="mode-toggle">
+    <button class="mode-btn active" id="modeResidential" onclick="switchMode('residential')">
+      <span class="mode-icon">🏠</span>
+      <span class="mode-label">
+        Residential
+        <small>Home loans & investment</small>
+      </span>
+    </button>
+    <button class="mode-btn" id="modeCommercial" onclick="switchMode('commercial')">
+      <span class="mode-icon">🏢</span>
+      <span class="mode-label">
+        Commercial
+        <small>Business & commercial lending</small>
+      </span>
+    </button>
+  </div>
+
+  <!-- ══ RESIDENTIAL SECTION ══ -->
+  <div id="residentialSection">
+
+    <!-- RBA Decision Day -->
+    <div class="rba-card" id="rbaCard">
+      <div class="rba-left">
+        <div class="rba-icon">🏛️</div>
+        <div class="rba-info">
+          <span class="rba-label">Next RBA Decision Day</span>
+          <span class="rba-date" id="rbaDate">—</span>
+        </div>
+      </div>
+      <div class="rba-countdown" id="rbaCountdown"></div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <div class="tab-group" id="categoryTabs">
+        <button class="tab-btn active" data-cat="residential" onclick="switchCategory('residential')">🏠 Owner Occupied</button>
+        <button class="tab-btn" data-cat="commercial" onclick="switchCategory('commercial')">📈 Investment</button>
+      </div>
+
+      <div class="filter-group">
+        <span class="filter-label">LVR</span>
+        <select class="filter-select" id="lvrFilter" onchange="renderTables()">
+          <option value="all">All LVR Tiers</option>
+          <option value="60">≤ 60%</option>
+          <option value="70">≤ 70%</option>
+          <option value="80">≤ 80%</option>
+          <option value="80+">＞ 80%</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <span class="filter-label">Product</span>
+        <select class="filter-select" id="productFilter" onchange="renderTables()">
+          <option value="all">All Products</option>
+          <option value="variable">Variable</option>
+          <option value="fixed1">Fixed 1yr</option>
+          <option value="fixed2">Fixed 2yr</option>
+          <option value="fixed3">Fixed 3yr</option>
+        </select>
+      </div>
+
+      <div class="spacer"></div>
+
+      <div class="last-updated" id="lastUpdatedGlobal">
+        🕐 No data yet
       </div>
     </div>
-    <div class="rba-countdown" id="rbaCountdown"></div>
-  </div>
 
-  <!-- Controls -->
-  <div class="controls">
-    <div class="tab-group" id="categoryTabs">
-      <button class="tab-btn active" data-cat="residential" onclick="switchCategory('residential')">🏠 Residential</button>
-      <button class="tab-btn" data-cat="commercial" onclick="switchCategory('commercial')">🏢 Commercial</button>
+    <!-- Stats -->
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card">
+        <div class="stat-label">Rates Tracked</div>
+        <div class="stat-value" id="statTotal">0</div>
+        <div class="stat-sub">across all lenders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Lowest Variable</div>
+        <div class="stat-value green" id="statLowest">—</div>
+        <div class="stat-sub" id="statLowestBank">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Highest Variable</div>
+        <div class="stat-value red" id="statHighest">—</div>
+        <div class="stat-sub" id="statHighestBank">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Avg Variable</div>
+        <div class="stat-value" id="statAvg">—</div>
+        <div class="stat-sub">market average</div>
+      </div>
     </div>
 
-    <div class="filter-group">
-      <span class="filter-label">LVR</span>
-      <select class="filter-select" id="lvrFilter" onchange="renderTables()">
-        <option value="all">All LVR Tiers</option>
-        <option value="60">≤ 60%</option>
-        <option value="70">≤ 70%</option>
-        <option value="80">≤ 80%</option>
-        <option value="80+">＞ 80%</option>
-      </select>
+    <!-- Tables rendered here -->
+    <div id="tablesContainer"></div>
+
+  </div><!-- /residentialSection -->
+
+  <!-- ══ COMMERCIAL SECTION ══ -->
+  <div id="commercialSection" class="hidden">
+
+    <!-- Disclaimer -->
+    <div class="comm-disclaimer">
+      <span class="disc-icon">⚠️</span>
+      <div>
+        <strong>Indicative rates only.</strong> Commercial lending pricing is subject to multiple factors including security type, LVR, industry, facility size, and relationship. Always confirm with your lender or banker for actual pricing.
+      </div>
     </div>
 
-    <div class="filter-group">
-      <span class="filter-label">Product</span>
-      <select class="filter-select" id="productFilter" onchange="renderTables()">
-        <option value="all">All Products</option>
-        <option value="variable">Variable</option>
-        <option value="fixed1">Fixed 1yr</option>
-        <option value="fixed2">Fixed 2yr</option>
-        <option value="fixed3">Fixed 3yr</option>
-      </select>
+    <!-- Step Progress Indicators -->
+    <div class="comm-steps-progress" id="commStepsProgress">
+      <!-- Populated dynamically -->
     </div>
 
-    <div class="spacer"></div>
+    <!-- Commercial Flow Container -->
+    <div id="commFlowContainer">
+      <!-- Populated dynamically by JS -->
+    </div>
 
-    <div class="last-updated" id="lastUpdatedGlobal">
+    <!-- CDR timestamp for commercial -->
+    <div class="last-updated" id="commLastUpdated" style="margin-top:16px;">
       🕐 No data yet
     </div>
-  </div>
 
-  <!-- Stats -->
-  <div class="stats-row" id="statsRow">
-    <div class="stat-card">
-      <div class="stat-label">Rates Tracked</div>
-      <div class="stat-value" id="statTotal">0</div>
-      <div class="stat-sub">across all lenders</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Lowest Variable</div>
-      <div class="stat-value green" id="statLowest">—</div>
-      <div class="stat-sub" id="statLowestBank">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Highest Variable</div>
-      <div class="stat-value red" id="statHighest">—</div>
-      <div class="stat-sub" id="statHighestBank">—</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Avg Variable</div>
-      <div class="stat-value" id="statAvg">—</div>
-      <div class="stat-sub">market average</div>
-    </div>
-  </div>
-
-  <!-- Tables rendered here -->
-  <div id="tablesContainer"></div>
+  </div><!-- /commercialSection -->
 
 </div>
 
@@ -843,7 +1281,9 @@
 </div>
 
 <script>
+// ══════════════════════════════════════
 // ── Theme Toggle ──
+// ══════════════════════════════════════
 function initTheme() {
   const saved = localStorage.getItem('oney-rate-tracker-theme');
   if (saved === 'light') {
@@ -858,16 +1298,18 @@ function toggleTheme() {
 
 initTheme();
 
+// ══════════════════════════════════════
 // ── RBA Decision Day ──
+// ══════════════════════════════════════
 const RBA_DATES_2026 = [
-  new Date(2026, 1, 18),  // 18 Feb
-  new Date(2026, 3, 1),   // 1 Apr
-  new Date(2026, 4, 20),  // 20 May
-  new Date(2026, 6, 1),   // 1 Jul
-  new Date(2026, 7, 12),  // 12 Aug
-  new Date(2026, 8, 23),  // 23 Sep
-  new Date(2026, 10, 4),  // 4 Nov
-  new Date(2026, 11, 9),  // 9 Dec
+  new Date(2026, 1, 18),
+  new Date(2026, 3, 1),
+  new Date(2026, 4, 20),
+  new Date(2026, 6, 1),
+  new Date(2026, 7, 12),
+  new Date(2026, 8, 23),
+  new Date(2026, 10, 4),
+  new Date(2026, 11, 9),
 ];
 
 function updateRBACountdown() {
@@ -918,9 +1360,11 @@ function updateRBACountdown() {
 }
 
 updateRBACountdown();
-setInterval(updateRBACountdown, 60000); // Update every minute
+setInterval(updateRBACountdown, 60000);
 
-// ── Data Model ──
+// ══════════════════════════════════════
+// ── Data Model (Residential) ──
+// ══════════════════════════════════════
 const BANKS = [
   { name: 'CBA', tier: 'big4' },
   { name: 'NAB', tier: 'big4' },
@@ -961,11 +1405,70 @@ const LVRS = [
 
 const STORAGE_KEY = 'oney_rate_tracker_v2';
 
+let currentMode = 'residential'; // 'residential' or 'commercial'
 let currentCategory = 'residential';
 let rateData = {};
 let sortState = {};
 
-// ── Persistence ──
+// ══════════════════════════════════════
+// ── Commercial Data Model ──
+// ══════════════════════════════════════
+const COMM_BANKS = [
+  { name: 'CBA', tier: 'big4', displayName: 'Commonwealth Bank' },
+  { name: 'Westpac', tier: 'big4', displayName: 'Westpac' },
+  { name: 'NAB', tier: 'big4', displayName: 'National Australia Bank' },
+  { name: 'ANZ', tier: 'big4', displayName: 'ANZ' },
+  { name: 'Macquarie', tier: 'nonmajor', displayName: 'Macquarie Bank' },
+  { name: 'ING', tier: 'nonmajor', displayName: 'ING' },
+  { name: 'Bendigo', tier: 'nonmajor', displayName: 'Bendigo Bank' },
+];
+
+// Commercial rate state from CDR + manual
+let commercialRates = {};
+// Format: commercialRates[bankName][productKey] = { rate: 7.16, note: "Base Rate, a Margin may apply", source: 'cdr' }
+
+// Commercial flow state
+let commState = {
+  loanType: null,      // 'term_debt' or 'working_capital'
+  productType: null,   // term: 'cash_based' or 'bbsy', wc: 'overdraft' or 'loc'
+  security: null,      // (for working_capital) 'secured' or 'unsecured'
+};
+
+const COMM_STORAGE_KEY = 'oney_comm_state_v1';
+
+function saveCommState() {
+  localStorage.setItem(COMM_STORAGE_KEY, JSON.stringify(commState));
+}
+
+function loadCommState() {
+  try {
+    const saved = localStorage.getItem(COMM_STORAGE_KEY);
+    if (saved) commState = JSON.parse(saved);
+  } catch(e) { /* ignore */ }
+}
+
+// Map commercial selections to CDR product keys
+function getCommProductKey() {
+  if (commState.loanType === 'term_debt') {
+    if (commState.productType === 'cash_based') return 'secured_business_loan';
+    if (commState.productType === 'bbsy') return 'bbsy_business_loan';
+  }
+  if (commState.loanType === 'working_capital') {
+    const isOD = commState.productType === 'overdraft';
+    const isLOC = commState.productType === 'loc';
+    if (commState.security === 'secured') {
+      return isOD ? 'business_overdraft' : 'business_loc_secured';
+    }
+    if (commState.security === 'unsecured') {
+      return isOD ? 'unsecured_business_overdraft' : 'unsecured_business_loc';
+    }
+  }
+  return null;
+}
+
+// ══════════════════════════════════════
+// ── Persistence (Residential) ──
+// ══════════════════════════════════════
 function loadData() {
   try {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -1007,7 +1510,30 @@ function deleteRate(cat, bank, product, lvr) {
   saveData();
 }
 
-// ── UI ──
+// ══════════════════════════════════════
+// ── Mode Switch ──
+// ══════════════════════════════════════
+function switchMode(mode) {
+  currentMode = mode;
+
+  document.getElementById('modeResidential').classList.toggle('active', mode === 'residential');
+  document.getElementById('modeCommercial').classList.toggle('active', mode === 'commercial');
+
+  document.getElementById('residentialSection').classList.toggle('hidden', mode !== 'residential');
+  document.getElementById('commercialSection').classList.toggle('hidden', mode !== 'commercial');
+
+  // Show/hide residential-only buttons
+  document.getElementById('exportBtn').classList.toggle('hidden', mode !== 'residential');
+  document.getElementById('clearBtn').classList.toggle('hidden', mode !== 'residential');
+
+  if (mode === 'commercial') {
+    renderCommercialFlow();
+  }
+}
+
+// ══════════════════════════════════════
+// ── Residential UI (unchanged logic) ──
+// ══════════════════════════════════════
 function switchCategory(cat) {
   currentCategory = cat;
   document.querySelectorAll('#categoryTabs .tab-btn').forEach(b => {
@@ -1294,7 +1820,278 @@ function confirmClearAll() {
   }
 }
 
+// ══════════════════════════════════════
+// ── Commercial Flow UI ──
+// ══════════════════════════════════════
+function renderCommercialFlow() {
+  const container = document.getElementById('commFlowContainer');
+  const progressEl = document.getElementById('commStepsProgress');
+
+  // Determine current step
+  let step = 1;
+  if (commState.loanType) step = 2;
+  if (commState.loanType === 'term_debt' && commState.productType) step = 3;
+  if (commState.loanType === 'working_capital' && commState.productType && commState.security) step = 3;
+  // Working capital needs security selection as part of step 2
+  if (commState.loanType === 'working_capital' && commState.productType && !commState.security) step = 2;
+
+  // Render progress
+  let progressHtml = '';
+  const steps = [
+    { num: 1, label: 'Loan Type' },
+    { num: 2, label: commState.loanType === 'term_debt' ? 'Product' : 'Product & Security' },
+    { num: 3, label: 'Rates' },
+  ];
+
+  for (let i = 0; i < steps.length; i++) {
+    const s = steps[i];
+    let cls = '';
+    if (s.num < step) cls = 'completed';
+    else if (s.num === step) cls = 'active';
+
+    const clickFn = s.num < step ? `onclick="commGoToStep(${s.num})"` : '';
+    progressHtml += `<div class="step-indicator ${cls}" ${clickFn}>
+      ${s.num < step ? '✅' : s.num === step ? '📍' : '○'} Step ${s.num}: ${s.label}
+    </div>`;
+    if (i < steps.length - 1) {
+      progressHtml += `<span class="step-arrow">→</span>`;
+    }
+  }
+  progressEl.innerHTML = progressHtml;
+
+  // Render step content
+  let html = '<div class="fade-in">';
+
+  if (step === 1) {
+    html += renderCommStep1();
+  } else if (step === 2) {
+    html += renderCommStep2();
+  } else if (step === 3) {
+    html += renderCommStep3();
+  }
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function renderCommStep1() {
+  let html = '';
+  html += `<div class="step-section">
+    <h3>📋 Step 1: Select Loan Type</h3>
+    <div class="step-cards">
+      <div class="step-card ${commState.loanType === 'term_debt' ? 'selected' : ''}" onclick="commSelectLoanType('term_debt')">
+        <span class="card-icon">📊</span>
+        <span class="card-title">Term Debt</span>
+        <span class="card-desc">Medium to long-term business loans for asset purchases, expansion, or refinancing</span>
+      </div>
+      <div class="step-card ${commState.loanType === 'working_capital' ? 'selected' : ''}" onclick="commSelectLoanType('working_capital')">
+        <span class="card-icon">💰</span>
+        <span class="card-title">Working Capital</span>
+        <span class="card-desc">Short-term facilities for operational cash flow, inventory, or day-to-day expenses</span>
+      </div>
+    </div>
+  </div>`;
+  return html;
+}
+
+function renderCommStep2() {
+  let html = '';
+  html += `<button class="step-back-btn" onclick="commGoToStep(1)">← Back to Loan Type</button>`;
+
+  if (commState.loanType === 'term_debt') {
+    html += `<div class="step-section">
+      <h3>🏦 Step 2: Select Product Type</h3>
+      <div class="step-cards">
+        <div class="step-card ${commState.productType === 'cash_based' ? 'selected' : ''}" onclick="commSelectProduct('cash_based')">
+          <span class="card-icon">🏦</span>
+          <span class="card-title">Cash-based Product</span>
+          <span class="card-desc">Variable rate, standard commercial loan secured by property or assets</span>
+        </div>
+        <div class="step-card ${commState.productType === 'bbsy' ? 'selected' : ''}" onclick="commSelectProduct('bbsy')">
+          <span class="card-icon">📈</span>
+          <span class="card-title">BBSY Product</span>
+          <span class="card-desc">Bank Bill Swap rate sensitive, typically for larger facilities ($1M+)</span>
+        </div>
+      </div>
+    </div>`;
+  } else if (commState.loanType === 'working_capital') {
+    html += `<div class="step-section">
+      <h3>💳 Step 2a: Select Product Type</h3>
+      <div class="step-cards">
+        <div class="step-card ${commState.productType === 'overdraft' ? 'selected' : ''}" onclick="commSelectProduct('overdraft')">
+          <span class="card-icon">💳</span>
+          <span class="card-title">Overdraft (OD)</span>
+          <span class="card-desc">Flexible credit facility linked to your business account for ongoing working capital needs</span>
+        </div>
+        <div class="step-card ${commState.productType === 'loc' ? 'selected' : ''}" onclick="commSelectProduct('loc')">
+          <span class="card-icon">📋</span>
+          <span class="card-title">Line of Credit (LOC)</span>
+          <span class="card-desc">Revolving credit facility — draw down and repay as needed, interest only on drawn amount</span>
+        </div>
+      </div>
+    </div>`;
+
+    // Show security selection if product is chosen
+    if (commState.productType) {
+      html += `<div class="step-section" style="margin-top:16px;">
+        <h3>🔒 Step 2b: Security Type</h3>
+        <div class="step-cards">
+          <div class="step-card ${commState.security === 'secured' ? 'selected' : ''}" onclick="commSelectSecurity('secured')">
+            <span class="card-icon">✅</span>
+            <span class="card-title">With Tangible Security</span>
+            <span class="card-desc">Secured by property, equipment, or other tangible assets — typically lower rates</span>
+          </div>
+          <div class="step-card ${commState.security === 'unsecured' ? 'selected' : ''}" onclick="commSelectSecurity('unsecured')">
+            <span class="card-icon">❌</span>
+            <span class="card-title">Without Tangible Security</span>
+            <span class="card-desc">Unsecured facility — higher rates but no asset encumbrance required</span>
+          </div>
+        </div>
+      </div>`;
+    }
+  }
+
+  return html;
+}
+
+function renderCommStep3() {
+  let html = '';
+  html += `<button class="step-back-btn" onclick="commGoToStep(2)">← Back to Product Selection</button>`;
+
+  // Selection summary
+  const chips = getSelectionChips();
+  html += `<div class="comm-selection-summary">`;
+  for (let i = 0; i < chips.length; i++) {
+    html += `<span class="sel-chip">${chips[i]}</span>`;
+    if (i < chips.length - 1) html += `<span class="sel-arrow">→</span>`;
+  }
+  html += `</div>`;
+
+  // Get commercial rates for this selection
+  const productKey = getCommProductKey();
+  const rates = getCommRatesForProduct(productKey);
+
+  html += `<div class="step-section">
+    <h3>📊 Variable Indicative Rates</h3>
+    <div class="comm-rate-grid">`;
+
+  for (const bank of COMM_BANKS) {
+    const rateInfo = rates[bank.name] || { rate: null, note: 'Contact lender for pricing', source: 'none' };
+    const tierInfo = TIERS[bank.tier];
+
+    html += `<div class="comm-rate-card">
+      <div class="card-header">
+        <span class="bank-dot" style="background:${bank.tier === 'big4' ? '#60a5fa' : bank.tier === 'nonmajor' ? '#c084fc' : '#fb923c'}"></span>
+        <span class="bank-label">${bank.name}</span>
+        <span class="tier-badge ${tierInfo.badge}">${tierInfo.label}</span>
+      </div>
+      <div class="rate-row">
+        <span class="rate-label">Variable Rate</span>
+      </div>
+      <div class="rate-row">`;
+
+    if (rateInfo.rate !== null) {
+      html += `<span class="rate-num">${Number(rateInfo.rate).toFixed(2)}%</span>`;
+    } else {
+      html += `<span class="rate-num contact">${rateInfo.note || 'Contact lender for pricing'}</span>`;
+    }
+
+    html += `</div>`;
+
+    if (rateInfo.additionalInfo) {
+      html += `<div class="rate-note">${rateInfo.additionalInfo}</div>`;
+    }
+
+    if (rateInfo.source === 'cdr') {
+      html += `<span class="rate-source">🤖 CDR Data</span>`;
+    } else if (rateInfo.source === 'manual') {
+      html += `<span class="rate-source manual-source">✏️ Manual</span>`;
+    }
+
+    html += `</div>`;
+  }
+
+  html += `</div></div>`;
+
+  return html;
+}
+
+function getSelectionChips() {
+  const chips = [];
+  if (commState.loanType === 'term_debt') chips.push('📊 Term Debt');
+  if (commState.loanType === 'working_capital') chips.push('💰 Working Capital');
+
+  if (commState.productType === 'cash_based') chips.push('🏦 Cash-based');
+  if (commState.productType === 'bbsy') chips.push('📈 BBSY');
+  if (commState.productType === 'overdraft') chips.push('💳 Overdraft');
+  if (commState.productType === 'loc') chips.push('📋 Line of Credit');
+
+  if (commState.security === 'secured') chips.push('✅ Secured');
+  if (commState.security === 'unsecured') chips.push('❌ Unsecured');
+
+  return chips;
+}
+
+function getCommRatesForProduct(productKey) {
+  const rates = {};
+
+  for (const bank of COMM_BANKS) {
+    if (commercialRates[bank.name] && commercialRates[bank.name][productKey]) {
+      rates[bank.name] = commercialRates[bank.name][productKey];
+    } else {
+      rates[bank.name] = { rate: null, note: 'Contact lender for pricing', source: 'none' };
+    }
+  }
+
+  return rates;
+}
+
+// ── Commercial Navigation ──
+function commSelectLoanType(type) {
+  commState.loanType = type;
+  commState.productType = null;
+  commState.security = null;
+  saveCommState();
+  renderCommercialFlow();
+}
+
+function commSelectProduct(product) {
+  commState.productType = product;
+  // For term debt, go directly to step 3 (no security selection needed)
+  if (commState.loanType === 'term_debt') {
+    commState.security = null;
+    saveCommState();
+    renderCommercialFlow();
+  } else {
+    // Working capital: need to select security still
+    commState.security = null;
+    saveCommState();
+    renderCommercialFlow();
+  }
+}
+
+function commSelectSecurity(security) {
+  commState.security = security;
+  saveCommState();
+  renderCommercialFlow();
+}
+
+function commGoToStep(step) {
+  if (step === 1) {
+    commState.loanType = null;
+    commState.productType = null;
+    commState.security = null;
+  } else if (step === 2) {
+    commState.productType = null;
+    commState.security = null;
+  }
+  saveCommState();
+  renderCommercialFlow();
+}
+
+// ══════════════════════════════════════
 // ── Helpers ──
+// ══════════════════════════════════════
 function formatTime(date) {
   const now = new Date();
   const diff = now - date;
@@ -1327,9 +2124,10 @@ function showToast(msg, icon = '✅') {
   toast._timeout = setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
+// ══════════════════════════════════════
 // ── CDR Auto-Fetch from rates.json ──
+// ══════════════════════════════════════
 
-// Mapping from CDR bank keys to our display bank names
 const CDR_BANK_MAP = {
   CBA: 'CBA',
   Westpac: 'Westpac',
@@ -1340,8 +2138,6 @@ const CDR_BANK_MAP = {
   Bendigo: 'Bendigo',
 };
 
-// Which CDR products to use as primary for each bank (for the tracker grid)
-// Format: { bankKey: { variable: productName, fixed: productName } }
 const CDR_PRIMARY_PRODUCTS = {
   CBA: { variable: 'Digi Home Loan (OO)', variableInv: 'Digi Home Loan (Inv)' },
   Westpac: { variable: 'Flexi First (OO)', variableInv: 'Flexi First (Inv)', fixed: 'Fixed Rate' },
@@ -1352,10 +2148,23 @@ const CDR_PRIMARY_PRODUCTS = {
   Bendigo: { variable: 'Easy Home Loan' },
 };
 
+// Commercial CDR product mapping (Westpac only)
+const CDR_COMMERCIAL_PRODUCTS = {
+  Westpac: {
+    'secured_business_loan': 'Secured Business Loan',
+    'business_overdraft': 'Business Overdraft',
+    'unsecured_business_overdraft': 'Unsecured Business Overdraft',
+    'unsecured_business_loan': 'Unsecured Business Loan',
+    'bbsy_business_loan': 'Bank Bill Business Loan',
+    // LOC uses same rates as OD (similar products)
+    'business_loc_secured': 'Business Overdraft',
+    'unsecured_business_loc': 'Unsecured Business Overdraft',
+  }
+};
+
 let cdrData = null;
 
 function getRatesJsonUrl() {
-  // Try relative path (works on GitHub Pages and local server)
   return 'data/rates.json';
 }
 
@@ -1366,11 +2175,9 @@ async function fetchRatesJson() {
   return await res.json();
 }
 
-// Find the best variable rate from a product's rate entries for a given LVR bucket
 function findBestRate(rates, lvrMax, rateType, repayment, purpose) {
   if (!rates || !Array.isArray(rates)) return null;
 
-  // Filter matching rates
   let candidates = rates.filter(r => {
     if (rateType && r.lendingRateType !== rateType) return false;
     if (repayment && r.repaymentType !== repayment) return false;
@@ -1380,16 +2187,14 @@ function findBestRate(rates, lvrMax, rateType, repayment, purpose) {
 
   if (candidates.length === 0) return null;
 
-  // Find the rate matching LVR tier, or the lowest available
   let lvrMatch = null;
   if (lvrMax) {
     const numLvr = parseInt(lvrMax);
     lvrMatch = candidates.filter(r => {
-      if (r.lvrMax === null && r.lvrMin === null) return true; // No LVR restriction
+      if (r.lvrMax === null && r.lvrMin === null) return true;
       if (r.lvrMax && numLvr <= r.lvrMax) return true;
       return false;
     });
-    // Sort: prefer the tightest LVR bracket that contains our target
     lvrMatch.sort((a, b) => {
       const aMax = a.lvrMax || 999;
       const bMax = b.lvrMax || 999;
@@ -1402,7 +2207,7 @@ function findBestRate(rates, lvrMax, rateType, repayment, purpose) {
 }
 
 function mapCDRToTracker(data) {
-  const cat = 'residential'; // CDR data maps to residential
+  const cat = 'residential';
   let populated = 0;
 
   for (const [cdrBank, displayBank] of Object.entries(CDR_BANK_MAP)) {
@@ -1412,7 +2217,6 @@ function mapCDRToTracker(data) {
     const primary = CDR_PRIMARY_PRODUCTS[cdrBank];
     if (!primary) continue;
 
-    // Variable rate
     if (primary.variable) {
       const product = bankData.products[primary.variable];
       if (product && product.rates) {
@@ -1435,7 +2239,6 @@ function mapCDRToTracker(data) {
       }
     }
 
-    // Fixed rates (1yr, 2yr, 3yr)
     const fixedProduct = primary.fixed;
     if (fixedProduct && bankData.products[fixedProduct]) {
       const product = bankData.products[fixedProduct];
@@ -1469,13 +2272,49 @@ function mapCDRToTracker(data) {
   return populated;
 }
 
+// ── Map CDR data to commercial rates ──
+function mapCDRToCommercial(data) {
+  // Reset commercial rates
+  commercialRates = {};
+
+  // Initialize all banks with empty data
+  for (const bank of COMM_BANKS) {
+    commercialRates[bank.name] = {};
+  }
+
+  // Only Westpac has CDR commercial data
+  const westpacData = data.banks.Westpac;
+  if (!westpacData || !westpacData.success) return;
+
+  const productMapping = CDR_COMMERCIAL_PRODUCTS.Westpac;
+
+  for (const [commKey, cdrProductName] of Object.entries(productMapping)) {
+    const product = westpacData.products[cdrProductName];
+    if (!product || !product.rates || product.rates.length === 0) continue;
+
+    // Find the VARIABLE rate
+    const variableRate = product.rates.find(r => r.lendingRateType === 'VARIABLE');
+    if (variableRate) {
+      commercialRates['Westpac'][commKey] = {
+        rate: variableRate.ratePercent,
+        note: variableRate.additionalInfo || null,
+        additionalInfo: variableRate.additionalInfo || null,
+        source: 'cdr',
+      };
+    }
+  }
+}
+
 function updateCDRStatus(data) {
   const el = document.getElementById('lastUpdatedGlobal');
+  const commEl = document.getElementById('commLastUpdated');
   if (data && data.fetchedAt) {
     const d = new Date(data.fetchedAt);
     const dateStr = d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
     const timeStr = d.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
-    el.innerHTML = `🤖 CDR data: ${dateStr} ${timeStr} &nbsp;|&nbsp; <span style="color:var(--green)">${data.stats.successBanks}/${data.stats.totalBanks} banks</span>`;
+    const statusHtml = `🤖 CDR data: ${dateStr} ${timeStr} &nbsp;|&nbsp; <span style="color:var(--green)">${data.stats.successBanks}/${data.stats.totalBanks} banks</span>`;
+    el.innerHTML = statusHtml;
+    if (commEl) commEl.innerHTML = statusHtml;
   }
 }
 
@@ -1488,9 +2327,15 @@ async function loadRatesFromCDR(showToastMsg = true) {
     cdrData = data;
 
     const count = mapCDRToTracker(data);
+    mapCDRToCommercial(data);
     saveData();
     renderTables();
     updateCDRStatus(data);
+
+    // Re-render commercial if active
+    if (currentMode === 'commercial') {
+      renderCommercialFlow();
+    }
 
     if (showToastMsg && count > 0) {
       showToast(`CDR rates loaded: ${count} rate entries from ${data.stats.successBanks} banks`, '🤖');
@@ -1514,8 +2359,11 @@ async function refreshRatesFromAPI() {
   await loadRatesFromCDR(true);
 }
 
+// ══════════════════════════════════════
 // ── Init ──
+// ══════════════════════════════════════
 loadData();
+loadCommState();
 renderTables();
 updateGlobalTimestamp();
 
