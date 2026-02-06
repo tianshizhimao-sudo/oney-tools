@@ -1,6 +1,6 @@
 {
-  "fetchedAt": "2026-02-05T02:43:46.454Z",
-  "fetchedAtAEST": "05/02/2026, 1:43:46 pm",
+  "fetchedAt": "2026-02-06T09:45:17.741Z",
+  "fetchedAtAEST": "06/02/2026, 8:45:17 pm",
   "banks": {
     "CBA": {
       "displayName": "Commonwealth Bank",
@@ -9,7 +9,7 @@
           "productId": "c1d7e8ef741e45e5b013fa7d05574e80",
           "name": "Digi Home Loan (Owner Occupied)",
           "description": "A digital home loan with a low variable rate",
-          "lastUpdated": "2026-02-04T14:15:03Z",
+          "lastUpdated": "2026-02-05T14:15:03Z",
           "rates": [
             {
               "lendingRateType": "VARIABLE",
@@ -124,7 +124,7 @@
           "productId": "b071254b466a420ea2ae755d9fc02141",
           "name": "Digi Home Loan (Investment)",
           "description": "A digital home loan with a low variable rate",
-          "lastUpdated": "2026-02-04T14:15:03Z",
+          "lastUpdated": "2026-02-05T14:15:03Z",
           "rates": [
             {
               "lendingRateType": "VARIABLE",
@@ -400,7 +400,7 @@
           }
         }
       },
-      "fetchedAt": "2026-02-05T02:43:46.464Z",
+      "fetchedAt": "2026-02-06T09:45:17.767Z",
       "success": true
     },
     "Westpac": {
@@ -3009,7 +3009,7 @@
           }
         }
       },
-      "fetchedAt": "2026-02-05T02:43:48.053Z",
+      "fetchedAt": "2026-02-06T09:45:19.230Z",
       "success": true
     },
     "NAB": {
@@ -5518,7 +5518,7 @@
           }
         }
       },
-      "fetchedAt": "2026-02-05T02:43:58.583Z",
+      "fetchedAt": "2026-02-06T09:45:30.325Z",
       "success": true
     },
     "ANZ": {
@@ -7656,7 +7656,7 @@
           }
         }
       },
-      "fetchedAt": "2026-02-05T02:43:59.420Z",
+      "fetchedAt": "2026-02-06T09:45:33.908Z",
       "success": true
     },
     "Macquarie": {
@@ -9853,7 +9853,7 @@
           }
         }
       },
-      "fetchedAt": "2026-02-05T02:43:59.998Z",
+      "fetchedAt": "2026-02-06T09:45:38.144Z",
       "success": true
     },
     "ING": {
@@ -11816,7 +11816,7 @@
           }
         }
       },
-      "fetchedAt": "2026-02-05T02:44:01.183Z",
+      "fetchedAt": "2026-02-06T09:45:41.342Z",
       "success": true
     },
     "Bendigo": {
@@ -13749,7 +13749,7 @@
           }
         }
       },
-      "fetchedAt": "2026-02-05T02:44:03.374Z",
+      "fetchedAt": "2026-02-06T09:45:47.318Z",
       "success": true
     }
   },

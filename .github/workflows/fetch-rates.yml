@@ -1,76 +1,63 @@
-name: Fetch Bank Rates
+name: Fetch CDR Rates
 
 on:
+  # 每周一和周四自动运行 (Sydney time 6am = UTC 19:00 前一天)
   schedule:
-    # Monday 8am AEST = Sunday 10pm UTC (22:00)
-    - cron: '0 22 * * 0'
+    - cron: '0 19 * * 0,3'  # Sunday & Wednesday UTC = Monday & Thursday 6am AEST
+  
+  # RBA 决议日手动触发
   workflow_dispatch:
     inputs:
       reason:
-        description: 'Reason for manual trigger (e.g., RBA decision day)'
+        description: 'Reason for manual run'
         required: false
-        default: 'Manual refresh'
+        default: 'Manual update'
 
-permissions:
-  contents: write
+  # Push to main branch (for testing)
+  push:
+    paths:
+      - 'scripts/fetch-cdr-rates.py'
+      - '.github/workflows/fetch-rates.yml'
 
 jobs:
   fetch-rates:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-
-      - name: Fetch rates from CDR APIs
-        run: node scripts/fetch-rates.js
-
+      
+      - name: Fetch CDR rates
+        run: |
+          node scripts/fetch-rates.js
+      
       - name: Check for changes
-        id: check
+        id: changes
         run: |
+          git diff --quiet data/rates.json || echo "changed=true" >> $GITHUB_OUTPUT
+      
+      - name: Commit and push if changed
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
           git add data/rates.json
-          if git diff --staged --quiet; then
-            echo "changed=false" >> $GITHUB_OUTPUT
-            echo "📋 No rate changes detected"
-          else
-            echo "changed=true" >> $GITHUB_OUTPUT
-            echo "📋 Rate changes detected"
-          fi
-
-      - name: Commit and push
-        if: steps.check.outputs.changed == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          TRIGGER="${{ github.event_name }}"
-          if [ "$TRIGGER" = "workflow_dispatch" ]; then
-            REASON="${{ github.event.inputs.reason }}"
-            git commit -m "data: update bank rates $(date -u +%Y-%m-%d) ($REASON)"
-          else
-            git commit -m "data: update bank rates $(date -u +%Y-%m-%d)"
-          fi
+          git commit -m "🔄 Auto-update rates: $(date -u '+%Y-%m-%d %H:%M UTC')"
           git push
-
+      
       - name: Summary
         run: |
-          echo "## 🏦 Rate Fetch Results" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 Rate Fetch Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ -f data/rates.json ]; then
-            BANKS=$(node -e "const d=require('./data/rates.json'); console.log(d.stats.successBanks + '/' + d.stats.totalBanks)")
-            PRODUCTS=$(node -e "const d=require('./data/rates.json'); console.log(d.stats.successProducts + '/' + d.stats.totalProducts)")
-            ERRORS=$(node -e "const d=require('./data/rates.json'); console.log(d.errors.length)")
-            FETCHED=$(node -e "const d=require('./data/rates.json'); console.log(d.fetchedAtAEST)")
-            echo "- **Banks**: $BANKS successful" >> $GITHUB_STEP_SUMMARY
-            echo "- **Products**: $PRODUCTS successful" >> $GITHUB_STEP_SUMMARY
-            echo "- **Errors**: $ERRORS" >> $GITHUB_STEP_SUMMARY
-            echo "- **Fetched at**: $FETCHED AEST" >> $GITHUB_STEP_SUMMARY
-            echo "- **Changes committed**: ${{ steps.check.outputs.changed }}" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ rates.json not generated" >> $GITHUB_STEP_SUMMARY
+            echo "- **Fetched at:** $(jq -r '.fetchedAtAEST' data/rates.json)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Banks:** $(jq -r '.stats.successBanks' data/rates.json)/$(jq -r '.stats.totalBanks' data/rates.json)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Products:** $(jq -r '.stats.totalProducts' data/rates.json)" >> $GITHUB_STEP_SUMMARY
           fi
