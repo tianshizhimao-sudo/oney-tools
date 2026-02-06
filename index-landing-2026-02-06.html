@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Broker Tool Pack — Oney & Co</title>
+  <meta name="description" content="Professional calculators and assessment tools built by a banker, for brokers.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><path d='M0-38A38 38 0 1 0 0-37.99' fill='none' stroke='url(%23g)' stroke-width='8' stroke-linecap='round' stroke-dasharray='227 12'/><path d='M0-45L0-52' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --bg-secondary: #111111;
+      --card: #1a1a1a;
+      --border: #262626;
+      --accent: #1FAD73;
+      --accent-light: #2ECC85;
+      --accent-glow: rgba(31, 173, 115, 0.15);
+      --text: #ffffff;
+      --text-muted: #a3a3a3;
+      --pro: #F59E0B;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    
+    .container { max-width: 900px; margin: 0 auto; padding: 0 32px; }
+    
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: rgba(10, 10, 10, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .nav-inner {
+      max-width: 900px; margin: 0 auto; padding: 0 32px; height: 72px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    
+    .nav-logo svg { height: 44px; }
+    .nav-back { color: var(--text-muted); text-decoration: none; font-size: 15px; }
+    .nav-back:hover { color: var(--text); }
+    
+    .hero {
+      padding: 140px 0 60px;
+      text-align: center;
+    }
+    
+    .hero-icon { font-size: 64px; margin-bottom: 24px; }
+    .hero-img { 
+      width: 100%; max-width: 480px; height: auto; 
+      border-radius: 20px; margin-bottom: 32px;
+      box-shadow: 0 20px 60px rgba(31, 173, 115, 0.15);
+    }
+    .hero h1 { font-size: 40px; font-weight: 800; margin-bottom: 16px; }
+    .hero p { color: var(--text-muted); font-size: 18px; max-width: 550px; margin: 0 auto; }
+    
+    .section { padding: 60px 0; }
+    .section-alt { background: var(--bg-secondary); }
+    .section h2 { font-size: 28px; font-weight: 700; margin-bottom: 24px; text-align: center; }
+    
+    .tools-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
+    }
+    
+    .tool {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 24px;
+      text-decoration: none; color: inherit;
+      transition: all 0.2s;
+    }
+    .tool:hover { border-color: var(--accent); transform: translateY(-2px); }
+    
+    .tool-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .tool-icon { font-size: 24px; }
+    .tool-name { font-size: 17px; font-weight: 600; }
+    .tool-badge {
+      font-size: 11px; font-weight: 600; padding: 3px 8px;
+      border-radius: 100px; margin-left: auto;
+    }
+    .badge-free { background: rgba(59, 130, 246, 0.2); color: #3B82F6; }
+    .badge-pro { background: rgba(245, 158, 11, 0.2); color: var(--pro); }
+    
+    .tool p { color: var(--text-muted); font-size: 14px; margin: 0; }
+    
+    .suite-box {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 20px; padding: 40px; text-align: center;
+    }
+    
+    .suite-box h3 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+    .suite-tagline { color: var(--pro); font-weight: 600; margin-bottom: 24px; }
+    .suite-box > p { color: var(--text-muted); max-width: 500px; margin: 0 auto 32px; }
+    
+    .pricing { display: flex; justify-content: center; gap: 24px; margin-bottom: 32px; }
+    .price-box {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px 28px; text-align: center;
+    }
+    .price-box.best { border-color: var(--accent); position: relative; }
+    .price-box.best::before {
+      content: 'BEST VALUE'; position: absolute; top: -10px; left: 50%;
+      transform: translateX(-50%); background: var(--accent); color: #000;
+      padding: 3px 10px; border-radius: 100px; font-size: 10px; font-weight: 700;
+    }
+    .price-period { color: var(--text-muted); font-size: 13px; margin-bottom: 4px; }
+    .price-value { font-size: 32px; font-weight: 800; }
+    .price-value span { font-size: 14px; font-weight: 400; color: var(--text-muted); }
+    .price-savings { color: var(--accent-light); font-size: 13px; margin-top: 4px; }
+    
+    .btn {
+      display: inline-flex; padding: 16px 32px; border-radius: 12px;
+      font-size: 16px; font-weight: 600; text-decoration: none;
+      background: linear-gradient(135deg, var(--pro), #D97706);
+      color: #000; transition: all 0.2s;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    
+    .btn-secondary {
+      background: var(--card); border: 1px solid var(--border); color: var(--text);
+    }
+    
+    footer {
+      padding: 32px; text-align: center;
+      color: var(--text-muted); font-size: 14px;
+    }
+    footer a { color: var(--accent-light); text-decoration: none; }
+    
+    @media (max-width: 768px) {
+      .container { padding: 0 20px; }
+      .hero { padding: 100px 0 40px; }
+      .hero h1 { font-size: 28px; }
+      .tools-grid { grid-template-columns: 1fr; }
+      .pricing { flex-direction: column; align-items: center; }
+      .price-box { width: 100%; max-width: 280px; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a href="https://oneyco.com.au" class="nav-logo">
+        <svg viewBox="0 0 190 90" fill="none"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2ECC85"/><stop offset="100%" stop-color="#1FAD73"/></linearGradient></defs><g transform="translate(38,45)"><path d="M0-32A32 32 0 1 0 0-31.99" fill="none" stroke="url(#g)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/><path d="M0-38L0-44" stroke="url(#g)" stroke-width="5" stroke-linecap="round"/></g><text x="32" y="50" font-family="Inter" font-size="26" font-weight="600" fill="#fff">ney</text><text x="77" y="50" font-family="Inter" font-size="20" fill="url(#g)">&amp;</text><text x="94" y="50" font-family="Inter" font-size="26" font-weight="600" fill="#fff">co</text></svg>
+      </a>
+      <a href="https://oneyco.com.au" class="nav-back">← Back</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="container">
+      <img src="images/hero-tools.png" alt="Professional Calculator Tools" class="hero-img">
+      <h1>Broker Tool Pack</h1>
+      <p>Professional calculators built by a banker, for brokers. Based on the Deal Triage™ system — catch fatal flaws before wasting weeks.</p>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top: 40px; padding-bottom: 40px;">
+    <div class="container">
+      <div style="background: var(--accent-glow); border: 1px solid var(--accent); border-radius: 16px; padding: 28px;">
+        <h3 style="font-size: 18px; margin-bottom: 12px;">💡 The Deal Triage™ Approach</h3>
+        <p style="color: var(--text-muted); font-size: 15px; margin: 0;">Most brokers submit a deal, wait two weeks, then find out it was dead on arrival. These tools help you check fatal flaws <strong style="color: var(--text);">before opening a single document</strong> — purpose, industry, security, guarantor, tax position, LVR. Any single "no" can kill the deal.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <h2>Free Tools</h2>
+      <div class="tools-grid">
+        <a href="https://tools.oneyco.com.au/commercial-investment-calculator.html" class="tool">
+          <div class="tool-header">
+            <span class="tool-icon">📊</span>
+            <span class="tool-name">Oney Assess</span>
+            <span class="tool-badge badge-free">FREE</span>
+          </div>
+          <p>LVR and ICR calculations for commercial investment properties.</p>
+        </a>
+        <a href="https://tools.oneyco.com.au/specialised-lending-calculator.html" class="tool">
+          <div class="tool-header">
+            <span class="tool-icon">🧮</span>
+            <span class="tool-name">Oney Analyse</span>
+            <span class="tool-badge badge-free">FREE</span>
+          </div>
+          <p>Specialised lending MLL calculator with add-back servicing.</p>
+        </a>
+        <a href="https://tools.oneyco.com.au/rba-tracker.html" class="tool">
+          <div class="tool-header">
+            <span class="tool-icon">🏦</span>
+            <span class="tool-name">RBA Tracker</span>
+            <span class="tool-badge badge-free">FREE</span>
+          </div>
+          <p>Live cash rate, meeting countdown, repayment impact calculator.</p>
+        </a>
+        <a href="https://tools.oneyco.com.au/security-test.html" class="tool">
+          <div class="tool-header">
+            <span class="tool-icon">🔐</span>
+            <span class="tool-name">Security Test</span>
+            <span class="tool-badge badge-free">FREE</span>
+          </div>
+          <p>Zoning and property type against bank security policies.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-alt">
+    <div class="container">
+      <div class="suite-box">
+        <h3>Oney Pro Suite</h3>
+        <p class="suite-tagline">All tools. One subscription.</p>
+        <p>Multi-property analysis, PDF exports, data sync, and more. Everything you need for professional lending assessment.</p>
+        <p style="color: var(--accent-light); font-weight: 500;">Coming Soon</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="text-align: center;">
+    <div class="container">
+      <p style="color: var(--text-muted); margin-bottom: 16px;">Just want to browse?</p>
+      <a href="https://tools.oneyco.com.au" class="btn btn-secondary">Open All Tools →</a>
+    </div>
+  </section>
+
+  <footer><p>© 2026 Oney & Co. <a href="https://oneyco.com.au">Back to Home</a></p></footer>
+</body>
+</html>
