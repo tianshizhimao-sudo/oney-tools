@@ -761,7 +761,7 @@
         </p>
     </footer>
 <script>
-async function oneyCheck(){const p=document.getElementById('oney-pw').value;const b=new TextEncoder().encode(p);const h=await crypto.subtle.digest('SHA-256',b);const a=Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,'0')).join('');if(a==='f308fbb3be1b721be5343e64a43e8e51f5a462a2bc58968e7ce1869f367c90cd'){document.getElementById('oney-gate').remove();sessionStorage.setItem('oney-auth','1')}else{document.getElementById('oney-pw').style.borderColor='#EF4444';document.getElementById('oney-pw').value=''}}
+async function oneyCheck(){const p=document.getElementById('oney-pw').value;const b=new TextEncoder().encode(p);const h=await crypto.subtle.digest('SHA-256',b);const a=Array.from(new Uint8Array(h)).map(x=>x.toString(16).padStart(2,'0')).join('');if(a==='f76ff7ff54a6636f4c85de8bc6afd843cdc30c24988ab3ccbb7669993a9292bf'){document.getElementById('oney-gate').remove();sessionStorage.setItem('oney-auth','1')}else{document.getElementById('oney-pw').style.borderColor='#EF4444';document.getElementById('oney-pw').value=''}}
 </script>
 </body>
 </html>
