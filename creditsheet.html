@@ -88,13 +88,13 @@
   <style>
     :root {
       --gold: #2ECC85; --gold-dark: #1FAD73; --gold-light: rgba(31, 173, 115, 0.15);
-      --navy: #1E293B; --navy-light: #334155;
-      --bg: #F8FAFC; --card: #FFFFFF; --border: #E2E8F0;
-      --success: #059669; --success-light: #D1FAE5;
-      --warning: #D97706; --warning-light: #FEF3C7;
-      --danger: #DC2626; --danger-light: #FEE2E2;
-      --info: #2563EB; --info-light: #DBEAFE;
-      --text: #1E293B; --muted: #64748B;
+      --navy: #e2e8f0; --navy-light: #cbd5e1;
+      --bg: #0a0a0a; --card: #1a1a1a; --border: #262626;
+      --success: #059669; --success-light: rgba(5,150,105,0.15);
+      --warning: #D97706; --warning-light: rgba(217,119,6,0.15);
+      --danger: #DC2626; --danger-light: rgba(220,38,38,0.15);
+      --info: #3B82F6; --info-light: rgba(59,130,246,0.15);
+      --text: #ffffff; --muted: #a3a3a3;
       --radius: 12px; --radius-sm: 8px;
     }
     
@@ -107,9 +107,9 @@
       font-size: 12px;
       border-bottom: 1px solid var(--border);
     }
-    .tier-banner.lite { background: linear-gradient(90deg, #f1f5f9, #e2e8f0); }
-    .tier-banner.standard { background: linear-gradient(90deg, #d1fae5, #a7f3d0); }
-    .tier-banner.pro { background: linear-gradient(90deg, #fef3c7, #fde68a); }
+    .tier-banner.lite { background: linear-gradient(90deg, #1a1a1a, #262626); }
+    .tier-banner.standard { background: linear-gradient(90deg, rgba(46,204,133,0.15), rgba(46,204,133,0.1)); }
+    .tier-banner.pro { background: linear-gradient(90deg, rgba(255,215,0,0.15), rgba(255,165,0,0.1)); }
     .tier-badge {
       padding: 4px 12px;
       border-radius: 20px;
@@ -160,7 +160,7 @@
       content: '';
       position: absolute;
       inset: 0;
-      background: rgba(255,255,255,0.7);
+      background: rgba(0,0,0,0.7);
       z-index: 10;
       cursor: pointer;
     }
@@ -177,7 +177,7 @@
     }
     .upgrade-modal-overlay.open { display: flex; }
     .upgrade-modal {
-      background: white;
+      background: #1a1a1a;
       border-radius: 16px;
       max-width: 500px;
       width: 90%;
@@ -216,7 +216,7 @@
     .upgrade-tier ul li::before { content: '✓ '; color: var(--success); }
     .upgrade-modal-footer {
       padding: 16px 24px;
-      background: #f8fafc;
+      background: #0a0a0a;
       border-top: 1px solid var(--border);
     }
     .license-input-group {
@@ -230,7 +230,7 @@
     }
     .license-input-group button {
       padding: 10px 20px;
-      background: var(--navy);
+      background: var(--gold);
       color: white;
       border: none;
       border-radius: 8px;
@@ -313,12 +313,12 @@
     
     .tabs { display: flex; gap: 2px; margin-bottom: 12px; background: var(--bg); padding: 3px; border-radius: var(--radius-sm); flex-wrap: wrap; }
     .tab { flex: 1; min-width: 55px; padding: 6px 6px; font-size: 10px; font-weight: 500; border-radius: 6px; cursor: pointer; background: transparent; border: none; color: var(--muted); text-align: center; transition: all 0.15s; }
-    .tab.active { background: white; color: var(--gold-dark); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .tab.active { background: #262626; color: var(--gold-dark); box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     
     /* Preview */
-    .preview { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); max-width: 800px; }
+    .preview { background: #1a1a1a; border: 1px solid var(--border); border-radius: var(--radius); padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); max-width: 800px; }
     .preview-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 3px solid var(--gold); }
     .preview-logo-svg { width: 120px; }
     .preview-meta { text-align: right; }
@@ -338,7 +338,7 @@
     .preview .highlight-danger { background: var(--danger-light); padding: 1px 4px; border-radius: 3px; font-weight: 600; }
     
     .metric-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0; }
-    .metric-box { background: linear-gradient(135deg, var(--bg), white); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; text-align: center; }
+    .metric-box { background: linear-gradient(135deg, #0a0a0a, #1a1a1a); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; text-align: center; }
     .metric-label { font-size: 9px; color: var(--muted); margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.5px; }
     .metric-value { font-size: 18px; font-weight: 700; }
     .metric-value.ok { color: var(--success); }
@@ -352,7 +352,7 @@
     .risk-high { background: var(--warning-light); color: var(--warning); }
     .risk-critical { background: var(--danger-light); color: var(--danger); }
     
-    .deal-breaker { background: linear-gradient(135deg, var(--danger-light), #FFF5F5); border: 2px solid var(--danger); border-radius: var(--radius); padding: 14px; margin-bottom: 16px; }
+    .deal-breaker { background: linear-gradient(135deg, var(--danger-light), rgba(220,38,38,0.05)); border: 2px solid var(--danger); border-radius: var(--radius); padding: 14px; margin-bottom: 16px; }
     .deal-breaker-title { font-weight: 700; color: var(--danger); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; font-size: 12px; }
     .deal-breaker-list { list-style: none; font-size: 11px; padding-left: 0; }
     .deal-breaker-list li { padding: 3px 0 3px 20px; position: relative; }
@@ -419,7 +419,7 @@
       <p style="font-size: 12px; color: var(--muted); margin-bottom: 10px;">Already have a license key?</p>
       <div class="license-input-group" style="display: flex; gap: 8px; flex-wrap: wrap;">
         <input type="text" id="licenseKeyInput" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX" style="flex: 2; min-width: 200px;">
-        <select id="licenseTierSelect" style="padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: white;">
+        <select id="licenseTierSelect" style="padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: #1a1a1a; color: #ffffff;">
           <option value="standard">Standard</option>
           <option value="pro">Pro</option>
         </select>
@@ -1083,7 +1083,7 @@ function renderServicingEntities() {
         <div class="form-group"><label>EBIT ($'000)</label><input type="number" value="${e.ebit}" placeholder="500" onchange="updateServicing(${e.id},'ebit',this.value)"></div>
         <div class="form-group"><label>D ($'000)</label><input type="number" value="${e.depreciation}" placeholder="50" onchange="updateServicing(${e.id},'depreciation',this.value)"></div>
         <div class="form-group"><label>A ($'000)</label><input type="number" value="${e.amortisation}" placeholder="10" onchange="updateServicing(${e.id},'amortisation',this.value)"></div>
-        <div class="form-group"><label>EBITDA</label><input type="text" value="${((parseFloat(e.ebit)||0)+(parseFloat(e.depreciation)||0)+(parseFloat(e.amortisation)||0)).toLocaleString() || '—'}" disabled style="background:#e5e7eb;"></div>
+        <div class="form-group"><label>EBITDA</label><input type="text" value="${((parseFloat(e.ebit)||0)+(parseFloat(e.depreciation)||0)+(parseFloat(e.amortisation)||0)).toLocaleString() || '—'}" disabled style="background:#262626; color:#a3a3a3;"></div>
       </div>
       <div class="form-group"><label>Notes</label><textarea rows="2" placeholder="Additional servicing notes..." onchange="updateServicing(${e.id},'notes',this.value)">${e.notes}</textarea></div>
     </div>`).join('');
