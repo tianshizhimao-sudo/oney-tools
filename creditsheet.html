@@ -370,6 +370,14 @@
       .app { grid-template-columns: 1fr; }
       .sidebar { position: relative; height: auto; max-height: 60vh; }
     }
+    @media (max-width: 768px) {
+      .row, .row-3, .row-4 { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .preview table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .preview { padding: 12px; font-size: 11px; }
+      .sidebar { max-height: none; }
+      .upgrade-tiers { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>

@@ -1796,6 +1796,11 @@
     .mb-8 { margin-bottom: 8px; }
     .text-muted { color: var(--text-muted); }
     .text-sm { font-size: 12px; }
+
+    @media (max-width: 768px) {
+      .row, .row-3 { grid-template-columns: 1fr; }
+      .metrics-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
