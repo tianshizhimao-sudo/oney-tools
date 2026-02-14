@@ -295,6 +295,22 @@
   <meta name="twitter:title" content="Client Pipeline — Oney & Co Tools">
   <meta name="twitter:description" content="Manage your client pipeline from lead to settlement with visual tracking.">
   <link rel="canonical" href="https://tools.oneyco.com.au/client-pipeline.html">
+
+<style>
+  .back-to-tools { display: inline-block; padding: 10px 0; color: #2ECC85; text-decoration: none; font-size: 14px; font-weight: 500; margin: 16px 24px; }
+  .back-to-tools:hover { text-decoration: underline; }
+  .related-tools { padding: 40px 24px; border-top: 1px solid #3D3D5C; }
+  .related-inner { max-width: 960px; margin: 0 auto; }
+  .related-tools h3 { color: #fff; font-size: 18px; margin-bottom: 16px; font-weight: 600; }
+  .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .related-card {
+    background: #252540; border-radius: 12px; padding: 20px; text-decoration: none;
+    border: 1px solid #3D3D5C; transition: all 0.2s;
+  }
+  .related-card:hover { border-color: #2ECC85; transform: translateY(-2px); }
+  .related-name { color: #fff; font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+  .related-desc { color: #a3a3b8; font-size: 13px; line-height: 1.4; }
+</style>
 </head>
 <body>
   <div class="header">
@@ -751,5 +767,21 @@
     render();
   </script>
 <script>
+
+  <section class="related-tools">
+    <div class="related-inner">
+      <h3>Related Tools</h3>
+      <div class="related-grid">
+      <a href="lead-capture.html" class="related-card">
+        <div class="related-name">Lead Capture</div>
+        <div class="related-desc">Capture and qualify new leads efficiently</div>
+      </a>
+      <a href="meeting-notes.html" class="related-card">
+        <div class="related-name">Meeting Notes</div>
+        <div class="related-desc">Capture and structure client meeting notes</div>
+      </a>
+      </div>
+    </div>
+  </section>
 </body>
 </html>

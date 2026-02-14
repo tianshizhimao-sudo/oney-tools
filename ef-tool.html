@@ -618,6 +618,22 @@
       .result-hero-value { font-size: 36px; }
     }
   </style>
+
+<style>
+  .back-to-tools { display: inline-block; padding: 10px 0; color: #2ECC85; text-decoration: none; font-size: 14px; font-weight: 500; margin: 16px 24px; }
+  .back-to-tools:hover { text-decoration: underline; }
+  .related-tools { padding: 40px 24px; border-top: 1px solid #3D3D5C; }
+  .related-inner { max-width: 960px; margin: 0 auto; }
+  .related-tools h3 { color: #fff; font-size: 18px; margin-bottom: 16px; font-weight: 600; }
+  .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .related-card {
+    background: #252540; border-radius: 12px; padding: 20px; text-decoration: none;
+    border: 1px solid #3D3D5C; transition: all 0.2s;
+  }
+  .related-card:hover { border-color: #2ECC85; transform: translateY(-2px); }
+  .related-name { color: #fff; font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+  .related-desc { color: #a3a3b8; font-size: 13px; line-height: 1.4; }
+</style>
 </head>
 <body>
   <!-- Top Navigation -->
@@ -1754,5 +1770,21 @@ https://tools.oneyco.com.au`;
 
   <!-- Auto-save Toast -->
   <div class="autosave-toast" id="autosaveToast">Auto-saved ✓</div>
+
+  <section class="related-tools">
+    <div class="related-inner">
+      <h3>Related Tools</h3>
+      <div class="related-grid">
+      <a href="commercial-servicing-calc.html" class="related-card">
+        <div class="related-name">Commercial Servicing Calculator</div>
+        <div class="related-desc">Assess commercial loan serviceability and capacity</div>
+      </a>
+      <a href="specialised-lending-calculator.html" class="related-card">
+        <div class="related-name">Specialised Lending Calculator</div>
+        <div class="related-desc">Calculate rates for specialised and non-standard loans</div>
+      </a>
+      </div>
+    </div>
+  </section>
 </body>
 </html>
