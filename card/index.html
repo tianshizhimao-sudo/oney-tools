@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1A1A2E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
+  <title>Mao Dong | Oney & Co</title>
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Mao Dong - Founder">
+  <meta property="og:description" content="Making financial health as normal as a medical checkup. Connect with me at Oney & Co.">
+  <meta property="og:type" content="profile">
+  <meta property="og:url" content="https://oneyco.com.au/card/dong">
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary-green: #2ECC85;
+      --secondary-green: #1FAD73;
+      --accent-purple: #6B4C9A;
+      --dark-bg: #1A1A2E;
+      --darker-bg: #12121f;
+      --card-bg: rgba(255, 255, 255, 0.03);
+      --border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(180deg, var(--dark-bg) 0%, var(--darker-bg) 100%);
+      min-height: 100vh;
+      color: white;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    .bg-gradient {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .bg-gradient::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at 30% 20%, rgba(46, 204, 133, 0.08) 0%, transparent 50%),
+                  radial-gradient(ellipse at 70% 80%, rgba(107, 76, 154, 0.08) 0%, transparent 50%);
+      animation: floatGradient 20s ease-in-out infinite;
+    }
+
+    @keyframes floatGradient {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      33% { transform: translate(2%, 2%) rotate(1deg); }
+      66% { transform: translate(-1%, 1%) rotate(-1deg); }
+    }
+
+    /* Main container */
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Logo section */
+    .logo-section {
+      text-align: center;
+      margin-bottom: 30px;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    .logo-svg {
+      width: 140px;
+      height: auto;
+      margin-bottom: 8px;
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Profile section */
+    .profile-section {
+      text-align: center;
+      margin-bottom: 35px;
+      animation: fadeInUp 0.8s ease-out 0.2s both;
+    }
+
+    .profile-icon {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 20px;
+      background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 40px rgba(46, 204, 133, 0.3);
+      position: relative;
+    }
+
+    .profile-icon::before {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary-green), var(--accent-purple));
+      z-index: -1;
+      opacity: 0.5;
+      animation: pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.05); opacity: 0.3; }
+    }
+
+    .profile-icon svg {
+      width: 50px;
+      height: 50px;
+    }
+
+    .profile-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      letter-spacing: -0.5px;
+    }
+
+    .profile-name-cn {
+      font-size: 1rem;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.5);
+      margin-bottom: 8px;
+    }
+
+    .profile-title {
+      font-size: 0.95rem;
+      color: var(--primary-green);
+      font-weight: 500;
+    }
+
+    .profile-company {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+      margin-top: 4px;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Tagline */
+    .tagline {
+      text-align: center;
+      margin-bottom: 35px;
+      padding: 20px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      animation: fadeInUp 0.8s ease-out 0.3s both;
+    }
+
+    .tagline p {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1rem;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .tagline p::before,
+    .tagline p::after {
+      content: '"';
+      color: var(--primary-green);
+    }
+
+    /* Contact buttons */
+    .contact-actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 25px;
+      animation: fadeInUp 0.8s ease-out 0.4s both;
+    }
+
+    .action-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 20px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: none;
+    }
+
+    .action-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .action-btn.primary {
+      background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+      color: white;
+      box-shadow: 0 8px 25px rgba(46, 204, 133, 0.35);
+    }
+
+    .action-btn.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 35px rgba(46, 204, 133, 0.45);
+    }
+
+    .action-btn.primary:active {
+      transform: translateY(0);
+    }
+
+    .action-btn.secondary {
+      background: var(--card-bg);
+      color: white;
+      border: 1px solid var(--border-color);
+    }
+
+    .action-btn.secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--primary-green);
+    }
+
+    /* Contact list */
+    .contact-list {
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      margin-bottom: 25px;
+      animation: fadeInUp 0.8s ease-out 0.5s both;
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 18px 20px;
+      text-decoration: none;
+      color: white;
+      transition: all 0.2s ease;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .contact-item:last-child {
+      border-bottom: none;
+    }
+
+    .contact-item:hover {
+      background: rgba(46, 204, 133, 0.05);
+    }
+
+    .contact-item:active {
+      background: rgba(46, 204, 133, 0.1);
+    }
+
+    .contact-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(46, 204, 133, 0.1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .contact-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: var(--primary-green);
+    }
+
+    .contact-icon.purple {
+      background: rgba(107, 76, 154, 0.15);
+    }
+
+    .contact-icon.purple svg {
+      fill: var(--accent-purple);
+    }
+
+    .contact-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .contact-label {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .contact-value {
+      font-size: 0.95rem;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .contact-arrow {
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 1.2rem;
+    }
+
+    /* Social links */
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 30px;
+      animation: fadeInUp 0.8s ease-out 0.6s both;
+    }
+
+    .social-link {
+      width: 50px;
+      height: 50px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .social-link svg {
+      width: 22px;
+      height: 22px;
+      fill: rgba(255, 255, 255, 0.7);
+      transition: fill 0.3s ease;
+    }
+
+    .social-link:hover {
+      border-color: var(--primary-green);
+      transform: translateY(-3px);
+    }
+
+    .social-link:hover svg {
+      fill: var(--primary-green);
+    }
+
+    /* Save contact button */
+    .save-contact {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, var(--accent-purple), #8B5FBF);
+      border: none;
+      border-radius: 14px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 25px rgba(107, 76, 154, 0.35);
+      animation: fadeInUp 0.8s ease-out 0.7s both;
+    }
+
+    .save-contact:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 35px rgba(107, 76, 154, 0.45);
+    }
+
+    .save-contact svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Footer */
+    .footer {
+      margin-top: auto;
+      padding-top: 30px;
+      text-align: center;
+      animation: fadeInUp 0.8s ease-out 0.8s both;
+    }
+
+    .footer p {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .footer a {
+      color: var(--primary-green);
+      text-decoration: none;
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(46, 204, 133, 0.95);
+      color: white;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      opacity: 0;
+      transition: all 0.4s ease;
+      z-index: 100;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Responsive */
+    @media (max-width: 380px) {
+      .container {
+        padding: 30px 16px 50px;
+      }
+
+      .profile-name {
+        font-size: 1.5rem;
+      }
+
+      .contact-actions {
+        flex-direction: column;
+      }
+    }
+
+    /* Print styles */
+    @media print {
+      .bg-gradient,
+      .save-contact,
+      .contact-arrow {
+        display: none !important;
+      }
+
+      body {
+        background: white;
+        color: black;
+      }
+
+      .container {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="bg-gradient"></div>
+
+  <div class="container">
+    
+    <!-- Logo -->
+    <div class="logo-section">
+      <svg class="logo-svg" viewBox="0 0 180 80">
+        <defs>
+          <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#2ECC85"/>
+            <stop offset="100%" style="stop-color:#1FAD73"/>
+          </linearGradient>
+          <linearGradient id="purpleAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" style="stop-color:#6B4C9A"/>
+            <stop offset="100%" style="stop-color:#9B59B6"/>
+          </linearGradient>
+        </defs>
+        <g transform="translate(35, 40)">
+          <path d="M 0 -30 A 30 30 0 1 0 0 -29.99" fill="none" stroke="url(#greenGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="180 10"/>
+          <path d="M0 -36 L0 -46" stroke="url(#greenGrad)" stroke-width="6" stroke-linecap="round"/>
+        </g>
+        <text x="42" y="44" font-family="Inter, sans-serif" font-size="42" font-weight="600" fill="white" letter-spacing="-1.5">ney<tspan fill="url(#greenGrad)" font-size="32" font-weight="500">&amp;</tspan>co</text>
+        <circle cx="176" cy="40" r="3" fill="url(#purpleAccent)"/>
+      </svg>
+    </div>
+
+    <!-- Profile -->
+    <div class="profile-section">
+      <div class="profile-icon">
+        <svg viewBox="0 0 100 100" fill="none">
+          <g transform="translate(50, 50)">
+            <path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/>
+            <path d="M0 -45 L0 -52" stroke="white" stroke-width="6" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
+      <h1 class="profile-name">Mao Dong</h1>
+      <p class="profile-name-cn">毛冬</p>
+      <p class="profile-title">Founder</p>
+      <p class="profile-company">Oney & Co Pty Ltd</p>
+    </div>
+
+    <!-- Tagline -->
+    <div class="tagline">
+      <p>Make financial health awareness as normal as a medical checkup</p>
+    </div>
+
+    <!-- Quick actions -->
+    <div class="contact-actions">
+      <a href="tel:+61XXXXXXXXX" class="action-btn primary">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+        </svg>
+        Call
+      </a>
+      <a href="mailto:dong.m@oneyco.com.au" class="action-btn secondary">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+        </svg>
+        Email
+      </a>
+    </div>
+
+    <!-- Contact details -->
+    <div class="contact-list">
+      <a href="mailto:dong.m@oneyco.com.au" class="contact-item">
+        <div class="contact-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+          </svg>
+        </div>
+        <div class="contact-text">
+          <div class="contact-label">Email</div>
+          <div class="contact-value">dong.m@oneyco.com.au</div>
+        </div>
+        <span class="contact-arrow">›</span>
+      </a>
+      
+      <a href="tel:+61XXXXXXXXX" class="contact-item">
+        <div class="contact-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+          </svg>
+        </div>
+        <div class="contact-text">
+          <div class="contact-label">Phone</div>
+          <div class="contact-value">+61 XXX XXX XXX</div>
+        </div>
+        <span class="contact-arrow">›</span>
+      </a>
+      
+      <a href="https://oneyco.com.au" target="_blank" class="contact-item">
+        <div class="contact-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.91 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.91-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.35.16-2h4.68c.09.65.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/>
+          </svg>
+        </div>
+        <div class="contact-text">
+          <div class="contact-label">Website</div>
+          <div class="contact-value">oneyco.com.au</div>
+        </div>
+        <span class="contact-arrow">›</span>
+      </a>
+      
+      <a href="https://maps.google.com/?q=Sydney,Australia" target="_blank" class="contact-item">
+        <div class="contact-icon purple">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+          </svg>
+        </div>
+        <div class="contact-text">
+          <div class="contact-label">Location</div>
+          <div class="contact-value">Sydney, Australia</div>
+        </div>
+        <span class="contact-arrow">›</span>
+      </a>
+    </div>
+
+    <!-- Social links -->
+    <div class="social-links">
+      <a href="https://linkedin.com/in/" target="_blank" class="social-link" aria-label="LinkedIn">
+        <svg viewBox="0 0 24 24">
+          <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.32 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.79M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77z"/>
+        </svg>
+      </a>
+      <a href="https://x.com/oneyco_au" target="_blank" class="social-link" aria-label="X (Twitter)">
+        <svg viewBox="0 0 24 24">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+        </svg>
+      </a>
+      <a href="https://wa.me/61XXXXXXXXX" target="_blank" class="social-link" aria-label="WhatsApp">
+        <svg viewBox="0 0 24 24">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+        </svg>
+      </a>
+    </div>
+
+    <!-- Save contact button -->
+    <button class="save-contact" onclick="downloadVCard()">
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2z"/>
+      </svg>
+      Save to Contacts
+    </button>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>© 2026 <a href="https://oneyco.com.au">Oney & Co</a> · ABN pending</p>
+    </footer>
+
+  </div>
+
+  <!-- Toast notification -->
+  <div class="toast" id="toast">Contact saved!</div>
+
+  <script>
+    function downloadVCard() {
+      const vcard = `BEGIN:VCARD
+VERSION:3.0
+N:Dong;Mao;;;
+FN:Mao Dong
+ORG:Oney & Co Pty Ltd
+TITLE:Founder
+TEL;TYPE=WORK,VOICE:+61XXXXXXXXX
+EMAIL;TYPE=WORK:dong.m@oneyco.com.au
+URL:https://oneyco.com.au
+ADR;TYPE=WORK:;;Sydney;;NSW;;Australia
+X-SOCIALPROFILE;TYPE=linkedin:https://linkedin.com/in/
+X-SOCIALPROFILE;TYPE=twitter:https://x.com/oneyco_au
+NOTE:Make financial health awareness as normal as a medical checkup.
+END:VCARD`;
+
+      const blob = new Blob([vcard], { type: 'text/vcard' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'Mao_Dong_Oney_Co.vcf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      // Show toast
+      showToast('Contact downloaded!');
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // Add touch feedback
+    document.querySelectorAll('.contact-item, .action-btn, .social-link, .save-contact').forEach(el => {
+      el.addEventListener('touchstart', () => {}, { passive: true });
+    });
+  </script>
+
+</body>
+</html>
