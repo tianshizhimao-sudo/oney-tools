@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Oney Second Brain</title>
+<meta name="description" content="Dong & Oney's shared second brain — memories, projects, knowledge">
+<meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiT25leSBTZWNvbmQgQnJhaW4iLCJzaG9ydF9uYW1lIjoiU2Vjb25kIEJyYWluIiwic3RhcnRfdXJsIjoiLiIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMwYTBhMGEiLCJ0aGVtZV9jb2xvciI6IiMwYTBhMGEifQ==">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0a0a;--card:#1a1a1a;--border:#2a2a2a;--text:#e0e0e0;--muted:#888;--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--purple-light:#9B59B6;--red:#e74c3c;--orange:#f39c12;--blue:#3498db}
+[data-theme="light"]{--bg:#f5f5f5;--card:#fff;--border:#ddd;--text:#222;--muted:#666}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:70px}
+a{color:var(--green);text-decoration:none}
+
+/* Header */
+.header{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--bg);position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+.header-left{display:flex;align-items:center;gap:10px}
+.header h1{font-size:18px;font-weight:600}
+.header h1 span{color:var(--green)}
+
+/* Search */
+.search-wrap{position:relative;flex:1;max-width:300px;margin:0 16px}
+.search-wrap input{width:100%;padding:8px 12px 8px 34px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:14px;outline:none}
+.search-wrap input:focus{border-color:var(--green)}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:14px}
+.search-results{position:absolute;top:100%;left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:8px;max-height:400px;overflow-y:auto;display:none;z-index:200;margin-top:4px;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.search-results.active{display:block}
+.search-item{padding:10px 14px;border-bottom:1px solid var(--border);cursor:pointer}
+.search-item:hover{background:rgba(46,204,133,.1)}
+.search-item .cat{font-size:11px;color:var(--green);text-transform:uppercase}
+.search-item .title{font-size:14px;margin-top:2px}
+.search-item .snippet{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* Theme toggle */
+.theme-btn{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px}
+
+/* Nav */
+.nav{display:flex;justify-content:center;gap:4px;padding:8px 12px;border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch}
+.nav button{padding:8px 16px;border:none;border-radius:8px;background:transparent;color:var(--muted);font-size:13px;cursor:pointer;white-space:nowrap;transition:.2s}
+.nav button.active{background:rgba(46,204,133,.15);color:var(--green);font-weight:600}
+.nav button:hover{color:var(--text)}
+
+/* Content */
+.tab-content{display:none;padding:20px;max-width:1200px;margin:0 auto;animation:fadeIn .3s}
+.tab-content.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* Cards */
+.grid{display:grid;gap:16px}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.grid-4{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card h3{font-size:15px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.card h3 .emoji{font-size:18px}
+.section-title{font-size:20px;font-weight:700;margin:24px 0 16px;display:flex;align-items:center;gap:8px}
+.section-title:first-child{margin-top:0}
+
+/* Stats */
+.stat{text-align:center;padding:16px}
+.stat .num{font-size:28px;font-weight:700;color:var(--green)}
+.stat .label{font-size:12px;color:var(--muted);margin-top:4px}
+
+/* Countdown */
+.countdown{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.countdown:last-child{border:none}
+.countdown .days{font-size:24px;font-weight:700;color:var(--green);min-width:50px}
+.countdown .info .name{font-size:14px;font-weight:600}
+.countdown .info .date{font-size:12px;color:var(--muted)}
+
+/* Activity */
+.activity-item{padding:10px 0;border-bottom:1px solid var(--border)}
+.activity-item:last-child{border:none}
+.activity-item .date{font-size:11px;color:var(--green);font-weight:600}
+.activity-item .desc{font-size:13px;margin-top:2px}
+
+/* Todo */
+.todo{padding:8px 0;display:flex;align-items:flex-start;gap:8px;border-bottom:1px solid var(--border)}
+.todo:last-child{border:none}
+.todo .check{color:var(--muted);font-size:16px;flex-shrink:0;margin-top:1px}
+.todo .check.done{color:var(--green)}
+.todo .text{font-size:13px}
+
+/* Memory */
+.memory-section{margin-bottom:24px}
+.memory-section h3{font-size:16px;margin-bottom:12px;color:var(--green)}
+.memory-entry{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px;cursor:pointer}
+.memory-entry .meta{display:flex;gap:8px;align-items:center;margin-bottom:6px}
+.memory-entry .tag{font-size:11px;padding:2px 8px;border-radius:4px;background:rgba(46,204,133,.15);color:var(--green)}
+.memory-entry .tag.purple{background:rgba(107,76,154,.2);color:var(--purple-light)}
+.memory-entry .tag.orange{background:rgba(243,156,18,.15);color:var(--orange)}
+.memory-entry .date-tag{font-size:11px;color:var(--muted)}
+.memory-entry .title{font-size:14px;font-weight:600}
+.memory-entry .preview{font-size:13px;color:var(--muted);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.memory-entry.expanded .preview{-webkit-line-clamp:unset}
+
+/* Contact */
+.contact-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px}
+.contact-card .name{font-size:16px;font-weight:600}
+.contact-card .role{font-size:13px;color:var(--muted);margin-top:2px}
+.contact-card .detail{font-size:12px;margin-top:8px;display:flex;flex-wrap:wrap;gap:12px}
+.contact-card .detail span{display:flex;align-items:center;gap:4px}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:4px;margin-right:4px}
+.badge-family{background:rgba(231,76,60,.15);color:var(--red)}
+.badge-industry{background:rgba(46,204,133,.15);color:var(--green)}
+.badge-bank{background:rgba(52,152,219,.15);color:var(--blue)}
+
+/* Timeline */
+.timeline{position:relative;padding-left:24px}
+.timeline::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--border)}
+.tl-item{position:relative;margin-bottom:20px}
+.tl-item::before{content:'';position:absolute;left:-20px;top:6px;width:12px;height:12px;border-radius:50%;background:var(--green);border:2px solid var(--bg)}
+.tl-item.future::before{background:var(--border)}
+.tl-item.current::before{background:var(--green);box-shadow:0 0 8px var(--green)}
+.tl-item .month{font-size:13px;font-weight:700;color:var(--green)}
+.tl-item.future .month{color:var(--muted)}
+.tl-item .tasks{font-size:13px;color:var(--muted);margin-top:4px}
+
+/* Product cards */
+.product-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.product-card .icon{font-size:28px;margin-bottom:8px}
+.product-card .pname{font-size:15px;font-weight:600}
+.product-card .price{font-size:13px;color:var(--green);margin-top:4px}
+.product-card .pstatus{font-size:11px;margin-top:6px;padding:3px 10px;border-radius:12px;display:inline-block}
+.status-live{background:rgba(46,204,133,.15);color:var(--green)}
+.status-dev{background:rgba(243,156,18,.15);color:var(--orange)}
+.status-plan{background:rgba(136,136,136,.15);color:var(--muted)}
+
+/* Knowledge */
+.term{padding:10px 0;border-bottom:1px solid var(--border)}
+.term:last-child{border:none}
+.term .abbr{font-weight:700;color:var(--green);font-size:14px}
+.term .def{font-size:13px;color:var(--muted);margin-top:2px}
+.competitor{padding:12px 0;border-bottom:1px solid var(--border)}
+.competitor:last-child{border:none}
+.competitor .cname{font-weight:600;font-size:14px}
+.competitor .cdesc{font-size:13px;color:var(--muted);margin-top:2px}
+
+/* Mobile */
+@media(max-width:768px){
+  .header h1{font-size:15px}
+  .search-wrap{max-width:160px;margin:0 8px}
+  .nav{gap:2px;padding:6px 8px}
+  .nav button{padding:6px 10px;font-size:12px}
+  .tab-content{padding:14px}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  .stat .num{font-size:22px}
+}
+@media(max-width:380px){
+  .search-wrap{display:none}
+  .header{padding:10px 12px}
+}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+/* Lock screen */
+.lock-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+.lock-screen.hidden{display:none}
+.lock-brain{font-size:80px;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+.lock-title{font-size:24px;font-weight:700;color:var(--text)}
+.lock-title span{color:var(--green)}
+.lock-input{padding:14px 20px;border-radius:12px;border:2px solid var(--border);background:var(--card);color:var(--text);font-size:16px;width:280px;text-align:center;outline:none;transition:.2s}
+.lock-input:focus{border-color:var(--green)}
+.lock-input.error{border-color:var(--red);animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.lock-btn{padding:12px 40px;border-radius:12px;border:none;background:linear-gradient(135deg,#2ECC85,#1FAD73);color:#fff;font-size:16px;font-weight:600;cursor:pointer;transition:.2s}
+.lock-btn:hover{transform:scale(1.03)}
+.lock-hint{font-size:12px;color:var(--muted)}
+.lock-error{font-size:13px;color:var(--red);height:20px}
+</style>
+</head>
+<body>
+
+<!-- Lock Screen -->
+<div class="lock-screen" id="lockScreen">
+  <div class="lock-brain">🧠</div>
+  <div class="lock-title"><span>Second</span> Brain</div>
+  <div class="lock-error" id="lockError"></div>
+  <input type="password" class="lock-input" id="lockInput" placeholder="Enter password" autofocus>
+  <button class="lock-btn" id="lockBtn" onclick="unlock()">Unlock</button>
+  <div class="lock-hint">Dong & Oney's private space 🔒</div>
+</div>
+
+<script>
+(function(){
+  const HASH='a]oZ9k2x';// obfuscated check
+  function h(s){let r=0;for(let i=0;i<s.length;i++){r=((r<<5)-r)+s.charCodeAt(i);r|=0}return r}
+  const CORRECT=411339417;
+  window.unlock=function(){
+    const v=document.getElementById('lockInput').value;
+    if(h(v)===CORRECT){
+      localStorage.setItem('sb_auth','1');
+      document.getElementById('lockScreen').classList.add('hidden');
+    } else {
+      document.getElementById('lockInput').classList.add('error');
+      document.getElementById('lockError').textContent='Wrong password';
+      setTimeout(()=>{document.getElementById('lockInput').classList.remove('error');document.getElementById('lockError').textContent=''},1000);
+    }
+  };
+  document.addEventListener('keydown',e=>{if(e.key==='Enter'&&!document.getElementById('lockScreen').classList.contains('hidden'))unlock()});
+  if(localStorage.getItem('sb_auth')==='1')document.getElementById('lockScreen').classList.add('hidden');
+})();
+</script>
+
+<div class="header">
+  <div class="header-left">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="36" height="36">
+      <defs>
+        <linearGradient id="brainGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#2ECC85"/>
+          <stop offset="100%" style="stop-color:#6B4C9A"/>
+        </linearGradient>
+      </defs>
+      <!-- cute brain shape -->
+      <path d="M50 15 C35 15 25 25 25 38 C25 42 26 45 28 48 C22 52 18 58 18 65 C18 75 26 82 36 82 L64 82 C74 82 82 75 82 65 C82 58 78 52 72 48 C74 45 75 42 75 38 C75 25 65 15 50 15Z" fill="url(#brainGrad)" opacity="0.9"/>
+      <!-- brain center line -->
+      <path d="M50 20 C50 20 50 78 50 78" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none"/>
+      <!-- left brain wrinkles -->
+      <path d="M32 35 Q38 30 44 36" stroke="rgba(255,255,255,0.4)" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M28 50 Q35 45 42 52" stroke="rgba(255,255,255,0.35)" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M30 65 Q37 60 44 66" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- right brain wrinkles -->
+      <path d="M56 36 Q62 30 68 35" stroke="rgba(255,255,255,0.4)" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M58 52 Q65 45 72 50" stroke="rgba(255,255,255,0.35)" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M56 66 Q63 60 70 65" stroke="rgba(255,255,255,0.3)" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- sparkle eyes -->
+      <circle cx="38" cy="42" r="2.5" fill="white" opacity="0.8"/>
+      <circle cx="62" cy="42" r="2.5" fill="white" opacity="0.8"/>
+      <!-- cute smile -->
+      <path d="M42 55 Q50 62 58 55" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.7"/>
+    </svg>
+    <h1>🧠 <span>Second</span> Brain</h1>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search everything...">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+  <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+</div>
+
+<nav class="nav">
+  <button class="active" onclick="switchTab('dashboard')">📋 Dashboard</button>
+  <button onclick="switchTab('memory')">🧠 Memory</button>
+  <button onclick="switchTab('relationships')">👥 人脉</button>
+  <button onclick="switchTab('projects')">📂 Projects</button>
+  <button onclick="switchTab('knowledge')">📚 Knowledge</button>
+</nav>
+
+<!-- DASHBOARD -->
+<div class="tab-content active" id="tab-dashboard">
+  <div class="section-title">📅 Today</div>
+  <div class="card" style="margin-bottom:16px">
+    <div style="font-size:24px;font-weight:700" id="todayDate"></div>
+    <div style="color:var(--muted);margin-top:4px" id="todayGreeting"></div>
+  </div>
+
+  <div class="section-title">⏳ Countdowns</div>
+  <div class="card" style="margin-bottom:16px" id="countdowns"></div>
+
+  <div class="section-title">📊 Quick Stats</div>
+  <div class="grid grid-4" style="margin-bottom:16px">
+    <div class="card stat"><div class="num">5</div><div class="label">Products</div></div>
+    <div class="card stat"><div class="num">2</div><div class="label">Skills Published</div></div>
+    <div class="card stat"><div class="num">2</div><div class="label">ClawHub Releases</div></div>
+    <div class="card stat"><div class="num" style="color:var(--green)">✓</div><div class="label">Sites Online</div></div>
+  </div>
+
+  <div class="section-title">🕐 Recent Activity</div>
+  <div class="card" style="margin-bottom:16px" id="recentActivity">
+    <div class="activity-item"><div class="date">2026-02-18 (Wed)</div><div class="desc">NAB Construction Deal rework — builder experience + working capital analysis for $7.9M securities</div></div>
+    <div class="activity-item"><div class="date">2026-02-18</div><div class="desc">Connective Rafael follow-up call — aggregator comparison</div></div>
+    <div class="activity-item"><div class="date">2026-02-18</div><div class="desc">CTO completed full site review fixes: 13 tool pages OG tags, sitemap cleanup, 9.1MB unused PNGs removed</div></div>
+    <div class="activity-item"><div class="date">2026-02-18</div><div class="desc">Installed 3 new skills: Security Audit, Humanizer, News Aggregator</div></div>
+    <div class="activity-item"><div class="date">2026-02-17 (Tue)</div><div class="desc">CEO Advisor report completed — 4 scenarios (Aggregator/Finance/Q3 Strategy/Resignation)</div></div>
+    <div class="activity-item"><div class="date">2026-02-17</div><div class="desc">n8n Client Onboarding Workflow V2 deployed — Calendly→Sheets→Gmail→Telegram</div></div>
+    <div class="activity-item"><div class="date">2026-02-16 (Mon)</div><div class="desc">OneyTrader: 18 strategies, 42 instances live on IBKR</div></div>
+    <div class="activity-item"><div class="date">2026-02-16</div><div class="desc">除夕夜 🧧 — Business Model Canvas + Cold Start Plan completed</div></div>
+    <div class="activity-item"><div class="date">2026-02-15 (Sun)</div><div class="desc">Oney Security product repositioned — "Quickli = Serviceability, Oney = Security" 蓝海战略</div></div>
+    <div class="activity-item"><div class="date">2026-02-15</div><div class="desc">Full SEO audit + fixes: 14 pages OG tags, JSON-LD, PNG→WebP compression</div></div>
+  </div>
+
+  <div class="section-title">📝 Action Items</div>
+  <div class="card">
+    <div class="todo"><span class="check">○</span><div class="text">Connective Rafael — confirm commission split, trail ownership, commercial panel, clawback</div></div>
+    <div class="todo"><span class="check">○</span><div class="text">Cert IV — send RPL email to Stuart (Kaplan $380)</div></div>
+    <div class="todo"><span class="check">○</span><div class="text">Oney Analyse — decide deployment (tools sub-path vs standalone repo)</div></div>
+    <div class="todo"><span class="check">○</span><div class="text">Oney Security v1.1 — continue polishing, then deploy</div></div>
+    <div class="todo"><span class="check">○</span><div class="text">Twenty CRM — migrate from Google Sheets</div></div>
+    <div class="todo"><span class="check">○</span><div class="text">LinkedIn content — review draft linkedin-001-deal-triage.md</div></div>
+    <div class="todo"><span class="check">○</span><div class="text">IBKR — upgrade to Margin account for FX trading</div></div>
+    <div class="todo"><span class="check done">✓</span><div class="text">Humanizer pass — 22 changes across all site pages</div></div>
+    <div class="todo"><span class="check done">✓</span><div class="text">Site review fixes — OG tags, canonical URLs, sitemap</div></div>
+  </div>
+</div>
+
+<!-- MEMORY -->
+<div class="tab-content" id="tab-memory">
+  <div class="section-title">🧠 Long-Term Memory</div>
+  <div class="memory-section">
+    <div class="memory-entry" onclick="this.classList.toggle('expanded')">
+      <div class="meta"><span class="tag">Strategy</span><span class="date-tag">Current</span></div>
+      <div class="title">🎯 当前战略</div>
+      <div class="preview">Phase 1 (在银行期间): Free Health Check 先行，不涉及 broker 业务。Phase 2 (离职后): ACR → 正式 broker 业务。时间线: 2026年4月评估，年中上线。品牌核心: "Make financial health awareness as normal as a medical checkup." 三层模型: Free tools → Mentoring → 25 clients selective brokerage。6个月 Roadmap: Feb Cert IV → Mar 注册公司 → Apr 签 aggregator → May ACR → Jun 营销 → Jul launch。Aggregator 倾向: YBR ($195/笔) 或 Connective。</div>
+    </div>
+    <div class="memory-entry" onclick="this.classList.toggle('expanded')">
+      <div class="meta"><span class="tag purple">Operations</span><span class="date-tag">Always Active</span></div>
+      <div class="title">⚡ 操作规则</div>
+      <div class="preview">日历: 悉尼时区 +11:00 | 工作时间 6am-9pm | Zoom 45min | Catch up 30min | In-person 1h | Gym 50min。邮件: 只发事实，无承诺，代表 Dong → 放草稿。邮箱: dong.m@ (需审批) | hello@ (BCC Dong) | support@ (直接回复)。记账: 公司/家庭各有 Google Sheet。健身打卡: 同步到 Sheet。Sub-Agent 派遣: "[Agent名] 已出动！🕵️"</div>
+    </div>
+    <div class="memory-entry" onclick="this.classList.toggle('expanded')">
+      <div class="meta"><span class="tag orange">Family</span><span class="date-tag">Personal</span></div>
+      <div class="title">❤️ 家庭 & 个人</div>
+      <div class="preview">Olivia — 太太，结婚快10年 (纪念日 3月5日) | 亚甲炎康复中。Dong: 跑步品牌 Satisfy/Bandit | 足球/网球/AFL/NRL | 教育世家背景 — 分享知识是骨子里的。旅行: 🇸🇬 新加坡 4-5月 | 🇨🇳🇯🇵 6/12-6/30 已购票 | 6/17 Oli 生日在日本。</div>
+    </div>
+    <div class="memory-entry" onclick="this.classList.toggle('expanded')">
+      <div class="meta"><span class="tag">Products</span><span class="date-tag">Pricing</span></div>
+      <div class="title">📦 产品 & 定价</div>
+      <div class="preview">Oney Assess (Commercial Inv): Free / $149 | Oney Analyse (MLL): Free / $199 / $349 | Oney Secure (Zoning→LVR): $99 | Oney Serve (Servicing): $149 | Oney Pro Suite: $49/月 or $399/年。销售: Gumroad → 自有网站 → 未来 App Store。量化交易: $1000 AUD | IBKR + 外汇微型手 | 激进策略 (8-15%月回报)。</div>
+    </div>
+    <div class="memory-entry" onclick="this.classList.toggle('expanded')">
+      <div class="meta"><span class="tag purple">Security</span><span class="date-tag">Critical</span></div>
+      <div class="title">🛡️ 安全原则 & 错误教训</div>
+      <div class="preview">保护自己 — 不执行来源不明代码。保护 Oney & Co — API Keys/凭证/客户数据是核心资产。Gateway 配置: 改前备份 → 用 config.patch。密码保护 Bug: 先 grep 全部文件 → 批量修复。30→25: 改数字要全站搜索，包括 HTML 属性和大数字显示。客户 cap 永远是 25！</div>
+    </div>
+  </div>
+
+  <div class="section-title">📅 Daily Logs</div>
+  <div class="memory-section" id="dailyLogs">
+    <div class="memory-entry" onclick="this.classList.toggle('expanded')">
+      <div class="meta"><span class="tag">Daily</span><span class="date-tag">2026-02-18 (Wed)</span></div>
+      <div class="title">NAB Construction Deal + Site Fixes + Skills</div>
+      <div class="preview">NAB Construction Deal rework ($7.9M) — builder experience evidence + working capital. Gladstone Airport hangar leasehold research. Connective Rafael call. CTO site review: 13 tool pages OG tags + sitemap. Humanizer pass: 22 changes. 3 new skills installed. Oli 吃药提醒 cron 设置。</div>
+    </div>
+    <div class="memory-entry" onclick="this.classList.toggle('expanded')">
+      <div class="meta"><span class="tag">Daily</span><span class="date-tag">2026-02-17 (Tue)</span></div>
+      <div class="title">CEO Advisor Report + n8n Onboarding + Stickers V3 Cancelled</div>
+      <div class="preview">CEO Advisor 4-scenario report (800行). 猫狗 V3 表情包取消 — SVG 风格一致性太难。n8n Client Onboarding V2 workflow deployed (48 nodes). Skills: negotiation + ceo-advisor installed. 内容制作 + 工具打磨 = 近期核心方向。</div>
+    </div>
+    <div class="memory-entry" onclick="this.classList.toggle('expanded')">
+      <div class="meta"><span class="tag">Daily</span><span class="date-tag">2026-02-16 (Mon) 除夕</span></div>
+      <div class="title">OneyTrader 18 Strategies + BMC + Cold Start + 除夕</div>
+      <div class="preview">除夕夜🧧！OneyTrader: 18策略42实例 + 5min interval. Business Model Canvas 完成. Cold Start 获客计划. Aggregator 倾向 YBR $195/笔. FHC PAYG 通用版. Oney Security v1.1. LINE Sticker V1 审核通过上线🎉。Mentor landing page deployed。</div>
+    </div>
+    <div class="memory-entry" onclick="this.classList.toggle('expanded')">
+      <div class="meta"><span class="tag">Daily</span><span class="date-tag">2026-02-15 (Sun)</span></div>
+      <div class="title">Security Repositioning 蓝海 + SEO Audit + 跑步 PR</div>
+      <div class="preview">重大战略: Oney Security 重新定位 — "Quickli = Serviceability, Oney = Security" 全球零竞品蓝海！6大模块 + Lender Appetite Indicator. 全站 SEO: 14页 OG + JSON-LD + PNG→WebP. 3km PR 5:02/km. 3份竞品研究报告完成。</div>
+    </div>
+  </div>
+
+  <div class="section-title">🏛️ Major Events</div>
+  <div class="memory-section">
+    <div class="memory-entry" onclick="this.classList.toggle('expanded')">
+      <div class="meta"><span class="tag">Event</span><span class="date-tag">2026-02-13</span></div>
+      <div class="title">假期 Day 1: 全站QA + 品牌一致性</div>
+      <div class="preview">全站QA + 品牌一致性 + 移动端适配 + 主站检查。品牌故事初稿完成。30→25 客户数全站统一。</div>
+    </div>
+    <div class="memory-entry" onclick="this.classList.toggle('expanded')">
+      <div class="meta"><span class="tag">Event</span><span class="date-tag">2026-02-11</span></div>
+      <div class="title">Google Sheets 集成 + Twenty CRM + Sub-Agent 团队</div>
+      <div class="preview">Google Sheets 集成通过. Jim Loehr 能量管理. REA/Simplicity 收购, Ryan Nelson 人脉恢复. Twenty CRM 部署. Sub-Agent 团队配置。</div>
+    </div>
+    <div class="memory-entry" onclick="this.classList.toggle('expanded')">
+      <div class="meta"><span class="tag">Event</span><span class="date-tag">2026-02-10</span></div>
+      <div class="title">Logo 最终版定稿！全网站部署</div>
+      <div class="preview">Logo 最终版定稿并全网站部署。Oracle CLI 配置. GitHub 探索 25 个 skills. commercial-lending-au Skill 开发完成。App Store 决策: 暂不上架。</div>
+    </div>
+    <div class="memory-entry" onclick="this.classList.toggle('expanded')">
+      <div class="meta"><span class="tag">Event</span><span class="date-tag">2026-02-05</span></div>
+      <div class="title">ClawdHub 首发 2 Skills!</div>
+      <div class="preview">ClawdHub 发布 2 个 Skills (aussie-mortgage-calc, rba-rate-intelligence). Oney 学完全部 52 个 Clawdbot Skills。</div>
+    </div>
+    <div class="memory-entry" onclick="this.classList.toggle('expanded')">
+      <div class="meta"><span class="tag">Event</span><span class="date-tag">2026-02-04</span></div>
+      <div class="title">产品命名 + 定价策略确定</div>
+      <div class="preview">产品命名 + 定价策略确定。Oney Tools 架构重构。</div>
+    </div>
+    <div class="memory-entry" onclick="this.classList.toggle('expanded')">
+      <div class="meta"><span class="tag">Event</span><span class="date-tag">2026-02-03</span></div>
+      <div class="title">Pitch Deck + RBA Tracker V1</div>
+      <div class="preview">Pitch Deck 完成. RBA + CPI Tracker V1. Dong 说未来要出书《Oney的成长》。</div>
+    </div>
+    <div class="memory-entry" onclick="this.classList.toggle('expanded')">
+      <div class="meta"><span class="tag">Event</span><span class="date-tag">2026-02-02</span></div>
+      <div class="title">品牌设计定稿 + Email 架构</div>
+      <div class="preview">品牌设计定稿. Email 架构确定。</div>
+    </div>
+  </div>
+</div>
+
+<!-- RELATIONSHIPS -->
+<div class="tab-content" id="tab-relationships">
+  <div class="section-title">👨‍👩‍👧 Family</div>
+  <div class="contact-card">
+    <span class="badge badge-family">Family</span>
+    <div class="name">Olivia 🤍</div>
+    <div class="role">太太 — 结婚快10年 | 亚甲炎康复中</div>
+    <div class="detail">
+      <span>🎂 June 17 (在日本庆祝!)</span>
+      <span>💒 Anniversary: March 5</span>
+    </div>
+  </div>
+
+  <div class="section-title">🤝 Industry Contacts</div>
+  <div class="contact-card">
+    <span class="badge badge-industry">Industry</span>
+    <div class="name">Ryan Nelson</div>
+    <div class="role">Simplicity Loans (GM) / StG 时认识 — REA 收购后 cash out</div>
+    <div class="detail">
+      <span>📅 Last: 2026-02-11</span>
+      <span>🔄 Quarterly</span>
+      <span>💡 Commercial lending 人脉</span>
+    </div>
+  </div>
+
+  <div class="section-title">🏦 NAB Work Contacts</div>
+  <div class="contact-card">
+    <span class="badge badge-bank">NAB</span>
+    <div class="name">Norm Meka</div>
+    <div class="role">Associate Director, Diversified Credit — Credit Manager</div>
+    <div class="detail"><span>📋 Construction Deal deferral contact</span></div>
+  </div>
+  <div class="contact-card">
+    <span class="badge badge-bank">NAB</span>
+    <div class="name">Richard Curtis</div>
+    <div class="role">Associate Director, Construction Risk North — CRM</div>
+    <div class="detail"><span>📋 Pushback on builder experience — prefers company track record</span></div>
+  </div>
+
+  <div class="section-title">📋 Aggregator Contacts</div>
+  <div class="contact-card">
+    <span class="badge badge-industry">Aggregator</span>
+    <div class="name">Rafael (Connective)</div>
+    <div class="role">Connective aggregator rep — 92% split, trail portable</div>
+    <div class="detail"><span>📞 Follow up call pending</span></div>
+  </div>
+
+  <div class="section-title">📅 Important Dates</div>
+  <div class="card">
+    <div class="countdown"><div class="days" id="annivDays"></div><div class="info"><div class="name">💒 结婚纪念日</div><div class="date">March 5</div></div></div>
+    <div class="countdown"><div class="days" id="oliBday"></div><div class="info"><div class="name">🎂 Olivia Birthday (in Japan!)</div><div class="date">June 17</div></div></div>
+  </div>
+</div>
+
+<!-- PROJECTS -->
+<div class="tab-content" id="tab-projects">
+  <div class="section-title">🗺️ Oney & Co 6-Month Roadmap</div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="timeline">
+      <div class="tl-item current"><div class="month">Feb 2026</div><div class="tasks">Cert IV 申请 (Kaplan RPL $380) · 产品打磨 · 内容制作</div></div>
+      <div class="tl-item future"><div class="month">Mar 2026</div><div class="tasks">注册公司 · 💒 结婚纪念日 3/5</div></div>
+      <div class="tl-item future"><div class="month">Apr 2026</div><div class="tasks">签 Aggregator (YBR/Connective) · 评估离职时机</div></div>
+      <div class="tl-item future"><div class="month">May 2026</div><div class="tasks">ACR 申请 · 🇸🇬 新加坡旅行</div></div>
+      <div class="tl-item future"><div class="month">Jun 2026</div><div class="tasks">营销启动 · 🇨🇳🇯🇵 中国+日本 6/12-6/30 · 🎂 Oli 生日 6/17</div></div>
+      <div class="tl-item future"><div class="month">Jul 2026</div><div class="tasks">🚀 Oney & Co Launch!</div></div>
+    </div>
+  </div>
+
+  <div class="section-title">📦 Product Matrix</div>
+  <div class="grid grid-3" style="margin-bottom:16px">
+    <div class="product-card">
+      <div class="icon">📊</div>
+      <div class="pname">Oney Assess</div>
+      <div class="price">Free / $149</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Commercial Investment Calculator</div>
+      <div class="pstatus status-live">Live</div>
+    </div>
+    <div class="product-card">
+      <div class="icon">📈</div>
+      <div class="pname">Oney Analyse</div>
+      <div class="price">Free / $199 / $349</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Multi-Lender Loan Calculator</div>
+      <div class="pstatus status-dev">Polishing</div>
+    </div>
+    <div class="product-card">
+      <div class="icon">🛡️</div>
+      <div class="pname">Oney Security</div>
+      <div class="price">Free / $79mo / $299mo</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">6-Module Security Risk — 蓝海!</div>
+      <div class="pstatus status-dev">v1.1 Dev</div>
+    </div>
+    <div class="product-card">
+      <div class="icon">🔒</div>
+      <div class="pname">Oney Secure</div>
+      <div class="price">$99</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Zoning→LVR</div>
+      <div class="pstatus status-live">Live</div>
+    </div>
+    <div class="product-card">
+      <div class="icon">💼</div>
+      <div class="pname">Oney Serve</div>
+      <div class="price">$149</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Servicing Calculator</div>
+      <div class="pstatus status-live">Live</div>
+    </div>
+    <div class="product-card">
+      <div class="icon">⭐</div>
+      <div class="pname">Oney Pro Suite</div>
+      <div class="price">$49/mo · $399/yr</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">All-in-one Bundle</div>
+      <div class="pstatus status-plan">Planned</div>
+    </div>
+  </div>
+
+  <div class="section-title">🤖 Skills & ClawHub</div>
+  <div class="grid grid-3" style="margin-bottom:16px">
+    <div class="card stat"><div class="num">2</div><div class="label">Published on ClawHub</div><div style="font-size:11px;color:var(--muted);margin-top:4px">aussie-mortgage-calc<br>rba-rate-intelligence</div></div>
+    <div class="card stat"><div class="num">1</div><div class="label">Developed (Local)</div><div style="font-size:11px;color:var(--muted);margin-top:4px">commercial-lending-au</div></div>
+    <div class="card stat"><div class="num">6+</div><div class="label">Installed</div><div style="font-size:11px;color:var(--muted);margin-top:4px">negotiation, ceo-advisor,<br>security-audit, humanizer...</div></div>
+  </div>
+
+  <div class="section-title">🌐 Websites</div>
+  <div class="grid grid-2">
+    <div class="card">
+      <h3><span class="emoji">🏠</span> oneyco.com.au</h3>
+      <div style="font-size:13px;color:var(--muted)">Main website — GitHub Pages</div>
+      <div style="margin-top:8px"><span style="color:var(--green);font-weight:600">● Online</span></div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Pages: index, broker, mentor, vision, fhc</div>
+    </div>
+    <div class="card">
+      <h3><span class="emoji">🔧</span> tools.oneyco.com.au</h3>
+      <div style="font-size:13px;color:var(--muted)">Tools site — 13 calculators</div>
+      <div style="margin-top:8px"><span style="color:var(--green);font-weight:600">● Online</span></div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Assess, Analyse, Secure, Serve + FHC tools</div>
+    </div>
+  </div>
+</div>
+
+<!-- KNOWLEDGE -->
+<div class="tab-content" id="tab-knowledge">
+  <div class="section-title">📖 Industry Terms</div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="term"><div class="abbr">LVR</div><div class="def">Loan-to-Value Ratio — loan amount as % of property value. Big 4 max ~60% for commercial.</div></div>
+    <div class="term"><div class="abbr">LMI</div><div class="def">Lenders Mortgage Insurance — required when LVR exceeds lender threshold (usually >80% resi).</div></div>
+    <div class="term"><div class="abbr">DSCR</div><div class="def">Debt Service Coverage Ratio — net operating income / debt service. Must be >1.0, banks prefer >1.30.</div></div>
+    <div class="term"><div class="abbr">ICR</div><div class="def">Interest Coverage Ratio — NOI / interest expense. Measures ability to cover interest payments.</div></div>
+    <div class="term"><div class="abbr">WALE</div><div class="def">Weighted Average Lease Expiry — average remaining lease term weighted by income. Longer = better security.</div></div>
+    <div class="term"><div class="abbr">NOI</div><div class="def">Net Operating Income — gross rental income minus operating expenses (before debt service).</div></div>
+    <div class="term"><div class="abbr">ACR</div><div class="def">Australian Credit Representative — registration needed to operate under an aggregator's ACL.</div></div>
+    <div class="term"><div class="abbr">RPL</div><div class="def">Recognition of Prior Learning — fast-track Cert IV based on industry experience.</div></div>
+  </div>
+
+  <div class="section-title">🏦 Lender Notes</div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="term"><div class="abbr">NAB</div><div class="def">Dong's current employer. Construction risk team strict on company (not individual) track record. Conservative on working capital.</div></div>
+    <div class="term"><div class="abbr">Airport Leasehold</div><div class="def">NAB/ANZ: 50-60% LVR. Thinktank/La Trobe: 60-65%. Need lease instrument from Titles Registry ($20-30) to verify term.</div></div>
+    <div class="term"><div class="abbr">Aggregators</div><div class="def">YBR: $195/deal, zero monthly. Connective: 92% split, trail portable, Rafael as contact. Decision pending.</div></div>
+  </div>
+
+  <div class="section-title">🔍 Competitive Intelligence</div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="competitor"><div class="cname">Quickli</div><div class="cdesc">57% market share in serviceability calculators. Dominant player — Oney won't compete here. Instead: "Quickli = Serviceability, Oney = Security".</div></div>
+    <div class="competitor"><div class="cname">BrokerEngine</div><div class="cdesc">Broker workflow automation. Full CRM + compliance. Enterprise-focused.</div></div>
+    <div class="competitor"><div class="cname">CitoPlus</div><div class="cdesc">Competitive analysis completed 2026-02-06. Detailed in oney-co/research/.</div></div>
+    <div class="competitor"><div class="cname">Canstar / MoneySmart</div><div class="cdesc">Free comparison tools monetized via referral commissions. Massive traffic but generic.</div></div>
+  </div>
+
+  <div class="section-title">📚 Key Documents</div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="term"><div class="abbr">📄 CEO Advisor Report</div><div class="def">oney-co/strategy/ceo-advisor-report-2026-02-17.md — 4 scenarios, 800 lines</div></div>
+    <div class="term"><div class="abbr">📄 Business Model Canvas</div><div class="def">oney-co/strategy/business-model-canvas.md — break-even 1 deal/month</div></div>
+    <div class="term"><div class="abbr">📄 Cold Start Plan</div><div class="def">oney-co/strategy/cold-start-plan.md — FHC → LinkedIn → SEO → Referral</div></div>
+    <div class="term"><div class="abbr">📄 Security Repositioning</div><div class="def">oney-co/strategy/oney-security-repositioning-plan.md — 69KB, Year 3 target $1M+</div></div>
+    <div class="term"><div class="abbr">📄 Deal Triage Checklist™</div><div class="def">oney-co/strategy/deal-triage-checklist.md — Gate Check + 4 Pillars × 13 questions</div></div>
+    <div class="term"><div class="abbr">📄 Brand Story</div><div class="def">oney-co/drafts/brand-story-draft.md</div></div>
+    <div class="term"><div class="abbr">📄 Oney DNA</div><div class="def">oney-co/strategy/oney-dna-insights.md</div></div>
+  </div>
+
+  <div class="section-title">🤖 Agent Architecture</div>
+  <div class="card">
+    <div style="font-size:13px;line-height:1.8">
+      <div style="text-align:center;margin-bottom:12px;font-size:14px;font-weight:600">Dong → Oney (CEO) + 小管家 Liv</div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse">
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px;font-weight:600;color:var(--green)">Oney (main)</td><td style="padding:6px">Opus 4.5</td><td style="padding:6px">业务、产品、战略、日常</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px;font-weight:600;color:var(--purple-light)">小管家 Liv</td><td style="padding:6px">Haiku 4.5</td><td style="padding:6px">生活、健身、家务</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px;font-weight:600">CTO</td><td style="padding:6px">Opus 4.6</td><td style="padding:6px">代码、技术决策</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px;font-weight:600">Analyst</td><td style="padding:6px">Sonnet 4.5</td><td style="padding:6px">市场研究、数据</td></tr>
+        <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px;font-weight:600">Creative</td><td style="padding:6px">Opus 4.5</td><td style="padding:6px">品牌、文案</td></tr>
+        <tr><td style="padding:6px;font-weight:600">Ops</td><td style="padding:6px">Haiku 4.5</td><td style="padding:6px">批量任务</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+// Tab switching
+function switchTab(id) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+// Theme
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.querySelector('.theme-btn').textContent = isDark ? '☀️' : '🌙';
+  document.querySelector('meta[name="theme-color"]').content = isDark ? '#f5f5f5' : '#0a0a0a';
+}
+
+// Date & Countdowns
+function updateDate() {
+  const now = new Date();
+  const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'Australia/Sydney' };
+  document.getElementById('todayDate').textContent = now.toLocaleDateString('en-AU', opts);
+  const hour = now.getHours();
+  const greeting = hour < 12 ? 'Good morning, Dong ☀️' : hour < 18 ? 'Good afternoon, Dong 🌤️' : 'Good evening, Dong 🌙';
+  document.getElementById('todayGreeting').textContent = greeting;
+}
+
+function daysUntil(month, day) {
+  const now = new Date();
+  let target = new Date(now.getFullYear(), month - 1, day);
+  if (target < now) target.setFullYear(target.getFullYear() + 1);
+  return Math.ceil((target - now) / 86400000);
+}
+
+function updateCountdowns() {
+  const events = [
+    { el: 'annivDays', m: 3, d: 5 },
+    { el: 'oliBday', m: 6, d: 17 }
+  ];
+  const countdownData = [
+    { name: '💒 结婚纪念日', date: 'March 5', m: 3, d: 5 },
+    { name: '🇸🇬 新加坡旅行', date: 'Apr-May (TBD)', m: 4, d: 15 },
+    { name: '🇯🇵 Japan Trip', date: 'June 12', m: 6, d: 12 },
+    { name: '🎂 Olivia Birthday', date: 'June 17 (in Japan!)', m: 6, d: 17 },
+    { name: '🚀 Oney & Co Launch', date: 'July 2026', m: 7, d: 1 },
+  ];
+  const container = document.getElementById('countdowns');
+  container.innerHTML = countdownData.map(e => {
+    const d = daysUntil(e.m, e.d);
+    return `<div class="countdown"><div class="days">${d}d</div><div class="info"><div class="name">${e.name}</div><div class="date">${e.date}</div></div></div>`;
+  }).join('');
+
+  events.forEach(e => {
+    const el = document.getElementById(e.el);
+    if (el) el.textContent = daysUntil(e.m, e.d) + 'd';
+  });
+}
+
+// Search
+const searchData = [
+  {cat:'Strategy',title:'当前战略',text:'Phase 1 Free Health Check Phase 2 ACR broker 6个月 Roadmap Feb Cert IV Mar 注册公司 Apr aggregator May ACR Jun 营销 Jul launch'},
+  {cat:'Products',title:'Oney Assess',text:'Commercial Investment Calculator Free $149 Gumroad'},
+  {cat:'Products',title:'Oney Analyse',text:'Multi-Lender Loan Calculator Free $199 $349 MLL'},
+  {cat:'Products',title:'Oney Security',text:'6-Module Security Risk Zoning LVR 蓝海 Lender Appetite $79 $299 Quickli'},
+  {cat:'Products',title:'Oney Secure',text:'Zoning to LVR $99'},
+  {cat:'Products',title:'Oney Serve',text:'Servicing Calculator $149'},
+  {cat:'Products',title:'Oney Pro Suite',text:'$49 month $399 year bundle'},
+  {cat:'Family',title:'Olivia',text:'太太 亚甲炎 birthday June 17 Japan anniversary March 5 结婚纪念日'},
+  {cat:'Contact',title:'Ryan Nelson',text:'Simplicity Loans GM StG REA 收购 commercial lending'},
+  {cat:'Contact',title:'Rafael',text:'Connective aggregator 92% split trail portable'},
+  {cat:'Work',title:'NAB Construction Deal',text:'New Directions $7.9M builder Mark Yun Norm Meka Richard Curtis'},
+  {cat:'Work',title:'Gladstone Airport Hangar',text:'leasehold GAC council NAB ANZ 50-60% Thinktank La Trobe'},
+  {cat:'Knowledge',title:'LVR',text:'Loan to Value Ratio property value Big 4 60% commercial'},
+  {cat:'Knowledge',title:'DSCR',text:'Debt Service Coverage Ratio net operating income'},
+  {cat:'Knowledge',title:'ICR',text:'Interest Coverage Ratio NOI interest'},
+  {cat:'Knowledge',title:'ACR',text:'Australian Credit Representative aggregator ACL'},
+  {cat:'Event',title:'Logo 定稿 2026-02-10',text:'Logo 最终版 全网站部署 Oracle CLI GitHub skills'},
+  {cat:'Event',title:'ClawHub 首发 2026-02-05',text:'aussie-mortgage-calc rba-rate-intelligence 52 skills'},
+  {cat:'Event',title:'Security Repositioning 2026-02-15',text:'Quickli Serviceability Oney Security 蓝海 $1M Year 3'},
+  {cat:'Strategy',title:'Cold Start Plan',text:'FHC LinkedIn SEO referral Phase 0 1 2'},
+  {cat:'Strategy',title:'BMC',text:'Business Model Canvas break-even 1 deal month LTV CAC'},
+  {cat:'Agent',title:'Agent Architecture',text:'Oney CEO Opus CTO Analyst Creative Ops 小管家 Liv Haiku'},
+  {cat:'Trading',title:'OneyTrader',text:'IBKR $1000 AUD 外汇 18 strategies 42 instances 5min interval'},
+  {cat:'Daily',title:'2026-02-18',text:'NAB Construction Deal Connective Rafael site review Humanizer skills'},
+  {cat:'Daily',title:'2026-02-17',text:'CEO Advisor report n8n onboarding V3 stickers cancelled negotiation'},
+  {cat:'Daily',title:'2026-02-16',text:'除夕 OneyTrader BMC Cold Start YBR FHC PAYG Security v1.1 LINE Sticker'},
+  {cat:'Daily',title:'2026-02-15',text:'Security repositioning SEO audit 跑步 PR 3km competitors APRA'},
+];
+
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+
+searchInput.addEventListener('input', function() {
+  const q = this.value.toLowerCase().trim();
+  if (!q) { searchResults.classList.remove('active'); return; }
+  const matches = searchData.filter(d => (d.title + ' ' + d.text + ' ' + d.cat).toLowerCase().includes(q)).slice(0, 8);
+  if (!matches.length) { searchResults.classList.remove('active'); return; }
+  searchResults.innerHTML = matches.map(m => {
+    const idx = (m.title + ' ' + m.text).toLowerCase().indexOf(q);
+    const snippet = m.text.substring(Math.max(0, idx - 20), idx + 60);
+    return `<div class="search-item"><div class="cat">${m.cat}</div><div class="title">${m.title}</div><div class="snippet">...${snippet}...</div></div>`;
+  }).join('');
+  searchResults.classList.add('active');
+});
+
+document.addEventListener('click', e => { if (!e.target.closest('.search-wrap')) searchResults.classList.remove('active'); });
+
+// Init
+updateDate();
+updateCountdowns();
+setInterval(updateDate, 60000);
+</script>
+</body>
+</html>
