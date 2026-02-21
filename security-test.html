@@ -6,8 +6,8 @@
   <meta name="theme-color" content="#1a1a2e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="description" content="Oney Secure — Property type identification and LVR policy lookup">
-  <title>Oney Secure</title>
+  <meta name="description" content="Oney Secure — Property type identification, LVR policy lookup, LMI estimate & lender comparison">
+  <title>Oney Secure — Property & LVR Assessment</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <!-- Google Places API for Address Autocomplete -->
@@ -15,27 +15,30 @@
   
   <style>
     :root {
-      --bg: #0a1628;
-      --card: #132337;
-      --card-hover: #1a3049;
-      --border: #234;
+      --bg: #1A1A2E;
+      --card: #252540;
+      --card-hover: #2e2e50;
+      --border: #3D3D5C;
       --primary: #2ECC85;
-      --primary-glow: rgba(46, 204, 133, 0.25);
-      --secondary: #1FAD73;
+      --primary-dark: #1FAD73;
+      --primary-glow: rgba(46, 204, 133, 0.2);
+      --accent: #6B4C9A;
+      --accent-light: #9B59B6;
+      --accent-glow: rgba(107, 76, 154, 0.2);
       --success: #2ECC85;
       --warning: #fbbf24;
       --danger: #f87171;
-      --text: #f8fafc;
-      --text-muted: #94a3b8;
+      --text: #f0f0f0;
+      --text-muted: #a3a3b8;
       --radius: 16px;
     }
     html.light {
       --bg: #f5f5f5;
       --card: #ffffff;
       --card-hover: #f0f0f0;
-      --border: #e5e5e5;
-      --text: #0a0a0a;
-      --text-muted: #525252;
+      --border: #e0e0e0;
+      --text: #1a1a2e;
+      --text-muted: #6b6b80;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -45,110 +48,102 @@
       min-height: 100vh;
       padding: 0 0 100px 0;
     }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    header { text-align: center; padding: 30px 0 20px; }
-    .logo {
-      font-size: 26px;
-      font-weight: 700;
+    .container { max-width: 640px; margin: 0 auto; padding: 20px; }
+    
+    /* Header with SVG Logo */
+    header { text-align: center; padding: 24px 0 16px; }
+    .header-logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px; }
+    .header-logo svg { width: 44px; height: 44px; }
+    .logo-text {
+      font-size: 28px; font-weight: 700;
       background: linear-gradient(135deg, #2ECC85, #1FAD73);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .tagline { color: var(--text-muted); font-size: 14px; margin-top: 8px; }
+    .tagline { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+    .version-badge {
+      display: inline-block; font-size: 10px; font-weight: 600;
+      background: var(--accent-glow); color: var(--accent-light);
+      padding: 2px 8px; border-radius: 10px; margin-left: 6px;
+    }
+
+    /* Cards */
     .card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 20px;
       margin-bottom: 16px;
+      transition: background-color 0.3s, border-color 0.3s;
     }
     .card-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 16px;
+      font-size: 13px; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
     }
+    
+    /* Forms */
     .form-group { margin-bottom: 16px; }
     label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
     input, select {
-      width: 100%;
-      padding: 14px 16px;
-      font-size: 16px;
-      font-family: inherit;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      color: var(--text);
-      transition: all 0.2s;
+      width: 100%; padding: 14px 16px; font-size: 16px; font-family: inherit;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+      color: var(--text); transition: all 0.2s;
     }
     input:focus, select:focus {
-      outline: none;
-      border-color: var(--primary);
+      outline: none; border-color: var(--primary);
       box-shadow: 0 0 0 3px var(--primary-glow);
     }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
     .helper { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
     
     /* Property Type Cards */
-    .property-types {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
+    .property-types { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
     .type-btn {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 8px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      font-size: 12px;
-      color: var(--text-muted);
+      background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+      padding: 12px 8px; text-align: center; cursor: pointer;
+      transition: all 0.2s; font-size: 12px; color: var(--text-muted);
     }
-    .type-btn:hover {
-      border-color: var(--primary);
-      color: var(--text);
-    }
+    .type-btn:hover { border-color: var(--primary); color: var(--text); }
     .type-btn.active {
-      border-color: var(--primary);
-      background: var(--primary-glow);
-      color: var(--text);
+      border-color: var(--primary); background: var(--primary-glow); color: var(--text);
     }
     .type-btn .icon { font-size: 24px; margin-bottom: 4px; }
     .type-btn .name { font-weight: 500; }
     
     /* Sub-types */
-    .subtypes {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid var(--border);
-    }
-    .subtype-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-    }
+    .subtypes { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .subtype-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .subtype-btn {
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px;
-      text-align: center;
-      cursor: pointer;
-      font-size: 13px;
-      color: var(--text-muted);
-      transition: all 0.2s;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+      padding: 10px; text-align: center; cursor: pointer;
+      font-size: 13px; color: var(--text-muted); transition: all 0.2s;
     }
     .subtype-btn:hover { border-color: var(--primary); }
     .subtype-btn.active {
-      border-color: var(--primary);
-      background: var(--primary-glow);
-      color: var(--text);
+      border-color: var(--primary); background: var(--primary-glow); color: var(--text);
     }
     
+    /* Toggle Switch for LMI */
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 0; border-top: 1px solid var(--border); margin-top: 12px;
+    }
+    .toggle-label { font-size: 14px; color: var(--text); }
+    .toggle-sub { font-size: 11px; color: var(--text-muted); }
+    .toggle-switch {
+      position: relative; width: 48px; height: 26px; cursor: pointer;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider {
+      position: absolute; inset: 0; background: var(--border); border-radius: 13px; transition: 0.3s;
+    }
+    .toggle-slider::before {
+      content: ''; position: absolute; width: 20px; height: 20px;
+      left: 3px; bottom: 3px; background: var(--text); border-radius: 50%; transition: 0.3s;
+    }
+    .toggle-switch input:checked + .toggle-slider { background: var(--primary); }
+    .toggle-switch input:checked + .toggle-slider::before { transform: translateX(22px); }
+
     /* Result Card */
     .result-card {
       background: linear-gradient(135deg, var(--card), var(--card-hover));
@@ -156,156 +151,127 @@
       box-shadow: 0 0 30px var(--primary-glow);
     }
     .lvr-display {
-      text-align: center;
-      padding: 30px;
-      background: var(--bg);
-      border-radius: 12px;
-      margin-bottom: 16px;
+      text-align: center; padding: 30px; background: var(--bg); border-radius: 12px; margin-bottom: 16px;
     }
     .lvr-label { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
     .lvr-value { font-size: 56px; font-weight: 700; color: var(--primary); }
     .lvr-cap { font-size: 14px; color: var(--text-muted); margin-top: 8px; }
     
-    .lvr-meter {
-      height: 12px;
-      background: var(--bg);
-      border-radius: 6px;
-      overflow: hidden;
-      margin: 20px 0;
-    }
-    .lvr-meter-fill {
-      height: 100%;
-      border-radius: 6px;
-      transition: width 0.5s ease;
-    }
+    .lvr-meter { height: 12px; background: var(--bg); border-radius: 6px; overflow: hidden; margin: 20px 0; }
+    .lvr-meter-fill { height: 100%; border-radius: 6px; transition: width 0.5s ease; }
     .lvr-meter-fill.green { background: linear-gradient(90deg, #34d399, #10b981); }
     .lvr-meter-fill.yellow { background: linear-gradient(90deg, #fbbf24, #f97316); }
     .lvr-meter-fill.red { background: linear-gradient(90deg, #f87171, #ef4444); }
     
     .policy-box {
-      background: var(--bg);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 12px;
+      background: var(--bg); border-radius: 12px; padding: 16px; margin-bottom: 12px;
     }
-    .policy-box h4 {
-      font-size: 13px;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-    }
-    .policy-box ul {
-      list-style: none;
-      font-size: 14px;
-    }
-    .policy-box li {
-      padding: 4px 0;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
+    .policy-box h4 { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+    .policy-box ul { list-style: none; font-size: 14px; }
+    .policy-box li { padding: 4px 0; display: flex; align-items: center; gap: 8px; }
     
     .warning-box {
-      background: rgba(248, 113, 113, 0.1);
-      border: 1px solid var(--danger);
-      border-radius: 12px;
-      padding: 16px;
-      margin-top: 16px;
+      background: rgba(248, 113, 113, 0.1); border: 1px solid var(--danger);
+      border-radius: 12px; padding: 16px; margin-top: 16px;
     }
-    .warning-box h4 {
-      color: var(--danger);
-      font-size: 14px;
-      margin-bottom: 8px;
-    }
-    .warning-box p {
-      font-size: 13px;
-      color: var(--text-muted);
-    }
-    .info-box {
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-size: 13px;
-      color: var(--text-muted);
-    }
+    .warning-box h4 { color: var(--danger); font-size: 14px; margin-bottom: 8px; }
+    .warning-box p { font-size: 13px; color: var(--text-muted); }
     
+    .info-box {
+      border-radius: 12px; padding: 12px 16px; font-size: 13px; color: var(--text-muted);
+    }
+
+    /* Lender Comparison Table */
+    .lender-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px; }
+    .lender-table th {
+      text-align: left; padding: 10px 12px; color: var(--text-muted);
+      border-bottom: 1px solid var(--border); font-weight: 600; font-size: 11px;
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .lender-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .lender-table tr:last-child td { border-bottom: none; }
+    .lender-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;
+    }
+    .badge-green { background: rgba(46, 204, 133, 0.15); color: var(--success); }
+    .badge-yellow { background: rgba(251, 191, 36, 0.15); color: var(--warning); }
+    .badge-red { background: rgba(248, 113, 113, 0.15); color: var(--danger); }
+    .badge-purple { background: var(--accent-glow); color: var(--accent-light); }
+
+    /* LMI Estimate Box */
+    .lmi-box {
+      background: linear-gradient(135deg, var(--accent-glow), rgba(107, 76, 154, 0.05));
+      border: 1px solid var(--accent);
+      border-radius: 12px; padding: 16px; margin-top: 12px;
+    }
+    .lmi-box h4 { color: var(--accent-light); font-size: 14px; margin-bottom: 8px; }
+    .lmi-amount { font-size: 28px; font-weight: 700; color: var(--accent-light); }
+
+    /* Stamp Duty Box */
+    .stamp-box {
+      background: rgba(251, 191, 36, 0.05);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      border-radius: 12px; padding: 16px; margin-top: 12px;
+    }
+    .stamp-box h4 { color: var(--warning); font-size: 14px; margin-bottom: 8px; }
+
+    /* Buttons */
     .btn {
       width: 100%; padding: 16px; font-size: 16px; font-weight: 600;
       font-family: inherit; border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s;
     }
-    .btn-primary { background: linear-gradient(135deg, #fbbf24, #f97316); color: #000; }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px var(--primary-glow); }
-    .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); margin-top: 12px; }
+    .btn-primary {
+      background: linear-gradient(135deg, #2ECC85, #1FAD73); color: #fff;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px); box-shadow: 0 10px 30px var(--primary-glow);
+    }
+    .btn-accent {
+      background: linear-gradient(135deg, #6B4C9A, #9B59B6); color: #fff; margin-top: 12px;
+    }
+    .btn-accent:hover {
+      transform: translateY(-2px); box-shadow: 0 10px 30px var(--accent-glow);
+    }
+    .btn-secondary {
+      background: var(--card); color: var(--text); border: 1px solid var(--border); margin-top: 12px;
+    }
     .hidden { display: none; }
 
     /* Top Nav Bar */
     .top-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 16px;
-      background: rgba(10, 22, 40, 0.8);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border);
-      font-size: 13px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 16px; background: rgba(26, 26, 46, 0.85);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border); font-size: 13px;
+      position: sticky; top: 0; z-index: 100;
     }
     html.light .top-nav { background: rgba(245, 245, 245, 0.85); }
-    .top-nav a {
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
+    .top-nav a { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
     .top-nav a:hover { color: var(--primary); }
+    .top-nav-right { display: flex; align-items: center; gap: 8px; }
     .theme-toggle {
-      background: none;
-      border: 1px solid var(--border);
-      color: var(--text);
-      cursor: pointer;
-      font-size: 16px;
-      padding: 4px 10px;
-      border-radius: 8px;
-      transition: all 0.2s;
+      background: none; border: 1px solid var(--border); color: var(--text);
+      cursor: pointer; font-size: 16px; padding: 4px 10px; border-radius: 8px; transition: all 0.2s;
     }
-    .theme-toggle:hover {
-      border-color: var(--primary);
-      background: var(--primary-glow);
-    }
+    .theme-toggle:hover { border-color: var(--primary); background: var(--primary-glow); }
 
     /* Auto-save Toast */
     .autosave-toast {
-      position: fixed;
-      bottom: 80px;
-      right: 24px;
-      background: var(--card);
-      border: 1px solid var(--primary);
-      color: var(--primary);
-      padding: 10px 18px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 500;
-      opacity: 0;
-      transform: translateY(10px);
-      transition: all 0.3s ease;
-      z-index: 1000;
-      pointer-events: none;
+      position: fixed; bottom: 80px; right: 24px;
+      background: var(--card); border: 1px solid var(--primary); color: var(--primary);
+      padding: 10px 18px; border-radius: 10px; font-size: 13px; font-weight: 500;
+      opacity: 0; transform: translateY(10px); transition: all 0.3s ease;
+      z-index: 1000; pointer-events: none;
     }
     .autosave-toast.show { opacity: 1; transform: translateY(0); }
 
-    /* Clear Data Button */
     .clear-data-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 12px;
-      cursor: pointer;
-      padding: 8px 16px;
-      transition: color 0.2s;
+      background: none; border: none; color: var(--text-muted);
+      font-size: 12px; cursor: pointer; padding: 8px 16px; transition: color 0.2s;
     }
     .clear-data-btn:hover { color: var(--danger); }
 
-    /* Theme transitions */
+    /* Transitions */
     body, .card, .type-btn, .subtype-btn, .policy-box, .lvr-display,
     .warning-box, header, .bottom-nav, .nav-btn {
       transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
@@ -313,6 +279,7 @@
 
     .footer { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 12px; }
     .footer a { color: var(--primary); text-decoration: none; }
+    
     .bottom-nav {
       position: fixed; bottom: 0; left: 0; right: 0;
       background: var(--card); border-top: 1px solid var(--border);
@@ -327,72 +294,71 @@
     .nav-btn.active { color: var(--primary); background: var(--primary-glow); }
     .nav-btn span:first-child { font-size: 20px; }
     
-    /* Google Places Autocomplete Styling */
+    /* Google Places Autocomplete */
     .pac-container {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      margin-top: 4px;
-      font-family: 'Inter', -apple-system, sans-serif;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+      margin-top: 4px; font-family: 'Inter', sans-serif; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
-    .pac-item {
-      padding: 12px 16px;
-      color: var(--text);
-      border-bottom: 1px solid var(--border);
-      cursor: pointer;
-    }
-    .pac-item:hover {
-      background: var(--card-hover);
-    }
-    .pac-item-query {
-      color: var(--primary);
-      font-weight: 500;
-    }
-    .pac-matched {
-      color: var(--primary);
-      font-weight: 600;
-    }
-    .pac-icon {
-      display: none;
-    }
+    .pac-item { padding: 12px 16px; color: var(--text); border-bottom: 1px solid var(--border); cursor: pointer; }
+    .pac-item:hover { background: var(--card-hover); }
+    .pac-item-query { color: var(--primary); font-weight: 500; }
+    .pac-matched { color: var(--primary); font-weight: 600; }
+    .pac-icon { display: none; }
     .address-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 500;
-      margin-left: 8px;
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 500; margin-left: 8px;
     }
-    .address-status.verified {
-      background: rgba(52, 211, 153, 0.15);
-      color: var(--success);
+    .address-status.verified { background: rgba(52, 211, 153, 0.15); color: var(--success); }
+    .address-status.manual { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200;
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+      opacity: 0; pointer-events: none; transition: opacity 0.3s;
     }
-    .address-status.manual {
-      background: rgba(148, 163, 184, 0.15);
-      color: var(--text-muted);
+    .modal-overlay.show { opacity: 1; pointer-events: auto; }
+    .modal {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 24px; max-width: 500px; width: 100%; max-height: 80vh; overflow-y: auto;
     }
+    .modal h2 { font-size: 18px; margin-bottom: 16px; color: var(--primary); }
+    .modal h3 { font-size: 14px; margin: 16px 0 8px; color: var(--accent-light); }
+    .modal p, .modal li { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+    .modal ul { padding-left: 0; list-style: none; }
+    .modal li { padding: 3px 0; }
+    .modal-close {
+      width: 100%; margin-top: 16px; padding: 12px;
+      background: var(--primary); color: #fff; border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .property-types { grid-template-columns: repeat(2, 1fr); }
+      .row-3 { grid-template-columns: 1fr; }
+      .lvr-value { font-size: 42px; }
+      .lmi-amount { font-size: 22px; }
+    }
+
+    /* Related Tools */
+    .back-to-tools { display: inline-block; padding: 10px 0; color: #2ECC85; text-decoration: none; font-size: 14px; font-weight: 500; margin: 16px 24px; }
+    .back-to-tools:hover { text-decoration: underline; }
+    .related-tools { padding: 40px 24px; border-top: 1px solid var(--border); }
+    .related-inner { max-width: 960px; margin: 0 auto; }
+    .related-tools h3 { color: var(--text); font-size: 18px; margin-bottom: 16px; font-weight: 600; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .related-card {
+      background: var(--card); border-radius: 12px; padding: 20px; text-decoration: none;
+      border: 1px solid var(--border); transition: all 0.2s;
+    }
+    .related-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+    .related-name { color: var(--text); font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+    .related-desc { color: var(--text-muted); font-size: 13px; line-height: 1.4; }
   </style>
 
-<style>
-  .back-to-tools { display: inline-block; padding: 10px 0; color: #2ECC85; text-decoration: none; font-size: 14px; font-weight: 500; margin: 16px 24px; }
-  .back-to-tools:hover { text-decoration: underline; }
-  .related-tools { padding: 40px 24px; border-top: 1px solid #3D3D5C; }
-  .related-inner { max-width: 960px; margin: 0 auto; }
-  .related-tools h3 { color: #fff; font-size: 18px; margin-bottom: 16px; font-weight: 600; }
-  .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
-  .related-card {
-    background: #252540; border-radius: 12px; padding: 20px; text-decoration: none;
-    border: 1px solid #3D3D5C; transition: all 0.2s;
-  }
-  .related-card:hover { border-color: #2ECC85; transform: translateY(-2px); }
-  .related-name { color: #fff; font-weight: 600; font-size: 15px; margin-bottom: 6px; }
-  .related-desc { color: #a3a3b8; font-size: 13px; line-height: 1.4; }
-</style>
-  <meta property="og:title" content="Security Test — Oney & Co Tools">
-  <meta property="og:description" content="Free Security Test tool for Australian mortgage brokers — by Oney & Co">
+  <meta property="og:title" content="Oney Secure — Property & LVR Assessment">
+  <meta property="og:description" content="Free property security assessment tool for Australian mortgage brokers — by Oney & Co">
   <meta property="og:image" content="https://tools.oneyco.com.au/assets/og-image.png">
   <meta property="og:url" content="https://tools.oneyco.com.au/security-test.html">
   <meta property="og:type" content="website">
@@ -402,15 +368,32 @@
   <!-- Top Navigation -->
   <nav class="top-nav">
     <a href="index.html">← Oney Tools</a>
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌙</button>
+    <div class="top-nav-right">
+      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌙</button>
+    </div>
   </nav>
 
   <div class="container">
     <header>
-      <div class="logo">Oney Secure</div>
-      <div class="tagline">Property Type & LVR Policy Lookup</div>
+      <div class="header-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="44" height="44">
+          <defs><linearGradient id="hGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/>
+          </linearGradient></defs>
+          <g transform="translate(50, 50)">
+            <path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#hGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/>
+            <path d="M0 -45 L0 -52" stroke="url(#hGrad)" stroke-width="6" stroke-linecap="round"/>
+          </g>
+        </svg>
+        <div>
+          <span class="logo-text">Oney Secure</span>
+          <span class="version-badge">v2.0</span>
+        </div>
+      </div>
+      <div class="tagline">Property Security Assessment & LVR Policy</div>
     </header>
     
+    <!-- STEP 1: INPUT -->
     <div id="step1">
       <div class="card">
         <div class="card-title">📍 Property Location</div>
@@ -439,10 +422,10 @@
               <option value="unknown">-- Not Sure --</option>
               <optgroup label="Residential">
                 <option value="R1">R1 - General Residential</option>
-                <option value="R2">R2 - Low Density Residential</option>
-                <option value="R3">R3 - Medium Density Residential</option>
-                <option value="R4">R4 - High Density Residential</option>
-                <option value="R5">R5 - Large Lot Residential</option>
+                <option value="R2">R2 - Low Density</option>
+                <option value="R3">R3 - Medium Density</option>
+                <option value="R4">R4 - High Density</option>
+                <option value="R5">R5 - Large Lot</option>
               </optgroup>
               <optgroup label="Business">
                 <option value="B1">B1 - Neighbourhood Centre</option>
@@ -463,7 +446,7 @@
                 <option value="RU1">RU1 - Primary Production</option>
                 <option value="RU2">RU2 - Rural Landscape</option>
                 <option value="RU3">RU3 - Forestry</option>
-                <option value="RU4">RU4 - Primary Production Small Lots</option>
+                <option value="RU4">RU4 - Small Lots</option>
                 <option value="RU5">RU5 - Village</option>
                 <option value="RU6">RU6 - Transition</option>
               </optgroup>
@@ -474,8 +457,8 @@
               </optgroup>
               <optgroup label="Environment">
                 <option value="E1">E1 - National Parks</option>
-                <option value="E2">E2 - Environmental Conservation</option>
-                <option value="E3">E3 - Environmental Management</option>
+                <option value="E2">E2 - Conservation</option>
+                <option value="E3">E3 - Management</option>
                 <option value="E4">E4 - Environmental Living</option>
               </optgroup>
               <optgroup label="Other">
@@ -488,8 +471,8 @@
             </select>
           </div>
         </div>
-        <div class="info-box" id="zoningInfo" style="background: rgba(56, 189, 248, 0.1); border: 1px solid var(--secondary); margin-top: 12px;">
-          💡 <strong>R1 - General Residential:</strong> Standard residential use, good lender appetite
+        <div class="info-box" id="zoningInfo" style="background: rgba(46, 204, 133, 0.08); border: 1px solid var(--primary); margin-top: 12px;">
+          💡 <strong>Tip:</strong> Select your council zoning to get tailored LVR guidance
         </div>
       </div>
       
@@ -497,28 +480,22 @@
         <div class="card-title">🏠 Property Category</div>
         <div class="property-types">
           <div class="type-btn" onclick="selectCategory('residential')">
-            <div class="icon">🏠</div>
-            <div class="name">Residential</div>
+            <div class="icon">🏠</div><div class="name">Residential</div>
           </div>
           <div class="type-btn" onclick="selectCategory('commercial')">
-            <div class="icon">🏢</div>
-            <div class="name">Commercial</div>
+            <div class="icon">🏢</div><div class="name">Commercial</div>
           </div>
           <div class="type-btn" onclick="selectCategory('specialised')">
-            <div class="icon">🏨</div>
-            <div class="name">Specialised</div>
+            <div class="icon">🏨</div><div class="name">Specialised</div>
           </div>
           <div class="type-btn" onclick="selectCategory('industrial')">
-            <div class="icon">🏭</div>
-            <div class="name">Industrial</div>
+            <div class="icon">🏭</div><div class="name">Industrial</div>
           </div>
           <div class="type-btn" onclick="selectCategory('rural')">
-            <div class="icon">🌾</div>
-            <div class="name">Rural</div>
+            <div class="icon">🌾</div><div class="name">Rural</div>
           </div>
           <div class="type-btn" onclick="selectCategory('development')">
-            <div class="icon">🏗️</div>
-            <div class="name">Development</div>
+            <div class="icon">🏗️</div><div class="name">Development</div>
           </div>
         </div>
         
@@ -540,11 +517,54 @@
             <input type="text" id="loanAmount" placeholder="e.g., 1,000,000" inputmode="numeric" onkeyup="formatNumber(this)">
           </div>
         </div>
+        <div class="form-group">
+          <label>Loan Purpose</label>
+          <select id="loanPurpose">
+            <option value="owner-occ">Owner Occupied</option>
+            <option value="investment">Investment</option>
+            <option value="refinance">Refinance</option>
+            <option value="equity-release">Equity Release</option>
+          </select>
+        </div>
+        
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Include LMI Estimate</div>
+            <div class="toggle-sub">Lenders Mortgage Insurance (LVR &gt; 80%)</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="lmiToggle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Show Stamp Duty</div>
+            <div class="toggle-sub">State-based transfer duty estimate</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="stampToggle" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">First Home Buyer</div>
+            <div class="toggle-sub">May qualify for stamp duty concessions</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="fhbToggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
       </div>
       
-      <button class="btn btn-primary" onclick="calculate()">Check LVR Policy</button>
+      <button class="btn btn-primary" onclick="calculate()">🔍 Assess Security</button>
     </div>
     
+    <!-- STEP 2: RESULTS -->
     <div id="step2" class="hidden">
       <div class="card result-card">
         <div class="card-title">📊 LVR Assessment</div>
@@ -568,20 +588,12 @@
         
         <div class="policy-box">
           <h4>📋 Property Details</h4>
-          <ul id="propertyDetails">
-            <li>🏠 Category: --</li>
-            <li>📍 Type: --</li>
-            <li>💰 Value: --</li>
-          </ul>
+          <ul id="propertyDetails"></ul>
         </div>
         
         <div class="policy-box">
           <h4>📜 LVR Policy</h4>
-          <ul id="policyDetails">
-            <li>✅ Maximum LVR: --</li>
-            <li>⚠️ Alert Threshold: --</li>
-            <li>💵 Max Loan: --</li>
-          </ul>
+          <ul id="policyDetails"></ul>
         </div>
         
         <div class="warning-box" id="warningBox" style="display: none;">
@@ -589,14 +601,46 @@
           <p id="warningText"></p>
         </div>
       </div>
+
+      <!-- LMI Estimate -->
+      <div class="card" id="lmiCard" style="display: none;">
+        <div class="card-title">🛡️ LMI Estimate</div>
+        <div class="lmi-box">
+          <h4>Estimated Lenders Mortgage Insurance</h4>
+          <div class="lmi-amount" id="lmiAmount">$0</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;" id="lmiNote"></div>
+        </div>
+      </div>
+
+      <!-- Stamp Duty -->
+      <div class="card" id="stampCard" style="display: none;">
+        <div class="card-title">🏛️ Stamp Duty Estimate</div>
+        <div class="stamp-box">
+          <h4 id="stampTitle">Transfer Duty</h4>
+          <div class="lmi-amount" style="color: var(--warning);" id="stampAmount">$0</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 8px;" id="stampNote"></div>
+        </div>
+      </div>
+
+      <!-- Lender Comparison -->
+      <div class="card" id="lenderCard">
+        <div class="card-title">🏦 Lender Appetite</div>
+        <table class="lender-table">
+          <thead>
+            <tr><th>Lender Type</th><th>Max LVR</th><th>Status</th></tr>
+          </thead>
+          <tbody id="lenderBody"></tbody>
+        </table>
+      </div>
       
+      <!-- Recommendations -->
       <div class="card">
         <div class="card-title">📝 Recommendations</div>
         <div id="recommendations" style="font-size: 14px; line-height: 1.8; color: var(--text-muted);"></div>
       </div>
       
       <button class="btn btn-primary" onclick="copyResults()">📋 Copy Results</button>
-      <button class="btn btn-secondary" onclick="exportPDF()">📄 Export PDF</button>
+      <button class="btn btn-accent" onclick="exportPDF()">📄 Export PDF</button>
       <button class="btn btn-secondary" onclick="reset()">🔄 New Assessment</button>
     </div>
     
@@ -606,6 +650,7 @@
 
     <footer class="footer">
       <p>Made by <a href="https://oneyco.com.au">Oney & Co</a></p>
+      <p style="margin-top: 4px; font-size: 11px;">For reference only. Subject to full credit assessment.</p>
     </footer>
   </div>
   
@@ -614,632 +659,38 @@
     <button class="nav-btn" onclick="showStep(2)"><span>📊</span><span>Results</span></button>
     <button class="nav-btn" onclick="showInfo()"><span>ℹ️</span><span>Info</span></button>
   </nav>
-  
-  <script>
-    // Property type definitions
-    const propertyTypes = {
-      residential: {
-        name: 'Residential',
-        icon: '🏠',
-        subtypes: [
-          { id: 'house', name: 'House', lvr: 80, alert: 70, warning: null },
-          { id: 'unit', name: 'Unit / Apartment', lvr: 80, alert: 70, warning: null },
-          { id: 'townhouse', name: 'Townhouse', lvr: 80, alert: 70, warning: null },
-          { id: 'rural-res', name: 'Rural Residential', lvr: 70, alert: 60, warning: 'Rural properties may require specialist valuation' },
-          { id: 'high-density', name: 'High Density (>50sqm)', lvr: 80, alert: 70, warning: null },
-          { id: 'small-unit', name: 'Small Unit (<50sqm)', lvr: 70, alert: 60, warning: 'Small units may have limited lender appetite' }
-        ]
-      },
-      commercial: {
-        name: 'Commercial',
-        icon: '🏢',
-        subtypes: [
-          { id: 'retail', name: 'Retail Shop', lvr: 70, alert: 65, warning: null },
-          { id: 'office', name: 'Office', lvr: 70, alert: 65, warning: null },
-          { id: 'mixed-use', name: 'Mixed Use', lvr: 70, alert: 65, warning: 'Requires assessment of both residential and commercial components' },
-          { id: 'strata-office', name: 'Strata Office', lvr: 65, alert: 60, warning: null }
-        ]
-      },
-      specialised: {
-        name: 'Specialised',
-        icon: '🏨',
-        subtypes: [
-          { id: 'hotel', name: 'Hotel / Motel', lvr: 60, alert: 50, warning: 'Specialised property — limited lender appetite, going concern valuation required' },
-          { id: 'childcare', name: 'Childcare Centre', lvr: 60, alert: 50, warning: 'Specialised property — operator covenant critical' },
-          { id: 'medical', name: 'Medical Centre', lvr: 65, alert: 55, warning: 'Tenant covenant and lease terms critical' },
-          { id: 'aged-care', name: 'Aged Care / Nursing', lvr: 55, alert: 45, warning: 'Highly specialised — very limited lenders, extensive due diligence required' },
-          { id: 'service-station', name: 'Service Station', lvr: 60, alert: 50, warning: 'Environmental assessment required, specialised valuation' },
-          { id: 'pub', name: 'Pub / Licensed Venue', lvr: 60, alert: 50, warning: 'Going concern valuation, gaming license considerations' }
-        ]
-      },
-      industrial: {
-        name: 'Industrial',
-        icon: '🏭',
-        subtypes: [
-          { id: 'warehouse', name: 'Warehouse', lvr: 65, alert: 60, warning: null },
-          { id: 'factory', name: 'Factory / Manufacturing', lvr: 65, alert: 55, warning: 'May require environmental assessment' },
-          { id: 'logistics', name: 'Logistics / Distribution', lvr: 65, alert: 60, warning: null },
-          { id: 'heavy-industrial', name: 'Heavy Industrial', lvr: 60, alert: 50, warning: 'Specialised use — limited alternative use, environmental considerations' }
-        ]
-      },
-      rural: {
-        name: 'Rural',
-        icon: '🌾',
-        subtypes: [
-          { id: 'farm', name: 'Working Farm', lvr: 60, alert: 50, warning: 'Rural specialist lender may be required, water rights critical' },
-          { id: 'hobby-farm', name: 'Hobby Farm (<100 acres)', lvr: 70, alert: 60, warning: 'May be assessed as rural residential' },
-          { id: 'vineyard', name: 'Vineyard / Orchard', lvr: 55, alert: 45, warning: 'Highly specialised — going concern valuation' },
-          { id: 'grazing', name: 'Grazing / Pastoral', lvr: 55, alert: 45, warning: 'Carrying capacity and water rights critical' }
-        ]
-      },
-      development: {
-        name: 'Development',
-        icon: '🏗️',
-        subtypes: [
-          { id: 'dev-site', name: 'Development Site (DA Approved)', lvr: 65, alert: 55, warning: 'Development finance — presales and builder covenant required' },
-          { id: 'raw-land', name: 'Raw Land (No DA)', lvr: 50, alert: 40, warning: 'Vacant land — very limited lenders, council zoning critical' },
-          { id: 'reno', name: 'Renovation Project', lvr: 70, alert: 60, warning: 'Renovation scope and budget to be assessed' },
-          { id: 'subdivision', name: 'Subdivision', lvr: 60, alert: 50, warning: 'Requires council approval and presale conditions' }
-        ]
-      }
-    };
-    
-    let selectedCategory = null;
-    let selectedSubtype = null;
-    
-    function formatNumber(input) {
-      let value = input.value.replace(/,/g, '').replace(/[^0-9]/g, '');
-      if (value) input.value = parseInt(value).toLocaleString();
-    }
-    
-    function parseNum(str) {
-      return parseFloat((str || '').replace(/,/g, '')) || 0;
-    }
-    
-    function selectCategory(category) {
-      selectedCategory = category;
-      selectedSubtype = null;
-      
-      // Update UI
-      document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
-      event.currentTarget.classList.add('active');
-      
-      // Show subtypes
-      const subtypesDiv = document.getElementById('subtypes');
-      const grid = document.getElementById('subtypeGrid');
-      const types = propertyTypes[category].subtypes;
-      
-      grid.innerHTML = types.map(t => `
-        <div class="subtype-btn" onclick="selectSubtype('${t.id}')">${t.name}</div>
-      `).join('');
-      
-      subtypesDiv.style.display = 'block';
-      document.getElementById('securityCard').style.display = 'block';
-    }
-    
-    function selectSubtype(subtypeId) {
-      selectedSubtype = subtypeId;
-      
-      document.querySelectorAll('.subtype-btn').forEach(btn => btn.classList.remove('active'));
-      event.currentTarget.classList.add('active');
-    }
-    
-    function calculate() {
-      if (!selectedCategory || !selectedSubtype) {
-        alert('Please select property category and type');
-        return;
-      }
-      
-      const address = document.getElementById('address').value || 'Not specified';
-      const propertyValue = parseNum(document.getElementById('propertyValue').value);
-      const loanAmount = parseNum(document.getElementById('loanAmount').value);
-      
-      const category = propertyTypes[selectedCategory];
-      const subtype = category.subtypes.find(s => s.id === selectedSubtype);
-      
-      const lvr = propertyValue > 0 ? (loanAmount / propertyValue) * 100 : 0;
-      const maxLoan = propertyValue * (subtype.lvr / 100);
-      
-      // Determine status
-      let status, meterClass;
-      if (lvr <= subtype.alert) {
-        status = 'pass';
-        meterClass = 'green';
-      } else if (lvr <= subtype.lvr) {
-        status = 'alert';
-        meterClass = 'yellow';
-      } else {
-        status = 'fail';
-        meterClass = 'red';
-      }
-      
-      // Update display
-      document.getElementById('lvrValue').textContent = lvr.toFixed(1) + '%';
-      document.getElementById('lvrCap').textContent = `Cap: ${subtype.lvr}% | Alert: ${subtype.alert}%`;
-      
-      const meterWidth = Math.min(lvr, 100);
-      const meter = document.getElementById('lvrMeter');
-      meter.style.width = meterWidth + '%';
-      meter.className = 'lvr-meter-fill ' + meterClass;
-      
-      document.getElementById('alertMark').textContent = `Alert: ${subtype.alert}%`;
-      document.getElementById('capMark').textContent = `Cap: ${subtype.lvr}%`;
-      
-      document.getElementById('propertyDetails').innerHTML = `
-        <li>🏠 Category: ${category.name}</li>
-        <li>📍 Type: ${subtype.name}</li>
-        <li>📍 Address: ${address}</li>
-        <li>💰 Value: $${propertyValue.toLocaleString()}</li>
-        <li>🏦 Loan: $${loanAmount.toLocaleString()}</li>
-      `;
-      
-      document.getElementById('policyDetails').innerHTML = `
-        <li>${status === 'fail' ? '❌' : '✅'} Maximum LVR: ${subtype.lvr}%</li>
-        <li>⚠️ Alert Threshold: ${subtype.alert}%</li>
-        <li>💵 Max Loan at Cap: $${Math.round(maxLoan).toLocaleString()}</li>
-        <li>${status === 'pass' ? '✅' : status === 'alert' ? '⚠️' : '❌'} Your LVR: ${lvr.toFixed(1)}%</li>
-      `;
-      
-      // Warning
-      const warningBox = document.getElementById('warningBox');
-      if (subtype.warning) {
-        warningBox.style.display = 'block';
-        document.getElementById('warningText').textContent = subtype.warning;
-      } else {
-        warningBox.style.display = 'none';
-      }
-      
-      // Recommendations
-      let recs = [];
-      if (status === 'pass') {
-        recs.push('✅ LVR is within acceptable range');
-        recs.push('💡 Standard documentation should suffice');
-      } else if (status === 'alert') {
-        recs.push('⚠️ LVR is above alert threshold — expect additional scrutiny');
-        recs.push('💡 Strong income/serviceability will be required');
-        recs.push('💡 Consider reducing loan amount or increasing deposit');
-      } else {
-        recs.push('❌ LVR exceeds policy cap');
-        recs.push('💡 Reduce loan amount by $' + Math.round(loanAmount - maxLoan).toLocaleString());
-        recs.push('💡 Or increase deposit/equity');
-        recs.push('💡 Consider alternative lenders with higher LVR appetite');
-      }
-      
-      if (subtype.warning) {
-        recs.push('🔍 Special property type — additional due diligence required');
-      }
-      
-      document.getElementById('recommendations').innerHTML = recs.map(r => `<p>${r}</p>`).join('');
-      
-      // Store for export
-      window.lastResult = {
-        address, category: category.name, subtype: subtype.name,
-        propertyValue, loanAmount, lvr, lvrCap: subtype.lvr, lvrAlert: subtype.alert,
-        maxLoan, status, warning: subtype.warning
-      };
-      
-      showStep(2);
-    }
-    
-    function showStep(step) {
-      document.getElementById('step1').classList.toggle('hidden', step !== 1);
-      document.getElementById('step2').classList.toggle('hidden', step !== 2);
-      document.querySelectorAll('.nav-btn').forEach((b, i) => b.classList.toggle('active', i === step - 1));
-    }
-    
-    function reset() {
-      selectedCategory = null;
-      selectedSubtype = null;
-      document.querySelectorAll('.type-btn, .subtype-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById('subtypes').style.display = 'none';
-      document.getElementById('securityCard').style.display = 'none';
-      document.querySelectorAll('input').forEach(i => i.value = '');
-      showStep(1);
-    }
-    
-    function copyResults() {
-      const r = window.lastResult;
-      if (!r) return;
-      
-      const text = `ONEY SECURE — LVR ASSESSMENT
-================================
-Address: ${r.address}
-Category: ${r.category}
-Type: ${r.subtype}
 
-Property Value: $${r.propertyValue.toLocaleString()}
-Proposed Loan: $${r.loanAmount.toLocaleString()}
-
-LVR: ${r.lvr.toFixed(1)}%
-LVR Cap: ${r.lvrCap}%
-Alert: ${r.lvrAlert}%
-Max Loan at Cap: $${Math.round(r.maxLoan).toLocaleString()}
-
-Status: ${r.status === 'pass' ? 'PASS' : r.status === 'alert' ? 'ALERT' : 'FAIL'}
-${r.warning ? '\nWarning: ' + r.warning : ''}
-================================
-Generated by Oney Secure
-oneyco.com.au`;
+  <!-- Info Modal -->
+  <div class="modal-overlay" id="infoModal">
+    <div class="modal">
+      <h2>🔒 Oney Secure v2.0</h2>
+      <p>Property Security Assessment & LVR Policy Lookup for Australian mortgage brokers.</p>
       
-      navigator.clipboard.writeText(text).then(() => alert('Copied!'));
-    }
-    
-    function exportPDF() {
-      const r = window.lastResult;
-      if (!r) {
-        alert('Please calculate first');
-        return;
-      }
+      <h3>📊 Property Categories & Typical LVR</h3>
+      <ul>
+        <li>🏠 Residential — up to 80% (95% with LMI)</li>
+        <li>🏢 Commercial — up to 70%</li>
+        <li>🏨 Specialised — 55-65%</li>
+        <li>🏭 Industrial — 60-65%</li>
+        <li>🌾 Rural — 55-70%</li>
+        <li>🏗️ Development — 50-70%</li>
+      </ul>
       
-      const printWindow = window.open('', '_blank');
-      const today = new Date().toLocaleDateString('en-AU');
+      <h3>🆕 What's New in v2.0</h3>
+      <ul>
+        <li>🛡️ LMI estimate calculator</li>
+        <li>🏛️ State-based stamp duty estimate</li>
+        <li>🏦 Lender appetite comparison</li>
+        <li>👤 First Home Buyer concessions</li>
+        <li>📄 Improved PDF export</li>
+      </ul>
       
-      printWindow.document.write(`
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Oney Secure - ${r.subtype}</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 40px; color: #333; max-width: 800px; margin: 0 auto; }
-    h1 { color: #2ECC85; border-bottom: 3px solid #2ECC85; padding-bottom: 10px; }
-    h2 { color: #1FAD73; margin-top: 30px; }
-    .header { display: flex; justify-content: space-between; margin-bottom: 30px; }
-    .logo { font-size: 24px; font-weight: bold; color: #2ECC85; }
-    table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
-    th { background: #f8f9fa; }
-    .pass { color: #00d9a5; font-weight: bold; }
-    .alert { color: #2ECC85; font-weight: bold; }
-    .fail { color: #e74c3c; font-weight: bold; }
-    .lvr-box { background: #2ECC85; color: white; padding: 30px; border-radius: 12px; text-align: center; margin: 30px 0; }
-    .lvr-box .value { font-size: 48px; font-weight: bold; }
-    .warning { background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin: 20px 0; }
-    .footer { margin-top: 50px; padding-top: 20px; border-top: 1px solid #ddd; color: #666; font-size: 12px; text-align: center; }
-  </style>
-
-<style>
-  .back-to-tools { display: inline-block; padding: 10px 0; color: #2ECC85; text-decoration: none; font-size: 14px; font-weight: 500; margin: 16px 24px; }
-  .back-to-tools:hover { text-decoration: underline; }
-  .related-tools { padding: 40px 24px; border-top: 1px solid #3D3D5C; }
-  .related-inner { max-width: 960px; margin: 0 auto; }
-  .related-tools h3 { color: #fff; font-size: 18px; margin-bottom: 16px; font-weight: 600; }
-  .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
-  .related-card {
-    background: #252540; border-radius: 12px; padding: 20px; text-decoration: none;
-    border: 1px solid #3D3D5C; transition: all 0.2s;
-  }
-  .related-card:hover { border-color: #2ECC85; transform: translateY(-2px); }
-  .related-name { color: #fff; font-weight: 600; font-size: 15px; margin-bottom: 6px; }
-  .related-desc { color: #a3a3b8; font-size: 13px; line-height: 1.4; }
-</style>
-  <meta property="og:title" content="Security Test — Oney & Co Tools">
-  <meta property="og:description" content="Free Security Test tool for Australian mortgage brokers — by Oney & Co">
-  <meta property="og:image" content="https://tools.oneyco.com.au/assets/og-image.png">
-  <meta property="og:url" content="https://tools.oneyco.com.au/security-test.html">
-  <meta property="og:type" content="website">
-  <link rel="canonical" href="https://tools.oneyco.com.au/security-test.html">
-</head>
-<body>
-  <div class="header">
-    <div class="logo">Oney & Co</div>
-    <div>${today}</div>
-  </div>
-  
-  <h1>Oney Secure — LVR Assessment</h1>
-  
-  <h2>Property Details</h2>
-  <table>
-    <tr><th>Address</th><td>${r.address}</td></tr>
-    <tr><th>Category</th><td>${r.category}</td></tr>
-    <tr><th>Type</th><td>${r.subtype}</td></tr>
-    <tr><th>Estimated Value</th><td>$${r.propertyValue.toLocaleString()}</td></tr>
-    <tr><th>Proposed Loan</th><td>$${r.loanAmount.toLocaleString()}</td></tr>
-  </table>
-  
-  <div class="lvr-box">
-    <div>Loan to Value Ratio</div>
-    <div class="value">${r.lvr.toFixed(1)}%</div>
-    <div>Cap: ${r.lvrCap}% | Alert: ${r.lvrAlert}%</div>
-  </div>
-  
-  <h2>LVR Policy</h2>
-  <table>
-    <tr><th>Maximum LVR</th><td>${r.lvrCap}%</td></tr>
-    <tr><th>Alert Threshold</th><td>${r.lvrAlert}%</td></tr>
-    <tr><th>Max Loan at Cap</th><td>$${Math.round(r.maxLoan).toLocaleString()}</td></tr>
-    <tr><th>Status</th><td class="${r.status}">${r.status.toUpperCase()}</td></tr>
-  </table>
-  
-  ${r.warning ? `<div class="warning"><strong>⚠️ Special Considerations:</strong><br>${r.warning}</div>` : ''}
-  
-  <div class="footer">
-    <p>Generated by Oney Secure — oneyco.com.au</p>
-    <p>This assessment is for reference only. Final decisions subject to full credit assessment.</p>
-  </div>
-
-  <section class="related-tools">
-    <div class="related-inner">
-      <h3>Related Tools</h3>
-      <div class="related-grid">
-      <a href="commercial-investment-calculator.html" class="related-card">
-        <div class="related-name">Commercial Investment Calculator</div>
-        <div class="related-desc">Analyse commercial property investment returns and cash flow</div>
-      </a>
-      <a href="rate-tracker.html" class="related-card">
-        <div class="related-name">Rate Tracker</div>
-        <div class="related-desc">Track and compare current lending rates</div>
-      </a>
-      </div>
+      <h3>ℹ️ Disclaimer</h3>
+      <p>This tool provides indicative estimates only. LVR caps, LMI premiums, and stamp duty are approximations. Always verify with the specific lender and state revenue office.</p>
+      
+      <button class="modal-close" onclick="closeInfo()">Got it</button>
     </div>
-  </section>
-</body>
-</html>
-      `);
-      
-      printWindow.document.close();
-      setTimeout(() => printWindow.print(), 500);
-    }
-    
-    function showInfo() {
-      alert(`Oney Secure v1.1
-
-Property Type & LVR Policy Lookup
-
-PROPERTY CATEGORIES:
-• Residential (80% LVR)
-• Commercial (70% LVR)
-• Specialised (55-65% LVR)
-• Industrial (60-65% LVR)
-• Rural (55-70% LVR)
-• Development (50-70% LVR)
-
-Each property type has:
-• Maximum LVR cap
-• Alert threshold
-• Special considerations
-
-Address autocomplete powered by Google Places API
-
-© Oney & Co`);
-    }
-    
-    // Google Places Autocomplete
-    let autocomplete = null;
-    let addressVerified = false;
-    
-    function initGoogleAutocomplete() {
-      const addressInput = document.getElementById('address');
-      const addressStatus = document.getElementById('addressStatus');
-      const addressHelper = document.getElementById('addressHelper');
-      
-      if (!addressInput) {
-        setTimeout(initGoogleAutocomplete, 500);
-        return;
-      }
-      
-      addressHelper.textContent = 'Start typing to search Australian streets';
-      
-      try {
-        autocomplete = new google.maps.places.Autocomplete(addressInput, {
-          types: ['address'],
-          componentRestrictions: { country: 'au' },
-          fields: ['address_components', 'formatted_address']
-        });
-        
-        autocomplete.addListener('place_changed', function() {
-          const place = autocomplete.getPlace();
-          
-          if (!place.address_components) {
-            addressStatus.className = 'address-status manual';
-            addressStatus.textContent = 'Manual Entry';
-            addressVerified = false;
-            return;
-          }
-          
-          addressStatus.className = 'address-status verified';
-          addressStatus.textContent = '✓ Verified';
-          addressVerified = true;
-          
-          let state = '';
-          for (const component of place.address_components) {
-            if (component.types.includes('administrative_area_level_1')) {
-              state = component.short_name;
-              break;
-            }
-          }
-          
-          if (state) {
-            const stateSelect = document.getElementById('state');
-            if (stateSelect.querySelector(`option[value="${state}"]`)) {
-              stateSelect.value = state;
-            }
-          }
-        });
-        
-        addressInput.addEventListener('input', function() {
-          if (addressVerified) {
-            addressStatus.className = 'address-status manual';
-            addressStatus.textContent = 'Manual Entry';
-            addressVerified = false;
-          }
-        });
-        
-        console.log('Google Places Autocomplete initialized');
-      } catch (e) {
-        console.error('Google Places init error:', e);
-        addressHelper.textContent = 'Enter street name manually';
-      }
-    }
-    
-    // Zoning info updates
-    const zoningInfo = {
-      'unknown': { desc: 'Not sure about zoning? Check your local council website or ask your broker to verify.', type: 'unknown' },
-      'R1': { desc: 'General Residential — Standard residential use, good lender appetite', type: 'residential' },
-      'R2': { desc: 'Low Density Residential — Single dwellings, standard lending', type: 'residential' },
-      'R3': { desc: 'Medium Density Residential — Townhouses/villas, standard lending', type: 'residential' },
-      'R4': { desc: 'High Density Residential — Apartments, check unit size policies', type: 'residential' },
-      'R5': { desc: 'Large Lot Residential — Rural-residential, may need specialist lender', type: 'residential' },
-      'B1': { desc: 'Neighbourhood Centre — Small retail, commercial LVR applies', type: 'commercial' },
-      'B2': { desc: 'Local Centre — Retail/commercial mix, 70% LVR typical', type: 'commercial' },
-      'B3': { desc: 'Commercial Core — CBD commercial, prime office/retail', type: 'commercial' },
-      'B4': { desc: 'Mixed Use — Residential over commercial, blended approach', type: 'commercial' },
-      'B5': { desc: 'Business Development — Light industrial/commercial, 65-70% LVR', type: 'commercial' },
-      'B6': { desc: 'Enterprise Corridor — Highway commercial, varied appetite', type: 'commercial' },
-      'B7': { desc: 'Business Park — Office/warehouse parks, commercial lending', type: 'commercial' },
-      'IN1': { desc: 'General Industrial — Standard industrial, 65% LVR typical', type: 'industrial' },
-      'IN2': { desc: 'Light Industrial — Warehousing, better lender appetite', type: 'industrial' },
-      'IN3': { desc: 'Heavy Industrial — Limited lenders, environmental concerns', type: 'industrial' },
-      'IN4': { desc: 'Working Waterfront — Specialised, very limited lenders', type: 'specialised' },
-      'RU1': { desc: 'Primary Production — Working farms, rural specialist lenders', type: 'rural' },
-      'RU2': { desc: 'Rural Landscape — Hobby farms, may be residential lending', type: 'rural' },
-      'RU3': { desc: 'Forestry — Very specialised, limited finance options', type: 'rural' },
-      'RU4': { desc: 'Primary Production Small Lots — Small acreage, varied lending', type: 'rural' },
-      'RU5': { desc: 'Village — Rural township, may be standard residential', type: 'residential' },
-      'RU6': { desc: 'Transition — Urban fringe, development potential', type: 'development' },
-      'SP1': { desc: 'Special Activities — Case-by-case assessment required', type: 'specialised' },
-      'SP2': { desc: 'Infrastructure — Very limited financing options', type: 'specialised' },
-      'SP3': { desc: 'Tourist — Hotels/resorts, specialised lending', type: 'specialised' },
-      'E1': { desc: 'National Parks — Not financeable', type: 'specialised' },
-      'E2': { desc: 'Environmental Conservation — Very limited options', type: 'specialised' },
-      'E3': { desc: 'Environmental Management — Restricted use, limited lending', type: 'specialised' },
-      'E4': { desc: 'Environmental Living — Rural residential with restrictions', type: 'rural' },
-      'MU1': { desc: 'Mixed Use — Retail/residential, blended approach', type: 'commercial' },
-      'RE1': { desc: 'Public Recreation — Not typically financeable', type: 'specialised' },
-      'RE2': { desc: 'Private Recreation — Golf courses etc, specialised', type: 'specialised' },
-      'W1': { desc: 'Natural Waterways — Not financeable', type: 'specialised' },
-      'W2': { desc: 'Recreational Waterways — Marinas etc, specialised', type: 'specialised' }
-    };
-    
-    function updateZoningInfo() {
-      const zoning = document.getElementById('zoning').value;
-      const info = zoningInfo[zoning];
-      const infoBox = document.getElementById('zoningInfo');
-      
-      if (info) {
-        infoBox.innerHTML = `💡 <strong>${zoning}:</strong> ${info.desc}`;
-        
-        // Suggest property category based on zoning
-        const suggestMap = {
-          'residential': 'residential',
-          'commercial': 'commercial',
-          'industrial': 'industrial',
-          'rural': 'rural',
-          'specialised': 'specialised',
-          'development': 'development'
-        };
-        
-        // Auto-highlight suggested category (visual hint only)
-        document.querySelectorAll('.type-btn').forEach(btn => {
-          btn.style.opacity = '1';
-        });
-      }
-    }
-
-    // === Theme Toggle ===
-    function toggleTheme() {
-      const isLight = document.documentElement.classList.toggle('light');
-      localStorage.setItem('oney_theme', isLight ? 'light' : 'dark');
-      document.querySelector('.theme-toggle').textContent = isLight ? '☀️' : '🌙';
-    }
-    (function initTheme() {
-      if (localStorage.getItem('oney_theme') === 'light') {
-        document.documentElement.classList.add('light');
-        const btn = document.querySelector('.theme-toggle');
-        if (btn) btn.textContent = '☀️';
-      }
-    })();
-
-    // === Auto-Save ===
-    const SAVE_KEY = 'oney_save_security_test';
-    let saveTimeout = null;
-
-    function showAutoSaveToast() {
-      const t = document.getElementById('autosaveToast');
-      if (!t) return;
-      t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 2000);
-    }
-
-    function autoSave() {
-      clearTimeout(saveTimeout);
-      saveTimeout = setTimeout(() => {
-        const data = {};
-        document.querySelectorAll('#step1 input, #step1 select').forEach(el => {
-          if (el.id) data[el.id] = el.value;
-        });
-        data._selectedCategory = selectedCategory;
-        data._selectedSubtype = selectedSubtype;
-        localStorage.setItem(SAVE_KEY, JSON.stringify(data));
-        showAutoSaveToast();
-      }, 500);
-    }
-
-    function restoreSaved() {
-      const saved = localStorage.getItem(SAVE_KEY);
-      if (!saved) return;
-      try {
-        const data = JSON.parse(saved);
-        Object.keys(data).forEach(key => {
-          if (key.startsWith('_')) return;
-          const el = document.getElementById(key);
-          if (el) el.value = data[key];
-        });
-        // Restore category selection
-        if (data._selectedCategory) {
-          selectedCategory = data._selectedCategory;
-          document.querySelectorAll('.type-btn').forEach(btn => {
-            const onclick = btn.getAttribute('onclick') || '';
-            if (onclick.includes("'" + data._selectedCategory + "'")) {
-              btn.classList.add('active');
-              // Show subtypes
-              const subtypesDiv = document.getElementById('subtypes');
-              const grid = document.getElementById('subtypeGrid');
-              const types = propertyTypes[data._selectedCategory].subtypes;
-              grid.innerHTML = types.map(t => `
-                <div class="subtype-btn" onclick="selectSubtype('${t.id}')">${t.name}</div>
-              `).join('');
-              subtypesDiv.style.display = 'block';
-              document.getElementById('securityCard').style.display = 'block';
-            }
-          });
-        }
-        // Restore subtype selection
-        if (data._selectedSubtype) {
-          selectedSubtype = data._selectedSubtype;
-          document.querySelectorAll('.subtype-btn').forEach(btn => {
-            const onclick = btn.getAttribute('onclick') || '';
-            if (onclick.includes("'" + data._selectedSubtype + "'")) {
-              btn.classList.add('active');
-            }
-          });
-        }
-        // Restore zoning info
-        if (data.zoning) updateZoningInfo();
-      } catch(e) { console.error('Restore error:', e); }
-    }
-
-    function clearSavedData() {
-      localStorage.removeItem(SAVE_KEY);
-      reset();
-    }
-
-    // Bind auto-save listeners using event delegation
-    document.addEventListener('input', (e) => {
-      if (e.target.matches('input, select')) autoSave();
-    });
-    document.addEventListener('change', (e) => {
-      if (e.target.matches('input, select')) autoSave();
-    });
-    // Also save on category/subtype clicks
-    document.addEventListener('click', (e) => {
-      if (e.target.closest('.type-btn') || e.target.closest('.subtype-btn')) {
-        setTimeout(autoSave, 100);
-      }
-    });
-
-    // Restore on load
-    restoreSaved();
-  </script>
+  </div>
 
   <!-- Auto-save Toast -->
   <div class="autosave-toast" id="autosaveToast">Auto-saved ✓</div>
@@ -1248,16 +699,644 @@ Address autocomplete powered by Google Places API
     <div class="related-inner">
       <h3>Related Tools</h3>
       <div class="related-grid">
-      <a href="commercial-investment-calculator.html" class="related-card">
-        <div class="related-name">Commercial Investment Calculator</div>
-        <div class="related-desc">Analyse commercial property investment returns and cash flow</div>
-      </a>
-      <a href="rate-tracker.html" class="related-card">
-        <div class="related-name">Rate Tracker</div>
-        <div class="related-desc">Track and compare current lending rates</div>
-      </a>
+        <a href="commercial-investment-calculator.html" class="related-card">
+          <div class="related-name">Commercial Investment Calculator</div>
+          <div class="related-desc">Analyse commercial property investment returns and cash flow</div>
+        </a>
+        <a href="rate-tracker.html" class="related-card">
+          <div class="related-name">Rate Tracker</div>
+          <div class="related-desc">Track and compare current lending rates</div>
+        </a>
+        <a href="fhc.html" class="related-card">
+          <div class="related-name">Financial Health Check</div>
+          <div class="related-desc">Free comprehensive financial health assessment</div>
+        </a>
       </div>
     </div>
   </section>
+
+  <script>
+    // ===== Property Types =====
+    const propertyTypes = {
+      residential: {
+        name: 'Residential', icon: '🏠',
+        subtypes: [
+          { id: 'house', name: 'House', lvr: 80, lvrLMI: 95, alert: 70, warning: null },
+          { id: 'unit', name: 'Unit / Apartment', lvr: 80, lvrLMI: 90, alert: 70, warning: null },
+          { id: 'townhouse', name: 'Townhouse', lvr: 80, lvrLMI: 95, alert: 70, warning: null },
+          { id: 'rural-res', name: 'Rural Residential', lvr: 70, lvrLMI: 80, alert: 60, warning: 'Rural properties may require specialist valuation' },
+          { id: 'high-density', name: 'High Density (>50sqm)', lvr: 80, lvrLMI: 90, alert: 70, warning: null },
+          { id: 'small-unit', name: 'Small Unit (<50sqm)', lvr: 70, lvrLMI: 80, alert: 60, warning: 'Small units may have limited lender appetite. Some lenders decline <40sqm.' },
+          { id: 'studio', name: 'Studio (<40sqm)', lvr: 60, lvrLMI: 0, alert: 50, warning: 'Very limited lender appetite. Most major banks decline. Non-bank lenders may consider.' }
+        ]
+      },
+      commercial: {
+        name: 'Commercial', icon: '🏢',
+        subtypes: [
+          { id: 'retail', name: 'Retail Shop', lvr: 70, lvrLMI: 0, alert: 65, warning: null },
+          { id: 'office', name: 'Office', lvr: 70, lvrLMI: 0, alert: 65, warning: null },
+          { id: 'mixed-use', name: 'Mixed Use', lvr: 70, lvrLMI: 0, alert: 65, warning: 'Requires assessment of both residential and commercial components' },
+          { id: 'strata-office', name: 'Strata Office', lvr: 65, lvrLMI: 0, alert: 60, warning: null },
+          { id: 'medical', name: 'Medical / Dental', lvr: 70, lvrLMI: 0, alert: 65, warning: 'Tenant covenant and lease terms critical' }
+        ]
+      },
+      specialised: {
+        name: 'Specialised', icon: '🏨',
+        subtypes: [
+          { id: 'hotel', name: 'Hotel / Motel', lvr: 60, lvrLMI: 0, alert: 50, warning: 'Specialised — limited lender appetite, going concern valuation required' },
+          { id: 'childcare', name: 'Childcare Centre', lvr: 60, lvrLMI: 0, alert: 50, warning: 'Specialised — operator covenant critical' },
+          { id: 'aged-care', name: 'Aged Care / Nursing', lvr: 55, lvrLMI: 0, alert: 45, warning: 'Highly specialised — very limited lenders, extensive due diligence' },
+          { id: 'service-station', name: 'Service Station', lvr: 60, lvrLMI: 0, alert: 50, warning: 'Environmental assessment required, specialised valuation' },
+          { id: 'pub', name: 'Pub / Licensed Venue', lvr: 60, lvrLMI: 0, alert: 50, warning: 'Going concern valuation, gaming license considerations' },
+          { id: 'carwash', name: 'Car Wash', lvr: 55, lvrLMI: 0, alert: 45, warning: 'Specialised use — very limited lenders' }
+        ]
+      },
+      industrial: {
+        name: 'Industrial', icon: '🏭',
+        subtypes: [
+          { id: 'warehouse', name: 'Warehouse', lvr: 65, lvrLMI: 0, alert: 60, warning: null },
+          { id: 'factory', name: 'Factory / Manufacturing', lvr: 65, lvrLMI: 0, alert: 55, warning: 'May require environmental assessment' },
+          { id: 'logistics', name: 'Logistics / Distribution', lvr: 65, lvrLMI: 0, alert: 60, warning: null },
+          { id: 'heavy-industrial', name: 'Heavy Industrial', lvr: 60, lvrLMI: 0, alert: 50, warning: 'Limited alternative use, environmental considerations' },
+          { id: 'self-storage', name: 'Self Storage', lvr: 60, lvrLMI: 0, alert: 50, warning: 'Operator-dependent business' }
+        ]
+      },
+      rural: {
+        name: 'Rural', icon: '🌾',
+        subtypes: [
+          { id: 'farm', name: 'Working Farm', lvr: 60, lvrLMI: 0, alert: 50, warning: 'Rural specialist lender may be required, water rights critical' },
+          { id: 'hobby-farm', name: 'Hobby Farm (<100 acres)', lvr: 70, lvrLMI: 0, alert: 60, warning: 'May be assessed as rural residential' },
+          { id: 'vineyard', name: 'Vineyard / Orchard', lvr: 55, lvrLMI: 0, alert: 45, warning: 'Highly specialised — going concern valuation' },
+          { id: 'grazing', name: 'Grazing / Pastoral', lvr: 55, lvrLMI: 0, alert: 45, warning: 'Carrying capacity and water rights critical' }
+        ]
+      },
+      development: {
+        name: 'Development', icon: '🏗️',
+        subtypes: [
+          { id: 'dev-site', name: 'DA Approved Site', lvr: 65, lvrLMI: 0, alert: 55, warning: 'Development finance — presales and builder covenant required' },
+          { id: 'raw-land', name: 'Raw Land (No DA)', lvr: 50, lvrLMI: 0, alert: 40, warning: 'Vacant land — very limited lenders, council zoning critical' },
+          { id: 'reno', name: 'Renovation Project', lvr: 70, lvrLMI: 0, alert: 60, warning: 'Renovation scope and budget to be assessed' },
+          { id: 'subdivision', name: 'Subdivision', lvr: 60, lvrLMI: 0, alert: 50, warning: 'Requires council approval and presale conditions' }
+        ]
+      }
+    };
+
+    let selectedCategory = null;
+    let selectedSubtype = null;
+
+    // ===== Helpers =====
+    function formatNumber(input) {
+      let v = input.value.replace(/,/g, '').replace(/[^0-9]/g, '');
+      if (v) input.value = parseInt(v).toLocaleString();
+    }
+    function parseNum(s) { return parseFloat((s || '').replace(/,/g, '')) || 0; }
+
+    // ===== Category / Subtype Selection =====
+    function selectCategory(cat) {
+      selectedCategory = cat; selectedSubtype = null;
+      document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      const div = document.getElementById('subtypes');
+      const grid = document.getElementById('subtypeGrid');
+      grid.innerHTML = propertyTypes[cat].subtypes.map(t =>
+        `<div class="subtype-btn" onclick="selectSubtype('${t.id}')">${t.name}</div>`
+      ).join('');
+      div.style.display = 'block';
+      document.getElementById('securityCard').style.display = 'block';
+    }
+
+    function selectSubtype(id) {
+      selectedSubtype = id;
+      document.querySelectorAll('.subtype-btn').forEach(b => b.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+    }
+
+    // ===== LMI Estimate =====
+    function estimateLMI(propertyValue, lvr) {
+      // Approximate LMI premium rates (% of loan amount)
+      if (lvr <= 80) return 0;
+      if (lvr <= 85) return propertyValue <= 500000 ? 0.65 : propertyValue <= 1000000 ? 0.80 : 1.05;
+      if (lvr <= 90) return propertyValue <= 500000 ? 1.25 : propertyValue <= 1000000 ? 1.65 : 2.10;
+      if (lvr <= 95) return propertyValue <= 500000 ? 2.30 : propertyValue <= 1000000 ? 3.10 : 3.70;
+      return 4.5; // >95% (rare)
+    }
+
+    // ===== Stamp Duty Estimate =====
+    function estimateStampDuty(value, state, isInvestment, isFHB) {
+      // Simplified stamp duty calculations by state (residential only)
+      let duty = 0;
+      switch(state) {
+        case 'NSW':
+          if (isFHB && value <= 800000) {
+            if (value <= 650000) return 0; // Full exemption
+            duty = calcNSWDuty(value);
+            // Partial concession between 650k-800k
+            const discount = 1 - ((value - 650000) / 150000);
+            return Math.round(duty * (1 - discount));
+          }
+          duty = calcNSWDuty(value);
+          break;
+        case 'VIC':
+          if (isFHB && value <= 750000) {
+            if (value <= 600000) return 0;
+            duty = calcVICDuty(value);
+            const disc = 1 - ((value - 600000) / 150000);
+            return Math.round(duty * (1 - disc));
+          }
+          duty = calcVICDuty(value);
+          break;
+        case 'QLD':
+          if (isFHB && value <= 700000) {
+            if (value <= 500000) return 0;
+            duty = calcQLDDuty(value);
+            const d = 1 - ((value - 500000) / 200000);
+            return Math.round(duty * (1 - d));
+          }
+          duty = calcQLDDuty(value);
+          break;
+        default:
+          // Generic estimate for other states
+          if (value <= 100000) duty = value * 0.014;
+          else if (value <= 300000) duty = 1400 + (value - 100000) * 0.024;
+          else if (value <= 500000) duty = 6200 + (value - 300000) * 0.035;
+          else if (value <= 1000000) duty = 13200 + (value - 500000) * 0.045;
+          else duty = 35700 + (value - 1000000) * 0.055;
+      }
+      return Math.round(duty);
+    }
+
+    function calcNSWDuty(v) {
+      if (v <= 17000) return v * 0.0125;
+      if (v <= 36000) return 212 + (v - 17000) * 0.015;
+      if (v <= 97000) return 497 + (v - 36000) * 0.0175;
+      if (v <= 364000) return 1565 + (v - 97000) * 0.035;
+      if (v <= 1214000) return 10912 + (v - 364000) * 0.045;
+      if (v <= 3636000) return 49162 + (v - 1214000) * 0.055;
+      return 182362 + (v - 3636000) * 0.07;
+    }
+
+    function calcVICDuty(v) {
+      if (v <= 25000) return v * 0.014;
+      if (v <= 130000) return 350 + (v - 25000) * 0.024;
+      if (v <= 960000) return 2870 + (v - 130000) * 0.06;
+      if (v <= 2000000) return v * 0.055;
+      return v * 0.065;
+    }
+
+    function calcQLDDuty(v) {
+      if (v <= 5000) return 0;
+      if (v <= 75000) return (v - 5000) * 0.015;
+      if (v <= 540000) return 1050 + (v - 75000) * 0.035;
+      if (v <= 1000000) return 17325 + (v - 540000) * 0.045;
+      return 38025 + (v - 1000000) * 0.0575;
+    }
+
+    // ===== Lender Appetite =====
+    function getLenderAppetite(category, subtype, lvr) {
+      const lenders = [];
+      if (category === 'residential') {
+        lenders.push({ name: 'Major Banks', maxLvr: subtype.lvrLMI || 95, note: 'CBA, Westpac, NAB, ANZ' });
+        lenders.push({ name: 'Non-Major Banks', maxLvr: subtype.lvrLMI || 90, note: 'Macquarie, ING, Bankwest' });
+        lenders.push({ name: 'Non-Bank Lenders', maxLvr: Math.min((subtype.lvrLMI || 80) + 5, 95), note: 'Pepper, Liberty, La Trobe' });
+      } else {
+        lenders.push({ name: 'Major Banks', maxLvr: subtype.lvr, note: 'Conservative appetite' });
+        lenders.push({ name: 'Non-Major Banks', maxLvr: Math.max(subtype.lvr - 5, 50), note: 'Selective' });
+        lenders.push({ name: 'Non-Bank / Private', maxLvr: subtype.lvr + 10, note: 'Higher rates, flexible' });
+      }
+      return lenders;
+    }
+
+    // ===== Main Calculate =====
+    function calculate() {
+      if (!selectedCategory || !selectedSubtype) {
+        alert('Please select property category and type');
+        return;
+      }
+
+      const address = document.getElementById('address').value || 'Not specified';
+      const state = document.getElementById('state').value;
+      const zoning = document.getElementById('zoning').value;
+      const propertyValue = parseNum(document.getElementById('propertyValue').value);
+      const loanAmount = parseNum(document.getElementById('loanAmount').value);
+      const purpose = document.getElementById('loanPurpose').value;
+      const showLMI = document.getElementById('lmiToggle').checked;
+      const showStamp = document.getElementById('stampToggle').checked;
+      const isFHB = document.getElementById('fhbToggle').checked;
+
+      const category = propertyTypes[selectedCategory];
+      const subtype = category.subtypes.find(s => s.id === selectedSubtype);
+      const lvr = propertyValue > 0 ? (loanAmount / propertyValue) * 100 : 0;
+      const maxLoan = propertyValue * (subtype.lvr / 100);
+
+      // Status
+      let status, meterClass;
+      if (lvr <= subtype.alert) { status = 'pass'; meterClass = 'green'; }
+      else if (lvr <= subtype.lvr) { status = 'alert'; meterClass = 'yellow'; }
+      else { status = 'fail'; meterClass = 'red'; }
+
+      // Update LVR display
+      document.getElementById('lvrValue').textContent = lvr.toFixed(1) + '%';
+      document.getElementById('lvrCap').textContent = `Cap: ${subtype.lvr}%${subtype.lvrLMI ? ' | With LMI: ' + subtype.lvrLMI + '%' : ''}`;
+      const meter = document.getElementById('lvrMeter');
+      meter.style.width = Math.min(lvr, 100) + '%';
+      meter.className = 'lvr-meter-fill ' + meterClass;
+      document.getElementById('alertMark').textContent = `Alert: ${subtype.alert}%`;
+      document.getElementById('capMark').textContent = `Cap: ${subtype.lvr}%`;
+
+      // Property details
+      document.getElementById('propertyDetails').innerHTML = `
+        <li>🏠 Category: ${category.name}</li>
+        <li>📍 Type: ${subtype.name}</li>
+        <li>📍 Address: ${address} (${state})</li>
+        <li>🗺️ Zoning: ${zoning === 'unknown' ? 'Not specified' : zoning}</li>
+        <li>💰 Value: $${propertyValue.toLocaleString()}</li>
+        <li>🏦 Loan: $${loanAmount.toLocaleString()}</li>
+        <li>🎯 Purpose: ${purpose.replace('-', ' ').replace(/\b\w/g, c => c.toUpperCase())}</li>
+      `;
+
+      // Policy details
+      const canLMI = subtype.lvrLMI > 0 && lvr > subtype.lvr && lvr <= subtype.lvrLMI;
+      document.getElementById('policyDetails').innerHTML = `
+        <li>${status === 'fail' && !canLMI ? '❌' : '✅'} Maximum LVR: ${subtype.lvr}%</li>
+        ${subtype.lvrLMI ? `<li>🛡️ Max LVR with LMI: ${subtype.lvrLMI}%</li>` : ''}
+        <li>⚠️ Alert Threshold: ${subtype.alert}%</li>
+        <li>💵 Max Loan at Cap: $${Math.round(maxLoan).toLocaleString()}</li>
+        <li>${status === 'pass' ? '✅' : status === 'alert' ? '⚠️' : canLMI ? '🛡️' : '❌'} Your LVR: ${lvr.toFixed(1)}%</li>
+      `;
+
+      // Warning
+      const wb = document.getElementById('warningBox');
+      if (subtype.warning) {
+        wb.style.display = 'block';
+        document.getElementById('warningText').textContent = subtype.warning;
+      } else { wb.style.display = 'none'; }
+
+      // LMI
+      const lmiCard = document.getElementById('lmiCard');
+      let lmiAmount = 0;
+      if (showLMI && lvr > 80 && subtype.lvrLMI > 0) {
+        const lmiRate = estimateLMI(propertyValue, lvr);
+        lmiAmount = Math.round(loanAmount * lmiRate / 100);
+        document.getElementById('lmiAmount').textContent = '$' + lmiAmount.toLocaleString();
+        document.getElementById('lmiNote').textContent = `Rate: ~${lmiRate}% of loan | Can be capitalised or paid upfront`;
+        lmiCard.style.display = 'block';
+      } else {
+        lmiCard.style.display = 'none';
+      }
+
+      // Stamp Duty
+      const stampCard = document.getElementById('stampCard');
+      if (showStamp && propertyValue > 0 && selectedCategory === 'residential') {
+        const isInv = purpose === 'investment';
+        const stamp = estimateStampDuty(propertyValue, state, isInv, isFHB);
+        document.getElementById('stampAmount').textContent = '$' + stamp.toLocaleString();
+        document.getElementById('stampTitle').textContent = `Transfer Duty — ${state}`;
+        let note = isFHB ? 'First Home Buyer concession applied' : 'Standard rate';
+        if (purpose === 'refinance') note = 'Stamp duty generally not applicable on refinance';
+        document.getElementById('stampNote').textContent = note;
+        stampCard.style.display = purpose === 'refinance' ? 'none' : 'block';
+      } else {
+        stampCard.style.display = 'none';
+      }
+
+      // Lender appetite
+      const lenders = getLenderAppetite(selectedCategory, subtype, lvr);
+      document.getElementById('lenderBody').innerHTML = lenders.map(l => {
+        let badgeClass, badgeText;
+        if (lvr <= l.maxLvr - 10) { badgeClass = 'badge-green'; badgeText = 'Likely'; }
+        else if (lvr <= l.maxLvr) { badgeClass = 'badge-yellow'; badgeText = 'Possible'; }
+        else { badgeClass = 'badge-red'; badgeText = 'Unlikely'; }
+        return `<tr>
+          <td><strong>${l.name}</strong><br><span style="font-size:11px;color:var(--text-muted)">${l.note}</span></td>
+          <td>${l.maxLvr}%</td>
+          <td><span class="lender-badge ${badgeClass}">${badgeText}</span></td>
+        </tr>`;
+      }).join('');
+
+      // Recommendations
+      let recs = [];
+      if (status === 'pass') {
+        recs.push('✅ LVR is within acceptable range');
+        recs.push('💡 Standard documentation should suffice');
+        if (lvr < 60) recs.push('🌟 Excellent equity position — strong negotiating power on rates');
+      } else if (status === 'alert') {
+        recs.push('⚠️ LVR above alert threshold — expect additional scrutiny');
+        recs.push('💡 Strong income/serviceability will be required');
+        recs.push('💡 Consider reducing loan or increasing deposit');
+      } else if (canLMI) {
+        recs.push('🛡️ LVR exceeds standard cap but LMI may allow approval');
+        recs.push(`💰 Estimated LMI: $${lmiAmount.toLocaleString()}`);
+        recs.push('💡 Consider depositing more to get below 80% and avoid LMI');
+        const needed = Math.round(loanAmount - (propertyValue * 0.8));
+        if (needed > 0) recs.push(`📊 Need extra $${needed.toLocaleString()} deposit to avoid LMI`);
+      } else {
+        recs.push('❌ LVR exceeds policy cap');
+        recs.push('💡 Reduce loan by $' + Math.round(loanAmount - maxLoan).toLocaleString());
+        recs.push('💡 Or increase deposit/equity');
+        recs.push('💡 Consider non-bank lenders with higher LVR appetite');
+      }
+      if (subtype.warning) recs.push('🔍 Special property type — additional due diligence required');
+
+      document.getElementById('recommendations').innerHTML = recs.map(r => `<p>${r}</p>`).join('');
+
+      // Store for export
+      window.lastResult = {
+        address, state, zoning, category: category.name, subtype: subtype.name,
+        propertyValue, loanAmount, lvr, lvrCap: subtype.lvr, lvrLMI: subtype.lvrLMI,
+        lvrAlert: subtype.alert, maxLoan, status, warning: subtype.warning,
+        purpose, lmiAmount, isFHB, lenders
+      };
+
+      showStep(2);
+    }
+
+    // ===== Navigation =====
+    function showStep(step) {
+      document.getElementById('step1').classList.toggle('hidden', step !== 1);
+      document.getElementById('step2').classList.toggle('hidden', step !== 2);
+      document.querySelectorAll('.nav-btn').forEach((b, i) => b.classList.toggle('active', i === step - 1));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function reset() {
+      selectedCategory = null; selectedSubtype = null;
+      document.querySelectorAll('.type-btn, .subtype-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('subtypes').style.display = 'none';
+      document.getElementById('securityCard').style.display = 'none';
+      document.querySelectorAll('input[type="text"]').forEach(i => i.value = '');
+      showStep(1);
+    }
+
+    // ===== Copy =====
+    function copyResults() {
+      const r = window.lastResult;
+      if (!r) return;
+      const text = `ONEY SECURE — LVR ASSESSMENT
+================================
+Address: ${r.address} (${r.state})
+Zoning: ${r.zoning === 'unknown' ? 'Not specified' : r.zoning}
+Category: ${r.category}
+Type: ${r.subtype}
+Purpose: ${r.purpose}
+
+Property Value: $${r.propertyValue.toLocaleString()}
+Proposed Loan: $${r.loanAmount.toLocaleString()}
+
+LVR: ${r.lvr.toFixed(1)}%
+LVR Cap: ${r.lvrCap}%${r.lvrLMI ? ' | With LMI: ' + r.lvrLMI + '%' : ''}
+Alert: ${r.lvrAlert}%
+Max Loan at Cap: $${Math.round(r.maxLoan).toLocaleString()}
+
+Status: ${r.status.toUpperCase()}
+${r.lmiAmount ? 'Estimated LMI: $' + r.lmiAmount.toLocaleString() : ''}
+${r.warning ? '\nWarning: ' + r.warning : ''}
+================================
+Generated by Oney Secure v2.0
+oneyco.com.au`;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = event.currentTarget;
+        btn.textContent = '✅ Copied!';
+        setTimeout(() => btn.textContent = '📋 Copy Results', 2000);
+      });
+    }
+
+    // ===== PDF Export =====
+    function exportPDF() {
+      const r = window.lastResult;
+      if (!r) { alert('Please calculate first'); return; }
+      const today = new Date().toLocaleDateString('en-AU');
+      const pw = window.open('', '_blank');
+      pw.document.write(`<!DOCTYPE html><html><head><title>Oney Secure — ${r.subtype}</title>
+<style>
+body{font-family:Arial,sans-serif;padding:40px;color:#333;max-width:800px;margin:0 auto}
+h1{color:#2ECC85;border-bottom:3px solid #2ECC85;padding-bottom:10px}
+h2{color:#1FAD73;margin-top:30px}
+.header{display:flex;justify-content:space-between;margin-bottom:30px}
+.logo{font-size:24px;font-weight:bold;color:#2ECC85}
+table{width:100%;border-collapse:collapse;margin:20px 0}
+th,td{padding:12px;text-align:left;border-bottom:1px solid #ddd}
+th{background:#f8f9fa}
+.pass{color:#2ECC85;font-weight:bold}.alert{color:#f59e0b;font-weight:bold}.fail{color:#e74c3c;font-weight:bold}
+.lvr-box{background:#2ECC85;color:white;padding:30px;border-radius:12px;text-align:center;margin:30px 0}
+.lvr-box .value{font-size:48px;font-weight:bold}
+.warning{background:#fff3cd;border:1px solid #ffc107;padding:15px;border-radius:8px;margin:20px 0}
+.lmi-box{background:#f3e8ff;border:1px solid #9b59b6;padding:15px;border-radius:8px;margin:20px 0}
+.footer{margin-top:50px;padding-top:20px;border-top:1px solid #ddd;color:#666;font-size:12px;text-align:center}
+</style></head><body>
+<div class="header"><div class="logo">Oney & Co</div><div>${today}</div></div>
+<h1>Oney Secure — LVR Assessment</h1>
+<h2>Property Details</h2>
+<table>
+<tr><th>Address</th><td>${r.address} (${r.state})</td></tr>
+<tr><th>Zoning</th><td>${r.zoning === 'unknown' ? 'Not specified' : r.zoning}</td></tr>
+<tr><th>Category</th><td>${r.category}</td></tr>
+<tr><th>Type</th><td>${r.subtype}</td></tr>
+<tr><th>Purpose</th><td>${r.purpose}</td></tr>
+<tr><th>Estimated Value</th><td>$${r.propertyValue.toLocaleString()}</td></tr>
+<tr><th>Proposed Loan</th><td>$${r.loanAmount.toLocaleString()}</td></tr>
+</table>
+<div class="lvr-box"><div>Loan to Value Ratio</div><div class="value">${r.lvr.toFixed(1)}%</div>
+<div>Cap: ${r.lvrCap}%${r.lvrLMI ? ' | With LMI: ' + r.lvrLMI + '%' : ''} | Alert: ${r.lvrAlert}%</div></div>
+<h2>Policy Assessment</h2>
+<table>
+<tr><th>Maximum LVR</th><td>${r.lvrCap}%</td></tr>
+${r.lvrLMI ? `<tr><th>Max LVR with LMI</th><td>${r.lvrLMI}%</td></tr>` : ''}
+<tr><th>Alert Threshold</th><td>${r.lvrAlert}%</td></tr>
+<tr><th>Max Loan at Cap</th><td>$${Math.round(r.maxLoan).toLocaleString()}</td></tr>
+<tr><th>Status</th><td class="${r.status}">${r.status.toUpperCase()}</td></tr>
+</table>
+${r.lmiAmount ? `<div class="lmi-box"><strong>🛡️ Estimated LMI:</strong> $${r.lmiAmount.toLocaleString()}</div>` : ''}
+${r.warning ? `<div class="warning"><strong>⚠️ Special Considerations:</strong><br>${r.warning}</div>` : ''}
+<h2>Lender Appetite</h2>
+<table><tr><th>Lender Type</th><th>Max LVR</th><th>Notes</th></tr>
+${r.lenders.map(l => `<tr><td>${l.name}</td><td>${l.maxLvr}%</td><td>${l.note}</td></tr>`).join('')}
+</table>
+<div class="footer"><p>Generated by Oney Secure v2.0 — oneyco.com.au</p>
+<p>This assessment is for reference only. Final decisions subject to full credit assessment.</p></div>
+</body></html>`);
+      pw.document.close();
+      setTimeout(() => pw.print(), 500);
+    }
+
+    // ===== Info Modal =====
+    function showInfo() {
+      document.getElementById('infoModal').classList.add('show');
+    }
+    function closeInfo() {
+      document.getElementById('infoModal').classList.remove('show');
+    }
+    document.getElementById('infoModal').addEventListener('click', function(e) {
+      if (e.target === this) closeInfo();
+    });
+
+    // ===== Theme =====
+    function toggleTheme() {
+      const isLight = document.documentElement.classList.toggle('light');
+      localStorage.setItem('oney_theme', isLight ? 'light' : 'dark');
+      document.querySelector('.theme-toggle').textContent = isLight ? '☀️' : '🌙';
+    }
+    (function initTheme() {
+      if (localStorage.getItem('oney_theme') === 'light') {
+        document.documentElement.classList.add('light');
+        const b = document.querySelector('.theme-toggle');
+        if (b) b.textContent = '☀️';
+      }
+    })();
+
+    // ===== Zoning Info =====
+    const zoningInfo = {
+      'unknown': { desc: 'Not sure? Check your local council website or ask your broker.' },
+      'R1': { desc: 'General Residential — Standard residential use, excellent lender appetite' },
+      'R2': { desc: 'Low Density — Single dwellings, standard lending' },
+      'R3': { desc: 'Medium Density — Townhouses/villas, standard lending' },
+      'R4': { desc: 'High Density — Apartments, check unit size policies' },
+      'R5': { desc: 'Large Lot — Rural-residential, may need specialist lender' },
+      'B1': { desc: 'Neighbourhood Centre — Small retail, commercial LVR applies' },
+      'B2': { desc: 'Local Centre — Retail/commercial mix, 70% LVR typical' },
+      'B3': { desc: 'Commercial Core — CBD commercial, prime office/retail' },
+      'B4': { desc: 'Mixed Use — Residential over commercial, blended approach' },
+      'B5': { desc: 'Business Development — Light industrial/commercial, 65-70% LVR' },
+      'B6': { desc: 'Enterprise Corridor — Highway commercial, varied appetite' },
+      'B7': { desc: 'Business Park — Office/warehouse parks, commercial lending' },
+      'IN1': { desc: 'General Industrial — Standard industrial, 65% LVR typical' },
+      'IN2': { desc: 'Light Industrial — Warehousing, better lender appetite' },
+      'IN3': { desc: 'Heavy Industrial — Limited lenders, environmental concerns' },
+      'IN4': { desc: 'Working Waterfront — Specialised, very limited lenders' },
+      'RU1': { desc: 'Primary Production — Working farms, rural specialist lenders' },
+      'RU2': { desc: 'Rural Landscape — Hobby farms, may be residential lending' },
+      'RU3': { desc: 'Forestry — Very specialised, limited finance options' },
+      'RU4': { desc: 'Small Lots — Small acreage, varied lending' },
+      'RU5': { desc: 'Village — Rural township, may be standard residential' },
+      'RU6': { desc: 'Transition — Urban fringe, development potential' },
+      'SP1': { desc: 'Special Activities — Case-by-case assessment required' },
+      'SP2': { desc: 'Infrastructure — Very limited financing options' },
+      'SP3': { desc: 'Tourist — Hotels/resorts, specialised lending' },
+      'E1': { desc: 'National Parks — Not financeable' },
+      'E2': { desc: 'Conservation — Very limited options' },
+      'E3': { desc: 'Management — Restricted use, limited lending' },
+      'E4': { desc: 'Environmental Living — Rural residential with restrictions' },
+      'MU1': { desc: 'Mixed Use — Retail/residential, blended approach' },
+      'RE1': { desc: 'Public Recreation — Not typically financeable' },
+      'RE2': { desc: 'Private Recreation — Golf courses etc, specialised' },
+      'W1': { desc: 'Natural Waterways — Not financeable' },
+      'W2': { desc: 'Recreational Waterways — Marinas etc, specialised' }
+    };
+
+    function updateZoningInfo() {
+      const z = document.getElementById('zoning').value;
+      const info = zoningInfo[z];
+      document.getElementById('zoningInfo').innerHTML = info
+        ? `💡 <strong>${z === 'unknown' ? 'Tip' : z}:</strong> ${info.desc}`
+        : '';
+    }
+
+    // ===== Google Places =====
+    let autocomplete = null, addressVerified = false;
+    function initGoogleAutocomplete() {
+      const input = document.getElementById('address');
+      if (!input) { setTimeout(initGoogleAutocomplete, 500); return; }
+      document.getElementById('addressHelper').textContent = 'Start typing to search Australian streets';
+      try {
+        autocomplete = new google.maps.places.Autocomplete(input, {
+          types: ['address'], componentRestrictions: { country: 'au' },
+          fields: ['address_components', 'formatted_address']
+        });
+        autocomplete.addListener('place_changed', function() {
+          const place = autocomplete.getPlace();
+          if (!place.address_components) { addressVerified = false; return; }
+          document.getElementById('addressStatus').className = 'address-status verified';
+          document.getElementById('addressStatus').textContent = '✓ Verified';
+          addressVerified = true;
+          for (const c of place.address_components) {
+            if (c.types.includes('administrative_area_level_1')) {
+              const sel = document.getElementById('state');
+              if (sel.querySelector(`option[value="${c.short_name}"]`)) sel.value = c.short_name;
+              break;
+            }
+          }
+        });
+        input.addEventListener('input', () => {
+          if (addressVerified) {
+            document.getElementById('addressStatus').className = 'address-status manual';
+            document.getElementById('addressStatus').textContent = 'Manual Entry';
+            addressVerified = false;
+          }
+        });
+      } catch(e) {
+        document.getElementById('addressHelper').textContent = 'Enter street name manually';
+      }
+    }
+
+    // ===== Auto-Save =====
+    const SAVE_KEY = 'oney_save_security_v2';
+    let saveTimeout = null;
+    function showAutoSaveToast() {
+      const t = document.getElementById('autosaveToast');
+      if (!t) return;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 2000);
+    }
+    function autoSave() {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        const data = {};
+        document.querySelectorAll('#step1 input, #step1 select').forEach(el => {
+          if (el.id && el.type !== 'checkbox') data[el.id] = el.value;
+        });
+        document.querySelectorAll('#step1 input[type="checkbox"]').forEach(el => {
+          if (el.id) data[el.id] = el.checked;
+        });
+        data._cat = selectedCategory;
+        data._sub = selectedSubtype;
+        localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+        showAutoSaveToast();
+      }, 500);
+    }
+    function restoreSaved() {
+      const saved = localStorage.getItem(SAVE_KEY);
+      if (!saved) return;
+      try {
+        const d = JSON.parse(saved);
+        Object.keys(d).forEach(k => {
+          if (k.startsWith('_')) return;
+          const el = document.getElementById(k);
+          if (!el) return;
+          if (el.type === 'checkbox') el.checked = d[k];
+          else el.value = d[k];
+        });
+        if (d._cat) {
+          selectedCategory = d._cat;
+          document.querySelectorAll('.type-btn').forEach(btn => {
+            if ((btn.getAttribute('onclick') || '').includes("'" + d._cat + "'")) {
+              btn.classList.add('active');
+              const grid = document.getElementById('subtypeGrid');
+              grid.innerHTML = propertyTypes[d._cat].subtypes.map(t =>
+                `<div class="subtype-btn" onclick="selectSubtype('${t.id}')">${t.name}</div>`
+              ).join('');
+              document.getElementById('subtypes').style.display = 'block';
+              document.getElementById('securityCard').style.display = 'block';
+            }
+          });
+        }
+        if (d._sub) {
+          selectedSubtype = d._sub;
+          setTimeout(() => {
+            document.querySelectorAll('.subtype-btn').forEach(btn => {
+              if ((btn.getAttribute('onclick') || '').includes("'" + d._sub + "'")) btn.classList.add('active');
+            });
+          }, 50);
+        }
+        if (d.zoning) updateZoningInfo();
+      } catch(e) {}
+    }
+    function clearSavedData() { localStorage.removeItem(SAVE_KEY); reset(); }
+
+    document.addEventListener('input', e => { if (e.target.matches('input, select')) autoSave(); });
+    document.addEventListener('change', e => { if (e.target.matches('input, select')) autoSave(); });
+    document.addEventListener('click', e => {
+      if (e.target.closest('.type-btn') || e.target.closest('.subtype-btn')) setTimeout(autoSave, 100);
+    });
+    restoreSaved();
+  </script>
 </body>
 </html>
