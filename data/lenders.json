@@ -1,0 +1,58 @@
+{
+  "version": "2.0.0",
+  "lastUpdated": "2026-02-22",
+  "lenders": [
+    {
+      "id": "sl-capital",
+      "name": "SL Capital (SecureLend)",
+      "shortName": "SL Capital",
+      "type": "private",
+      "description": "Private lender — fast settlement, flexible criteria",
+      "minLoan": 250000,
+      "maxLoan": 10000000,
+      "rateFrom": 9.2,
+      "termMonths": { "min": 1, "max": 24 },
+      "features": ["24hr approval", "Own funds", "In-house valuation"],
+      "website": "https://securedlending.com.au/"
+    },
+    {
+      "id": "major-banks",
+      "name": "Major Banks",
+      "shortName": "Major Banks",
+      "type": "bank",
+      "description": "CBA, Westpac, NAB, ANZ — lowest rates, strictest criteria",
+      "minLoan": 100000,
+      "maxLoan": 50000000,
+      "rateFrom": 6.0,
+      "termMonths": { "min": 12, "max": 360 },
+      "features": ["Lowest rates", "Full doc required", "Slower approval"],
+      "website": null
+    },
+    {
+      "id": "non-major-banks",
+      "name": "Non-Major Banks",
+      "shortName": "Non-Major",
+      "type": "bank",
+      "description": "Macquarie, ING, Bankwest, Suncorp — competitive, slightly flexible",
+      "minLoan": 100000,
+      "maxLoan": 30000000,
+      "rateFrom": 6.2,
+      "termMonths": { "min": 12, "max": 360 },
+      "features": ["Competitive rates", "Slightly flexible", "Good turnaround"],
+      "website": null
+    },
+    {
+      "id": "non-bank",
+      "name": "Non-Bank Lenders",
+      "shortName": "Non-Bank",
+      "type": "non-bank",
+      "description": "Pepper, Liberty, La Trobe — flexible criteria, higher rates",
+      "minLoan": 50000,
+      "maxLoan": 15000000,
+      "rateFrom": 7.0,
+      "termMonths": { "min": 6, "max": 360 },
+      "features": ["Flexible criteria", "Alt-doc options", "Higher LVR available"],
+      "website": null
+    }
+  ]
+}

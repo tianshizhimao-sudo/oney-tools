@@ -1,0 +1,73 @@
+{
+  "version": "2.0.0",
+  "lastUpdated": "2026-02-22",
+  "categories": {
+    "residential": {
+      "name": "Residential",
+      "icon": "🏠",
+      "subtypes": [
+        { "id": "house", "name": "House", "riskLevel": "low", "commonZoning": ["R1","R2","R3","R5"], "warning": null },
+        { "id": "unit", "name": "Unit / Apartment", "riskLevel": "low", "commonZoning": ["R3","R4","B4","MU1"], "warning": null },
+        { "id": "townhouse", "name": "Townhouse", "riskLevel": "low", "commonZoning": ["R2","R3","R4"], "warning": null },
+        { "id": "rural-res", "name": "Rural Residential", "riskLevel": "medium", "commonZoning": ["R5","RU2","RU4","E4"], "warning": "Rural properties may require specialist valuation" },
+        { "id": "high-density", "name": "High Density (>50sqm)", "riskLevel": "low", "commonZoning": ["R4","B4","MU1"], "warning": null },
+        { "id": "small-unit", "name": "Small Unit (<50sqm)", "riskLevel": "medium", "commonZoning": ["R4","B4"], "warning": "Small units may have limited lender appetite. Some lenders decline <40sqm." },
+        { "id": "studio", "name": "Studio (<40sqm)", "riskLevel": "high", "commonZoning": ["R4","B4"], "warning": "Very limited lender appetite. Most major banks decline. Non-bank lenders may consider." }
+      ]
+    },
+    "commercial": {
+      "name": "Commercial",
+      "icon": "🏢",
+      "subtypes": [
+        { "id": "retail", "name": "Retail Shop", "riskLevel": "medium", "commonZoning": ["B1","B2","B3","B4"], "warning": null },
+        { "id": "office", "name": "Office", "riskLevel": "medium", "commonZoning": ["B3","B4","B5","B7"], "warning": null },
+        { "id": "mixed-use", "name": "Mixed Use", "riskLevel": "medium", "commonZoning": ["B4","MU1"], "warning": "Requires assessment of both residential and commercial components" },
+        { "id": "strata-office", "name": "Strata Office", "riskLevel": "medium", "commonZoning": ["B3","B4","B7"], "warning": null },
+        { "id": "medical", "name": "Medical / Dental", "riskLevel": "medium", "commonZoning": ["B1","B2","B4"], "warning": "Tenant covenant and lease terms critical" }
+      ]
+    },
+    "specialised": {
+      "name": "Specialised",
+      "icon": "🏨",
+      "subtypes": [
+        { "id": "hotel", "name": "Hotel / Motel", "riskLevel": "high", "commonZoning": ["B2","B3","SP3"], "warning": "Specialised — limited lender appetite, going concern valuation required" },
+        { "id": "childcare", "name": "Childcare Centre", "riskLevel": "high", "commonZoning": ["R1","R2","B1","B2"], "warning": "Specialised — operator covenant critical" },
+        { "id": "aged-care", "name": "Aged Care / Nursing", "riskLevel": "high", "commonZoning": ["R1","SP1"], "warning": "Highly specialised — very limited lenders, extensive due diligence" },
+        { "id": "service-station", "name": "Service Station", "riskLevel": "high", "commonZoning": ["B5","B6","IN2"], "warning": "Environmental assessment required, specialised valuation" },
+        { "id": "pub", "name": "Pub / Licensed Venue", "riskLevel": "high", "commonZoning": ["B1","B2","B3"], "warning": "Going concern valuation, gaming license considerations" },
+        { "id": "carwash", "name": "Car Wash", "riskLevel": "high", "commonZoning": ["B5","B6","IN2"], "warning": "Specialised use — very limited lenders" }
+      ]
+    },
+    "industrial": {
+      "name": "Industrial",
+      "icon": "🏭",
+      "subtypes": [
+        { "id": "warehouse", "name": "Warehouse", "riskLevel": "medium", "commonZoning": ["IN1","IN2"], "warning": null },
+        { "id": "factory", "name": "Factory / Manufacturing", "riskLevel": "medium", "commonZoning": ["IN1","IN3"], "warning": "May require environmental assessment" },
+        { "id": "logistics", "name": "Logistics / Distribution", "riskLevel": "medium", "commonZoning": ["IN1","IN2"], "warning": null },
+        { "id": "heavy-industrial", "name": "Heavy Industrial", "riskLevel": "high", "commonZoning": ["IN3"], "warning": "Limited alternative use, environmental considerations" },
+        { "id": "self-storage", "name": "Self Storage", "riskLevel": "high", "commonZoning": ["IN1","IN2","B5"], "warning": "Operator-dependent business" }
+      ]
+    },
+    "rural": {
+      "name": "Rural",
+      "icon": "🌾",
+      "subtypes": [
+        { "id": "farm", "name": "Working Farm", "riskLevel": "high", "commonZoning": ["RU1","RU2"], "warning": "Rural specialist lender may be required, water rights critical" },
+        { "id": "hobby-farm", "name": "Hobby Farm (<100 acres)", "riskLevel": "medium", "commonZoning": ["RU2","RU4","R5"], "warning": "May be assessed as rural residential" },
+        { "id": "vineyard", "name": "Vineyard / Orchard", "riskLevel": "high", "commonZoning": ["RU1","RU2"], "warning": "Highly specialised — going concern valuation" },
+        { "id": "grazing", "name": "Grazing / Pastoral", "riskLevel": "high", "commonZoning": ["RU1"], "warning": "Carrying capacity and water rights critical" }
+      ]
+    },
+    "development": {
+      "name": "Development",
+      "icon": "🏗️",
+      "subtypes": [
+        { "id": "dev-site", "name": "DA Approved Site", "riskLevel": "high", "commonZoning": ["R3","R4","B4"], "warning": "Development finance — presales and builder covenant required" },
+        { "id": "raw-land", "name": "Raw Land (No DA)", "riskLevel": "high", "commonZoning": ["R1","RU6"], "warning": "Vacant land — very limited lenders, council zoning critical" },
+        { "id": "reno", "name": "Renovation Project", "riskLevel": "medium", "commonZoning": ["R1","R2","R3"], "warning": "Renovation scope and budget to be assessed" },
+        { "id": "subdivision", "name": "Subdivision", "riskLevel": "high", "commonZoning": ["R2","R3","RU4"], "warning": "Requires council approval and presale conditions" }
+      ]
+    }
+  }
+}

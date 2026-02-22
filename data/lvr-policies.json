@@ -1,0 +1,187 @@
+{
+  "version": "2.0.0",
+  "lastUpdated": "2026-02-22",
+  "effectiveDate": "2026-01-01",
+  "policies": {
+    "sl-capital": {
+      "residential": {
+        "house":          { "maxLVR": 75, "alert": 65, "lvrLMI": 0, "notes": "First mortgage only" },
+        "unit":           { "maxLVR": 70, "alert": 60, "lvrLMI": 0, "notes": "Min 50sqm" },
+        "townhouse":      { "maxLVR": 75, "alert": 65, "lvrLMI": 0, "notes": null },
+        "rural-res":      { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": "Metro/regional fringe only" },
+        "high-density":   { "maxLVR": 70, "alert": 60, "lvrLMI": 0, "notes": "Min 50sqm" },
+        "small-unit":     { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": "Case by case" },
+        "studio":         { "maxLVR": 50, "alert": 40, "lvrLMI": 0, "notes": "Refer only" }
+      },
+      "commercial": {
+        "retail":         { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": "Strong tenant covenant preferred" },
+        "office":         { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": null },
+        "mixed-use":      { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": null },
+        "strata-office":  { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": null },
+        "medical":        { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": "Lease term min 3 years" }
+      },
+      "specialised": {
+        "hotel":          { "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": "Going concern valuation" },
+        "childcare":      { "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": "Operator covenant critical" },
+        "aged-care":      { "maxLVR": 50, "alert": 40, "lvrLMI": 0, "notes": "Case by case" },
+        "service-station":{ "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": "Environmental clearance required" },
+        "pub":            { "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": "Gaming license review" },
+        "carwash":        { "maxLVR": 50, "alert": 40, "lvrLMI": 0, "notes": "Limited appetite" }
+      },
+      "industrial": {
+        "warehouse":      { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": null },
+        "factory":        { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": "Environmental assessment may be required" },
+        "logistics":      { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": null },
+        "heavy-industrial":{ "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": "Refer only" },
+        "self-storage":   { "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": null }
+      },
+      "rural": {
+        "farm":           { "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": "Metro fringe preferred" },
+        "hobby-farm":     { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": null },
+        "vineyard":       { "maxLVR": 50, "alert": 40, "lvrLMI": 0, "notes": "Refer only" },
+        "grazing":        { "maxLVR": 50, "alert": 40, "lvrLMI": 0, "notes": "Refer only" }
+      },
+      "development": {
+        "dev-site":       { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": "Presales required" },
+        "raw-land":       { "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": "DA pathway must be clear" },
+        "reno":           { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": "Budget and scope assessment" },
+        "subdivision":    { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": "Council approval required" }
+      }
+    },
+    "major-banks": {
+      "residential": {
+        "house":          { "maxLVR": 80, "alert": 70, "lvrLMI": 95, "notes": "Standard policy" },
+        "unit":           { "maxLVR": 80, "alert": 70, "lvrLMI": 90, "notes": "Min 50sqm most lenders" },
+        "townhouse":      { "maxLVR": 80, "alert": 70, "lvrLMI": 95, "notes": null },
+        "rural-res":      { "maxLVR": 70, "alert": 60, "lvrLMI": 80, "notes": "Some postcodes restricted" },
+        "high-density":   { "maxLVR": 80, "alert": 70, "lvrLMI": 90, "notes": null },
+        "small-unit":     { "maxLVR": 70, "alert": 60, "lvrLMI": 80, "notes": "40-50sqm, limited options" },
+        "studio":         { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": "Most decline <40sqm" }
+      },
+      "commercial": {
+        "retail":         { "maxLVR": 70, "alert": 65, "lvrLMI": 0, "notes": "Strong tenant required" },
+        "office":         { "maxLVR": 70, "alert": 65, "lvrLMI": 0, "notes": null },
+        "mixed-use":      { "maxLVR": 70, "alert": 65, "lvrLMI": 0, "notes": "Dual assessment" },
+        "strata-office":  { "maxLVR": 65, "alert": 60, "lvrLMI": 0, "notes": null },
+        "medical":        { "maxLVR": 70, "alert": 65, "lvrLMI": 0, "notes": null }
+      },
+      "specialised": {
+        "hotel":          { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": "Select lenders only" },
+        "childcare":      { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": "Operator dependent" },
+        "aged-care":      { "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": "Very limited" },
+        "service-station":{ "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": "Environmental sign-off" },
+        "pub":            { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": null },
+        "carwash":        { "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": "Decline most" }
+      },
+      "industrial": {
+        "warehouse":      { "maxLVR": 65, "alert": 60, "lvrLMI": 0, "notes": null },
+        "factory":        { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": null },
+        "logistics":      { "maxLVR": 65, "alert": 60, "lvrLMI": 0, "notes": null },
+        "heavy-industrial":{ "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": "Environmental review" },
+        "self-storage":   { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": null }
+      },
+      "rural": {
+        "farm":           { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": "Rural specialist teams" },
+        "hobby-farm":     { "maxLVR": 70, "alert": 60, "lvrLMI": 0, "notes": null },
+        "vineyard":       { "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": "Specialist assessment" },
+        "grazing":        { "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": null }
+      },
+      "development": {
+        "dev-site":       { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": "Presales 100% debt cover" },
+        "raw-land":       { "maxLVR": 50, "alert": 40, "lvrLMI": 0, "notes": "Zoning must support DA" },
+        "reno":           { "maxLVR": 70, "alert": 60, "lvrLMI": 0, "notes": null },
+        "subdivision":    { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": null }
+      }
+    },
+    "non-major-banks": {
+      "residential": {
+        "house":          { "maxLVR": 80, "alert": 70, "lvrLMI": 90, "notes": null },
+        "unit":           { "maxLVR": 80, "alert": 70, "lvrLMI": 90, "notes": null },
+        "townhouse":      { "maxLVR": 80, "alert": 70, "lvrLMI": 90, "notes": null },
+        "rural-res":      { "maxLVR": 70, "alert": 60, "lvrLMI": 80, "notes": null },
+        "high-density":   { "maxLVR": 80, "alert": 70, "lvrLMI": 90, "notes": null },
+        "small-unit":     { "maxLVR": 70, "alert": 60, "lvrLMI": 80, "notes": "Varies by lender" },
+        "studio":         { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": "Most decline" }
+      },
+      "commercial": {
+        "retail":         { "maxLVR": 65, "alert": 60, "lvrLMI": 0, "notes": null },
+        "office":         { "maxLVR": 65, "alert": 60, "lvrLMI": 0, "notes": null },
+        "mixed-use":      { "maxLVR": 65, "alert": 60, "lvrLMI": 0, "notes": null },
+        "strata-office":  { "maxLVR": 60, "alert": 55, "lvrLMI": 0, "notes": null },
+        "medical":        { "maxLVR": 65, "alert": 60, "lvrLMI": 0, "notes": null }
+      },
+      "specialised": {
+        "hotel":          { "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": "Select only" },
+        "childcare":      { "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": null },
+        "aged-care":      { "maxLVR": 50, "alert": 40, "lvrLMI": 0, "notes": "Very limited" },
+        "service-station":{ "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": null },
+        "pub":            { "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": null },
+        "carwash":        { "maxLVR": 50, "alert": 40, "lvrLMI": 0, "notes": "Decline" }
+      },
+      "industrial": {
+        "warehouse":      { "maxLVR": 60, "alert": 55, "lvrLMI": 0, "notes": null },
+        "factory":        { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": null },
+        "logistics":      { "maxLVR": 60, "alert": 55, "lvrLMI": 0, "notes": null },
+        "heavy-industrial":{ "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": "Limited" },
+        "self-storage":   { "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": null }
+      },
+      "rural": {
+        "farm":           { "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": null },
+        "hobby-farm":     { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": null },
+        "vineyard":       { "maxLVR": 50, "alert": 40, "lvrLMI": 0, "notes": "Decline most" },
+        "grazing":        { "maxLVR": 50, "alert": 40, "lvrLMI": 0, "notes": null }
+      },
+      "development": {
+        "dev-site":       { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": null },
+        "raw-land":       { "maxLVR": 45, "alert": 35, "lvrLMI": 0, "notes": "Very selective" },
+        "reno":           { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": null },
+        "subdivision":    { "maxLVR": 55, "alert": 45, "lvrLMI": 0, "notes": null }
+      }
+    },
+    "non-bank": {
+      "residential": {
+        "house":          { "maxLVR": 85, "alert": 75, "lvrLMI": 95, "notes": "Alt-doc available" },
+        "unit":           { "maxLVR": 80, "alert": 70, "lvrLMI": 90, "notes": null },
+        "townhouse":      { "maxLVR": 85, "alert": 75, "lvrLMI": 95, "notes": null },
+        "rural-res":      { "maxLVR": 75, "alert": 65, "lvrLMI": 80, "notes": null },
+        "high-density":   { "maxLVR": 80, "alert": 70, "lvrLMI": 90, "notes": null },
+        "small-unit":     { "maxLVR": 75, "alert": 65, "lvrLMI": 80, "notes": "More flexible" },
+        "studio":         { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": "Case by case" }
+      },
+      "commercial": {
+        "retail":         { "maxLVR": 75, "alert": 65, "lvrLMI": 0, "notes": "Higher rates" },
+        "office":         { "maxLVR": 75, "alert": 65, "lvrLMI": 0, "notes": null },
+        "mixed-use":      { "maxLVR": 75, "alert": 65, "lvrLMI": 0, "notes": null },
+        "strata-office":  { "maxLVR": 70, "alert": 60, "lvrLMI": 0, "notes": null },
+        "medical":        { "maxLVR": 75, "alert": 65, "lvrLMI": 0, "notes": null }
+      },
+      "specialised": {
+        "hotel":          { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": "Specialist team" },
+        "childcare":      { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": null },
+        "aged-care":      { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": "Refer basis" },
+        "service-station":{ "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": null },
+        "pub":            { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": null },
+        "carwash":        { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": "Case by case" }
+      },
+      "industrial": {
+        "warehouse":      { "maxLVR": 70, "alert": 60, "lvrLMI": 0, "notes": null },
+        "factory":        { "maxLVR": 70, "alert": 60, "lvrLMI": 0, "notes": null },
+        "logistics":      { "maxLVR": 70, "alert": 60, "lvrLMI": 0, "notes": null },
+        "heavy-industrial":{ "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": null },
+        "self-storage":   { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": null }
+      },
+      "rural": {
+        "farm":           { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": null },
+        "hobby-farm":     { "maxLVR": 70, "alert": 60, "lvrLMI": 0, "notes": null },
+        "vineyard":       { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": null },
+        "grazing":        { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": null }
+      },
+      "development": {
+        "dev-site":       { "maxLVR": 70, "alert": 60, "lvrLMI": 0, "notes": "Flexible presale requirements" },
+        "raw-land":       { "maxLVR": 60, "alert": 50, "lvrLMI": 0, "notes": null },
+        "reno":           { "maxLVR": 75, "alert": 65, "lvrLMI": 0, "notes": null },
+        "subdivision":    { "maxLVR": 65, "alert": 55, "lvrLMI": 0, "notes": null }
+      }
+    }
+  }
+}
