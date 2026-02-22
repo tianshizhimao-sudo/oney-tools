@@ -1,0 +1,102 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-02-22",
+  "propertyTypes": {
+    "residential": {
+      "label": "Residential",
+      "lvrCap": 80,
+      "icrMin": 1.25,
+      "defaultRate": 6.50,
+      "assessmentRate": 3.0
+    },
+    "commercial": {
+      "label": "Commercial",
+      "lvrCap": 70,
+      "icrMin": 1.50,
+      "defaultRate": 7.00,
+      "assessmentRate": 2.5
+    },
+    "industrial": {
+      "label": "Industrial",
+      "lvrCap": 65,
+      "icrMin": 1.50,
+      "defaultRate": 7.25,
+      "assessmentRate": 2.5
+    },
+    "retail": {
+      "label": "Retail",
+      "lvrCap": 65,
+      "icrMin": 1.50,
+      "defaultRate": 7.50,
+      "assessmentRate": 2.5
+    },
+    "mixed-use": {
+      "label": "Mixed Use",
+      "lvrCap": 70,
+      "icrMin": 1.40,
+      "defaultRate": 7.00,
+      "assessmentRate": 2.5
+    }
+  },
+  "scenarios": [
+    {
+      "id": "conservative",
+      "label": "Conservative",
+      "rateBuffer": 2.0,
+      "vacancyRate": 10,
+      "expenseRatio": 30
+    },
+    {
+      "id": "moderate",
+      "label": "Moderate",
+      "rateBuffer": 1.0,
+      "vacancyRate": 5,
+      "expenseRatio": 25
+    },
+    {
+      "id": "optimistic",
+      "label": "Optimistic",
+      "rateBuffer": 0,
+      "vacancyRate": 2,
+      "expenseRatio": 20
+    }
+  ],
+  "lenders": [
+    {
+      "id": "major-banks",
+      "name": "Major Banks",
+      "commercialLvrCap": 65,
+      "residentialLvrCap": 80,
+      "icrMin": 1.50,
+      "rateFrom": 6.0,
+      "notes": "Full doc, slower approval"
+    },
+    {
+      "id": "non-major",
+      "name": "Non-Major Banks",
+      "commercialLvrCap": 70,
+      "residentialLvrCap": 80,
+      "icrMin": 1.40,
+      "rateFrom": 6.2,
+      "notes": "Competitive, slightly flexible"
+    },
+    {
+      "id": "non-bank",
+      "name": "Non-Bank Lenders",
+      "commercialLvrCap": 75,
+      "residentialLvrCap": 85,
+      "icrMin": 1.25,
+      "rateFrom": 7.0,
+      "notes": "Flexible criteria, alt-doc"
+    },
+    {
+      "id": "private",
+      "name": "Private Funding",
+      "commercialLvrCap": 70,
+      "residentialLvrCap": 75,
+      "icrMin": 1.00,
+      "rateFrom": 9.2,
+      "notes": "Fast settlement, flexible"
+    }
+  ]
+}

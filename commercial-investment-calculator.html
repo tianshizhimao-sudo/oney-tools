@@ -4,28 +4,38 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#141414">
+  <meta name="theme-color" content="#1a1a2e">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="description" content="Commercial Investment Lite — Free loan assessment tool for Australian brokers">
-  <title>Commercial Investment Lite — Free</title>
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="description" content="Oney Assess — Commercial investment analysis with multi-scenario comparison & multi-lender assessment">
+  <title>Oney Assess v2.0 — Investment Analysis</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0a0a0a;
-      --card: #141414;
-      --card-hover: #1a1a1a;
-      --border: #262626;
-      --primary: #1FAD73;
-      --primary-glow: rgba(31, 173, 115, 0.3);
+      --bg: #1A1A2E;
+      --card: #252540;
+      --card-hover: #2e2e50;
+      --border: #3D3D5C;
+      --primary: #2ECC85;
+      --primary-dark: #1FAD73;
+      --primary-glow: rgba(46, 204, 133, 0.2);
+      --accent: #6B4C9A;
+      --accent-light: #9B59B6;
+      --accent-glow: rgba(107, 76, 154, 0.2);
       --success: #2ECC85;
-      --warning: #ffc107;
-      --danger: #ff6b6b;
-      --text: #ffffff;
-      --text-muted: #a3a3a3;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --text: #f0f0f0;
+      --text-muted: #a3a3b8;
       --radius: 16px;
+    }
+    html.light {
+      --bg: #f5f5f5;
+      --card: #ffffff;
+      --card-hover: #f0f0f0;
+      --border: #e0e0e0;
+      --text: #1a1a2e;
+      --text-muted: #6b6b80;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -35,60 +45,64 @@
       min-height: 100vh;
       padding: 0 0 100px 0;
     }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    header { text-align: center; padding: 30px 0 20px; }
-    .logo {
-      font-size: 28px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #1FAD73, #2ECC85);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .container { max-width: 700px; margin: 0 auto; padding: 20px; }
+
+    header { text-align: center; padding: 24px 0 16px; }
+    .header-logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px; }
+    .header-logo svg { width: 44px; height: 44px; }
+    .logo-text {
+      font-size: 28px; font-weight: 700;
+      background: linear-gradient(135deg, #2ECC85, #1FAD73);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .tagline { color: var(--text-muted); font-size: 14px; margin-top: 8px; }
-    .badge-free {
-      display: inline-block;
-      background: var(--success);
-      color: #000;
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      margin-top: 8px;
+    .tagline { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+    .version-badge {
+      display: inline-block; font-size: 10px; font-weight: 600;
+      background: var(--accent-glow); color: var(--accent-light);
+      padding: 2px 8px; border-radius: 10px; margin-left: 6px;
     }
+    .data-badge {
+      display: inline-block; font-size: 9px; font-weight: 500;
+      background: var(--primary-glow); color: var(--primary);
+      padding: 2px 6px; border-radius: 8px; margin-left: 4px;
+    }
+
     .card {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 20px;
       margin-bottom: 16px;
+      transition: background-color 0.3s, border-color 0.3s;
     }
     .card-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 16px;
+      font-size: 13px; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;
     }
+
     .form-group { margin-bottom: 16px; }
     label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
     input, select {
-      width: 100%;
-      padding: 14px 16px;
-      font-size: 16px;
-      font-family: inherit;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      color: var(--text);
-      transition: all 0.2s;
+      width: 100%; padding: 14px 16px; font-size: 16px; font-family: inherit;
+      background: var(--bg); border: 1px solid var(--border); border-radius: 12px;
+      color: var(--text); transition: all 0.2s;
     }
     input:focus, select:focus {
-      outline: none;
-      border-color: var(--primary);
+      outline: none; border-color: var(--primary);
       box-shadow: 0 0 0 3px var(--primary-glow);
     }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+    .btn {
+      width: 100%; padding: 16px; font-size: 16px; font-weight: 600;
+      font-family: inherit; border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-primary { background: linear-gradient(135deg, #2ECC85, #1FAD73); color: white; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px var(--primary-glow); }
+    .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); margin-top: 12px; }
+    .btn-accent { background: linear-gradient(135deg, #6B4C9A, #9B59B6); color: white; margin-top: 12px; }
+
     .result-card {
       background: linear-gradient(135deg, var(--card), var(--card-hover));
       border: 1px solid var(--primary);
@@ -96,161 +110,155 @@
     }
     .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .metric { text-align: center; padding: 16px; background: var(--bg); border-radius: 12px; }
-    .metric-value { font-size: 32px; font-weight: 700; margin-bottom: 4px; }
+    .metric-value { font-size: 28px; font-weight: 700; margin-bottom: 4px; }
     .metric-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; }
     .metric.pass .metric-value { color: var(--success); }
     .metric.warn .metric-value { color: var(--warning); }
     .metric.fail .metric-value { color: var(--danger); }
+
     .status-bar {
       display: flex; align-items: center; justify-content: center; gap: 8px;
       padding: 12px; border-radius: 12px; font-weight: 600; margin-top: 16px;
     }
-    .status-bar.pass { background: rgba(0, 217, 165, 0.15); color: var(--success); }
-    .status-bar.warn { background: rgba(255, 193, 7, 0.15); color: var(--warning); }
-    .status-bar.fail { background: rgba(255, 107, 107, 0.15); color: var(--danger); }
-    .btn {
-      width: 100%; padding: 16px; font-size: 16px; font-weight: 600;
-      font-family: inherit; border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s;
+    .status-bar.pass { background: rgba(46,204,133,0.15); color: var(--success); }
+    .status-bar.warn { background: rgba(251,191,36,0.15); color: var(--warning); }
+    .status-bar.fail { background: rgba(248,113,113,0.15); color: var(--danger); }
+
+    /* Scenario Comparison Table */
+    .comparison-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    .comparison-table th {
+      background: var(--bg); padding: 10px 12px; text-align: center;
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
     }
-    .btn-primary { background: linear-gradient(135deg, #1FAD73, #2ECC85); color: white; }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px var(--primary-glow); }
-    .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); margin-top: 12px; }
-    .btn-upgrade {
-      background: linear-gradient(135deg, #ffc107, #ff9800);
-      color: #000;
-      margin-top: 12px;
+    .comparison-table td {
+      padding: 10px 12px; text-align: center; border-bottom: 1px solid var(--border);
     }
-    .upgrade-banner {
-      background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.1));
-      border: 1px solid var(--warning);
-      border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 16px;
-      text-align: center;
-    }
-    .upgrade-banner h3 { color: var(--warning); margin-bottom: 8px; }
-    .upgrade-banner p { color: var(--text-muted); font-size: 13px; }
+    .comparison-table tr:hover td { background: var(--primary-glow); }
+    .col-pass { color: var(--success); font-weight: 600; }
+    .col-warn { color: var(--warning); font-weight: 600; }
+    .col-fail { color: var(--danger); font-weight: 600; }
+
+    /* Lender comparison */
+    .lender-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+    .lender-row:last-child { border-bottom: none; }
+    .lender-header { font-weight: 600; color: var(--text-muted); font-size: 11px; text-transform: uppercase; }
+
     .hidden { display: none; }
     .footer { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 12px; }
     .footer a { color: var(--primary); text-decoration: none; }
-    .bottom-nav {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: var(--card); border-top: 1px solid var(--border);
-      padding: 12px 20px; padding-bottom: calc(12px + env(safe-area-inset-bottom));
-      display: flex; justify-content: space-around;
+
+    /* Loading Overlay */
+    .loading-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999; backdrop-filter: blur(4px);
     }
-    .nav-btn {
-      display: flex; flex-direction: column; align-items: center; gap: 4px;
-      background: none; border: none; color: var(--text-muted); font-size: 12px;
-      cursor: pointer; padding: 8px 16px; border-radius: 12px; transition: all 0.2s;
+    .loading-overlay.hidden { display: none; }
+    .loading-spinner {
+      width: 48px; height: 48px; border: 4px solid var(--border);
+      border-top-color: var(--primary); border-radius: 50%;
+      animation: spin 0.8s linear infinite;
     }
-    .nav-btn.active { color: var(--primary); background: var(--primary-glow); }
-    .nav-btn span:first-child { font-size: 20px; }
-    /* Light Mode */
-    html.light {
-      --bg: #f5f5f5;
-      --card: #ffffff;
-      --card-hover: #f0f0f0;
-      --border: #e5e5e5;
-      --text: #0a0a0a;
-      --text-muted: #525252;
-      --primary-glow: rgba(31, 173, 115, 0.15);
-    }
-    html.light select option { background: var(--card); color: var(--text); }
-    /* Smooth transitions */
-    body, .card, input, select, .bottom-nav, .metric, .footer, .status-bar, .upgrade-banner {
-      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-    }
-    /* Top Navigation Bar */
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Top Nav */
     .top-nav {
       display: flex; justify-content: space-between; align-items: center;
-      padding: 8px 16px;
-      background: rgba(20, 20, 20, 0.8);
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border);
+      padding: 8px 16px; background: rgba(26,26,46,0.8);
+      backdrop-filter: blur(10px); border-bottom: 1px solid var(--border);
       font-size: 13px; position: sticky; top: 0; z-index: 100;
     }
-    html.light .top-nav { background: rgba(245, 245, 245, 0.8); }
-    .nav-back { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    html.light .top-nav { background: rgba(245,245,245,0.8); }
+    .nav-back { color: var(--text-muted); text-decoration: none; }
     .nav-back:hover { color: var(--primary); }
     .theme-toggle {
       background: none; border: 1px solid var(--border); border-radius: 8px;
-      padding: 4px 10px; font-size: 16px; cursor: pointer; line-height: 1;
-      transition: border-color 0.2s;
+      padding: 4px 10px; font-size: 16px; cursor: pointer;
     }
     .theme-toggle:hover { border-color: var(--primary); }
-    .clear-data-btn {
-      display: block; margin: 20px auto; background: none; border: none;
-      color: var(--text-muted); font-size: 12px; cursor: pointer;
-      opacity: 0.6; transition: opacity 0.2s; font-family: inherit;
-    }
-    .clear-data-btn:hover { opacity: 1; text-decoration: underline; }
+
     #autoSaveToast {
-      position: fixed; bottom: 80px; right: 24px; background: var(--card);
+      position: fixed; bottom: 24px; right: 24px; background: var(--card);
       border: 1px solid var(--border); color: var(--text-muted);
       padding: 10px 18px; border-radius: 10px; font-size: 13px;
       opacity: 0; transition: opacity 0.3s; z-index: 1000; pointer-events: none;
     }
-  </style>
 
-<style>
-  .back-to-tools { display: inline-block; padding: 10px 0; color: #2ECC85; text-decoration: none; font-size: 14px; font-weight: 500; margin: 16px 24px; }
-  .back-to-tools:hover { text-decoration: underline; }
-  .related-tools { padding: 40px 24px; border-top: 1px solid #3D3D5C; }
-  .related-inner { max-width: 960px; margin: 0 auto; }
-  .related-tools h3 { color: #fff; font-size: 18px; margin-bottom: 16px; font-weight: 600; }
-  .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
-  .related-card {
-    background: #252540; border-radius: 12px; padding: 20px; text-decoration: none;
-    border: 1px solid #3D3D5C; transition: all 0.2s;
-  }
-  .related-card:hover { border-color: #2ECC85; transform: translateY(-2px); }
-  .related-name { color: #fff; font-weight: 600; font-size: 15px; margin-bottom: 6px; }
-  .related-desc { color: #a3a3b8; font-size: 13px; line-height: 1.4; }
-</style>
+    .error-banner {
+      background: rgba(248,113,113,0.15); border: 1px solid var(--danger);
+      border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: center;
+    }
+    .error-banner button { margin-top: 8px; }
+
+    body, .card, input, select, .metric, .footer, .status-bar {
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+  </style>
+  <style>
+    .back-to-tools { display: inline-block; padding: 10px 0; color: #2ECC85; text-decoration: none; font-size: 14px; font-weight: 500; margin: 16px 24px; }
+    .back-to-tools:hover { text-decoration: underline; }
+    .related-tools { padding: 40px 24px; border-top: 1px solid #3D3D5C; }
+    .related-inner { max-width: 960px; margin: 0 auto; }
+    .related-tools h3 { color: #fff; font-size: 18px; margin-bottom: 16px; font-weight: 600; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .related-card { background: #252540; border-radius: 12px; padding: 20px; text-decoration: none; border: 1px solid #3D3D5C; transition: all 0.2s; }
+    .related-card:hover { border-color: #2ECC85; transform: translateY(-2px); }
+    .related-name { color: #fff; font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+    .related-desc { color: #a3a3b8; font-size: 13px; line-height: 1.4; }
+  </style>
   <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"WebApplication","name":"Commercial Investment Calculator","url":"https://tools.oneyco.com.au/commercial-investment-calculator.html","description":"Commercial property investment analysis calculator.","applicationCategory":"FinanceApplication","operatingSystem":"Web"}
+  {"@context":"https://schema.org","@type":"WebApplication","name":"Oney Assess","url":"https://tools.oneyco.com.au/commercial-investment-calculator.html","description":"Commercial investment analysis with multi-scenario comparison.","applicationCategory":"FinanceApplication","operatingSystem":"Web"}
   </script>
-  <meta property="og:title" content="Commercial Investment Calculator — Oney & Co Tools">
-  <meta property="og:description" content="Free Commercial Investment Calculator for Australian mortgage brokers — by Oney & Co">
+  <meta property="og:title" content="Oney Assess — Investment Analysis | Oney & Co">
+  <meta property="og:description" content="Commercial investment analysis with multi-scenario comparison and multi-lender assessment — by Oney & Co">
   <meta property="og:image" content="https://tools.oneyco.com.au/assets/og-image.png">
   <meta property="og:url" content="https://tools.oneyco.com.au/commercial-investment-calculator.html">
   <meta property="og:type" content="website">
   <link rel="canonical" href="https://tools.oneyco.com.au/commercial-investment-calculator.html">
 </head>
 <body>
+  <div id="loadingOverlay" class="loading-overlay hidden"><div class="loading-spinner"></div></div>
+  <div id="errorBanner" class="error-banner hidden">
+    <p>⚠️ Failed to load data. <button class="btn-secondary" onclick="loadData()" style="width:auto;padding:8px 16px;margin-top:8px">Retry</button></p>
+  </div>
+
   <nav class="top-nav">
     <a href="index.html" class="nav-back">← Oney Tools</a>
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
   </nav>
   <div id="autoSaveToast"></div>
-  <!-- Watermark -->
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+
+  <div class="container">
+    <header>
+      <div class="header-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 90">
           <defs>
-            <linearGradient id="fillGradL1" x1="0%" y1="100%" x2="0%" y2="0%">
+            <linearGradient id="fillGrad" x1="0%" y1="100%" x2="0%" y2="0%">
               <stop offset="0%" style="stop-color:#1FAD73"/>
-              <stop offset="60%" style="stop-color:#2ECC85"/>
-              <stop offset="60%" style="stop-color:transparent"/>
+              <stop offset="55%" style="stop-color:#2ECC85"/>
+              <stop offset="55%" style="stop-color:transparent"/>
               <stop offset="100%" style="stop-color:transparent"/>
             </linearGradient>
-            <linearGradient id="strokeGradL1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="strokeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" style="stop-color:#2ECC85"/>
               <stop offset="100%" style="stop-color:#1FAD73"/>
             </linearGradient>
           </defs>
-          <g transform="translate(50, 50)">
-            <circle cx="0" cy="0" r="38" fill="none" stroke="url(#strokeGradL1)" stroke-width="10" stroke-linecap="round"/>
-            <circle cx="0" cy="0" r="28" fill="url(#fillGradL1)"/>
+          <g transform="translate(40, 45)">
+            <circle cx="0" cy="0" r="32" fill="none" stroke="url(#strokeGrad)" stroke-width="7"/>
+            <circle cx="0" cy="0" r="24" fill="url(#fillGrad)"/>
           </g>
+          <text x="82" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#1a1a1a" letter-spacing="-0.5">ney</text>
+          <text x="129" y="52" font-family="Inter, system-ui, sans-serif" font-size="21" font-weight="500" fill="url(#strokeGrad)">&amp;</text>
+          <text x="148" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#1a1a1a" letter-spacing="-0.5">co</text>
+          <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
         </svg>
-
-  <div class="container">
-    <header>
-      <div class="logo">Commercial Investment Lite</div>
-      <div class="tagline">Quick Loan Assessment Tool</div>
-      <div class="badge-free">FREE VERSION</div>
+      </div>
+      <div class="logo-text">Oney Assess</div>
+      <div class="tagline">Investment Analysis & Multi-Scenario Comparison <span class="version-badge">v2.0</span> <span class="data-badge" id="dataBadge">Loading…</span></div>
     </header>
-    
+
     <div id="step1">
       <div class="card">
         <div class="card-title">📋 Loan Details</div>
@@ -261,18 +269,15 @@
         <div class="row">
           <div class="form-group">
             <label>Interest Rate %</label>
-            <input type="number" id="interestRate" placeholder="6.50" step="0.01" value="6.50" inputmode="decimal">
+            <input type="number" id="interestRate" placeholder="6.50" step="0.01" inputmode="decimal">
           </div>
           <div class="form-group">
             <label>Property Type</label>
-            <select id="propType">
-              <option value="residential">Residential</option>
-              <option value="commercial">Commercial</option>
-            </select>
+            <select id="propType"></select>
           </div>
         </div>
       </div>
-      
+
       <div class="card">
         <div class="card-title">🏠 Security</div>
         <div class="form-group">
@@ -280,21 +285,31 @@
           <input type="text" id="propValue" placeholder="e.g., 800,000" inputmode="numeric" onkeyup="formatNumber(this)">
         </div>
       </div>
-      
+
       <div class="card">
         <div class="card-title">💰 Income (Annual)</div>
         <div class="form-group">
-          <label>Net Rental Income p.a.</label>
-          <input type="text" id="rentalIncome" placeholder="e.g., 50,000" inputmode="numeric" onkeyup="formatNumber(this)">
+          <label>Gross Rental Income p.a.</label>
+          <input type="text" id="rentalIncome" placeholder="e.g., 60,000" inputmode="numeric" onkeyup="formatNumber(this)">
+        </div>
+        <div class="row">
+          <div class="form-group">
+            <label>Vacancy Rate %</label>
+            <input type="number" id="vacancyRate" value="5" step="1" inputmode="numeric">
+          </div>
+          <div class="form-group">
+            <label>Operating Expenses %</label>
+            <input type="number" id="expenseRatio" value="25" step="1" inputmode="numeric">
+          </div>
         </div>
       </div>
-      
-      <button class="btn btn-primary" onclick="calculate()">Calculate</button>
+
+      <button class="btn btn-primary" onclick="calculate()">Analyse Investment</button>
     </div>
-    
+
     <div id="step2" class="hidden">
       <div class="card result-card">
-        <div class="card-title">📊 Results</div>
+        <div class="card-title">📊 Key Metrics</div>
         <div class="metrics">
           <div class="metric" id="lvrMetric">
             <div class="metric-value" id="lvrValue">--</div>
@@ -304,128 +319,339 @@
             <div class="metric-value" id="icrValue">--</div>
             <div class="metric-label">ICR</div>
           </div>
+          <div class="metric" id="yieldMetric">
+            <div class="metric-value" id="yieldValue">--</div>
+            <div class="metric-label">Gross Yield</div>
+          </div>
+          <div class="metric" id="netYieldMetric">
+            <div class="metric-value" id="netYieldValue">--</div>
+            <div class="metric-label">Net Yield</div>
+          </div>
         </div>
         <div id="statusBar" class="status-bar pass">
           <span id="statusText">Meets criteria</span>
         </div>
       </div>
-      
+
+      <div class="card">
+        <div class="card-title">📊 Multi-Scenario Comparison</div>
+        <table class="comparison-table" id="scenarioTable">
+          <thead><tr><th>Scenario</th><th>Rate Buffer</th><th>Vacancy</th><th>Expenses</th><th>Net Income</th><th>ICR</th><th>Status</th></tr></thead>
+          <tbody id="scenarioBody"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🏦 Multi-Lender Assessment</div>
+        <div class="lender-row lender-header">
+          <div>Lender</div><div>Max LVR</div><div>ICR Min</div><div>Status</div>
+        </div>
+        <div id="lenderResults"></div>
+      </div>
+
       <div class="card">
         <div class="card-title">📝 Summary</div>
         <div id="summaryContent" style="font-size: 14px; line-height: 1.8; color: var(--text-muted);"></div>
       </div>
-      
-      <div class="upgrade-banner">
-        <h3>🚀 Want More Features?</h3>
-        <p>Upgrade to Standard for: Multiple properties, Ownership structures, ATO checks, PDF export, Custom thresholds, and more!</p>
-        <button class="btn btn-upgrade" onclick="window.open('https://oneyco.com.au/tools/commercial-investment-standard', '_blank')">Upgrade to Standard — $49</button>
-      </div>
-      
-      <button class="btn btn-primary" onclick="copyResults()">📋 Copy Results</button>
+
+      <button class="btn btn-primary" onclick="exportReport()">📄 Export Report</button>
+      <button class="btn btn-secondary" onclick="copyResults()">📋 Copy Results</button>
       <button class="btn btn-secondary" onclick="reset()">🔄 New Assessment</button>
     </div>
-    
-    <button class="clear-data-btn" onclick="clearSavedData()">Clear Saved Data</button>
+
+    <button class="clear-data-btn" onclick="clearSavedData()" style="display:block;margin:20px auto;background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;opacity:0.6;font-family:inherit;">Clear Saved Data</button>
     <footer class="footer">
       <p>Made by <a href="https://oneyco.com.au">Oney & Co</a></p>
-      <p style="margin-top: 8px;">Free version. <a href="https://oneyco.com.au/tools/commercial-investment-standard">Upgrade for more features</a></p>
     </footer>
   </div>
-  
-  <nav class="bottom-nav">
-    <button class="nav-btn active" onclick="showStep(1)"><span>📝</span><span>Input</span></button>
-    <button class="nav-btn" onclick="showStep(2)"><span>📊</span><span>Results</span></button>
-    <button class="nav-btn" onclick="showInfo()"><span>ℹ️</span><span>Info</span></button>
-  </nav>
-  
+
+  <section class="related-tools">
+    <div class="related-inner">
+      <h3>Related Tools</h3>
+      <div class="related-grid">
+        <a href="specialised-lending-calculator.html" class="related-card">
+          <div class="related-name">Oney Analyse</div>
+          <div class="related-desc">Specialised lending MLL calculator with multi-lender comparison</div>
+        </a>
+        <a href="commercial-servicing-calc.html" class="related-card">
+          <div class="related-name">Oney Serve</div>
+          <div class="related-desc">Commercial servicing calculator with multi-bank comparison</div>
+        </a>
+        <a href="security-test.html" class="related-card">
+          <div class="related-name">Oney Secure</div>
+          <div class="related-desc">Property security assessment & LVR analysis</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
   <script>
+    let DATA = {};
+
     function formatNumber(input) {
       let value = input.value.replace(/,/g, '').replace(/[^0-9]/g, '');
       if (value) input.value = parseInt(value).toLocaleString();
     }
-    
-    function parseNum(str) {
-      return parseFloat((str || '').replace(/,/g, '')) || 0;
+    function parseNum(str) { return parseFloat((str || '').replace(/,/g, '')) || 0; }
+
+    // ===== Load JSON Data =====
+    async function loadData() {
+      document.getElementById('loadingOverlay').classList.remove('hidden');
+      document.getElementById('errorBanner').classList.add('hidden');
+      try {
+        const res = await fetch('data/investment-params.json');
+        if (!res.ok) throw new Error('Failed to load');
+        DATA = await res.json();
+        populateUI();
+        document.getElementById('dataBadge').textContent = '✓ Data v' + DATA.version;
+        document.getElementById('loadingOverlay').classList.add('hidden');
+      } catch(e) {
+        document.getElementById('loadingOverlay').classList.add('hidden');
+        document.getElementById('errorBanner').classList.remove('hidden');
+        console.error('Load error:', e);
+      }
     }
-    
+
+    function populateUI() {
+      const sel = document.getElementById('propType');
+      sel.innerHTML = '';
+      Object.entries(DATA.propertyTypes).forEach(([k, v]) => {
+        const opt = document.createElement('option');
+        opt.value = k; opt.textContent = v.label;
+        sel.appendChild(opt);
+      });
+      // Set default rate from selected type
+      sel.addEventListener('change', () => {
+        const pt = DATA.propertyTypes[sel.value];
+        if (pt && !document.getElementById('interestRate').value) {
+          document.getElementById('interestRate').value = pt.defaultRate;
+        }
+      });
+      const pt = DATA.propertyTypes[sel.value];
+      if (pt) document.getElementById('interestRate').value = pt.defaultRate;
+    }
+
+    // ===== Calculate =====
     function calculate() {
       const loan = parseNum(document.getElementById('loanAmount').value);
       const rate = parseFloat(document.getElementById('interestRate').value) || 6.5;
-      const propType = document.getElementById('propType').value;
+      const propTypeKey = document.getElementById('propType').value;
       const propValue = parseNum(document.getElementById('propValue').value);
-      const income = parseNum(document.getElementById('rentalIncome').value);
-      
-      if (!loan || !propValue) {
-        alert('Please enter loan amount and property value');
-        return;
-      }
-      
+      const grossIncome = parseNum(document.getElementById('rentalIncome').value);
+      const vacancyRate = parseFloat(document.getElementById('vacancyRate').value) || 5;
+      const expenseRatio = parseFloat(document.getElementById('expenseRatio').value) || 25;
+
+      if (!loan || !propValue) { alert('Please enter loan amount and property value'); return; }
+
+      const pt = DATA.propertyTypes[propTypeKey];
+      const lvrCap = pt ? pt.lvrCap : 70;
+      const icrMin = pt ? pt.icrMin : 1.5;
+
       const lvr = (loan / propValue) * 100;
+      const netIncome = grossIncome * (1 - vacancyRate/100) * (1 - expenseRatio/100);
       const annualInterest = loan * (rate / 100);
-      const icr = annualInterest > 0 ? income / annualInterest : 0;
-      
-      const lvrCap = propType === 'commercial' ? 70 : 80;
+      const icr = annualInterest > 0 ? netIncome / annualInterest : 0;
+      const grossYield = propValue > 0 ? (grossIncome / propValue) * 100 : 0;
+      const netYield = propValue > 0 ? (netIncome / propValue) * 100 : 0;
+
       const lvrStatus = lvr > lvrCap ? 'fail' : lvr > (lvrCap - 10) ? 'warn' : 'pass';
-      const icrStatus = icr >= 1.5 ? 'pass' : icr >= 1.2 ? 'warn' : 'fail';
-      const overall = (lvrStatus === 'fail' || icrStatus === 'fail') ? 'fail' : 
+      const icrStatus = icr >= icrMin ? 'pass' : icr >= (icrMin * 0.8) ? 'warn' : 'fail';
+      const overall = (lvrStatus === 'fail' || icrStatus === 'fail') ? 'fail' :
                       (lvrStatus === 'warn' || icrStatus === 'warn') ? 'warn' : 'pass';
-      
+
       document.getElementById('lvrValue').textContent = lvr.toFixed(1) + '%';
       document.getElementById('icrValue').textContent = icr.toFixed(2) + 'x';
+      document.getElementById('yieldValue').textContent = grossYield.toFixed(2) + '%';
+      document.getElementById('netYieldValue').textContent = netYield.toFixed(2) + '%';
       document.getElementById('lvrMetric').className = 'metric ' + lvrStatus;
       document.getElementById('icrMetric').className = 'metric ' + icrStatus;
+      document.getElementById('yieldMetric').className = 'metric ' + (grossYield >= 5 ? 'pass' : grossYield >= 3 ? 'warn' : 'fail');
+      document.getElementById('netYieldMetric').className = 'metric ' + (netYield >= 3 ? 'pass' : netYield >= 2 ? 'warn' : 'fail');
       document.getElementById('statusBar').className = 'status-bar ' + overall;
-      document.getElementById('statusText').textContent = 
-        overall === 'pass' ? '✓ Meets criteria' : 
+      document.getElementById('statusText').textContent =
+        overall === 'pass' ? '✓ Meets criteria' :
         overall === 'warn' ? '⚠ Review required' : '✗ Does not meet criteria';
-      
+
+      // Scenario comparison
+      const tbody = document.getElementById('scenarioBody');
+      tbody.innerHTML = '';
+      (DATA.scenarios || []).forEach(s => {
+        const sRate = rate + s.rateBuffer;
+        const sNet = grossIncome * (1 - s.vacancyRate/100) * (1 - s.expenseRatio/100);
+        const sInterest = loan * (sRate / 100);
+        const sICR = sInterest > 0 ? sNet / sInterest : 0;
+        const sStatus = sICR >= icrMin ? 'pass' : sICR >= (icrMin * 0.8) ? 'warn' : 'fail';
+        tbody.innerHTML += `<tr>
+          <td><strong>${s.label}</strong></td>
+          <td>+${s.rateBuffer}%</td>
+          <td>${s.vacancyRate}%</td>
+          <td>${s.expenseRatio}%</td>
+          <td>$${Math.round(sNet).toLocaleString()}</td>
+          <td class="col-${sStatus}">${sICR.toFixed(2)}x</td>
+          <td class="col-${sStatus}">${sStatus === 'pass' ? '✓' : sStatus === 'warn' ? '⚠' : '✗'}</td>
+        </tr>`;
+      });
+
+      // Lender comparison
+      const lenderDiv = document.getElementById('lenderResults');
+      lenderDiv.innerHTML = '';
+      const lenderResults = [];
+      (DATA.lenders || []).forEach(l => {
+        const lLvr = propTypeKey === 'residential' ? l.residentialLvrCap : l.commercialLvrCap;
+        const lvrOk = lvr <= lLvr;
+        const icrOk = icr >= l.icrMin;
+        const status = lvrOk && icrOk ? 'pass' : lvrOk || icrOk ? 'warn' : 'fail';
+        lenderResults.push({ ...l, status, maxLvr: lLvr });
+        lenderDiv.innerHTML += `<div class="lender-row">
+          <div><strong>${l.name}</strong></div>
+          <div>${lLvr}%</div>
+          <div>${l.icrMin}x</div>
+          <div class="col-${status}">${status === 'pass' ? '✓ Eligible' : status === 'warn' ? '⚠ Conditional' : '✗ Exceeds'}</div>
+        </div>`;
+      });
+
       document.getElementById('summaryContent').innerHTML = `
         <p><strong>Loan:</strong> $${loan.toLocaleString()}</p>
-        <p><strong>Property:</strong> $${propValue.toLocaleString()} (${propType === 'commercial' ? 'Commercial' : 'Residential'})</p>
+        <p><strong>Property:</strong> $${propValue.toLocaleString()} (${pt ? pt.label : propTypeKey})</p>
         <p><strong>Interest Rate:</strong> ${rate}%</p>
-        <p><strong>Annual Interest:</strong> $${Math.round(annualInterest).toLocaleString()}</p>
-        <p><strong>Rental Income:</strong> $${income.toLocaleString()} p.a.</p>
+        <p><strong>Gross Rental:</strong> $${grossIncome.toLocaleString()} p.a.</p>
+        <p><strong>Net Rental:</strong> $${Math.round(netIncome).toLocaleString()} p.a. (after ${vacancyRate}% vacancy, ${expenseRatio}% expenses)</p>
         <hr style="border-color: var(--border); margin: 12px 0;">
         <p><strong>LVR:</strong> ${lvr.toFixed(1)}% (Cap: ${lvrCap}%)</p>
-        <p><strong>ICR:</strong> ${icr.toFixed(2)}x (Min: 1.50x)</p>
+        <p><strong>ICR:</strong> ${icr.toFixed(2)}x (Min: ${icrMin}x)</p>
+        <p><strong>Gross Yield:</strong> ${grossYield.toFixed(2)}%</p>
+        <p><strong>Net Yield:</strong> ${netYield.toFixed(2)}%</p>
       `;
-      
-      window.lastResult = { loan, propValue, propType, rate, annualInterest, income, lvr, icr, lvrCap };
+
+      window.lastResult = { loan, propValue, propTypeKey, propTypeLabel: pt ? pt.label : propTypeKey, rate, grossIncome, netIncome, vacancyRate, expenseRatio, lvr, icr, lvrCap, icrMin, grossYield, netYield, lenderResults };
       showStep(2);
     }
-    
+
     function showStep(step) {
       document.getElementById('step1').classList.toggle('hidden', step !== 1);
       document.getElementById('step2').classList.toggle('hidden', step !== 2);
-      document.querySelectorAll('.nav-btn').forEach((b, i) => b.classList.toggle('active', i === step - 1));
     }
-    
+
     function reset() {
       document.querySelectorAll('input').forEach(i => i.value = '');
-      document.getElementById('interestRate').value = '6.50';
+      populateUI();
+      document.getElementById('vacancyRate').value = '5';
+      document.getElementById('expenseRatio').value = '25';
       showStep(1);
     }
-    
+
     function copyResults() {
       const r = window.lastResult;
       if (!r) return;
-      const text = `COMMERCIAL INVESTMENT ASSESSMENT (Lite)
+      const text = `ONEY ASSESS — INVESTMENT ANALYSIS
 =====================================
 Loan: $${r.loan.toLocaleString()}
-Property: $${r.propValue.toLocaleString()} (${r.propType})
+Property: $${r.propValue.toLocaleString()} (${r.propTypeLabel})
 Interest Rate: ${r.rate}%
-Annual Interest: $${Math.round(r.annualInterest).toLocaleString()}
-Rental Income: $${r.income.toLocaleString()} p.a.
+Gross Rental: $${r.grossIncome.toLocaleString()} p.a.
+Net Rental: $${Math.round(r.netIncome).toLocaleString()} p.a.
 
 LVR: ${r.lvr.toFixed(1)}% (Cap: ${r.lvrCap}%)
-ICR: ${r.icr.toFixed(2)}x (Min: 1.50x)
+ICR: ${r.icr.toFixed(2)}x (Min: ${r.icrMin}x)
+Gross Yield: ${r.grossYield.toFixed(2)}%
+Net Yield: ${r.netYield.toFixed(2)}%
 =====================================
-Generated by Commercial Investment Lite (Free)
+Generated by Oney Assess v2.0
 oneyco.com.au`;
       navigator.clipboard.writeText(text).then(() => alert('Copied!'));
     }
-    
-    // === Theme Toggle ===
+
+    // ===== PDF Export =====
+    function exportReport() {
+      const r = window.lastResult;
+      if (!r) { alert('Please calculate first'); return; }
+      const today = new Date().toLocaleDateString('en-AU');
+      const refId = 'OA-' + Date.now().toString(36).toUpperCase();
+      const pw = window.open('', '_blank');
+
+      let scenarioRows = (DATA.scenarios || []).map(s => {
+        const sRate = r.rate + s.rateBuffer;
+        const sNet = r.grossIncome * (1 - s.vacancyRate/100) * (1 - s.expenseRatio/100);
+        const sInterest = r.loan * (sRate / 100);
+        const sICR = sInterest > 0 ? sNet / sInterest : 0;
+        const sc = sICR >= r.icrMin ? '#2ECC85' : sICR >= r.icrMin * 0.8 ? '#fbbf24' : '#f87171';
+        return `<tr><td>${s.label}</td><td>+${s.rateBuffer}%</td><td>${s.vacancyRate}%</td><td>${s.expenseRatio}%</td><td>$${Math.round(sNet).toLocaleString()}</td><td style="color:${sc};font-weight:bold">${sICR.toFixed(2)}x</td></tr>`;
+      }).join('');
+
+      let lenderRows = r.lenderResults.map(l => {
+        const sc = l.status === 'pass' ? '#2ECC85' : l.status === 'warn' ? '#fbbf24' : '#f87171';
+        return `<tr><td><strong>${l.name}</strong><br><span style="font-size:11px;color:#888">${l.notes}</span></td><td style="text-align:center">${l.maxLvr}%</td><td style="text-align:center">${l.icrMin}x</td><td style="text-align:center;color:${sc};font-weight:bold">${l.status.toUpperCase()}</td></tr>`;
+      }).join('');
+
+      pw.document.write(`<!DOCTYPE html><html><head><title>Oney Assess Report — ${refId}</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;padding:40px 50px;color:#333;max-width:900px;margin:0 auto;line-height:1.5}
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2ECC85}
+.logo{font-size:28px;font-weight:bold;color:#2ECC85}
+.logo-sub{font-size:13px;color:#888;margin-top:4px}
+.date{text-align:right;color:#888;font-size:13px}
+h2{color:#1FAD73;font-size:16px;margin:25px 0 10px;padding-bottom:5px;border-bottom:1px solid #e0e0e0}
+table{width:100%;border-collapse:collapse;margin:15px 0}
+th{background:#f8f9fa;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:#666}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #eee;font-size:13px}
+.hero{background:linear-gradient(135deg,#2ECC85,#1FAD73);color:white;padding:30px;border-radius:12px;text-align:center;margin:25px 0}
+.hero .value{font-size:48px;font-weight:bold}
+.hero .sub{font-size:14px;opacity:0.9;margin-top:8px}
+.metrics-row{display:flex;gap:16px;margin:20px 0}
+.metric-box{flex:1;text-align:center;padding:20px;background:#f8f9fa;border-radius:8px}
+.metric-box .val{font-size:28px;font-weight:bold;color:#1a1a2e}
+.metric-box .lbl{font-size:12px;color:#888;margin-top:4px}
+.footer{margin-top:40px;padding-top:20px;border-top:2px solid #e0e0e0;color:#888;font-size:11px;text-align:center}
+@media print{body{padding:20px}}
+</style></head><body>
+<div class="header">
+  <div><div class="logo">📊 Oney Assess</div><div class="logo-sub">Investment Analysis & Multi-Scenario Comparison</div></div>
+  <div class="date">Report Date: ${today}<br>Reference: ${refId}</div>
+</div>
+
+<h2>Investment Overview</h2>
+<table>
+<tr><th width="35%">Field</th><th>Details</th></tr>
+<tr><td>Loan Amount</td><td>$${r.loan.toLocaleString()}</td></tr>
+<tr><td>Property Value</td><td>$${r.propValue.toLocaleString()}</td></tr>
+<tr><td>Property Type</td><td>${r.propTypeLabel}</td></tr>
+<tr><td>Interest Rate</td><td>${r.rate}%</td></tr>
+<tr><td>Gross Rental Income</td><td>$${r.grossIncome.toLocaleString()} p.a.</td></tr>
+<tr><td>Net Rental Income</td><td>$${Math.round(r.netIncome).toLocaleString()} p.a.</td></tr>
+<tr><td>Vacancy Assumption</td><td>${r.vacancyRate}%</td></tr>
+<tr><td>Operating Expenses</td><td>${r.expenseRatio}%</td></tr>
+</table>
+
+<div class="metrics-row">
+  <div class="metric-box"><div class="val">${r.lvr.toFixed(1)}%</div><div class="lbl">LVR (Cap: ${r.lvrCap}%)</div></div>
+  <div class="metric-box"><div class="val">${r.icr.toFixed(2)}x</div><div class="lbl">ICR (Min: ${r.icrMin}x)</div></div>
+  <div class="metric-box"><div class="val">${r.grossYield.toFixed(2)}%</div><div class="lbl">Gross Yield</div></div>
+  <div class="metric-box"><div class="val">${r.netYield.toFixed(2)}%</div><div class="lbl">Net Yield</div></div>
+</div>
+
+<h2>Scenario Comparison</h2>
+<table>
+<tr><th>Scenario</th><th>Rate Buffer</th><th>Vacancy</th><th>Expenses</th><th>Net Income</th><th>ICR</th></tr>
+${scenarioRows}
+</table>
+
+<h2>Multi-Lender Assessment</h2>
+<table>
+<tr><th>Lender</th><th style="text-align:center">Max LVR</th><th style="text-align:center">Min ICR</th><th style="text-align:center">Status</th></tr>
+${lenderRows}
+</table>
+
+<div class="footer">
+<p><strong>Generated by Oney Assess v2.0</strong> — oneyco.com.au</p>
+<p>This assessment is for reference only and does not constitute a formal credit assessment or lending offer.<br>
+Data effective: ${DATA.lastUpdated || 'N/A'} | Report generated: ${new Date().toISOString()}</p>
+</div>
+</body></html>`);
+      pw.document.close();
+      setTimeout(() => pw.print(), 500);
+    }
+
+    // ===== Theme Toggle =====
     function toggleTheme() {
       document.documentElement.classList.toggle('light');
       var isLight = document.documentElement.classList.contains('light');
@@ -437,9 +663,9 @@ oneyco.com.au`;
       if (btn) btn.textContent = document.documentElement.classList.contains('light') ? '☀️' : '🌙';
     })();
 
-    // === Auto-Save ===
+    // ===== Auto-Save =====
     (function() {
-      var SAVE_KEY = 'oney_save_commercial_inv';
+      var SAVE_KEY = 'oney_save_assess_v2';
       var saveTimeout;
       function getAllValues() {
         var data = {};
@@ -463,16 +689,13 @@ oneyco.com.au`;
         clearTimeout(saveTimeout);
         saveTimeout = setTimeout(function() {
           localStorage.setItem(SAVE_KEY, JSON.stringify(getAllValues()));
-          showAutoSaveToast();
+          var toast = document.getElementById('autoSaveToast');
+          toast.textContent = 'Auto-saved ✓';
+          toast.style.opacity = '1';
+          setTimeout(function() { toast.style.opacity = '0'; }, 2000);
         }, 500);
       }
-      function showAutoSaveToast() {
-        var toast = document.getElementById('autoSaveToast');
-        toast.textContent = 'Auto-saved ✓';
-        toast.style.opacity = '1';
-        setTimeout(function() { toast.style.opacity = '0'; }, 2000);
-      }
-      restoreValues();
+      window._restoreSaved = restoreValues;
       document.addEventListener('input', saveValues);
       document.addEventListener('change', saveValues);
       window.clearSavedData = function() {
@@ -484,47 +707,8 @@ oneyco.com.au`;
       };
     })();
 
-    function showInfo() {
-      alert(`Commercial Investment Lite (Free)
-
-Basic LVR & ICR calculator for Australian property investors.
-
-LVR Caps:
-• Residential: 80%
-• Commercial: 70%
-
-ICR Minimum: 1.50x
-
-Upgrade to Standard ($49) for:
-• Multiple properties
-• Ownership structures
-• ATO tax position check
-• PDF export
-• Custom thresholds
-• Lease details
-
-© Oney & Co`);
-    }
+    // ===== Init =====
+    loadData().then(() => { if (window._restoreSaved) window._restoreSaved(); });
   </script>
-
-  <section class="related-tools">
-    <div class="related-inner">
-      <h3>Related Tools</h3>
-      <div class="related-grid">
-      <a href="specialised-lending-calculator.html" class="related-card">
-        <div class="related-name">Specialised Lending Calculator</div>
-        <div class="related-desc">Calculate rates for specialised and non-standard loans</div>
-      </a>
-      <a href="commercial-servicing-calc.html" class="related-card">
-        <div class="related-name">Commercial Servicing Calculator</div>
-        <div class="related-desc">Assess commercial loan serviceability and capacity</div>
-      </a>
-      <a href="security-test.html" class="related-card">
-        <div class="related-name">Security Assessment</div>
-        <div class="related-desc">Evaluate security position and LVR scenarios</div>
-      </a>
-      </div>
-    </div>
-  </section>
 </body>
 </html>
