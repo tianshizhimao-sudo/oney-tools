@@ -4,8 +4,8 @@
   "lenders": [
     {
       "id": "sl-capital",
-      "name": "SL Capital (SecureLend)",
-      "shortName": "SL Capital",
+      "name": "Private Funding",
+      "shortName": "Private Funding",
       "type": "private",
       "description": "Private lender — fast settlement, flexible criteria",
       "minLoan": 250000,
