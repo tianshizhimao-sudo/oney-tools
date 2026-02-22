@@ -1,0 +1,94 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-02-22",
+  "industries": {
+    "financial-planning": {
+      "label": "Financial Planning",
+      "revenueMultiplier": 1.75,
+      "gearingMultiplier": 3.5,
+      "icrThreshold": 2.5,
+      "description": "FUA-based recurring revenue"
+    },
+    "finance-broker": {
+      "label": "Finance Broker",
+      "revenueMultiplier": 1.50,
+      "gearingMultiplier": 3.0,
+      "icrThreshold": 2.5,
+      "description": "Trail book income"
+    },
+    "accounting": {
+      "label": "Accounting",
+      "revenueMultiplier": 1.75,
+      "gearingMultiplier": 3.5,
+      "icrThreshold": 2.5,
+      "description": "Recurring compliance fees"
+    },
+    "legal": {
+      "label": "Legal Services",
+      "revenueMultiplier": 1.50,
+      "gearingMultiplier": 3.0,
+      "icrThreshold": 2.5,
+      "description": "Partner distributions"
+    },
+    "real-estate": {
+      "label": "Real Estate / Rent Roll",
+      "revenueMultiplier": 2.00,
+      "gearingMultiplier": 4.0,
+      "icrThreshold": 2.0,
+      "description": "Rent roll recurring income"
+    },
+    "medical": {
+      "label": "Medical Practice",
+      "revenueMultiplier": 1.75,
+      "gearingMultiplier": 3.5,
+      "icrThreshold": 2.5,
+      "description": "Patient billings"
+    }
+  },
+  "lenders": [
+    {
+      "id": "major-banks",
+      "name": "Major Banks",
+      "shortName": "Major",
+      "supportedIndustries": ["financial-planning", "finance-broker", "accounting", "legal", "real-estate", "medical"],
+      "maxGearing": 3.5,
+      "icrThreshold": 2.5,
+      "rateFrom": 6.5,
+      "features": ["Lowest rates", "Full doc required"],
+      "notes": "Strictest criteria, lowest rates"
+    },
+    {
+      "id": "macquarie",
+      "name": "Macquarie Bank",
+      "shortName": "Macquarie",
+      "supportedIndustries": ["financial-planning", "finance-broker", "accounting", "legal", "real-estate"],
+      "maxGearing": 4.0,
+      "icrThreshold": 2.0,
+      "rateFrom": 6.8,
+      "features": ["Specialist lender", "Higher gearing"],
+      "notes": "Strong in professional services"
+    },
+    {
+      "id": "liberty",
+      "name": "Liberty Financial",
+      "shortName": "Liberty",
+      "supportedIndustries": ["financial-planning", "finance-broker", "accounting", "legal", "medical"],
+      "maxGearing": 3.0,
+      "icrThreshold": 2.5,
+      "rateFrom": 7.5,
+      "features": ["Flexible criteria", "Alt-doc options"],
+      "notes": "More flexible assessment"
+    },
+    {
+      "id": "judo",
+      "name": "Judo Bank",
+      "shortName": "Judo",
+      "supportedIndustries": ["financial-planning", "finance-broker", "accounting", "legal", "real-estate", "medical"],
+      "maxGearing": 3.5,
+      "icrThreshold": 2.0,
+      "rateFrom": 7.0,
+      "features": ["SME specialist", "Relationship banking"],
+      "notes": "Business banking specialist"
+    }
+  ]
+}

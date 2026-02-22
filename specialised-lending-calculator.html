@@ -4,176 +4,149 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#141414">
+  <meta name="theme-color" content="#1a1a2e">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>Specialised Lending Lite — Free | Oney & Co</title>
-  <meta name="description" content="MLL calculations for professional services — accounting, legal, finance broker, financial planning, real estate. Free specialised lending calculator.">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Oney Analyse — MLL Calculator with multi-lender comparison for professional services lending">
+  <title>Oney Analyse v2.0 — Specialised Lending</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0a0a0a;
-      --card: #141414;
-      --border: #262626;
-      --primary: #1FAD73;
-      --primary-glow: rgba(0, 217, 165, 0.3);
+      --bg: #1A1A2E;
+      --card: #252540;
+      --card-hover: #2e2e50;
+      --border: #3D3D5C;
+      --primary: #2ECC85;
+      --primary-dark: #1FAD73;
+      --primary-glow: rgba(46, 204, 133, 0.2);
+      --accent: #6B4C9A;
+      --accent-light: #9B59B6;
+      --accent-glow: rgba(107, 76, 154, 0.2);
       --success: #2ECC85;
-      --warning: #ffc107;
-      --danger: #ff6b6b;
-      --text: #ffffff;
-      --text-muted: #a3a3a3;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --text: #f0f0f0;
+      --text-muted: #a3a3b8;
+      --radius: 16px;
+    }
+    html.light {
+      --bg: #f5f5f5; --card: #ffffff; --card-hover: #f0f0f0;
+      --border: #e0e0e0; --text: #1a1a2e; --text-muted: #6b6b80;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0 0 100px 0; }
-    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-    header { text-align: center; padding: 30px 0 20px; }
-    .logo { font-size: 24px; font-weight: 700; background: linear-gradient(135deg, #2ECC85, #1FAD73); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .tagline { color: var(--text-muted); font-size: 14px; margin-top: 8px; }
-    .badge { display: inline-block; background: var(--success); color: #000; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-top: 8px; }
-    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
-    .card-title { font-size: 14px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding: 0 0 100px 0; }
+    .container { max-width: 700px; margin: 0 auto; padding: 20px; }
+    header { text-align: center; padding: 24px 0 16px; }
+    .header-logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 8px; }
+    .header-logo svg { width: 44px; height: 44px; }
+    .logo-text { font-size: 28px; font-weight: 700; background: linear-gradient(135deg, #2ECC85, #1FAD73); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .tagline { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+    .version-badge { display: inline-block; font-size: 10px; font-weight: 600; background: var(--accent-glow); color: var(--accent-light); padding: 2px 8px; border-radius: 10px; margin-left: 6px; }
+    .data-badge { display: inline-block; font-size: 9px; font-weight: 500; background: var(--primary-glow); color: var(--primary); padding: 2px 6px; border-radius: 8px; margin-left: 4px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; transition: background-color 0.3s, border-color 0.3s; }
+    .card-title { font-size: 13px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
     .form-group { margin-bottom: 16px; }
     label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
-    input, select { width: 100%; padding: 14px 16px; font-size: 16px; font-family: inherit; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; color: var(--text); }
+    input, select { width: 100%; padding: 14px 16px; font-size: 16px; font-family: inherit; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; color: var(--text); transition: all 0.2s; }
     input:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
     .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .btn { width: 100%; padding: 16px; font-size: 16px; font-weight: 600; font-family: inherit; border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: linear-gradient(135deg, #2ECC85, #1FAD73); color: white; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px var(--primary-glow); }
+    .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); margin-top: 12px; }
     .result-card { border: 1px solid var(--primary); box-shadow: 0 0 30px var(--primary-glow); }
     .metrics { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
     .metric { text-align: center; padding: 16px; background: var(--bg); border-radius: 12px; }
     .metric-value { font-size: 20px; font-weight: 700; }
     .metric-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
     .metric.pass .metric-value { color: var(--success); }
+    .metric.warn .metric-value { color: var(--warning); }
     .metric.fail .metric-value { color: var(--danger); }
-    .final-box { text-align: center; padding: 24px; background: linear-gradient(135deg, rgba(0,217,165,0.1), rgba(108,92,231,0.1)); border-radius: 12px; }
+    .final-box { text-align: center; padding: 24px; background: linear-gradient(135deg, rgba(46,204,133,0.1), rgba(107,76,154,0.1)); border-radius: 12px; }
     .final-label { font-size: 14px; color: var(--text-muted); }
     .final-value { font-size: 36px; font-weight: 700; color: var(--primary); }
-    .btn { width: 100%; padding: 16px; font-size: 16px; font-weight: 600; border: none; border-radius: 12px; cursor: pointer; }
-    .btn-primary { background: linear-gradient(135deg, #2ECC85, #00b894); color: #000; }
-    .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); margin-top: 12px; }
-    .btn-upgrade { background: linear-gradient(135deg, #1FAD73, #2ECC85); color: white; margin-top: 12px; }
-    .upgrade-box { background: rgba(108,92,231,0.1); border: 1px solid #1FAD73; border-radius: 16px; padding: 20px; margin: 20px 0; text-align: center; }
-    .upgrade-box h3 { color: #2ECC85; margin-bottom: 8px; }
-    .upgrade-box p { color: var(--text-muted); font-size: 13px; margin-bottom: 16px; }
+    .comparison-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    .comparison-table th { background: var(--bg); padding: 10px 12px; text-align: center; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    .comparison-table td { padding: 10px 12px; text-align: center; border-bottom: 1px solid var(--border); }
+    .comparison-table tr:hover td { background: var(--primary-glow); }
+    .col-pass { color: var(--success); font-weight: 600; }
+    .col-warn { color: var(--warning); font-weight: 600; }
+    .col-fail { color: var(--danger); font-weight: 600; }
     .hidden { display: none; }
     .footer { text-align: center; padding: 30px 20px; color: var(--text-muted); font-size: 12px; }
     .footer a { color: var(--primary); text-decoration: none; }
-    /* Light Mode */
-    html.light {
-      --bg: #f5f5f5;
-      --card: #ffffff;
-      --border: #e5e5e5;
-      --text: #0a0a0a;
-      --text-muted: #525252;
-      --primary-glow: rgba(0, 217, 165, 0.15);
-    }
-    html.light select option { background: var(--card); color: var(--text); }
-    /* Smooth transitions */
-    body, .card, input, select, .metric, .footer, .final-box, .upgrade-box {
-      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-    }
-    /* Top Navigation Bar */
-    .top-nav {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 8px 16px;
-      background: rgba(20, 20, 20, 0.8);
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border);
-      font-size: 13px; position: sticky; top: 0; z-index: 100;
-    }
-    html.light .top-nav { background: rgba(245, 245, 245, 0.8); }
-    .nav-back { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+    .loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 9999; backdrop-filter: blur(4px); }
+    .loading-overlay.hidden { display: none; }
+    .loading-spinner { width: 48px; height: 48px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .top-nav { display: flex; justify-content: space-between; align-items: center; padding: 8px 16px; background: rgba(26,26,46,0.8); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); font-size: 13px; position: sticky; top: 0; z-index: 100; }
+    html.light .top-nav { background: rgba(245,245,245,0.8); }
+    .nav-back { color: var(--text-muted); text-decoration: none; }
     .nav-back:hover { color: var(--primary); }
-    .theme-toggle {
-      background: none; border: 1px solid var(--border); border-radius: 8px;
-      padding: 4px 10px; font-size: 16px; cursor: pointer; line-height: 1;
-      transition: border-color 0.2s;
-    }
+    .theme-toggle { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 4px 10px; font-size: 16px; cursor: pointer; }
     .theme-toggle:hover { border-color: var(--primary); }
-    .clear-data-btn {
-      display: block; margin: 20px auto; background: none; border: none;
-      color: var(--text-muted); font-size: 12px; cursor: pointer;
-      opacity: 0.6; transition: opacity 0.2s; font-family: inherit;
-    }
-    .clear-data-btn:hover { opacity: 1; text-decoration: underline; }
-    #autoSaveToast {
-      position: fixed; bottom: 24px; right: 24px; background: var(--card);
-      border: 1px solid var(--border); color: var(--text-muted);
-      padding: 10px 18px; border-radius: 10px; font-size: 13px;
-      opacity: 0; transition: opacity 0.3s; z-index: 1000; pointer-events: none;
-    }
+    #autoSaveToast { position: fixed; bottom: 24px; right: 24px; background: var(--card); border: 1px solid var(--border); color: var(--text-muted); padding: 10px 18px; border-radius: 10px; font-size: 13px; opacity: 0; transition: opacity 0.3s; z-index: 1000; pointer-events: none; }
+    .error-banner { background: rgba(248,113,113,0.15); border: 1px solid var(--danger); border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: center; }
+    .industry-desc { font-size: 12px; color: var(--text-muted); margin-top: 4px; padding: 8px 12px; background: var(--primary-glow); border-radius: 8px; }
+    body, .card, input, select, .metric, .footer, .final-box { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
   </style>
-
-<style>
-  .back-to-tools { display: inline-block; padding: 10px 0; color: #2ECC85; text-decoration: none; font-size: 14px; font-weight: 500; margin: 16px 24px; }
-  .back-to-tools:hover { text-decoration: underline; }
-  .related-tools { padding: 40px 24px; border-top: 1px solid #3D3D5C; }
-  .related-inner { max-width: 960px; margin: 0 auto; }
-  .related-tools h3 { color: #fff; font-size: 18px; margin-bottom: 16px; font-weight: 600; }
-  .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
-  .related-card {
-    background: #252540; border-radius: 12px; padding: 20px; text-decoration: none;
-    border: 1px solid #3D3D5C; transition: all 0.2s;
-  }
-  .related-card:hover { border-color: #2ECC85; transform: translateY(-2px); }
-  .related-name { color: #fff; font-weight: 600; font-size: 15px; margin-bottom: 6px; }
-  .related-desc { color: #a3a3b8; font-size: 13px; line-height: 1.4; }
-</style>
-  <meta property="og:title" content="Specialised Lending Calculator — Oney & Co Tools">
-  <meta property="og:description" content="Free Specialised Lending Calculator for Australian mortgage brokers — by Oney & Co">
-  <meta property="og:image" content="https://tools.oneyco.com.au/assets/og-image.png">
+  <style>
+    .related-tools { padding: 40px 24px; border-top: 1px solid #3D3D5C; }
+    .related-inner { max-width: 960px; margin: 0 auto; }
+    .related-tools h3 { color: #fff; font-size: 18px; margin-bottom: 16px; font-weight: 600; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+    .related-card { background: #252540; border-radius: 12px; padding: 20px; text-decoration: none; border: 1px solid #3D3D5C; transition: all 0.2s; }
+    .related-card:hover { border-color: #2ECC85; transform: translateY(-2px); }
+    .related-name { color: #fff; font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+    .related-desc { color: #a3a3b8; font-size: 13px; line-height: 1.4; }
+  </style>
+  <meta property="og:title" content="Oney Analyse — Specialised Lending | Oney & Co">
+  <meta property="og:description" content="MLL calculator with multi-lender comparison for professional services — by Oney & Co">
   <meta property="og:url" content="https://tools.oneyco.com.au/specialised-lending-calculator.html">
   <meta property="og:type" content="website">
   <link rel="canonical" href="https://tools.oneyco.com.au/specialised-lending-calculator.html">
 </head>
 <body>
+  <div id="loadingOverlay" class="loading-overlay hidden"><div class="loading-spinner"></div></div>
+  <div id="errorBanner" class="error-banner hidden">
+    <p>⚠️ Failed to load data. <button class="btn-secondary" onclick="loadData()" style="width:auto;padding:8px 16px;margin-top:8px">Retry</button></p>
+  </div>
+
   <nav class="top-nav">
     <a href="index.html" class="nav-back">← Oney Tools</a>
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
   </nav>
   <div id="autoSaveToast"></div>
-  <!-- Watermark -->
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-          <defs>
-            <linearGradient id="fillGradL1" x1="0%" y1="100%" x2="0%" y2="0%">
-              <stop offset="0%" style="stop-color:#1FAD73"/>
-              <stop offset="60%" style="stop-color:#2ECC85"/>
-              <stop offset="60%" style="stop-color:transparent"/>
-              <stop offset="100%" style="stop-color:transparent"/>
-            </linearGradient>
-            <linearGradient id="strokeGradL1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:#2ECC85"/>
-              <stop offset="100%" style="stop-color:#1FAD73"/>
-            </linearGradient>
-          </defs>
-          <g transform="translate(50, 50)">
-            <circle cx="0" cy="0" r="38" fill="none" stroke="url(#strokeGradL1)" stroke-width="10" stroke-linecap="round"/>
-            <circle cx="0" cy="0" r="28" fill="url(#fillGradL1)"/>
-          </g>
-        </svg>
 
   <div class="container">
     <header>
-      <div class="logo">Specialised Lending Lite</div>
-      <div class="tagline">Quick MLL Calculator</div>
-      <div class="badge">FREE</div>
+      <div class="header-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 90">
+          <defs>
+            <linearGradient id="fillGrad" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" style="stop-color:#1FAD73"/><stop offset="55%" style="stop-color:#2ECC85"/><stop offset="55%" style="stop-color:transparent"/><stop offset="100%" style="stop-color:transparent"/></linearGradient>
+            <linearGradient id="strokeGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient>
+          </defs>
+          <g transform="translate(40, 45)"><circle cx="0" cy="0" r="32" fill="none" stroke="url(#strokeGrad)" stroke-width="7"/><circle cx="0" cy="0" r="24" fill="url(#fillGrad)"/></g>
+          <text x="82" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#1a1a1a" letter-spacing="-0.5">ney</text>
+          <text x="129" y="52" font-family="Inter, system-ui, sans-serif" font-size="21" font-weight="500" fill="url(#strokeGrad)">&amp;</text>
+          <text x="148" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#1a1a1a" letter-spacing="-0.5">co</text>
+          <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
+        </svg>
+      </div>
+      <div class="logo-text">Oney Analyse</div>
+      <div class="tagline">Specialised Lending & Multi-Lender MLL <span class="version-badge">v2.0</span> <span class="data-badge" id="dataBadge">Loading…</span></div>
     </header>
-    
+
     <div id="step1">
       <div class="card">
         <div class="card-title">🏢 Business Type</div>
         <div class="form-group">
           <label>Industry</label>
-          <select id="industry">
-            <option value="financial-planning">Financial Planning</option>
-            <option value="finance-broker">Finance Broker</option>
-            <option value="accounting">Accounting</option>
-            <option value="legal">Legal Services</option>
-          </select>
-        </div>
-        <div class="info-box" style="background: rgba(108,92,231,0.1); border: 1px solid #1FAD73; border-radius: 12px; padding: 12px; font-size: 13px; color: var(--text-muted);">
-          💡 Real Estate / Rent Roll available in Standard version
+          <select id="industry" onchange="updateIndustryDesc()"></select>
+          <div class="industry-desc" id="industryDesc"></div>
         </div>
       </div>
-      
+
       <div class="card">
         <div class="card-title">💰 Financial Data</div>
         <div class="form-group">
@@ -185,7 +158,7 @@
           <input type="text" id="arr" placeholder="e.g., 1,200,000" inputmode="numeric" onkeyup="formatNumber(this)">
         </div>
       </div>
-      
+
       <div class="card">
         <div class="card-title">🏦 Loan Details</div>
         <div class="row">
@@ -199,88 +172,121 @@
           </div>
         </div>
       </div>
-      
+
       <button class="btn btn-primary" onclick="calculate()">Calculate MLL</button>
     </div>
-    
+
     <div id="step2" class="hidden">
       <div class="card result-card">
-        <div class="card-title">📊 Results</div>
-        
+        <div class="card-title">📊 MLL Test Results</div>
         <div class="metrics">
-          <div class="metric" id="m1">
-            <div class="metric-value" id="v1">--</div>
-            <div class="metric-label">ICR Test</div>
-          </div>
-          <div class="metric" id="m2">
-            <div class="metric-value" id="v2">--</div>
-            <div class="metric-label">Revenue Test</div>
-          </div>
-          <div class="metric" id="m3">
-            <div class="metric-value" id="v3">--</div>
-            <div class="metric-label">Gearing Test</div>
-          </div>
+          <div class="metric" id="m1"><div class="metric-value" id="v1">--</div><div class="metric-label">ICR Test</div></div>
+          <div class="metric" id="m2"><div class="metric-value" id="v2">--</div><div class="metric-label">Revenue Test</div></div>
+          <div class="metric" id="m3"><div class="metric-value" id="v3">--</div><div class="metric-label">Gearing Test</div></div>
         </div>
-        
         <div class="final-box">
           <div class="final-label">Maximum Lending Limit</div>
           <div class="final-value" id="finalMLL">$0</div>
         </div>
       </div>
-      
-      <div class="upgrade-box">
-        <h3>🚀 Want More Features?</h3>
-        <p>Upgrade for: Real Estate / Rent Roll, Partner Remuneration, Property Count Test, PDF Export, and more!</p>
-        <button class="btn btn-upgrade" onclick="window.open('https://oneyco.com.au/tools/specialised-lending', '_blank')">Upgrade to Standard — $49</button>
+
+      <div class="card">
+        <div class="card-title">🏦 Multi-Lender MLL Comparison</div>
+        <table class="comparison-table" id="lenderTable">
+          <thead><tr><th>Lender</th><th>Max Gearing</th><th>ICR Req</th><th>MLL</th><th>Status</th></tr></thead>
+          <tbody id="lenderBody"></tbody>
+        </table>
       </div>
-      
-      <button class="btn btn-primary" onclick="copyResults()">📋 Copy Results</button>
+
+      <div class="card">
+        <div class="card-title">📝 Summary</div>
+        <div id="summaryContent" style="font-size: 14px; line-height: 1.8; color: var(--text-muted);"></div>
+      </div>
+
+      <button class="btn btn-primary" onclick="exportReport()">📄 Export Report</button>
+      <button class="btn btn-secondary" onclick="copyResults()">📋 Copy Results</button>
       <button class="btn btn-secondary" onclick="reset()">🔄 New Assessment</button>
     </div>
-    
-    <button class="clear-data-btn" onclick="clearSavedData()">Clear Saved Data</button>
-    <footer class="footer">
-      <p>Made by <a href="https://oneyco.com.au">Oney & Co</a></p>
-      <p style="margin-top: 8px;">Free version — <a href="#">Upgrade for more features</a></p>
-    </footer>
+
+    <button class="clear-data-btn" onclick="clearSavedData()" style="display:block;margin:20px auto;background:none;border:none;color:var(--text-muted);font-size:12px;cursor:pointer;opacity:0.6;font-family:inherit;">Clear Saved Data</button>
+    <footer class="footer"><p>Made by <a href="https://oneyco.com.au">Oney & Co</a></p></footer>
   </div>
-  
+
+  <section class="related-tools">
+    <div class="related-inner">
+      <h3>Related Tools</h3>
+      <div class="related-grid">
+        <a href="commercial-investment-calculator.html" class="related-card"><div class="related-name">Oney Assess</div><div class="related-desc">Investment analysis with multi-scenario comparison</div></a>
+        <a href="commercial-servicing-calc.html" class="related-card"><div class="related-name">Oney Serve</div><div class="related-desc">Commercial servicing with multi-bank comparison</div></a>
+        <a href="security-test.html" class="related-card"><div class="related-name">Oney Secure</div><div class="related-desc">Property security assessment & LVR analysis</div></a>
+      </div>
+    </div>
+  </section>
+
   <script>
+    let DATA = {};
+
     function formatNumber(input) {
       let value = input.value.replace(/,/g, '').replace(/[^0-9]/g, '');
       if (value) input.value = parseInt(value).toLocaleString();
     }
-    
-    function parseNum(str) {
-      return parseFloat((str || '').replace(/,/g, '')) || 0;
+    function parseNum(str) { return parseFloat((str || '').replace(/,/g, '')) || 0; }
+
+    async function loadData() {
+      document.getElementById('loadingOverlay').classList.remove('hidden');
+      document.getElementById('errorBanner').classList.add('hidden');
+      try {
+        const res = await fetch('data/specialised-lending.json');
+        if (!res.ok) throw new Error('Failed');
+        DATA = await res.json();
+        populateUI();
+        document.getElementById('dataBadge').textContent = '✓ Data v' + DATA.version;
+        document.getElementById('loadingOverlay').classList.add('hidden');
+      } catch(e) {
+        document.getElementById('loadingOverlay').classList.add('hidden');
+        document.getElementById('errorBanner').classList.remove('hidden');
+      }
     }
-    
+
+    function populateUI() {
+      const sel = document.getElementById('industry');
+      sel.innerHTML = '';
+      Object.entries(DATA.industries).forEach(([k, v]) => {
+        const opt = document.createElement('option');
+        opt.value = k; opt.textContent = v.label;
+        sel.appendChild(opt);
+      });
+      updateIndustryDesc();
+    }
+
+    function updateIndustryDesc() {
+      const ind = DATA.industries[document.getElementById('industry').value];
+      if (ind) document.getElementById('industryDesc').textContent = '💡 ' + ind.description;
+    }
+
     function calculate() {
-      const industry = document.getElementById('industry').value;
+      const industryKey = document.getElementById('industry').value;
+      const industry = DATA.industries[industryKey];
       const ebit = parseNum(document.getElementById('ebit').value);
       const arr = parseNum(document.getElementById('arr').value);
       const loanAmount = parseNum(document.getElementById('loanAmount').value);
       const rate = parseFloat(document.getElementById('interestRate').value) || 7;
-      
-      // Simplified: use EBIT as EBITAPR for lite version
-      const ebitapr = ebit;
-      const annualInterest = loanAmount * (rate / 100);
-      
-      // Test 1: ICR
-      const test1Limit = ebitapr / 2.5 / (rate / 100);
-      const test1Pass = loanAmount <= test1Limit;
-      
-      // Test 2: Revenue (1.75x ARR for all in lite)
-      const test2Limit = arr * 1.75;
-      const test2Pass = loanAmount <= test2Limit;
-      
-      // Test 3: Gearing (3.5x EBITAPR)
-      const test3Limit = ebitapr * 3.5;
-      const test3Pass = loanAmount <= test3Limit;
-      
+
+      if (!ebit && !arr) { alert('Please enter EBIT or ARR'); return; }
+
+      const icrThreshold = industry ? industry.icrThreshold : 2.5;
+      const revMultiplier = industry ? industry.revenueMultiplier : 1.75;
+      const gearingMultiplier = industry ? industry.gearingMultiplier : 3.5;
+
+      const test1Limit = ebit / icrThreshold / (rate / 100);
+      const test2Limit = arr * revMultiplier;
+      const test3Limit = ebit * gearingMultiplier;
       const finalMLL = Math.min(test1Limit, test2Limit, test3Limit);
-      
-      // Update UI
+
+      const test1Pass = loanAmount <= test1Limit;
+      const test2Pass = loanAmount <= test2Limit;
+      const test3Pass = loanAmount <= test3Limit;
+
       document.getElementById('v1').textContent = '$' + Math.round(test1Limit / 1000) + 'k';
       document.getElementById('v2').textContent = '$' + Math.round(test2Limit / 1000) + 'k';
       document.getElementById('v3').textContent = '$' + Math.round(test3Limit / 1000) + 'k';
@@ -288,114 +294,177 @@
       document.getElementById('m2').className = 'metric ' + (test2Pass ? 'pass' : 'fail');
       document.getElementById('m3').className = 'metric ' + (test3Pass ? 'pass' : 'fail');
       document.getElementById('finalMLL').textContent = '$' + Math.round(finalMLL).toLocaleString();
-      
-      window.lastCalc = { industry, ebit, arr, loanAmount, rate, test1Limit, test2Limit, test3Limit, finalMLL };
-      
+
+      // Multi-lender comparison
+      const tbody = document.getElementById('lenderBody');
+      tbody.innerHTML = '';
+      const lenderResults = [];
+      (DATA.lenders || []).forEach(l => {
+        const supported = l.supportedIndustries.includes(industryKey);
+        if (!supported) {
+          lenderResults.push({ ...l, mll: 0, status: 'n/a' });
+          tbody.innerHTML += `<tr><td><strong>${l.name}</strong></td><td>—</td><td>—</td><td>—</td><td style="color:var(--text-muted)">Not Available</td></tr>`;
+          return;
+        }
+        const lICR = ebit / l.icrThreshold / (rate / 100);
+        const lGearing = ebit * l.maxGearing;
+        const lMLL = Math.min(lICR, test2Limit, lGearing);
+        const status = loanAmount <= lMLL ? 'pass' : loanAmount <= lMLL * 1.2 ? 'warn' : 'fail';
+        lenderResults.push({ ...l, mll: lMLL, status });
+        tbody.innerHTML += `<tr>
+          <td><strong>${l.name}</strong><br><span style="font-size:11px;color:var(--text-muted)">${l.notes}</span></td>
+          <td>${l.maxGearing}x</td>
+          <td>${l.icrThreshold}x</td>
+          <td><strong>$${Math.round(lMLL).toLocaleString()}</strong></td>
+          <td class="col-${status}">${status === 'pass' ? '✓ Eligible' : status === 'warn' ? '⚠ Marginal' : status === 'n/a' ? '—' : '✗ Exceeds'}</td>
+        </tr>`;
+      });
+
+      document.getElementById('summaryContent').innerHTML = `
+        <p><strong>Industry:</strong> ${industry ? industry.label : industryKey}</p>
+        <p><strong>EBIT:</strong> $${ebit.toLocaleString()}</p>
+        <p><strong>ARR:</strong> $${arr.toLocaleString()}</p>
+        <p><strong>Proposed Loan:</strong> $${loanAmount.toLocaleString()}</p>
+        <hr style="border-color:var(--border);margin:12px 0">
+        <p><strong>ICR Test MLL:</strong> $${Math.round(test1Limit).toLocaleString()}</p>
+        <p><strong>Revenue Test MLL:</strong> $${Math.round(test2Limit).toLocaleString()}</p>
+        <p><strong>Gearing Test MLL:</strong> $${Math.round(test3Limit).toLocaleString()}</p>
+        <p><strong>Final MLL:</strong> $${Math.round(finalMLL).toLocaleString()}</p>
+      `;
+
+      window.lastCalc = { industryKey, industryLabel: industry ? industry.label : industryKey, ebit, arr, loanAmount, rate, test1Limit, test2Limit, test3Limit, finalMLL, lenderResults };
       document.getElementById('step1').classList.add('hidden');
       document.getElementById('step2').classList.remove('hidden');
     }
-    
+
     function reset() {
       document.querySelectorAll('input').forEach(i => i.value = '');
       document.getElementById('interestRate').value = '7.00';
+      populateUI();
       document.getElementById('step1').classList.remove('hidden');
       document.getElementById('step2').classList.add('hidden');
     }
-    
-    // === Theme Toggle ===
+
+    function copyResults() {
+      const c = window.lastCalc;
+      if (!c) return;
+      const text = `ONEY ANALYSE — MLL ASSESSMENT
+=====================================
+Industry: ${c.industryLabel}
+EBIT: $${c.ebit.toLocaleString()}
+ARR: $${c.arr.toLocaleString()}
+Proposed Loan: $${c.loanAmount.toLocaleString()}
+
+ICR Test: $${Math.round(c.test1Limit).toLocaleString()}
+Revenue Test: $${Math.round(c.test2Limit).toLocaleString()}
+Gearing Test: $${Math.round(c.test3Limit).toLocaleString()}
+Final MLL: $${Math.round(c.finalMLL).toLocaleString()}
+=====================================
+Generated by Oney Analyse v2.0
+oneyco.com.au`;
+      navigator.clipboard.writeText(text).then(() => alert('Copied!'));
+    }
+
+    function exportReport() {
+      const c = window.lastCalc;
+      if (!c) { alert('Please calculate first'); return; }
+      const today = new Date().toLocaleDateString('en-AU');
+      const refId = 'OAN-' + Date.now().toString(36).toUpperCase();
+      const pw = window.open('', '_blank');
+
+      let lenderRows = c.lenderResults.map(l => {
+        if (l.status === 'n/a') return `<tr><td>${l.name}</td><td colspan="3" style="text-align:center;color:#888">Not available for this industry</td></tr>`;
+        const sc = l.status === 'pass' ? '#2ECC85' : l.status === 'warn' ? '#fbbf24' : '#f87171';
+        return `<tr><td><strong>${l.name}</strong><br><span style="font-size:11px;color:#888">${l.notes}</span></td><td style="text-align:center">${l.maxGearing}x / ${l.icrThreshold}x</td><td style="text-align:center"><strong>$${Math.round(l.mll).toLocaleString()}</strong></td><td style="text-align:center;color:${sc};font-weight:bold">${l.status.toUpperCase()}</td></tr>`;
+      }).join('');
+
+      pw.document.write(`<!DOCTYPE html><html><head><title>Oney Analyse Report — ${refId}</title>
+<style>
+body{font-family:'Segoe UI',Arial,sans-serif;padding:40px 50px;color:#333;max-width:900px;margin:0 auto;line-height:1.5}
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2ECC85}
+.logo{font-size:28px;font-weight:bold;color:#2ECC85}
+.logo-sub{font-size:13px;color:#888;margin-top:4px}
+.date{text-align:right;color:#888;font-size:13px}
+h2{color:#1FAD73;font-size:16px;margin:25px 0 10px;padding-bottom:5px;border-bottom:1px solid #e0e0e0}
+table{width:100%;border-collapse:collapse;margin:15px 0}
+th{background:#f8f9fa;font-size:12px;text-transform:uppercase;letter-spacing:0.5px;color:#666}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #eee;font-size:13px}
+.hero{background:linear-gradient(135deg,#2ECC85,#1FAD73);color:white;padding:30px;border-radius:12px;text-align:center;margin:25px 0}
+.hero .value{font-size:48px;font-weight:bold}
+.hero .sub{font-size:14px;opacity:0.9;margin-top:8px}
+.tests{display:flex;gap:16px;margin:20px 0}
+.test-box{flex:1;text-align:center;padding:20px;background:#f8f9fa;border-radius:8px}
+.test-box .val{font-size:24px;font-weight:bold;color:#1a1a2e}
+.test-box .lbl{font-size:12px;color:#888;margin-top:4px}
+.footer{margin-top:40px;padding-top:20px;border-top:2px solid #e0e0e0;color:#888;font-size:11px;text-align:center}
+@media print{body{padding:20px}}
+</style></head><body>
+<div class="header">
+  <div><div class="logo">📋 Oney Analyse</div><div class="logo-sub">Specialised Lending — MLL Assessment & Multi-Lender Comparison</div></div>
+  <div class="date">Report Date: ${today}<br>Reference: ${refId}</div>
+</div>
+
+<h2>Business Overview</h2>
+<table>
+<tr><th width="35%">Field</th><th>Details</th></tr>
+<tr><td>Industry</td><td>${c.industryLabel}</td></tr>
+<tr><td>EBIT</td><td>$${c.ebit.toLocaleString()}</td></tr>
+<tr><td>Annual Recurring Revenue</td><td>$${c.arr.toLocaleString()}</td></tr>
+<tr><td>Proposed Loan</td><td>$${c.loanAmount.toLocaleString()}</td></tr>
+<tr><td>Interest Rate</td><td>${c.rate}%</td></tr>
+</table>
+
+<div class="hero">
+  <div>Maximum Lending Limit</div>
+  <div class="value">$${Math.round(c.finalMLL).toLocaleString()}</div>
+  <div class="sub">Based on the most restrictive test</div>
+</div>
+
+<div class="tests">
+  <div class="test-box"><div class="val">$${Math.round(c.test1Limit).toLocaleString()}</div><div class="lbl">ICR Test</div></div>
+  <div class="test-box"><div class="val">$${Math.round(c.test2Limit).toLocaleString()}</div><div class="lbl">Revenue Test</div></div>
+  <div class="test-box"><div class="val">$${Math.round(c.test3Limit).toLocaleString()}</div><div class="lbl">Gearing Test</div></div>
+</div>
+
+<h2>Multi-Lender Comparison</h2>
+<table>
+<tr><th>Lender</th><th style="text-align:center">Gearing / ICR</th><th style="text-align:center">MLL</th><th style="text-align:center">Status</th></tr>
+${lenderRows}
+</table>
+
+<div class="footer">
+<p><strong>Generated by Oney Analyse v2.0</strong> — oneyco.com.au</p>
+<p>This assessment is for reference only. Final lending decisions are subject to full credit assessment and lender approval.<br>
+Data effective: ${DATA.lastUpdated || 'N/A'} | Report generated: ${new Date().toISOString()}</p>
+</div>
+</body></html>`);
+      pw.document.close();
+      setTimeout(() => pw.print(), 500);
+    }
+
+    // Theme
     function toggleTheme() {
       document.documentElement.classList.toggle('light');
       var isLight = document.documentElement.classList.contains('light');
       localStorage.setItem('oney_theme', isLight ? 'light' : 'dark');
       document.getElementById('themeToggle').textContent = isLight ? '☀️' : '🌙';
     }
-    (function() {
-      var btn = document.getElementById('themeToggle');
-      if (btn) btn.textContent = document.documentElement.classList.contains('light') ? '☀️' : '🌙';
-    })();
+    (function() { var btn = document.getElementById('themeToggle'); if (btn) btn.textContent = document.documentElement.classList.contains('light') ? '☀️' : '🌙'; })();
 
-    // === Auto-Save ===
+    // Auto-Save
     (function() {
-      var SAVE_KEY = 'oney_save_specialised_lending';
+      var SAVE_KEY = 'oney_save_analyse_v2';
       var saveTimeout;
-      function getAllValues() {
-        var data = {};
-        document.querySelectorAll('#step1 input, #step1 select').forEach(function(el) {
-          if (el.id) data[el.id] = el.value;
-        });
-        return data;
-      }
-      function restoreValues() {
-        try {
-          var saved = localStorage.getItem(SAVE_KEY);
-          if (!saved) return;
-          var data = JSON.parse(saved);
-          Object.keys(data).forEach(function(id) {
-            var el = document.getElementById(id);
-            if (el) el.value = data[id];
-          });
-        } catch(e) {}
-      }
-      function saveValues() {
-        clearTimeout(saveTimeout);
-        saveTimeout = setTimeout(function() {
-          localStorage.setItem(SAVE_KEY, JSON.stringify(getAllValues()));
-          showAutoSaveToast();
-        }, 500);
-      }
-      function showAutoSaveToast() {
-        var toast = document.getElementById('autoSaveToast');
-        toast.textContent = 'Auto-saved ✓';
-        toast.style.opacity = '1';
-        setTimeout(function() { toast.style.opacity = '0'; }, 2000);
-      }
-      restoreValues();
+      function getAllValues() { var d = {}; document.querySelectorAll('#step1 input, #step1 select').forEach(function(el) { if (el.id) d[el.id] = el.value; }); return d; }
+      function restoreValues() { try { var s = localStorage.getItem(SAVE_KEY); if (!s) return; var d = JSON.parse(s); Object.keys(d).forEach(function(id) { var el = document.getElementById(id); if (el) el.value = d[id]; }); } catch(e) {} }
+      function saveValues() { clearTimeout(saveTimeout); saveTimeout = setTimeout(function() { localStorage.setItem(SAVE_KEY, JSON.stringify(getAllValues())); var t = document.getElementById('autoSaveToast'); t.textContent = 'Auto-saved ✓'; t.style.opacity = '1'; setTimeout(function() { t.style.opacity = '0'; }, 2000); }, 500); }
+      window._restoreSaved = restoreValues;
       document.addEventListener('input', saveValues);
       document.addEventListener('change', saveValues);
-      window.clearSavedData = function() {
-        localStorage.removeItem(SAVE_KEY);
-        var toast = document.getElementById('autoSaveToast');
-        toast.textContent = 'Saved data cleared ✓';
-        toast.style.opacity = '1';
-        setTimeout(function() { toast.style.opacity = '0'; }, 2000);
-      };
+      window.clearSavedData = function() { localStorage.removeItem(SAVE_KEY); var t = document.getElementById('autoSaveToast'); t.textContent = 'Saved data cleared ✓'; t.style.opacity = '1'; setTimeout(function() { t.style.opacity = '0'; }, 2000); };
     })();
 
-    function copyResults() {
-      const c = window.lastCalc;
-      if (!c) return;
-      const text = `SPECIALISED LENDING — MLL (Lite)
-Industry: ${c.industry}
-EBIT: $${c.ebit.toLocaleString()}
-ARR: $${c.arr.toLocaleString()}
-Proposed Loan: $${c.loanAmount.toLocaleString()}
-
-MLL: $${Math.round(c.finalMLL).toLocaleString()}
-
-Generated by Specialised Lending Lite (Free)
-oneyco.com.au`;
-      navigator.clipboard.writeText(text).then(() => alert('Copied!'));
-    }
+    loadData().then(() => { if (window._restoreSaved) window._restoreSaved(); });
   </script>
-
-  <section class="related-tools">
-    <div class="related-inner">
-      <h3>Related Tools</h3>
-      <div class="related-grid">
-      <a href="commercial-investment-calculator.html" class="related-card">
-        <div class="related-name">Commercial Investment Calculator</div>
-        <div class="related-desc">Analyse commercial property investment returns and cash flow</div>
-      </a>
-      <a href="commercial-servicing-calc.html" class="related-card">
-        <div class="related-name">Commercial Servicing Calculator</div>
-        <div class="related-desc">Assess commercial loan serviceability and capacity</div>
-      </a>
-      <a href="creditsheet.html" class="related-card">
-        <div class="related-name">Credit Sheet</div>
-        <div class="related-desc">Generate structured credit summaries for submissions</div>
-      </a>
-      </div>
-    </div>
-  </section>
 </body>
 </html>
