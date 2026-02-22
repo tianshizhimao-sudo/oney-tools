@@ -673,132 +673,28 @@
 <div id="oney-gate" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#0a0a0a;z-index:99999;display:flex;align-items:center;justify-content:center;font-family:Inter,-apple-system,sans-serif;">
 <div style="text-align:center;max-width:360px;padding:40px;">
 <div style="width:64px;height:64px;margin:0 auto 24px;border-radius:50%;background:rgba(46,204,133,0.12);display:flex;align-items:center;justify-content:center;">
-<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="#2ECC85" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-</div>
-<h2 style="color:#fff;font-size:20px;margin-bottom:8px;">Oney &amp; Co</h2>
-<p style="color:#737373;font-size:14px;margin-bottom:24px;">This tool is in development. Enter password to access.</p>
-<input id="oney-pw" type="password" placeholder="Password" autocomplete="off" style="width:100%;padding:12px 16px;background:#141414;border:1px solid #262626;border-radius:8px;color:#fff;font-size:16px;outline:none;margin-bottom:12px;text-align:center;" onkeydown="if(event.key==='Enter')document.getElementById('oney-unlock').click()">
-<button id="oney-unlock" onclick="oneyCheck()" style="width:100%;padding:12px;background:linear-gradient(135deg,#2ECC85,#1FAD73);border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:600;cursor:pointer;">Unlock</button>
-</div></div>
-<script>if(sessionStorage.getItem("oney-auth")==="1"){var g=document.getElementById("oney-gate");if(g)g.remove();}</script>
-<!-- PASSWORD GATE END -->
-    <!-- Toast Container -->
-    <div class="toast-container" id="toast-container"></div>
-
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-logo">
-                <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="oneyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#2ECC85"/>
-                            <stop offset="100%" stop-color="#1FAD73"/>
-                        </linearGradient>
-                    </defs>
-                    <g transform="translate(20, 20)">
-                        <path d="M 0 -15 A 15 15 0 1 0 0 -14.99" fill="none" stroke="url(#oneyGrad)" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="90 5"/>
-                        <path d="M0 -18 L0 -22" stroke="url(#oneyGrad)" stroke-width="2.5" stroke-linecap="round"/>
-                    </g>
-                </svg>
-                <h1>Oney Pro</h1>
-            </div>
-            <span class="sidebar-subtitle">Credit Assessment Platform</span>
-        </div>
-
-        <nav class="sidebar-nav">
-            <div class="nav-section">
-                <div class="nav-section-title">Getting Started</div>
-                <div class="nav-item active" data-module="dashboard">
-                    <span class="nav-item-icon">🏠</span>
-                    Dashboard
-                </div>
-                <div class="nav-item" data-module="shared-inputs">
-                    <span class="nav-item-icon">📋</span>
-                    Shared Inputs
-                </div>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Assessment Workflow</div>
-                <div class="nav-item" data-module="financial-health">
-                    <span class="nav-item-number">1</span>
-                    Financial Health Check
-                </div>
-                <div class="nav-item" data-module="borrower-profile">
-                    <span class="nav-item-number">2</span>
-                    Borrower Profile
-                </div>
-                <div class="nav-item" data-module="loan-purpose">
-                    <span class="nav-item-number">3</span>
-                    Loan Purpose
-                </div>
-                <div class="nav-item" data-module="security-assessment">
-                    <span class="nav-item-number">4</span>
-                    Security Assessment
-                </div>
-                <div class="nav-item" data-module="servicing">
-                    <span class="nav-item-number">5</span>
-                    Servicing Analysis
-                </div>
-                <div class="nav-item" data-module="other-risks">
-                    <span class="nav-item-number">6</span>
-                    Other Risks
-                </div>
-            </div>
-
-            <div class="nav-section">
-                <div class="nav-section-title">Output</div>
-                <div class="nav-item" data-module="summary">
-                    <span class="nav-item-icon">📊</span>
-                    Credit Summary
-                </div>
-                <div class="nav-item" data-module="export">
-                    <span class="nav-item-icon">📤</span>
-                    Export Report
-                </div>
-            </div>
-        </nav>
-
-        <div style="padding: 16px 24px; border-top: 1px solid var(--border);">
-            <button class="btn btn-secondary" style="width: 100%;" onclick="resetAll()">
-                🔄 Reset All
-            </button>
-        </div>
-    </aside>
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Top Bar -->
-        <div class="top-bar">
-            <div class="breadcrumb">
-                <span>Suite</span>
-                <span>/</span>
-                <span class="breadcrumb-current" id="current-module-name">Dashboard</span>
-            </div>
-            <div class="top-bar-actions">
-                <div class="progress-indicator">
-                    <span id="progress-text">0/6 Complete</span>
-                    <div class="progress-bar">
-                        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
-                    </div>
-                </div>
-                <button class="btn btn-secondary" onclick="saveToLocalStorage()">💾 Save</button>
-            </div>
-        </div>
-
-        <!-- Content Area -->
-        <div class="content-area">
-            <!-- Dashboard Module -->
-            <div class="module-container active" id="module-dashboard">
-                <div class="dashboard-welcome">
-                    <div class="dashboard-welcome-icon" style="background: linear-gradient(135deg, #2ECC85, #1FAD73);">
-                        <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg">
-                            <g transform="translate(25, 25)">
-                                <path d="M 0 -18 A 18 18 0 1 0 0 -17.99" fill="none" stroke="white" stroke-width="4" stroke-linecap="round" stroke-dasharray="108 6"/>
-                                <path d="M0 -22 L0 -27" stroke="white" stroke-width="3" stroke-linecap="round"/>
-                            </g>
-                        </svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <defs>
+            <linearGradient id="fillGradL2" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" style="stop-color:#1FAD73"/>
+              <stop offset="55%" style="stop-color:#2ECC85"/>
+              <stop offset="55%" style="stop-color:transparent"/>
+              <stop offset="100%" style="stop-color:transparent"/>
+            </linearGradient>
+            <linearGradient id="strokeGradL2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#2ECC85"/>
+              <stop offset="100%" style="stop-color:#1FAD73"/>
+            </linearGradient>
+          </defs>
+          <g transform="translate(40, 45)">
+            <circle cx="0" cy="0" r="32" fill="none" stroke="url(#strokeGradL2)" stroke-width="7"/>
+            <circle cx="0" cy="0" r="24" fill="url(#fillGradL2)"/>
+          </g>
+          <text x="82" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">ney</text>
+          <text x="129" y="52" font-family="Inter, system-ui, sans-serif" font-size="21" font-weight="500" fill="url(#strokeGradL2)">&amp;</text>
+          <text x="148" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">co</text>
+          <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
+        </svg>
                     </div>
                     <h2>Welcome to Oney Pro</h2>
                     <p>Complete credit assessment platform. All your tools in one place, with shared data flowing through every step.</p>

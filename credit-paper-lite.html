@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#0a0a0a">
   <title>Credit Paper Lite | Oney & Co</title>
   <meta name="description" content="Free credit paper generator for basic loan applications. Generate simple credit summaries.">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><path d='M0-38A38 38 0 1 0 0-37.99' fill='none' stroke='url(%23g)' stroke-width='8' stroke-linecap='round' stroke-dasharray='227 12'/><path d='M0-45L0-52' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/></g></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='fg' x1='0%25' y1='100%25' x2='0%25' y2='0%25'><stop offset='0%25' stop-color='%231FAD73'/><stop offset='60%25' stop-color='%232ECC85'/><stop offset='60%25' stop-color='transparent'/><stop offset='100%25' stop-color='transparent'/></linearGradient><linearGradient id='sg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><circle r='38' fill='none' stroke='url(%23sg)' stroke-width='10' stroke-linecap='round'/><circle r='28' fill='url(%23fg)'/></g></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -428,126 +428,28 @@
   </nav>
   <div id="autoSaveToast"></div>
   <!-- Watermark -->
-  <svg style="position:fixed;top:24px;left:24px;width:80px;height:80px;opacity:0.08;z-index:1;pointer-events:none;" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <defs><linearGradient id="wm" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs>
-    <g transform="translate(50, 50)"><path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#wm)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/><path d="M0 -45 L0 -52" stroke="url(#wm)" stroke-width="6" stroke-linecap="round"/></g>
-  </svg>
-
-  <div class="container">
-    <header class="header">
-      <a href="index.html" class="header-back">← Back to Tools</a>
-      <div class="header-top">
-        <div>
-          <h1>📋 Credit Paper Lite</h1>
-          <p>Generate a simple credit summary for basic loan applications</p>
-        </div>
-        <div class="lite-badge">✨ Free Version</div>
-      </div>
-    </header>
-    
-    <div class="main-grid">
-      <!-- Input Form -->
-      <div>
-        <div class="card">
-          <h2 class="card-title">📝 Application Details</h2>
-          
-          <div class="form-group">
-            <label class="form-label">Borrower / Entity Name</label>
-            <input type="text" class="form-input" id="borrowerName" placeholder="e.g. John Smith / ABC Pty Ltd" oninput="updatePreview()">
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Transaction Type</label>
-            <select class="form-select" id="transactionType" onchange="updatePreview()">
-              <option value="">Select...</option>
-              <option value="Purchase">Purchase</option>
-              <option value="Refinance">Refinance</option>
-              <option value="Construction">Construction</option>
-              <option value="Equity Release">Equity Release</option>
-              <option value="Top Up">Top Up</option>
-            </select>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Loan Amount ($)</label>
-              <input type="text" class="form-input" id="loanAmount" placeholder="e.g. 500,000" oninput="formatCurrency(this); updatePreview()">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Security Value ($)</label>
-              <input type="text" class="form-input" id="securityValue" placeholder="e.g. 650,000" oninput="formatCurrency(this); updatePreview()">
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Security Type</label>
-            <select class="form-select" id="securityType" onchange="updatePreview()">
-              <option value="">Select...</option>
-              <option value="Residential">Residential</option>
-              <option value="Commercial">Commercial</option>
-              <option value="Industrial">Industrial</option>
-              <option value="Retail">Retail</option>
-              <option value="Mixed Use">Mixed Use</option>
-              <option value="Rural">Rural</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Security Address</label>
-            <input type="text" class="form-input" id="securityAddress" placeholder="e.g. 123 Main St, Sydney NSW 2000" oninput="updatePreview()">
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Target Lender</label>
-            <select class="form-select" id="targetLender" onchange="updatePreview()">
-              <option value="">Select...</option>
-              <option value="CBA">Commonwealth Bank</option>
-              <option value="NAB">NAB</option>
-              <option value="ANZ">ANZ</option>
-              <option value="Westpac">Westpac</option>
-              <option value="St George">St George</option>
-              <option value="Macquarie">Macquarie</option>
-              <option value="Bankwest">Bankwest</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Loan Purpose / Notes</label>
-            <textarea class="form-textarea" id="loanPurpose" placeholder="Brief description of the loan purpose and any key notes..." oninput="updatePreview()"></textarea>
-          </div>
-        </div>
-        
-        <div class="card" style="margin-top: 20px;">
-          <h2 class="card-title">📊 Quick Metrics</h2>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Annual Income ($)</label>
-              <input type="text" class="form-input" id="annualIncome" placeholder="e.g. 150,000" oninput="formatCurrency(this); updatePreview()">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Monthly Rent (if any) ($)</label>
-              <input type="text" class="form-input" id="monthlyRent" placeholder="e.g. 3,500" oninput="formatCurrency(this); updatePreview()">
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Preview -->
-      <div>
-        <div class="card preview-card">
-          <h2 class="card-title">👁️ Live Preview</h2>
-          
-          <div class="preview-content" id="previewContent">
-            <div class="preview-header">
-              <svg class="preview-logo" viewBox="0 0 160 50" xmlns="http://www.w3.org/2000/svg">
-                <defs><linearGradient id="logoG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs>
-                <g transform="translate(25, 25)"><path d="M 0 -18 A 18 18 0 1 0 0 -17.99" fill="none" stroke="url(#logoG)" stroke-width="4" stroke-linecap="round" stroke-dasharray="108 6"/><path d="M0 -22 L0 -26" stroke="url(#logoG)" stroke-width="3" stroke-linecap="round"/></g>
-                <text x="50" y="32" font-family="Inter, Arial" font-size="16" font-weight="700" fill="#ffffff">ney</text>
-                <text x="80" y="32" font-family="Inter, Arial" font-size="12" fill="url(#logoG)">&amp;</text>
-                <text x="92" y="32" font-family="Inter, Arial" font-size="16" font-weight="700" fill="#ffffff">co</text>
-              </svg>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+          <defs>
+            <linearGradient id="fillGradL1" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" style="stop-color:#1FAD73"/>
+              <stop offset="55%" style="stop-color:#2ECC85"/>
+              <stop offset="55%" style="stop-color:transparent"/>
+              <stop offset="100%" style="stop-color:transparent"/>
+            </linearGradient>
+            <linearGradient id="strokeGradL1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#2ECC85"/>
+              <stop offset="100%" style="stop-color:#1FAD73"/>
+            </linearGradient>
+          </defs>
+          <g transform="translate(40, 45)">
+            <circle cx="0" cy="0" r="32" fill="none" stroke="url(#strokeGradL1)" stroke-width="7"/>
+            <circle cx="0" cy="0" r="24" fill="url(#fillGradL1)"/>
+          </g>
+          <text x="82" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">ney</text>
+          <text x="129" y="52" font-family="Inter, system-ui, sans-serif" font-size="21" font-weight="500" fill="url(#strokeGradL1)">&amp;</text>
+          <text x="148" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">co</text>
+          <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
+        </svg>
               <div class="preview-title">Credit Summary</div>
               <div class="preview-subtitle" id="previewDate">Generated: --</div>
             </div>

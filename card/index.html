@@ -504,52 +504,54 @@
     
     <!-- Logo -->
     <div class="logo-section">
-      <svg class="logo-svg" viewBox="0 0 180 80">
-        <defs>
-          <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#2ECC85"/>
-            <stop offset="100%" style="stop-color:#1FAD73"/>
-          </linearGradient>
-          <linearGradient id="purpleAccent" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" style="stop-color:#6B4C9A"/>
-            <stop offset="100%" style="stop-color:#9B59B6"/>
-          </linearGradient>
-        </defs>
-        <g transform="translate(35, 40)">
-          <path d="M 0 -30 A 30 30 0 1 0 0 -29.99" fill="none" stroke="url(#greenGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="180 10"/>
-          <path d="M0 -36 L0 -46" stroke="url(#greenGrad)" stroke-width="6" stroke-linecap="round"/>
-        </g>
-        <text x="42" y="44" font-family="Inter, sans-serif" font-size="42" font-weight="600" fill="white" letter-spacing="-1.5">ney<tspan fill="url(#greenGrad)" font-size="32" font-weight="500">&amp;</tspan>co</text>
-        <circle cx="176" cy="40" r="3" fill="url(#purpleAccent)"/>
-      </svg>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 80">
+          <defs>
+            <linearGradient id="fillGradL1" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" style="stop-color:#1FAD73"/>
+              <stop offset="55%" style="stop-color:#2ECC85"/>
+              <stop offset="55%" style="stop-color:transparent"/>
+              <stop offset="100%" style="stop-color:transparent"/>
+            </linearGradient>
+            <linearGradient id="strokeGradL1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#2ECC85"/>
+              <stop offset="100%" style="stop-color:#1FAD73"/>
+            </linearGradient>
+          </defs>
+          <g transform="translate(40, 45)">
+            <circle cx="0" cy="0" r="32" fill="none" stroke="url(#strokeGradL1)" stroke-width="7"/>
+            <circle cx="0" cy="0" r="24" fill="url(#fillGradL1)"/>
+          </g>
+          <text x="82" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">ney</text>
+          <text x="129" y="52" font-family="Inter, system-ui, sans-serif" font-size="21" font-weight="500" fill="url(#strokeGradL1)">&amp;</text>
+          <text x="148" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">co</text>
+          <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
+        </svg>
     </div>
 
     <!-- Profile -->
     <div class="profile-section">
       <div class="profile-icon">
-        <svg viewBox="0 0 100 100" fill="none">
-          <g transform="translate(50, 50)">
-            <path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/>
-            <path d="M0 -45 L0 -52" stroke="white" stroke-width="6" stroke-linecap="round"/>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+          <defs>
+            <linearGradient id="fillGradL2" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" style="stop-color:#1FAD73"/>
+              <stop offset="55%" style="stop-color:#2ECC85"/>
+              <stop offset="55%" style="stop-color:transparent"/>
+              <stop offset="100%" style="stop-color:transparent"/>
+            </linearGradient>
+            <linearGradient id="strokeGradL2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#2ECC85"/>
+              <stop offset="100%" style="stop-color:#1FAD73"/>
+            </linearGradient>
+          </defs>
+          <g transform="translate(40, 45)">
+            <circle cx="0" cy="0" r="32" fill="none" stroke="url(#strokeGradL2)" stroke-width="7"/>
+            <circle cx="0" cy="0" r="24" fill="url(#fillGradL2)"/>
           </g>
-        </svg>
-      </div>
-      <h1 class="profile-name">Mao Dong</h1>
-      <p class="profile-name-cn">毛冬</p>
-      <p class="profile-title">Founder</p>
-      <p class="profile-company">Oney & Co Pty Ltd</p>
-    </div>
-
-    <!-- Tagline -->
-    <div class="tagline">
-      <p>Make financial health awareness as normal as a medical checkup</p>
-    </div>
-
-    <!-- Quick actions -->
-    <div class="contact-actions">
-      <a href="tel:+61412169459" class="action-btn primary">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+          <text x="82" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">ney</text>
+          <text x="129" y="52" font-family="Inter, system-ui, sans-serif" font-size="21" font-weight="500" fill="url(#strokeGradL2)">&amp;</text>
+          <text x="148" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">co</text>
+          <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
         </svg>
         Call
       </a>
