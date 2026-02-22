@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Oney Pro Suite — Pricing</title>
+  <meta name="description" content="Oney Pro Suite pricing — All tools bundled at one low price. $49/month or $399/year.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><path d='M0-38A38 38 0 1 0 0-37.99' fill='none' stroke='url(%23g)' stroke-width='8' stroke-linecap='round' stroke-dasharray='227 12'/><path d='M0-45L0-52' stroke='url(%23g)' stroke-width='6' stroke-linecap='round'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --card: #1a1a1a;
+      --card-hover: #222222;
+      --border: #262626;
+      --accent: #1FAD73;
+      --accent-light: #2ECC85;
+      --accent-glow: rgba(31, 173, 115, 0.15);
+      --purple: #6B4C9A;
+      --purple-light: #9B59B6;
+      --purple-glow: rgba(107, 76, 154, 0.15);
+      --text: #ffffff;
+      --text-muted: #a3a3a3;
+      --gold: #f59e0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .watermark {
+      position: fixed;
+      top: 24px;
+      left: 24px;
+      width: 80px;
+      height: 80px;
+      opacity: 0.08;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .logo { width: 180px; height: 75px; margin-bottom: 20px; }
+
+    .header h1 {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #2ECC85, #1FAD73);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      color: var(--text-muted);
+      font-size: 18px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Toggle */
+    .billing-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin: 32px 0 48px;
+    }
+
+    .billing-toggle span {
+      font-size: 15px;
+      color: var(--text-muted);
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .billing-toggle span.active { color: var(--text); }
+
+    .toggle-switch {
+      width: 52px;
+      height: 28px;
+      background: var(--border);
+      border-radius: 14px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle-switch.annual { background: var(--accent); }
+
+    .toggle-switch::after {
+      content: '';
+      width: 22px;
+      height: 22px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.3s;
+    }
+
+    .toggle-switch.annual::after { transform: translateX(24px); }
+
+    .save-badge {
+      background: var(--accent-glow);
+      color: var(--accent-light);
+      padding: 4px 10px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* Pricing Cards */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 64px;
+    }
+
+    .pricing-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 28px;
+      position: relative;
+      transition: border-color 0.3s, transform 0.2s;
+    }
+
+    .pricing-card:hover {
+      border-color: #333;
+      transform: translateY(-2px);
+    }
+
+    .pricing-card.featured {
+      border-color: var(--accent);
+      box-shadow: 0 0 40px var(--accent-glow);
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #2ECC85, #1FAD73);
+      color: #000;
+      padding: 4px 16px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card-header {
+      margin-bottom: 24px;
+    }
+
+    .card-header h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .card-header p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .price {
+      margin-bottom: 24px;
+    }
+
+    .price .amount {
+      font-size: 48px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .price .currency {
+      font-size: 20px;
+      font-weight: 600;
+      vertical-align: super;
+      color: var(--text-muted);
+    }
+
+    .price .period {
+      font-size: 16px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .price .original {
+      text-decoration: line-through;
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .features-list {
+      list-style: none;
+      margin-bottom: 28px;
+    }
+
+    .features-list li {
+      padding: 8px 0;
+      font-size: 14px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .features-list li .check {
+      color: var(--accent-light);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .features-list li .cross {
+      color: #555;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .cta-btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .cta-btn.primary {
+      background: linear-gradient(135deg, #2ECC85, #1FAD73);
+      color: #000;
+    }
+
+    .cta-btn.primary:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .cta-btn.secondary {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    .cta-btn.secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent-light);
+    }
+
+    /* Comparison Table */
+    .comparison-section {
+      margin-bottom: 64px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 32px;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .comparison-table thead th {
+      padding: 16px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .comparison-table thead th:first-child {
+      text-align: left;
+    }
+
+    .comparison-table thead th.highlight {
+      color: var(--accent-light);
+      background: var(--accent-glow);
+    }
+
+    .comparison-table tbody td {
+      padding: 14px 20px;
+      font-size: 14px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+
+    .comparison-table tbody td:first-child {
+      text-align: left;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .comparison-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .comparison-table .product-group td {
+      background: rgba(255,255,255,0.02);
+      font-weight: 600;
+      color: var(--accent-light);
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .t-check { color: var(--accent-light); }
+    .t-cross { color: #444; }
+
+    /* Value Proposition */
+    .value-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 48px 40px;
+      text-align: center;
+      margin-bottom: 64px;
+    }
+
+    .value-section h2 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .value-section p {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 32px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .value-stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+
+    .value-stat .number {
+      font-size: 36px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #2ECC85, #1FAD73);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .value-stat .label {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* FAQ */
+    .faq-section { margin-bottom: 64px; }
+
+    .faq-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .faq-question {
+      padding: 18px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+
+    .faq-question:hover { background: var(--card-hover); }
+
+    .faq-question .arrow {
+      transition: transform 0.3s;
+      color: var(--text-muted);
+    }
+
+    .faq-item.open .faq-question .arrow {
+      transform: rotate(180deg);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .faq-answer-inner {
+      padding: 0 24px 18px;
+      font-size: 14px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 200px;
+    }
+
+    /* CTA Bottom */
+    .cta-bottom {
+      text-align: center;
+      padding: 48px 0;
+    }
+
+    .cta-bottom h2 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .cta-bottom p {
+      color: var(--text-muted);
+      font-size: 16px;
+      margin-bottom: 28px;
+    }
+
+    .cta-bottom .cta-btn {
+      display: inline-block;
+      width: auto;
+      padding: 16px 40px;
+      font-size: 16px;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 32px 0;
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+
+    .footer a {
+      color: var(--accent-light);
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    .footer p {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .pricing-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .header h1 { font-size: 28px; }
+      .price .amount { font-size: 40px; }
+      .value-stats { gap: 32px; }
+
+      .comparison-table {
+        font-size: 12px;
+      }
+
+      .comparison-table thead th,
+      .comparison-table tbody td {
+        padding: 10px 8px;
+      }
+
+      .value-section { padding: 32px 24px; }
+    }
+
+    @media (max-width: 480px) {
+      .container { padding: 24px 16px 60px; }
+
+      .comparison-table thead th,
+      .comparison-table tbody td {
+        padding: 8px 6px;
+        font-size: 11px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Watermark -->
+<svg class="watermark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs><linearGradient id="wg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2ECC85"/><stop offset="100%" stop-color="#1FAD73"/></linearGradient></defs>
+  <g transform="translate(50,50)"><path d="M0-38A38 38 0 1 0 0-37.99" fill="none" stroke="url(#wg)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/><path d="M0-45L0-52" stroke="url(#wg)" stroke-width="6" stroke-linecap="round"/></g>
+</svg>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <svg class="logo" viewBox="0 0 190 90" xmlns="http://www.w3.org/2000/svg">
+      <defs><linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs>
+      <g transform="translate(38,45)"><path d="M0-32A32 32 0 1 0 0-31.99" fill="none" stroke="url(#greenGrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/><path d="M0-38L0-44" stroke="url(#greenGrad)" stroke-width="5" stroke-linecap="round"/></g>
+      <text x="32" y="50" font-family="Inter,Arial,sans-serif" font-size="26" font-weight="600" fill="#ffffff">ney</text>
+      <text x="77" y="50" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="400" fill="url(#greenGrad)">&amp;</text>
+      <text x="94" y="50" font-family="Inter,Arial,sans-serif" font-size="26" font-weight="600" fill="#ffffff">co</text>
+    </svg>
+    <h1>Pro Suite Pricing</h1>
+    <p>Every tool you need to run your mortgage business — one subscription, unlimited access.</p>
+  </div>
+
+  <!-- Billing Toggle -->
+  <div class="billing-toggle">
+    <span id="monthly-label" class="active">Monthly</span>
+    <div class="toggle-switch" id="billing-toggle" onclick="toggleBilling()"></div>
+    <span id="annual-label">Annual</span>
+    <span class="save-badge">Save 32%</span>
+  </div>
+
+  <!-- Pricing Cards -->
+  <div class="pricing-grid">
+
+    <!-- Free -->
+    <div class="pricing-card">
+      <div class="card-header">
+        <h3>Free Tools</h3>
+        <p>Get started with essential calculators</p>
+      </div>
+      <div class="price">
+        <span class="currency">$</span><span class="amount">0</span>
+        <span class="period">/forever</span>
+      </div>
+      <ul class="features-list">
+        <li><span class="check">✓</span> Commercial Investment Calculator</li>
+        <li><span class="check">✓</span> Multi-Lender Analyser (Basic)</li>
+        <li><span class="check">✓</span> RBA Rate Tracker</li>
+        <li><span class="check">✓</span> Basic export (PDF)</li>
+        <li><span class="cross">✗</span> Credit Paper Generator</li>
+        <li><span class="cross">✗</span> Security Assessment</li>
+        <li><span class="cross">✗</span> Commercial Servicing</li>
+        <li><span class="cross">✗</span> Priority support</li>
+      </ul>
+      <a href="/" class="cta-btn secondary">Get Started Free</a>
+    </div>
+
+    <!-- Pro Suite -->
+    <div class="pricing-card featured">
+      <div class="popular-badge">Most Popular</div>
+      <div class="card-header">
+        <h3>Pro Suite</h3>
+        <p>Everything bundled — save over $200/mo</p>
+      </div>
+      <div class="price">
+        <span class="currency">$</span><span class="amount" id="pro-price">49</span>
+        <span class="period" id="pro-period">/month</span>
+        <div class="original" id="pro-original">Individual tools: $546/mo</div>
+      </div>
+      <ul class="features-list">
+        <li><span class="check">✓</span> <strong>All free tools included</strong></li>
+        <li><span class="check">✓</span> Oney Assess — Full Version</li>
+        <li><span class="check">✓</span> Oney Analyse — Pro + Enterprise</li>
+        <li><span class="check">✓</span> Oney Secure — Security Assessment</li>
+        <li><span class="check">✓</span> Oney Serve — Commercial Servicing</li>
+        <li><span class="check">✓</span> Credit Paper Generator (Pro)</li>
+        <li><span class="check">✓</span> Priority email support</li>
+        <li><span class="check">✓</span> All future tools included</li>
+      </ul>
+      <a href="mailto:hello@oneyco.com.au?subject=Pro Suite Subscription" class="cta-btn primary">Get Pro Suite</a>
+    </div>
+
+    <!-- Individual -->
+    <div class="pricing-card">
+      <div class="card-header">
+        <h3>Individual Tools</h3>
+        <p>Pick only what you need</p>
+      </div>
+      <div class="price">
+        <span class="currency">$</span><span class="amount">99</span>
+        <span class="period">–$349/tool</span>
+      </div>
+      <ul class="features-list">
+        <li><span class="check">✓</span> Oney Assess — $149</li>
+        <li><span class="check">✓</span> Oney Analyse Pro — $199</li>
+        <li><span class="check">✓</span> Oney Analyse Enterprise — $349</li>
+        <li><span class="check">✓</span> Oney Secure — $99</li>
+        <li><span class="check">✓</span> Oney Serve — $149</li>
+        <li><span class="cross">✗</span> No bundle discount</li>
+        <li><span class="cross">✗</span> Future tools not included</li>
+        <li><span class="check">✓</span> Standard email support</li>
+      </ul>
+      <a href="mailto:hello@oneyco.com.au?subject=Individual Tool Enquiry" class="cta-btn secondary">Contact Sales</a>
+    </div>
+
+  </div>
+
+  <!-- Value Proposition -->
+  <div class="value-section">
+    <h2>Why Pro Suite?</h2>
+    <p>Buying tools individually costs over $540/month. Pro Suite gives you everything for a fraction of the price — plus every new tool we launch.</p>
+    <div class="value-stats">
+      <div class="value-stat">
+        <div class="number">91%</div>
+        <div class="label">Savings vs Individual</div>
+      </div>
+      <div class="value-stat">
+        <div class="number">5+</div>
+        <div class="label">Pro Tools Included</div>
+      </div>
+      <div class="value-stat">
+        <div class="number">∞</div>
+        <div class="label">Future Tools Free</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison Table -->
+  <div class="comparison-section">
+    <h2 class="section-title">Feature Comparison</h2>
+    <p class="section-subtitle">See exactly what you get with each plan</p>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Free</th>
+          <th class="highlight">Pro Suite</th>
+          <th>Individual</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Oney Assess -->
+        <tr class="product-group"><td colspan="4">Oney Assess — Commercial Investment</td></tr>
+        <tr>
+          <td>Basic calculator</td>
+          <td class="t-check">✓</td>
+          <td class="t-check">✓</td>
+          <td class="t-check">$149</td>
+        </tr>
+        <tr>
+          <td>Full assessment report</td>
+          <td class="t-cross">✗</td>
+          <td class="t-check">✓</td>
+          <td class="t-check">✓</td>
+        </tr>
+        <tr>
+          <td>PDF export with branding</td>
+          <td class="t-cross">✗</td>
+          <td class="t-check">✓</td>
+          <td class="t-check">✓</td>
+        </tr>
+
+        <!-- Oney Analyse -->
+        <tr class="product-group"><td colspan="4">Oney Analyse — Multi-Lender</td></tr>
+        <tr>
+          <td>Basic comparison (3 lenders)</td>
+          <td class="t-check">✓</td>
+          <td class="t-check">✓</td>
+          <td class="t-check">$199+</td>
+        </tr>
+        <tr>
+          <td>Pro — full lender panel</td>
+          <td class="t-cross">✗</td>
+          <td class="t-check">✓</td>
+          <td class="t-check">$199</td>
+        </tr>
+        <tr>
+          <td>Enterprise — custom scenarios</td>
+          <td class="t-cross">✗</td>
+          <td class="t-check">✓</td>
+          <td class="t-check">$349</td>
+        </tr>
+
+        <!-- Oney Secure -->
+        <tr class="product-group"><td colspan="4">Oney Secure — Security Assessment</td></tr>
+        <tr>
+          <td>Property security analysis</td>
+          <td class="t-cross">✗</td>
+          <td class="t-check">✓</td>
+          <td class="t-check">$99</td>
+        </tr>
+        <tr>
+          <td>Risk scoring & valuation</td>
+          <td class="t-cross">✗</td>
+          <td class="t-check">✓</td>
+          <td class="t-check">✓</td>
+        </tr>
+
+        <!-- Oney Serve -->
+        <tr class="product-group"><td colspan="4">Oney Serve — Commercial Servicing</td></tr>
+        <tr>
+          <td>Servicing calculator</td>
+          <td class="t-cross">✗</td>
+          <td class="t-check">✓</td>
+          <td class="t-check">$149</td>
+        </tr>
+        <tr>
+          <td>Multi-entity support</td>
+          <td class="t-cross">✗</td>
+          <td class="t-check">✓</td>
+          <td class="t-check">✓</td>
+        </tr>
+
+        <!-- Extras -->
+        <tr class="product-group"><td colspan="4">Extras</td></tr>
+        <tr>
+          <td>Credit Paper Generator</td>
+          <td class="t-cross">✗</td>
+          <td class="t-check">✓</td>
+          <td class="t-cross">✗</td>
+        </tr>
+        <tr>
+          <td>Future tools included</td>
+          <td class="t-cross">✗</td>
+          <td class="t-check">✓</td>
+          <td class="t-cross">✗</td>
+        </tr>
+        <tr>
+          <td>Priority support</td>
+          <td class="t-cross">✗</td>
+          <td class="t-check">✓</td>
+          <td class="t-cross">✗</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq-section">
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <p class="section-subtitle">Everything you need to know</p>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-question">
+        <span>What's included in Pro Suite?</span>
+        <span class="arrow">▾</span>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Pro Suite includes full access to all Oney tools: Oney Assess, Oney Analyse (Pro & Enterprise), Oney Secure, Oney Serve, Credit Paper Generator, and every new tool we release — all for one monthly or annual price.
+      </div></div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-question">
+        <span>Can I switch between monthly and annual?</span>
+        <span class="arrow">▾</span>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Yes. You can switch from monthly to annual at any time to lock in savings. If you're on an annual plan, you can switch to monthly at renewal.
+      </div></div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-question">
+        <span>Do I get access to future tools?</span>
+        <span class="arrow">▾</span>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Absolutely. Pro Suite subscribers automatically get access to every new tool we launch at no extra cost. Individual tool purchases do not include future releases.
+      </div></div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-question">
+        <span>Is there a free trial?</span>
+        <span class="arrow">▾</span>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Our free tier gives you access to basic versions of key tools — no credit card required. Try them out, and upgrade to Pro Suite when you're ready for the full experience.
+      </div></div>
+    </div>
+
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-question">
+        <span>How do I get support?</span>
+        <span class="arrow">▾</span>
+      </div>
+      <div class="faq-answer"><div class="faq-answer-inner">
+        Pro Suite subscribers get priority email support. Free users can reach us at hello@oneyco.com.au and we'll respond within 2 business days.
+      </div></div>
+    </div>
+  </div>
+
+  <!-- Bottom CTA -->
+  <div class="cta-bottom">
+    <h2>Ready to level up your practice?</h2>
+    <p>Join brokers who are saving time and closing more deals with Oney Pro Suite.</p>
+    <a href="mailto:hello@oneyco.com.au?subject=Pro Suite Subscription" class="cta-btn primary">Get Started Today →</a>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <a href="/">← Back to Tools</a>
+    <p>© 2026 Oney & Co. All rights reserved.</p>
+  </div>
+
+</div>
+
+<script>
+  let isAnnual = false;
+
+  function toggleBilling() {
+    isAnnual = !isAnnual;
+    const toggle = document.getElementById('billing-toggle');
+    const monthlyLabel = document.getElementById('monthly-label');
+    const annualLabel = document.getElementById('annual-label');
+    const proPrice = document.getElementById('pro-price');
+    const proPeriod = document.getElementById('pro-period');
+    const proOriginal = document.getElementById('pro-original');
+
+    toggle.classList.toggle('annual', isAnnual);
+    monthlyLabel.classList.toggle('active', !isAnnual);
+    annualLabel.classList.toggle('active', isAnnual);
+
+    if (isAnnual) {
+      proPrice.textContent = '399';
+      proPeriod.textContent = '/year';
+      proOriginal.textContent = 'That\'s just $33/mo — save $189/year';
+    } else {
+      proPrice.textContent = '49';
+      proPeriod.textContent = '/month';
+      proOriginal.textContent = 'Individual tools: $546/mo';
+    }
+  }
+
+  function toggleFaq(item) {
+    item.classList.toggle('open');
+  }
+</script>
+
+</body>
+</html>
