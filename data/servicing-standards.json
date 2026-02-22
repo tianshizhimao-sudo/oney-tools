@@ -1,0 +1,74 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2026-02-22",
+  "banks": [
+    {
+      "id": "cba",
+      "name": "Commonwealth Bank",
+      "shortName": "CBA",
+      "assessmentRate": 3.0,
+      "hem": { "single": 25000, "couple": 40000, "family": 48000 },
+      "maxDSR": 0.45,
+      "incomeShading": { "rental": 0.80, "salary": 1.0, "selfEmployed": 0.80, "overtime": 0.50, "bonus": 0.50 },
+      "notes": "Standard full-doc assessment"
+    },
+    {
+      "id": "westpac",
+      "name": "Westpac",
+      "shortName": "Westpac",
+      "assessmentRate": 3.0,
+      "hem": { "single": 26000, "couple": 41000, "family": 49000 },
+      "maxDSR": 0.45,
+      "incomeShading": { "rental": 0.80, "salary": 1.0, "selfEmployed": 0.80, "overtime": 0.60, "bonus": 0.50 },
+      "notes": "Strong in commercial lending"
+    },
+    {
+      "id": "nab",
+      "name": "NAB",
+      "shortName": "NAB",
+      "assessmentRate": 3.0,
+      "hem": { "single": 24000, "couple": 39000, "family": 47000 },
+      "maxDSR": 0.50,
+      "incomeShading": { "rental": 0.80, "salary": 1.0, "selfEmployed": 0.80, "overtime": 0.60, "bonus": 0.60 },
+      "notes": "Business banking specialist"
+    },
+    {
+      "id": "anz",
+      "name": "ANZ",
+      "shortName": "ANZ",
+      "assessmentRate": 3.0,
+      "hem": { "single": 25500, "couple": 40500, "family": 48500 },
+      "maxDSR": 0.45,
+      "incomeShading": { "rental": 0.80, "salary": 1.0, "selfEmployed": 0.80, "overtime": 0.50, "bonus": 0.50 },
+      "notes": "Standard assessment"
+    },
+    {
+      "id": "macquarie",
+      "name": "Macquarie Bank",
+      "shortName": "Macquarie",
+      "assessmentRate": 2.5,
+      "hem": { "single": 23000, "couple": 37000, "family": 45000 },
+      "maxDSR": 0.50,
+      "incomeShading": { "rental": 0.80, "salary": 1.0, "selfEmployed": 0.85, "overtime": 0.60, "bonus": 0.60 },
+      "notes": "More flexible assessment, lower buffer"
+    },
+    {
+      "id": "pepper",
+      "name": "Pepper Money",
+      "shortName": "Pepper",
+      "assessmentRate": 2.0,
+      "hem": { "single": 22000, "couple": 36000, "family": 44000 },
+      "maxDSR": 0.55,
+      "incomeShading": { "rental": 0.75, "salary": 1.0, "selfEmployed": 0.75, "overtime": 0.50, "bonus": 0.50 },
+      "notes": "Alt-doc specialist, flexible"
+    }
+  ],
+  "dependants": {
+    "0": 0,
+    "1": 6000,
+    "2": 10000,
+    "3": 14000,
+    "4": 18000,
+    "5+": 22000
+  }
+}

@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="description" content="Oney Serve — Commercial Investment Servicing Calculator (Lease Doc) for Australian brokers">
-  <title>Oney Serve V4.1 — Oney & Co</title>
+  <title>Oney Serve V4.2 — Oney & Co</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     /* ============================================
@@ -1838,23 +1838,27 @@
     <!-- Header -->
     <header class="header">
       <div class="logo-section">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 90" class="logo-icon" style="width:120px;height:auto">
           <defs>
-            <linearGradient id="fillGradL1" x1="0%" y1="100%" x2="0%" y2="0%">
+            <linearGradient id="fillGrad" x1="0%" y1="100%" x2="0%" y2="0%">
               <stop offset="0%" style="stop-color:#1FAD73"/>
-              <stop offset="60%" style="stop-color:#2ECC85"/>
-              <stop offset="60%" style="stop-color:transparent"/>
+              <stop offset="55%" style="stop-color:#2ECC85"/>
+              <stop offset="55%" style="stop-color:transparent"/>
               <stop offset="100%" style="stop-color:transparent"/>
             </linearGradient>
-            <linearGradient id="strokeGradL1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="strokeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" style="stop-color:#2ECC85"/>
               <stop offset="100%" style="stop-color:#1FAD73"/>
             </linearGradient>
           </defs>
-          <g transform="translate(50, 50)">
-            <circle cx="0" cy="0" r="38" fill="none" stroke="url(#strokeGradL1)" stroke-width="10" stroke-linecap="round"/>
-            <circle cx="0" cy="0" r="28" fill="url(#fillGradL1)"/>
+          <g transform="translate(40, 45)">
+            <circle cx="0" cy="0" r="32" fill="none" stroke="url(#strokeGrad)" stroke-width="7"/>
+            <circle cx="0" cy="0" r="24" fill="url(#fillGrad)"/>
           </g>
+          <text x="82" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#1a1a1a" letter-spacing="-0.5">ney</text>
+          <text x="129" y="52" font-family="Inter, system-ui, sans-serif" font-size="21" font-weight="500" fill="url(#strokeGrad)">&amp;</text>
+          <text x="148" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#1a1a1a" letter-spacing="-0.5">co</text>
+          <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
         </svg>
         <div class="logo-text">
           <h1>Oney Serve</h1>
@@ -1862,7 +1866,7 @@
         </div>
       </div>
       <div class="header-right">
-        <span class="version-badge">V4.1 — Lease Doc</span>
+        <span class="version-badge">V4.2 — Lease Doc</span> <span class="version-badge" id="dataBadge" style="background:rgba(46,204,133,0.2);color:#2ECC85">Loading…</span>
         <!-- V4: Save Button -->
         <button class="btn-save" onclick="App.manualSave()" title="Save current data">💾 Save</button>
         <!-- V4.1: Clear / Re-input Button -->
@@ -2265,6 +2269,71 @@
       STORAGE_KEY: 'oney-serve-v4-data',
       AUTOSAVE_DELAY: 1000 // 1 second debounce
     };
+
+    // ============================================
+    // V4.2: SERVICING STANDARDS DATA (JSON-driven)
+    // ============================================
+    let SERVICING_DATA = null;
+
+    async function loadServicingData() {
+      try {
+        const res = await fetch('data/servicing-standards.json');
+        if (!res.ok) throw new Error('Failed');
+        SERVICING_DATA = await res.json();
+        const badge = document.getElementById('dataBadge');
+        if (badge) badge.textContent = '✓ Data v' + SERVICING_DATA.version;
+      } catch(e) {
+        console.warn('Servicing data not loaded:', e);
+        const badge = document.getElementById('dataBadge');
+        if (badge) badge.textContent = '⚠ Data unavailable';
+      }
+    }
+
+    function buildMultiBankComparison(inputs, metrics) {
+      if (!SERVICING_DATA || !SERVICING_DATA.banks) return '';
+      const loan = inputs.loan;
+      const rate = inputs.rate;
+      const netIncome = inputs.income;
+
+      let rows = SERVICING_DATA.banks.map(bank => {
+        const assessRate = rate + bank.assessmentRate;
+        const assessInterest = loan * (assessRate / 100);
+        const bankICR = assessInterest > 0 ? netIncome / assessInterest : 0;
+        const maxLoan = netIncome / (bank.maxDSR * (assessRate / 100));
+        const status = bankICR >= 1.5 ? 'pass' : bankICR >= 1.2 ? 'warn' : 'fail';
+        const statusColor = status === 'pass' ? 'var(--success)' : status === 'warn' ? 'var(--warning)' : 'var(--danger)';
+        const statusIcon = status === 'pass' ? '✓' : status === 'warn' ? '⚠' : '✗';
+        return `<tr style="border-bottom:1px solid var(--border)">
+          <td style="padding:10px 12px"><strong>${bank.shortName}</strong><br><span style="font-size:11px;color:var(--text-muted)">${bank.notes}</span></td>
+          <td style="padding:10px;text-align:center">${assessRate.toFixed(2)}%</td>
+          <td style="padding:10px;text-align:center">${bankICR.toFixed(2)}x</td>
+          <td style="padding:10px;text-align:center">$${Math.round(maxLoan).toLocaleString()}</td>
+          <td style="padding:10px;text-align:center;color:${statusColor};font-weight:600">${statusIcon} ${status.toUpperCase()}</td>
+        </tr>`;
+      }).join('');
+
+      return `
+        <div class="card" style="margin-top:16px">
+          <div class="card-header">
+            <div class="card-icon">🏦</div>
+            <div>
+              <div class="card-title">Multi-Bank Servicing Comparison</div>
+              <div class="card-subtitle">Assessment at each bank's buffer rate</div>
+            </div>
+          </div>
+          <table style="width:100%;border-collapse:collapse;font-size:13px;margin-top:12px">
+            <thead><tr style="border-bottom:1px solid var(--border)">
+              <th style="padding:10px 12px;text-align:left;font-size:11px;text-transform:uppercase;color:var(--text-muted)">Bank</th>
+              <th style="padding:10px;text-align:center;font-size:11px;text-transform:uppercase;color:var(--text-muted)">Assess Rate</th>
+              <th style="padding:10px;text-align:center;font-size:11px;text-transform:uppercase;color:var(--text-muted)">ICR</th>
+              <th style="padding:10px;text-align:center;font-size:11px;text-transform:uppercase;color:var(--text-muted)">Max Loan</th>
+              <th style="padding:10px;text-align:center;font-size:11px;text-transform:uppercase;color:var(--text-muted)">Status</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+    }
 
     // ============================================
     // CALCULATION ENGINE MODULE
@@ -3893,6 +3962,9 @@
           </div>
         `;
 
+        // ── V4.2: Multi-Bank Comparison ──
+        html += buildMultiBankComparison(inputs, metrics);
+
         // ── Actions ──
         html += `
           <div class="actions-row">
@@ -4713,7 +4785,7 @@ oneyco.com.au`;
     };
 
     // Initialize on DOM ready
-    document.addEventListener('DOMContentLoaded', () => App.init());
+    document.addEventListener('DOMContentLoaded', () => { loadServicingData(); App.init(); });
   </script>
 <script>
 
@@ -4722,12 +4794,12 @@ oneyco.com.au`;
       <h3>Related Tools</h3>
       <div class="related-grid">
       <a href="commercial-investment-calculator.html" class="related-card">
-        <div class="related-name">Commercial Investment Calculator</div>
-        <div class="related-desc">Analyse commercial property investment returns and cash flow</div>
+        <div class="related-name">Oney Assess</div>
+        <div class="related-desc">Investment analysis with multi-scenario comparison</div>
       </a>
       <a href="specialised-lending-calculator.html" class="related-card">
-        <div class="related-name">Specialised Lending Calculator</div>
-        <div class="related-desc">Calculate rates for specialised and non-standard loans</div>
+        <div class="related-name">Oney Analyse</div>
+        <div class="related-desc">Specialised lending MLL with multi-lender comparison</div>
       </a>
       <a href="ef-tool.html" class="related-card">
         <div class="related-name">Essential Financials</div>
