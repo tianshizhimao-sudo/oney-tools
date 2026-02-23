@@ -169,8 +169,10 @@ function extractLendingRates(productData) {
 // ── Fetch a single product's rates ──
 async function fetchProductRates(baseUrl, productId) {
   const url = `${baseUrl}/banking/products/${encodeURIComponent(productId)}`;
+  // Westpac requires x-v: 5 since ~Feb 2026
+  const version = baseUrl.includes('westpac') ? '5' : '4';
   const headers = {
-    'x-v': '4',
+    'x-v': version,
     'Accept': 'application/json',
   };
 
