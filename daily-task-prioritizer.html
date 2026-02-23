@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Task Prioritizer | Oney & Co</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2ECC85;
+            --primary-dark: #1FAD73;
+            --bg: #f8faf9;
+            --card: #ffffff;
+            --text: #0a0a0a;
+            --text-muted: #666;
+            --border: #e0e0e0;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+            --muted: #95a5a6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        h1 span {
+            color: var(--primary);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .date-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .date-display {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .stats {
+            display: flex;
+            gap: 16px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .stats span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stats .count {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        /* Add Task Bar */
+        .add-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .add-bar input[type="text"] {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 14px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .add-bar input[type="text"]:focus {
+            border-color: var(--primary);
+        }
+
+        .add-bar select {
+            padding: 10px 12px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            background: var(--card);
+            cursor: pointer;
+            outline: none;
+        }
+
+        .add-bar select:focus {
+            border-color: var(--primary);
+        }
+
+        .add-bar input[type="number"] {
+            width: 70px;
+            padding: 10px 8px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            text-align: center;
+            outline: none;
+        }
+
+        .add-bar input[type="number"]:focus {
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(46, 204, 133, 0.3);
+        }
+
+        .btn-outline {
+            background: var(--card);
+            color: var(--text-muted);
+            border: 2px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary);
+            color: var(--primary-dark);
+        }
+
+        .btn-sm {
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+        }
+
+        /* Eisenhower Matrix Grid */
+        .matrix {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .quadrant {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 16px;
+            min-height: 180px;
+            border: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .quadrant.drag-over {
+            border-color: var(--primary);
+            background: #f0faf4;
+        }
+
+        .quadrant-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--bg);
+        }
+
+        .quadrant-icon {
+            font-size: 1.2rem;
+        }
+
+        .quadrant-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .quadrant-badge {
+            margin-left: auto;
+            background: var(--bg);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* Q1: Do First - Red/Urgent */
+        .q1 { box-shadow: 0 2px 12px rgba(231, 76, 60, 0.08); }
+        .q1 .quadrant-header { border-color: rgba(231, 76, 60, 0.15); }
+        .q1 .quadrant-title { color: var(--danger); }
+        .q1 .quadrant-badge { background: rgba(231, 76, 60, 0.1); color: var(--danger); }
+
+        /* Q2: Schedule - Green/Important */
+        .q2 { box-shadow: 0 2px 12px rgba(46, 204, 133, 0.08); }
+        .q2 .quadrant-header { border-color: rgba(46, 204, 133, 0.15); }
+        .q2 .quadrant-title { color: var(--primary-dark); }
+        .q2 .quadrant-badge { background: rgba(46, 204, 133, 0.1); color: var(--primary-dark); }
+
+        /* Q3: Delegate - Orange/Urgent not important */
+        .q3 { box-shadow: 0 2px 12px rgba(243, 156, 18, 0.08); }
+        .q3 .quadrant-header { border-color: rgba(243, 156, 18, 0.15); }
+        .q3 .quadrant-title { color: var(--warning); }
+        .q3 .quadrant-badge { background: rgba(243, 156, 18, 0.1); color: var(--warning); }
+
+        /* Q4: Eliminate - Grey */
+        .q4 { box-shadow: 0 2px 12px rgba(149, 165, 166, 0.08); }
+        .q4 .quadrant-header { border-color: rgba(149, 165, 166, 0.15); }
+        .q4 .quadrant-title { color: var(--muted); }
+        .q4 .quadrant-badge { background: rgba(149, 165, 166, 0.1); color: var(--muted); }
+
+        /* Task Items */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            background: var(--bg);
+            border-radius: 8px;
+            cursor: grab;
+            transition: all 0.15s;
+            user-select: none;
+        }
+
+        .task-item:active {
+            cursor: grabbing;
+        }
+
+        .task-item:hover {
+            transform: translateX(2px);
+        }
+
+        .task-item.dragging {
+            opacity: 0.4;
+            transform: scale(0.95);
+        }
+
+        .task-item.completed {
+            opacity: 0.5;
+        }
+
+        .task-item.completed .task-name {
+            text-decoration: line-through;
+        }
+
+        .task-check {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            cursor: pointer;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .task-check:hover {
+            border-color: var(--primary);
+        }
+
+        .task-check.checked {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .task-check.checked::after {
+            content: '✓';
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .task-name {
+            flex: 1;
+            font-size: 0.9rem;
+            line-height: 1.3;
+        }
+
+        .task-tag {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .tag-nab {
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--info);
+        }
+
+        .tag-oney {
+            background: rgba(46, 204, 133, 0.1);
+            color: var(--primary-dark);
+        }
+
+        .tag-personal {
+            background: rgba(155, 89, 182, 0.1);
+            color: #9b59b6;
+        }
+
+        .task-time {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        .task-delete {
+            opacity: 0;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+
+        .task-item:hover .task-delete {
+            opacity: 0.6;
+        }
+
+        .task-delete:hover {
+            opacity: 1 !important;
+            color: var(--danger);
+            background: rgba(231, 76, 60, 0.08);
+        }
+
+        .empty-hint {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            font-style: italic;
+            text-align: center;
+            padding: 20px 0;
+            opacity: 0.6;
+        }
+
+        /* Summary Section */
+        .summary {
+            background: var(--card);
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+
+        .summary h2 {
+            font-size: 1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .time-breakdown {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .time-block {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            border-radius: 10px;
+            background: var(--bg);
+            text-align: center;
+        }
+
+        .time-block .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .time-block .value {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .time-block .unit {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .time-block.nab .value { color: var(--info); }
+        .time-block.oney .value { color: var(--primary-dark); }
+        .time-block.personal .value { color: #9b59b6; }
+        .time-block.total .value { color: var(--text); }
+
+        .progress-bar {
+            height: 8px;
+            background: var(--bg);
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .progress-segment {
+            height: 100%;
+            transition: width 0.3s;
+        }
+
+        .progress-segment.nab { background: var(--info); }
+        .progress-segment.oney { background: var(--primary); }
+        .progress-segment.personal { background: #9b59b6; }
+
+        .progress-legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            justify-content: center;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+            vertical-align: middle;
+        }
+
+        /* Action Buttons */
+        .actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        /* Mobile */
+        @media (max-width: 700px) {
+            .matrix {
+                grid-template-columns: 1fr;
+            }
+            .add-bar {
+                flex-direction: column;
+            }
+            .add-bar input[type="number"] {
+                width: 100%;
+            }
+        }
+
+        /* Print */
+        @media print {
+            body { padding: 0; background: #fff; }
+            .add-bar, .actions, .task-delete, .btn { display: none; }
+            .quadrant { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 90">
+                <defs>
+                    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#2ECC85"/>
+                        <stop offset="100%" style="stop-color:#1FAD73"/>
+                    </linearGradient>
+                </defs>
+                <g transform="translate(38, 45)">
+                    <path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#greenGrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/>
+                    <path d="M0 -38 L0 -44" stroke="url(#greenGrad)" stroke-width="5" stroke-linecap="round"/>
+                </g>
+                <text x="32" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#0a0a0a">ney</text>
+                <text x="77" y="50" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="400" fill="url(#greenGrad)">&amp;</text>
+                <text x="94" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#0a0a0a">co</text>
+            </svg>
+            <h1>Daily Task <span>Prioritizer</span></h1>
+            <p class="subtitle">Eisenhower Matrix — 把时间花在对的事上</p>
+        </header>
+
+        <!-- Date & Stats Bar -->
+        <div class="date-bar">
+            <span class="date-display" id="dateDisplay"></span>
+            <div class="stats">
+                <span>📋 <span class="count" id="totalCount">0</span> tasks</span>
+                <span>✅ <span class="count" id="doneCount">0</span> done</span>
+                <span>⏱️ <span class="count" id="totalTime">0h</span> est.</span>
+            </div>
+        </div>
+
+        <!-- Add Task Bar -->
+        <div class="add-bar">
+            <input type="text" id="taskInput" placeholder="添加新任务… (Enter to add)" />
+            <select id="quadrantSelect">
+                <option value="q1">🔴 Do First</option>
+                <option value="q2" selected>🟢 Schedule</option>
+                <option value="q3">🟠 Delegate</option>
+                <option value="q4">⚪ Eliminate</option>
+            </select>
+            <select id="tagSelect">
+                <option value="nab">NAB</option>
+                <option value="oney">Oney</option>
+                <option value="personal">Personal</option>
+            </select>
+            <input type="number" id="timeInput" placeholder="min" min="5" step="5" value="30" title="Estimated minutes" />
+            <button class="btn btn-primary" onclick="addTask()">Add</button>
+        </div>
+
+        <!-- Eisenhower Matrix -->
+        <div class="matrix">
+            <div class="quadrant q1" id="q1" ondragover="dragOver(event)" ondrop="dropTask(event, 'q1')" ondragleave="dragLeave(event)">
+                <div class="quadrant-header">
+                    <span class="quadrant-icon">🔴</span>
+                    <span class="quadrant-title">DO FIRST</span>
+                    <span class="quadrant-badge" id="q1-badge">0</span>
+                </div>
+                <div class="task-list" id="q1-list"></div>
+            </div>
+            <div class="quadrant q2" id="q2" ondragover="dragOver(event)" ondrop="dropTask(event, 'q2')" ondragleave="dragLeave(event)">
+                <div class="quadrant-header">
+                    <span class="quadrant-icon">🟢</span>
+                    <span class="quadrant-title">SCHEDULE</span>
+                    <span class="quadrant-badge" id="q2-badge">0</span>
+                </div>
+                <div class="task-list" id="q2-list"></div>
+            </div>
+            <div class="quadrant q3" id="q3" ondragover="dragOver(event)" ondrop="dropTask(event, 'q3')" ondragleave="dragLeave(event)">
+                <div class="quadrant-header">
+                    <span class="quadrant-icon">🟠</span>
+                    <span class="quadrant-title">DELEGATE</span>
+                    <span class="quadrant-badge" id="q3-badge">0</span>
+                </div>
+                <div class="task-list" id="q3-list"></div>
+            </div>
+            <div class="quadrant q4" id="q4" ondragover="dragOver(event)" ondrop="dropTask(event, 'q4')" ondragleave="dragLeave(event)">
+                <div class="quadrant-header">
+                    <span class="quadrant-icon">⚪</span>
+                    <span class="quadrant-title">ELIMINATE</span>
+                    <span class="quadrant-badge" id="q4-badge">0</span>
+                </div>
+                <div class="task-list" id="q4-list"></div>
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="summary">
+            <h2>📊 Time Breakdown</h2>
+            <div class="time-breakdown">
+                <div class="time-block nab">
+                    <div class="label">NAB Work</div>
+                    <div><span class="value" id="nabTime">0</span><span class="unit">h</span></div>
+                </div>
+                <div class="time-block oney">
+                    <div class="label">Oney & Co</div>
+                    <div><span class="value" id="oneyTime">0</span><span class="unit">h</span></div>
+                </div>
+                <div class="time-block personal">
+                    <div class="label">Personal</div>
+                    <div><span class="value" id="personalTime">0</span><span class="unit">h</span></div>
+                </div>
+                <div class="time-block total">
+                    <div class="label">Total</div>
+                    <div><span class="value" id="totalTimeSum">0</span><span class="unit">h</span></div>
+                </div>
+            </div>
+            <div class="progress-bar" id="progressBar"></div>
+            <div class="progress-legend">
+                <span><span class="legend-dot" style="background:var(--info)"></span> NAB</span>
+                <span><span class="legend-dot" style="background:var(--primary)"></span> Oney & Co</span>
+                <span><span class="legend-dot" style="background:#9b59b6"></span> Personal</span>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+            <button class="btn btn-outline" onclick="exportChecklist()">📋 Copy Checklist</button>
+            <button class="btn btn-outline" onclick="clearCompleted()">🧹 Clear Done</button>
+            <button class="btn btn-outline" onclick="resetDay()">🔄 New Day</button>
+        </div>
+
+        <footer>
+            Oney & Co — Daily Task Prioritizer &nbsp;|&nbsp; Built with 🌙 Nightly Build
+        </footer>
+    </div>
+
+    <script>
+        // Data
+        const STORAGE_KEY = 'oney-daily-tasks';
+        let tasks = [];
+        let draggedId = null;
+
+        // Init
+        function init() {
+            loadTasks();
+            updateDateDisplay();
+            render();
+
+            document.getElementById('taskInput').addEventListener('keydown', e => {
+                if (e.key === 'Enter') addTask();
+            });
+        }
+
+        function updateDateDisplay() {
+            const now = new Date();
+            const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('dateDisplay').textContent = now.toLocaleDateString('en-AU', opts);
+        }
+
+        // Persistence
+        function loadTasks() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    const data = JSON.parse(stored);
+                    // Check if it's a new day
+                    const today = new Date().toDateString();
+                    if (data.date === today) {
+                        tasks = data.tasks || [];
+                    } else {
+                        // Carry over incomplete tasks from yesterday
+                        tasks = (data.tasks || []).filter(t => !t.done).map(t => ({...t, id: genId()}));
+                    }
+                }
+            } catch (e) {
+                tasks = [];
+            }
+        }
+
+        function saveTasks() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                date: new Date().toDateString(),
+                tasks: tasks
+            }));
+        }
+
+        function genId() {
+            return 't' + Date.now() + Math.random().toString(36).substr(2, 5);
+        }
+
+        // Add Task
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const name = input.value.trim();
+            if (!name) return;
+
+            const quadrant = document.getElementById('quadrantSelect').value;
+            const tag = document.getElementById('tagSelect').value;
+            const minutes = parseInt(document.getElementById('timeInput').value) || 30;
+
+            tasks.push({
+                id: genId(),
+                name: name,
+                quadrant: quadrant,
+                tag: tag,
+                minutes: minutes,
+                done: false,
+                createdAt: Date.now()
+            });
+
+            input.value = '';
+            input.focus();
+            saveTasks();
+            render();
+        }
+
+        // Toggle Task
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.done = !task.done;
+                saveTasks();
+                render();
+            }
+        }
+
+        // Delete Task
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveTasks();
+            render();
+        }
+
+        // Drag & Drop
+        function dragStart(e, id) {
+            draggedId = id;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function dragEnd(e) {
+            e.target.classList.remove('dragging');
+            document.querySelectorAll('.quadrant').forEach(q => q.classList.remove('drag-over'));
+            draggedId = null;
+        }
+
+        function dragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function dragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function dropTask(e, quadrant) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            if (draggedId) {
+                const task = tasks.find(t => t.id === draggedId);
+                if (task) {
+                    task.quadrant = quadrant;
+                    saveTasks();
+                    render();
+                }
+            }
+        }
+
+        // Render
+        function render() {
+            const quadrants = ['q1', 'q2', 'q3', 'q4'];
+            const emptyMessages = {
+                q1: 'No urgent tasks — nice!',
+                q2: 'Add important goals here',
+                q3: 'Tasks to delegate or batch',
+                q4: 'Skip these if time is tight'
+            };
+
+            quadrants.forEach(q => {
+                const list = document.getElementById(q + '-list');
+                const qTasks = tasks.filter(t => t.quadrant === q);
+                // Sort: incomplete first, then by creation time
+                qTasks.sort((a, b) => (a.done - b.done) || (a.createdAt - b.createdAt));
+
+                document.getElementById(q + '-badge').textContent = qTasks.filter(t => !t.done).length;
+
+                if (qTasks.length === 0) {
+                    list.innerHTML = `<div class="empty-hint">${emptyMessages[q]}</div>`;
+                    return;
+                }
+
+                list.innerHTML = qTasks.map(t => `
+                    <div class="task-item ${t.done ? 'completed' : ''}" 
+                         draggable="true" 
+                         ondragstart="dragStart(event, '${t.id}')"
+                         ondragend="dragEnd(event)">
+                        <div class="task-check ${t.done ? 'checked' : ''}" onclick="toggleTask('${t.id}')"></div>
+                        <span class="task-name">${escHtml(t.name)}</span>
+                        <span class="task-tag tag-${t.tag}">${t.tag.toUpperCase()}</span>
+                        <span class="task-time">${t.minutes}m</span>
+                        <span class="task-delete" onclick="deleteTask('${t.id}')">✕</span>
+                    </div>
+                `).join('');
+            });
+
+            updateStats();
+        }
+
+        function escHtml(s) {
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        // Stats
+        function updateStats() {
+            const total = tasks.length;
+            const done = tasks.filter(t => t.done).length;
+            const totalMin = tasks.filter(t => !t.done).reduce((s, t) => s + t.minutes, 0);
+
+            document.getElementById('totalCount').textContent = total;
+            document.getElementById('doneCount').textContent = done;
+            document.getElementById('totalTime').textContent = formatHours(totalMin);
+
+            // Time breakdown by tag (incomplete only)
+            const nabMin = tasks.filter(t => !t.done && t.tag === 'nab').reduce((s, t) => s + t.minutes, 0);
+            const oneyMin = tasks.filter(t => !t.done && t.tag === 'oney').reduce((s, t) => s + t.minutes, 0);
+            const personalMin = tasks.filter(t => !t.done && t.tag === 'personal').reduce((s, t) => s + t.minutes, 0);
+            const allMin = nabMin + oneyMin + personalMin;
+
+            document.getElementById('nabTime').textContent = (nabMin / 60).toFixed(1);
+            document.getElementById('oneyTime').textContent = (oneyMin / 60).toFixed(1);
+            document.getElementById('personalTime').textContent = (personalMin / 60).toFixed(1);
+            document.getElementById('totalTimeSum').textContent = (allMin / 60).toFixed(1);
+
+            // Progress bar
+            const bar = document.getElementById('progressBar');
+            if (allMin === 0) {
+                bar.innerHTML = '';
+                return;
+            }
+            bar.innerHTML = `
+                <div class="progress-segment nab" style="width:${(nabMin/allMin*100)}%"></div>
+                <div class="progress-segment oney" style="width:${(oneyMin/allMin*100)}%"></div>
+                <div class="progress-segment personal" style="width:${(personalMin/allMin*100)}%"></div>
+            `;
+        }
+
+        function formatHours(min) {
+            if (min < 60) return min + 'm';
+            const h = Math.floor(min / 60);
+            const m = min % 60;
+            return m > 0 ? `${h}h${m}m` : `${h}h`;
+        }
+
+        // Actions
+        function exportChecklist() {
+            const lines = ['📋 Daily Tasks — ' + new Date().toLocaleDateString('en-AU')];
+            const labels = { q1: '🔴 DO FIRST', q2: '🟢 SCHEDULE', q3: '🟠 DELEGATE', q4: '⚪ ELIMINATE' };
+
+            ['q1', 'q2', 'q3', 'q4'].forEach(q => {
+                const qTasks = tasks.filter(t => t.quadrant === q);
+                if (qTasks.length === 0) return;
+                lines.push('');
+                lines.push(labels[q]);
+                qTasks.forEach(t => {
+                    lines.push(`${t.done ? '✅' : '⬜'} ${t.name} [${t.tag.toUpperCase()}] (${t.minutes}m)`);
+                });
+            });
+
+            navigator.clipboard.writeText(lines.join('\n')).then(() => {
+                showToast('Checklist copied! 📋');
+            }).catch(() => {
+                // Fallback
+                const ta = document.createElement('textarea');
+                ta.value = lines.join('\n');
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                ta.remove();
+                showToast('Checklist copied! 📋');
+            });
+        }
+
+        function clearCompleted() {
+            const count = tasks.filter(t => t.done).length;
+            if (count === 0) {
+                showToast('No completed tasks to clear');
+                return;
+            }
+            tasks = tasks.filter(t => !t.done);
+            saveTasks();
+            render();
+            showToast(`Cleared ${count} completed task${count > 1 ? 's' : ''} ✨`);
+        }
+
+        function resetDay() {
+            if (tasks.length > 0 && !confirm('Start fresh? Incomplete tasks will be cleared.')) return;
+            tasks = [];
+            saveTasks();
+            render();
+            showToast('Fresh start! 🌅');
+        }
+
+        // Toast notification
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.textContent = msg;
+            Object.assign(toast.style, {
+                position: 'fixed',
+                bottom: '24px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: '#333',
+                color: '#fff',
+                padding: '10px 20px',
+                borderRadius: '10px',
+                fontSize: '0.9rem',
+                zIndex: '999',
+                animation: 'fadeInUp 0.3s'
+            });
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        // CSS animation
+        const style = document.createElement('style');
+        style.textContent = `@keyframes fadeInUp { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }`;
+        document.head.appendChild(style);
+
+        init();
+    </script>
+</body>
+</html>

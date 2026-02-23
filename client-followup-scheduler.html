@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Follow-up Scheduler — Oney & Co</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--green:#2ECC85;--green2:#1FAD73;--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--red:#e74c3c;--orange:#f39c12;--yellow:#f1c40f}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:#fff;min-height:100vh;padding:20px}
+.header{text-align:center;margin-bottom:30px}
+.header h1{font-size:1.6rem;background:linear-gradient(135deg,var(--green),var(--green2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+.header p{color:var(--muted);font-size:.85rem}
+.logo{width:32px;height:32px;margin-bottom:8px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.stat .num{font-size:1.8rem;font-weight:700}
+.stat .label{color:var(--muted);font-size:.75rem;margin-top:2px}
+.stat.overdue .num{color:var(--red)}
+.stat.today .num{color:var(--orange)}
+.stat.upcoming .num{color:var(--yellow)}
+.stat.done .num{color:var(--green)}
+.controls{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.controls input,.controls select{background:var(--card);border:1px solid var(--border);color:#fff;padding:10px 14px;border-radius:8px;font-size:.85rem;outline:none}
+.controls input:focus,.controls select:focus{border-color:var(--green)}
+.controls input[type=text]{flex:1;min-width:200px}
+.btn{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;white-space:nowrap}
+.btn:hover{opacity:.9}
+.btn.secondary{background:var(--card);border:1px solid var(--border)}
+.list{display:flex;flex-direction:column;gap:10px}
+.item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px;transition:border-color .2s}
+.item.overdue{border-left:4px solid var(--red)}
+.item.today{border-left:4px solid var(--orange)}
+.item.upcoming{border-left:4px solid var(--yellow)}
+.item.completed{border-left:4px solid var(--green);opacity:.6}
+.item-info{flex:1}
+.item-name{font-weight:600;font-size:1rem;margin-bottom:2px}
+.item-meta{color:var(--muted);font-size:.78rem;display:flex;gap:12px;flex-wrap:wrap;margin-top:4px}
+.item-meta span{display:flex;align-items:center;gap:4px}
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:600}
+.badge.overdue{background:rgba(231,76,60,.2);color:var(--red)}
+.badge.today{background:rgba(243,156,18,.2);color:var(--orange)}
+.badge.upcoming{background:rgba(241,196,15,.2);color:var(--yellow)}
+.badge.completed{background:rgba(46,204,133,.2);color:var(--green)}
+.item-actions{display:flex;gap:6px;flex-shrink:0}
+.item-actions button{background:var(--border);border:none;color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:.85rem;display:flex;align-items:center;justify-content:center}
+.item-actions button:hover{background:var(--green)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;width:90%;max-width:440px}
+.modal h2{font-size:1.1rem;margin-bottom:16px;color:var(--green)}
+.modal label{display:block;color:var(--muted);font-size:.78rem;margin-bottom:4px;margin-top:12px}
+.modal input,.modal select,.modal textarea{width:100%;background:var(--bg);border:1px solid var(--border);color:#fff;padding:10px;border-radius:8px;font-size:.85rem;outline:none}
+.modal textarea{height:60px;resize:vertical}
+.modal input:focus,.modal select:focus,.modal textarea:focus{border-color:var(--green)}
+.modal-btns{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty span{font-size:2.5rem;display:block;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="header">
+<svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs><g transform="translate(50,50)"><path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#g)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/><path d="M0 -45 L0 -52" stroke="url(#g)" stroke-width="6" stroke-linecap="round"/></g></svg>
+<h1>Client Follow-up Scheduler</h1>
+<p>Never miss a follow-up — stay on top of every client</p>
+</div>
+
+<div class="stats">
+<div class="stat overdue"><div class="num" id="sOverdue">0</div><div class="label">Overdue</div></div>
+<div class="stat today"><div class="num" id="sToday">0</div><div class="label">Due Today</div></div>
+<div class="stat upcoming"><div class="num" id="sUpcoming">0</div><div class="label">Next 7 Days</div></div>
+<div class="stat done"><div class="num" id="sDone">0</div><div class="label">Completed</div></div>
+</div>
+
+<div class="controls">
+<input type="text" id="search" placeholder="🔍 Search clients...">
+<select id="filterStatus"><option value="all">All Status</option><option value="overdue">Overdue</option><option value="today">Due Today</option><option value="upcoming">Next 7 Days</option><option value="completed">Completed</option></select>
+<select id="filterType"><option value="all">All Types</option><option value="Initial Call">Initial Call</option><option value="Application Update">Application Update</option><option value="Settlement Check">Settlement Check</option><option value="Post-Settlement">Post-Settlement</option><option value="Annual Review">Annual Review</option><option value="Rate Review">Rate Review</option><option value="General">General</option></select>
+<button class="btn" onclick="openModal()">+ New Follow-up</button>
+</div>
+
+<div class="list" id="list"></div>
+
+<div class="modal-overlay" id="modalOverlay">
+<div class="modal">
+<h2 id="modalTitle">New Follow-up</h2>
+<label>Client Name *</label>
+<input type="text" id="fName" placeholder="e.g. John Smith">
+<label>Follow-up Type</label>
+<select id="fType"><option>Initial Call</option><option>Application Update</option><option>Settlement Check</option><option>Post-Settlement</option><option>Annual Review</option><option>Rate Review</option><option>General</option></select>
+<label>Due Date *</label>
+<input type="date" id="fDate">
+<label>Repeat Interval</label>
+<select id="fRepeat"><option value="none">No Repeat</option><option value="7">Every Week</option><option value="14">Every 2 Weeks</option><option value="30">Every Month</option><option value="90">Every Quarter</option><option value="180">Every 6 Months</option><option value="365">Every Year</option></select>
+<label>Notes</label>
+<textarea id="fNotes" placeholder="Optional notes..."></textarea>
+<input type="hidden" id="fId">
+<div class="modal-btns">
+<button class="btn secondary" onclick="closeModal()">Cancel</button>
+<button class="btn" onclick="saveItem()">Save</button>
+</div>
+</div>
+</div>
+
+<script>
+const LS_KEY='oney_followups';
+let items=JSON.parse(localStorage.getItem(LS_KEY)||'[]');
+
+function save(){localStorage.setItem(LS_KEY,JSON.stringify(items))}
+function today(){return new Date().toISOString().split('T')[0]}
+function diffDays(d){return Math.ceil((new Date(d)-new Date(today()))/(864e5))}
+
+function status(item){
+  if(item.completed)return'completed';
+  const d=diffDays(item.date);
+  if(d<0)return'overdue';
+  if(d===0)return'today';
+  if(d<=7)return'upcoming';
+  return'future';
+}
+
+function render(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const fs=document.getElementById('filterStatus').value;
+  const ft=document.getElementById('filterType').value;
+  let filtered=items.filter(i=>{
+    if(q&&!i.name.toLowerCase().includes(q)&&!(i.notes||'').toLowerCase().includes(q))return false;
+    if(ft!=='all'&&i.type!==ft)return false;
+    const s=status(i);
+    if(fs!=='all'&&fs!==s)return false;
+    return true;
+  });
+  filtered.sort((a,b)=>{
+    if(a.completed!==b.completed)return a.completed?1:-1;
+    return new Date(a.date)-new Date(b.date);
+  });
+
+  let counts={overdue:0,today:0,upcoming:0,completed:0};
+  items.forEach(i=>{const s=status(i);if(counts[s]!==undefined)counts[s]++});
+  document.getElementById('sOverdue').textContent=counts.overdue;
+  document.getElementById('sToday').textContent=counts.today;
+  document.getElementById('sUpcoming').textContent=counts.upcoming;
+  document.getElementById('sDone').textContent=counts.completed;
+
+  const list=document.getElementById('list');
+  if(!filtered.length){list.innerHTML='<div class="empty"><span>📋</span>No follow-ups found.<br>Click "+ New Follow-up" to get started!</div>';return}
+
+  list.innerHTML=filtered.map(i=>{
+    const s=status(i);
+    const d=diffDays(i.date);
+    let timeText='';
+    if(s==='completed')timeText='✅ Done';
+    else if(d<0)timeText=`${Math.abs(d)} day${Math.abs(d)>1?'s':''} overdue`;
+    else if(d===0)timeText='Due today';
+    else timeText=`In ${d} day${d>1?'s':''}`;
+    const repeat=i.repeat!=='none'?`🔁 ${({7:'Weekly',14:'Bi-weekly',30:'Monthly',90:'Quarterly',180:'6-Monthly',365:'Yearly'})[i.repeat]}`:'';
+    return`<div class="item ${s}">
+      <div class="item-info">
+        <div class="item-name">${i.name} <span class="badge ${s}">${timeText}</span></div>
+        <div class="item-meta">
+          <span>📌 ${i.type}</span>
+          <span>📅 ${i.date}</span>
+          ${repeat?`<span>${repeat}</span>`:''}
+          ${i.notes?`<span>💬 ${i.notes.substring(0,40)}${i.notes.length>40?'...':''}</span>`:''}
+        </div>
+      </div>
+      <div class="item-actions">
+        ${!i.completed?`<button title="Complete" onclick="complete('${i.id}')">✅</button>`:`<button title="Reopen" onclick="reopen('${i.id}')">↩️</button>`}
+        <button title="Snooze +3 days" onclick="snooze('${i.id}')">⏰</button>
+        <button title="Edit" onclick="edit('${i.id}')">✏️</button>
+        <button title="Delete" onclick="del('${i.id}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openModal(id){
+  document.getElementById('modalTitle').textContent=id?'Edit Follow-up':'New Follow-up';
+  if(id){
+    const i=items.find(x=>x.id===id);
+    document.getElementById('fName').value=i.name;
+    document.getElementById('fType').value=i.type;
+    document.getElementById('fDate').value=i.date;
+    document.getElementById('fRepeat').value=i.repeat;
+    document.getElementById('fNotes').value=i.notes||'';
+    document.getElementById('fId').value=id;
+  }else{
+    document.getElementById('fName').value='';
+    document.getElementById('fDate').value=today();
+    document.getElementById('fRepeat').value='none';
+    document.getElementById('fNotes').value='';
+    document.getElementById('fId').value='';
+  }
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function closeModal(){document.getElementById('modalOverlay').classList.remove('active')}
+
+function saveItem(){
+  const name=document.getElementById('fName').value.trim();
+  const date=document.getElementById('fDate').value;
+  if(!name||!date){alert('Name and date required');return}
+  const id=document.getElementById('fId').value;
+  const obj={
+    id:id||Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+    name,
+    type:document.getElementById('fType').value,
+    date,
+    repeat:document.getElementById('fRepeat').value,
+    notes:document.getElementById('fNotes').value.trim(),
+    completed:false
+  };
+  if(id){const idx=items.findIndex(x=>x.id===id);if(idx>=0)items[idx]={...items[idx],...obj}}
+  else items.push(obj);
+  save();closeModal();render();
+}
+
+function complete(id){
+  const i=items.find(x=>x.id===id);if(!i)return;
+  i.completed=true;i.completedDate=today();
+  if(i.repeat!=='none'){
+    const next=new Date(i.date);next.setDate(next.getDate()+parseInt(i.repeat));
+    items.push({...i,id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),date:next.toISOString().split('T')[0],completed:false,completedDate:null});
+  }
+  save();render();
+}
+
+function reopen(id){const i=items.find(x=>x.id===id);if(i){i.completed=false;i.completedDate=null;save();render()}}
+function snooze(id){const i=items.find(x=>x.id===id);if(i){const d=new Date(i.date);d.setDate(d.getDate()+3);i.date=d.toISOString().split('T')[0];save();render()}}
+function edit(id){openModal(id)}
+function del(id){if(confirm('Delete this follow-up?')){items=items.filter(x=>x.id!==id);save();render()}}
+
+document.getElementById('search').addEventListener('input',render);
+document.getElementById('filterStatus').addEventListener('change',render);
+document.getElementById('filterType').addEventListener('change',render);
+document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
+render();
+</script>
+</body>
+</html>

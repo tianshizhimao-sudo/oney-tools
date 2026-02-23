@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Offset Account Savings Calculator — Oney & Co</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--white:#f0f0f0}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;padding:20px}
+.container{max-width:900px;margin:0 auto}
+header{text-align:center;margin-bottom:30px}
+.logo{display:inline-flex;align-items:center;gap:8px;margin-bottom:8px}
+.logo svg{width:40px;height:40px}
+.logo span{font-size:22px;font-weight:600;color:var(--white)}
+.logo .amp{color:var(--green);font-size:17px;font-weight:400}
+h1{font-size:24px;font-weight:700;background:linear-gradient(135deg,var(--green),var(--green2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px}
+.subtitle{color:var(--muted);font-size:14px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
+.card h2{font-size:16px;margin-bottom:16px;color:var(--green)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.grid{grid-template-columns:1fr}}
+label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+input,select{width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--white);font-size:15px;outline:none}
+input:focus,select:focus{border-color:var(--green)}
+.slider-wrap{margin-top:8px}
+.slider-wrap input[type=range]{-webkit-appearance:none;height:6px;background:var(--border);border-radius:3px;border:none;padding:0}
+.slider-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:var(--green);border-radius:50%;cursor:pointer}
+.slider-val{text-align:right;font-size:20px;font-weight:700;color:var(--green)}
+.results{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+@media(max-width:600px){.results{grid-template-columns:1fr}}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
+.stat .val{font-size:28px;font-weight:700;color:var(--green);margin-bottom:4px}
+.stat .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.stat.highlight{border-color:var(--green);background:rgba(46,204,133,.08)}
+.chart-wrap{position:relative;height:300px;margin-top:16px}
+canvas{width:100%!important;height:100%!important}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:12px}
+th{text-align:left;padding:8px;border-bottom:2px solid var(--border);color:var(--muted);font-weight:500}
+td{padding:8px;border-bottom:1px solid var(--border)}
+tr:hover td{background:rgba(46,204,133,.05)}
+.green{color:var(--green)}
+.toggle-row{display:flex;gap:12px;margin-top:12px;justify-content:center}
+.toggle-btn{padding:6px 16px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-size:13px}
+.toggle-btn.active{background:var(--green);color:#000;border-color:var(--green);font-weight:600}
+.footnote{text-align:center;color:var(--muted);font-size:11px;margin-top:24px}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<div class="logo">
+<svg viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs><g transform="translate(50,50)"><path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#g)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/><path d="M0 -45 L0 -52" stroke="url(#g)" stroke-width="6" stroke-linecap="round"/></g></svg>
+<span>ney<span class="amp">&</span>co</span>
+</div>
+<h1>Offset Account Savings Calculator</h1>
+<p class="subtitle">See how your offset account reduces interest and shortens your loan</p>
+</header>
+
+<div class="card">
+<h2>📋 Loan Details</h2>
+<div class="grid">
+<div><label>Loan Amount ($)</label><input type="number" id="loan" value="600000" step="10000"></div>
+<div><label>Interest Rate (% p.a.)</label><input type="number" id="rate" value="6.2" step="0.05"></div>
+<div><label>Loan Term (years)</label><input type="number" id="term" value="30" step="1"></div>
+<div><label>Repayment Type</label><select id="repType"><option value="pi">Principal & Interest</option><option value="io">Interest Only</option></select></div>
+</div>
+</div>
+
+<div class="card">
+<h2>💰 Offset Balance</h2>
+<div class="slider-wrap">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+<label style="margin:0">Funds in Offset Account</label>
+<div class="slider-val" id="offsetDisp">$50,000</div>
+</div>
+<input type="range" id="offset" min="0" max="500000" step="5000" value="50000">
+<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:4px"><span>$0</span><span>$500,000</span></div>
+</div>
+</div>
+
+<div class="results">
+<div class="stat highlight"><div class="val" id="savedInt">—</div><div class="lbl">Total Interest Saved</div></div>
+<div class="stat highlight"><div class="val" id="savedYrs">—</div><div class="lbl">Time Saved (P&I)</div></div>
+<div class="stat"><div class="val" id="monthDiff">—</div><div class="lbl">Monthly Saving</div></div>
+</div>
+
+<div class="card">
+<h2>📊 Interest Over Time</h2>
+<div class="toggle-row">
+<button class="toggle-btn active" data-view="cumulative">Cumulative Interest</button>
+<button class="toggle-btn" data-view="monthly">Monthly Interest</button>
+</div>
+<div class="chart-wrap"><canvas id="chart"></canvas></div>
+</div>
+
+<div class="card">
+<h2>📅 Year-by-Year Breakdown</h2>
+<div style="max-height:400px;overflow-y:auto">
+<table>
+<thead><tr><th>Year</th><th>Balance (No Offset)</th><th>Balance (With Offset)</th><th>Interest Saved</th><th>Cumulative Saved</th></tr></thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+</div>
+
+<p class="footnote">For illustration only. Actual savings depend on lender terms, offset account type, and balance fluctuations.<br>© Oney & Co 2026</p>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>'$'+Math.round(n).toLocaleString();
+const fmtK=n=>n>=1000?'$'+(n/1000).toFixed(0)+'k':fmt(n);
+
+let chartView='cumulative';
+
+function calc(){
+const P=+$('loan').value,r=+$('rate').value/100,T=+$('term').value,O=+$('offset').value,isIO=$('repType').value==='io';
+const mr=r/12,n=T*12;
+if(P<=0||r<=0||T<=0)return;
+
+// Monthly payment (no offset, P&I)
+const mpNoOff=isIO?P*mr:P*mr*Math.pow(1+mr,n)/(Math.pow(1+mr,n)-1);
+const effP=Math.max(P-O,0);
+const mpWith=isIO?effP*mr:effP>0?effP*mr*Math.pow(1+mr,n)/(Math.pow(1+mr,n)-1):0;
+
+// Amortize both
+function amort(principal,mp,io){
+let bal=principal,totalInt=0;
+const yearly=[],monthlyInt=[];
+for(let y=0;y<T;y++){
+let yInt=0;
+for(let m=0;m<12;m++){
+const mi=bal*mr;
+yInt+=mi;totalInt+=mi;
+monthlyInt.push(mi);
+if(!io)bal=Math.max(bal-(mp-mi),0);
+}
+yearly.push({bal,yInt,totalInt});
+}
+return{yearly,totalInt,monthlyInt,finalBal:bal};
+}
+
+const noOff=amort(P,mpNoOff,isIO);
+const wOff=amort(effP,mpWith,isIO);
+
+const intSaved=noOff.totalInt-wOff.totalInt;
+$('savedInt').textContent=fmt(intSaved);
+$('monthDiff').textContent=fmt(mpNoOff-mpWith)+'/mo';
+
+// Time saved (P&I only) — find when wOff balance hits 0
+if(!isIO&&effP>0){
+let bal=effP,months=0;
+while(bal>0.01&&months<n){
+const mi=bal*mr;
+bal=Math.max(bal-(mpWith-mi),0);
+months++;
+}
+const origMonths=n;
+const saved=origMonths-months;
+const yrs=Math.floor(saved/12),mos=saved%12;
+$('savedYrs').textContent=yrs>0?yrs+'y '+mos+'m':mos+'m';
+}else{
+$('savedYrs').textContent='N/A (IO)';
+}
+
+// Table
+let html='';
+for(let i=0;i<T;i++){
+const nb=noOff.yearly[i],wb=wOff.yearly[i];
+const cumSaved=nb.totalInt-wb.totalInt;
+html+=`<tr><td>${i+1}</td><td>${fmt(nb.bal)}</td><td>${fmt(wb.bal)}</td><td class="green">${fmt(nb.yInt-wb.yInt)}</td><td class="green">${fmt(cumSaved)}</td></tr>`;
+}
+$('tbody').innerHTML=html;
+
+drawChart(noOff,wOff,T);
+}
+
+function drawChart(noOff,wOff,T){
+const canvas=$('chart'),ctx=canvas.getContext('2d');
+const dpr=window.devicePixelRatio||1;
+const rect=canvas.parentElement.getBoundingClientRect();
+canvas.width=rect.width*dpr;canvas.height=rect.height*dpr;
+ctx.scale(dpr,dpr);
+const W=rect.width,H=rect.height;
+const pad={t:20,r:20,b:40,l:60};
+const cw=W-pad.l-pad.r,ch=H-pad.t-pad.b;
+
+ctx.clearRect(0,0,W,H);
+
+let d1,d2,labels;
+if(chartView==='cumulative'){
+d1=noOff.yearly.map(y=>y.totalInt);
+d2=wOff.yearly.map(y=>y.totalInt);
+labels=Array.from({length:T},(_,i)=>i+1);
+}else{
+// monthly interest (sample every 12 months for clarity)
+d1=noOff.yearly.map((_,i)=>noOff.monthlyInt[i*12+11]||0);
+d2=wOff.yearly.map((_,i)=>wOff.monthlyInt[i*12+11]||0);
+labels=Array.from({length:T},(_,i)=>i+1);
+}
+
+const maxV=Math.max(...d1,...d2,1);
+
+function x(i){return pad.l+(i/(labels.length-1||1))*cw}
+function y(v){return pad.t+ch-(v/maxV)*ch}
+
+// Grid
+ctx.strokeStyle='#3D3D5C';ctx.lineWidth=.5;
+for(let i=0;i<=4;i++){
+const yy=pad.t+(ch/4)*i;
+ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(pad.l+cw,yy);ctx.stroke();
+ctx.fillStyle='#a3a3b8';ctx.font='11px Inter,sans-serif';ctx.textAlign='right';
+ctx.fillText(fmtK(maxV-maxV/4*i),pad.l-8,yy+4);
+}
+// X labels
+ctx.textAlign='center';
+const step=Math.max(1,Math.floor(T/10));
+for(let i=0;i<T;i+=step){
+ctx.fillStyle='#a3a3b8';ctx.fillText('Y'+labels[i],x(i),H-pad.b+20);
+}
+
+// Lines
+function drawLine(data,color){
+ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2.5;
+data.forEach((v,i)=>{i===0?ctx.moveTo(x(i),y(v)):ctx.lineTo(x(i),y(v))});
+ctx.stroke();
+}
+
+// Fill between
+ctx.beginPath();
+d1.forEach((v,i)=>{i===0?ctx.moveTo(x(i),y(v)):ctx.lineTo(x(i),y(v))});
+for(let i=d2.length-1;i>=0;i--)ctx.lineTo(x(i),y(d2[i]));
+ctx.closePath();
+ctx.fillStyle='rgba(46,204,133,0.12)';ctx.fill();
+
+drawLine(d1,'#6B4C9A');
+drawLine(d2,'#2ECC85');
+
+// Legend
+ctx.font='12px Inter,sans-serif';
+ctx.fillStyle='#6B4C9A';ctx.fillRect(pad.l,pad.t-14,12,12);ctx.fillStyle='#a3a3b8';ctx.textAlign='left';ctx.fillText('No Offset',pad.l+16,pad.t-3);
+ctx.fillStyle='#2ECC85';ctx.fillRect(pad.l+110,pad.t-14,12,12);ctx.fillStyle='#a3a3b8';ctx.fillText('With Offset',pad.l+126,pad.t-3);
+}
+
+// Events
+['loan','rate','term','repType'].forEach(id=>$(id).addEventListener('input',calc));
+$('offset').addEventListener('input',e=>{
+$('offsetDisp').textContent=fmt(+e.target.value);
+calc();
+});
+
+document.querySelectorAll('.toggle-btn').forEach(btn=>{
+btn.addEventListener('click',()=>{
+document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+btn.classList.add('active');
+chartView=btn.dataset.view;
+calc();
+});
+});
+
+// Update slider max based on loan
+$('loan').addEventListener('input',()=>{
+const lv=+$('loan').value;
+$('offset').max=lv;
+if(+$('offset').value>lv){$('offset').value=lv;$('offsetDisp').textContent=fmt(lv)}
+});
+
+window.addEventListener('resize',calc);
+calc();
+</script>
+</body>
+</html>

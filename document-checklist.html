@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Checklist Generator | Oney & Co</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fffe 0%, #e8f5f0 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            color: #0a0a0a;
+            font-size: 1.8em;
+            font-weight: 600;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .config-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(46, 204, 133, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .config-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .config-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        
+        label {
+            font-weight: 500;
+            color: #333;
+            font-size: 0.9em;
+        }
+        
+        select, input {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.2s;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #2ECC85;
+        }
+        
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2ECC85, #1FAD73);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 204, 133, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e8e8e8;
+        }
+        
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .checklist-panel {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(46, 204, 133, 0.1);
+        }
+        
+        .checklist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .checklist-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #0a0a0a;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e8e8e8;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #2ECC85, #1FAD73);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 16px;
+        }
+        
+        .category {
+            margin-bottom: 24px;
+        }
+        
+        .category-title {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #1FAD73;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e8f5f0;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            transition: background 0.2s;
+        }
+        
+        .checklist-item:hover {
+            background: #f8fffe;
+        }
+        
+        .checklist-item.checked {
+            background: #e8f5f0;
+        }
+        
+        .checklist-item.checked .item-text {
+            text-decoration: line-through;
+            color: #999;
+        }
+        
+        .checkbox {
+            width: 22px;
+            height: 22px;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        
+        .checkbox.checked {
+            background: linear-gradient(135deg, #2ECC85, #1FAD73);
+            border-color: #2ECC85;
+        }
+        
+        .checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .item-content {
+            flex: 1;
+        }
+        
+        .item-text {
+            color: #333;
+            line-height: 1.4;
+        }
+        
+        .item-note {
+            font-size: 0.85em;
+            color: #888;
+            margin-top: 4px;
+        }
+        
+        .client-info {
+            background: #f8fffe;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2ECC85;
+        }
+        
+        .client-name {
+            font-weight: 600;
+            color: #0a0a0a;
+        }
+        
+        .client-details {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 4px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+        
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #333;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 10px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .config-panel, .btn-row, .toast {
+                display: none;
+            }
+            .checklist-panel {
+                box-shadow: none;
+            }
+            .checkbox {
+                border: 2px solid #333;
+            }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #999;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#2ECC85"/>
+                        <stop offset="100%" style="stop-color:#1FAD73"/>
+                    </linearGradient>
+                </defs>
+                <g transform="translate(50, 50)">
+                    <path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#greenGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/>
+                    <path d="M0 -45 L0 -52" stroke="url(#greenGrad)" stroke-width="6" stroke-linecap="round"/>
+                </g>
+            </svg>
+            <h1>Document Checklist Generator</h1>
+            <p class="subtitle">Generate tailored document checklists for loan applications</p>
+        </header>
+
+        <div class="config-panel">
+            <div class="config-row">
+                <div class="config-group">
+                    <label for="clientName">Client Name</label>
+                    <input type="text" id="clientName" placeholder="e.g. John & Jane Smith">
+                </div>
+                <div class="config-group">
+                    <label for="loanType">Loan Type</label>
+                    <select id="loanType">
+                        <option value="residential">Residential Home Loan</option>
+                        <option value="investment">Investment Property</option>
+                        <option value="commercial">Commercial Property</option>
+                        <option value="construction">Construction Loan</option>
+                        <option value="smsf">SMSF Loan</option>
+                        <option value="refinance">Refinance</option>
+                    </select>
+                </div>
+            </div>
+            <div class="config-row">
+                <div class="config-group">
+                    <label for="employmentType">Employment Type</label>
+                    <select id="employmentType">
+                        <option value="payg">PAYG Employee</option>
+                        <option value="selfEmployed">Self-Employed</option>
+                        <option value="contractor">Contractor</option>
+                        <option value="mixed">Mixed Income</option>
+                    </select>
+                </div>
+                <div class="config-group">
+                    <label for="applicantType">Applicants</label>
+                    <select id="applicantType">
+                        <option value="single">Single Applicant</option>
+                        <option value="joint">Joint Applicants</option>
+                        <option value="company">Company/Trust</option>
+                    </select>
+                </div>
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-primary" onclick="generateChecklist()">Generate Checklist</button>
+                <button class="btn btn-secondary" onclick="copyAsText()">📋 Copy as Text</button>
+                <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
+                <button class="btn btn-secondary" onclick="resetChecklist()">🔄 Reset</button>
+            </div>
+        </div>
+
+        <div class="checklist-panel" id="checklistPanel">
+            <div class="empty-state" id="emptyState">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#2ECC85" stroke-width="1.5">
+                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                </svg>
+                <p>Select loan type and click "Generate Checklist"</p>
+            </div>
+            <div id="checklistContent" style="display: none;"></div>
+        </div>
+
+        <footer>
+            <p>Oney & Co Document Checklist Generator • Built with 💚</p>
+        </footer>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Document requirements database
+        const documentSets = {
+            // Identity documents
+            identity: {
+                title: "📋 Identity Documents",
+                items: [
+                    { text: "Driver's License (both sides)", note: "Current and valid" },
+                    { text: "Passport", note: "If available, or as secondary ID" },
+                    { text: "Medicare Card", note: "Optional supporting ID" }
+                ]
+            },
+            
+            // PAYG Employment
+            paygIncome: {
+                title: "💰 Income - PAYG",
+                items: [
+                    { text: "2 most recent payslips", note: "Must show YTD figures" },
+                    { text: "Employment letter/contract", note: "Confirming position, salary, start date" },
+                    { text: "Most recent Tax Return (if bonus/commission)", note: "Required if variable income" },
+                    { text: "Group Certificate / PAYG Summary", note: "Last 2 years" }
+                ]
+            },
+            
+            // Self-employed income
+            selfEmployedIncome: {
+                title: "💰 Income - Self-Employed",
+                items: [
+                    { text: "Last 2 years' Tax Returns (personal)", note: "Including Notice of Assessment" },
+                    { text: "Last 2 years' Financial Statements", note: "P&L and Balance Sheet" },
+                    { text: "Last 2 years' Company/Trust Tax Returns", note: "If trading through entity" },
+                    { text: "ATO Portal Income Statement", note: "Verifies lodged returns" },
+                    { text: "6 months business bank statements", note: "All trading accounts" },
+                    { text: "ABN/ACN Registration", note: "Proof of business registration" },
+                    { text: "Accountant's letter", note: "Some lenders require confirmation" }
+                ]
+            },
+            
+            // Contractor income
+            contractorIncome: {
+                title: "💰 Income - Contractor",
+                items: [
+                    { text: "Current contract", note: "Showing rate and duration" },
+                    { text: "Last 2 years' Tax Returns", note: "Including Notice of Assessment" },
+                    { text: "6 months bank statements", note: "Showing income deposits" },
+                    { text: "Previous contracts", note: "Showing history of continuous work" },
+                    { text: "ABN Registration", note: "If operating as sole trader" }
+                ]
+            },
+            
+            // Assets
+            assets: {
+                title: "🏦 Assets",
+                items: [
+                    { text: "3 months bank statements (all accounts)", note: "Show savings history" },
+                    { text: "Latest superannuation statement", note: "All super funds" },
+                    { text: "Share portfolio / managed funds statement", note: "If applicable" },
+                    { text: "Other investment documentation", note: "Crypto, bonds, etc." }
+                ]
+            },
+            
+            // Liabilities
+            liabilities: {
+                title: "💳 Existing Liabilities",
+                items: [
+                    { text: "Current home loan statement", note: "Last 6 months or payout figure" },
+                    { text: "Credit card statements", note: "All cards, showing limits" },
+                    { text: "Personal loan statements", note: "If applicable" },
+                    { text: "Car loan/lease statements", note: "If applicable" },
+                    { text: "HECS/HELP debt statement", note: "From ATO if applicable" },
+                    { text: "Buy Now Pay Later statement", note: "Afterpay, Zip, etc." }
+                ]
+            },
+            
+            // Property - Purchase
+            propertyPurchase: {
+                title: "🏠 Property Documents - Purchase",
+                items: [
+                    { text: "Signed Contract of Sale", note: "All pages including special conditions" },
+                    { text: "Section 32 / Vendor Statement", note: "VIC only" },
+                    { text: "Certificate of Title", note: "Usually in contract" },
+                    { text: "Council rates notice", note: "For approximate costs" }
+                ]
+            },
+            
+            // Property - Investment
+            investmentProperty: {
+                title: "📈 Investment Property Documents",
+                items: [
+                    { text: "Current rental statement", note: "6 months history" },
+                    { text: "Lease agreement", note: "For existing rentals" },
+                    { text: "Rental appraisal", note: "For new purchases" },
+                    { text: "Body corporate statement", note: "If unit/apartment" }
+                ]
+            },
+            
+            // Construction
+            construction: {
+                title: "🔨 Construction Documents",
+                items: [
+                    { text: "Fixed Price Building Contract", note: "Signed by all parties" },
+                    { text: "Council Approved Plans", note: "Full architectural drawings" },
+                    { text: "Builder's License & Insurance", note: "Home warranty insurance" },
+                    { text: "Specifications document", note: "Detailed inclusions list" },
+                    { text: "Land Contract (if separate)", note: "Or existing title" },
+                    { text: "Progress payment schedule", note: "Usually 5-6 stages" }
+                ]
+            },
+            
+            // Commercial
+            commercial: {
+                title: "🏢 Commercial Property Documents",
+                items: [
+                    { text: "Contract of Sale (commercial)", note: "All terms and conditions" },
+                    { text: "Current lease agreement", note: "If tenanted" },
+                    { text: "Rent roll / income schedule", note: "For multi-tenant properties" },
+                    { text: "Commercial valuation", note: "May be required by lender" },
+                    { text: "Environmental report", note: "If industrial/fuel station" },
+                    { text: "Building inspection report", note: "Commercial properties" }
+                ]
+            },
+            
+            // SMSF
+            smsf: {
+                title: "🏛️ SMSF Documents",
+                items: [
+                    { text: "SMSF Trust Deed", note: "Current version" },
+                    { text: "Corporate Trustee documents", note: "ASIC extract, Constitution" },
+                    { text: "Member statements", note: "All fund members" },
+                    { text: "Latest SMSF Financial Statements", note: "Audited accounts" },
+                    { text: "Latest SMSF Tax Return", note: "Lodged with ATO" },
+                    { text: "Investment Strategy", note: "Must permit property investment" },
+                    { text: "Bare Trust Deed", note: "For holding property" },
+                    { text: "Member personal guarantees", note: "Required by most lenders" }
+                ]
+            },
+            
+            // Company/Trust
+            companyTrust: {
+                title: "🏛️ Company/Trust Documents",
+                items: [
+                    { text: "Company ASIC Extract", note: "Current company details" },
+                    { text: "Company Constitution", note: "Or Memorandum & Articles" },
+                    { text: "Trust Deed", note: "If purchasing via trust" },
+                    { text: "Director ID verification", note: "All directors" },
+                    { text: "Company financials", note: "Last 2 years" }
+                ]
+            },
+            
+            // Refinance
+            refinance: {
+                title: "🔄 Refinance Documents",
+                items: [
+                    { text: "Current loan statements (6 months)", note: "All loans to be refinanced" },
+                    { text: "Payout/discharge figures", note: "Request from current lender" },
+                    { text: "Property valuation", note: "Desktop or full, lender will advise" },
+                    { text: "Council rates notice", note: "Current year" },
+                    { text: "Insurance certificate of currency", note: "Building insurance" }
+                ]
+            },
+            
+            // Joint applicant extras
+            jointApplicant: {
+                title: "👥 Joint Applicant",
+                items: [
+                    { text: "All above documents for second applicant", note: "Same requirements apply" },
+                    { text: "Marriage certificate", note: "If applicable" },
+                    { text: "Proof of relationship", note: "If de facto - shared bills, lease, etc." }
+                ]
+            }
+        };
+
+        // Checklist configurations by loan type
+        const loanConfigs = {
+            residential: {
+                name: "Residential Home Loan",
+                categories: ['identity', 'assets', 'liabilities', 'propertyPurchase']
+            },
+            investment: {
+                name: "Investment Property Loan",
+                categories: ['identity', 'assets', 'liabilities', 'propertyPurchase', 'investmentProperty']
+            },
+            commercial: {
+                name: "Commercial Property Loan",
+                categories: ['identity', 'assets', 'liabilities', 'commercial']
+            },
+            construction: {
+                name: "Construction Loan",
+                categories: ['identity', 'assets', 'liabilities', 'construction']
+            },
+            smsf: {
+                name: "SMSF Loan",
+                categories: ['identity', 'assets', 'liabilities', 'smsf', 'propertyPurchase']
+            },
+            refinance: {
+                name: "Refinance",
+                categories: ['identity', 'assets', 'liabilities', 'refinance']
+            }
+        };
+
+        const employmentConfigs = {
+            payg: 'paygIncome',
+            selfEmployed: 'selfEmployedIncome',
+            contractor: 'contractorIncome',
+            mixed: ['paygIncome', 'selfEmployedIncome']
+        };
+
+        let checklistState = {};
+
+        function generateChecklist() {
+            const clientName = document.getElementById('clientName').value || 'Client';
+            const loanType = document.getElementById('loanType').value;
+            const employmentType = document.getElementById('employmentType').value;
+            const applicantType = document.getElementById('applicantType').value;
+
+            const config = loanConfigs[loanType];
+            let categories = [...config.categories];
+
+            // Add employment income category
+            const empConfig = employmentConfigs[employmentType];
+            if (Array.isArray(empConfig)) {
+                categories = [categories[0], ...empConfig, ...categories.slice(1)];
+            } else {
+                categories = [categories[0], empConfig, ...categories.slice(1)];
+            }
+
+            // Add joint applicant if needed
+            if (applicantType === 'joint') {
+                categories.push('jointApplicant');
+            }
+
+            // Add company/trust if needed
+            if (applicantType === 'company') {
+                categories.push('companyTrust');
+            }
+
+            // Build HTML
+            let html = `
+                <div class="client-info">
+                    <div class="client-name">${escapeHtml(clientName)}</div>
+                    <div class="client-details">${config.name} • ${getEmploymentLabel(employmentType)} • ${getApplicantLabel(applicantType)}</div>
+                </div>
+                <div class="progress-text" id="progressText">0 of 0 items collected</div>
+                <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 0%"></div></div>
+            `;
+
+            // Initialize state
+            checklistState = {};
+            let itemIndex = 0;
+
+            categories.forEach(catKey => {
+                const category = documentSets[catKey];
+                if (!category) return;
+
+                html += `<div class="category"><div class="category-title">${category.title}</div>`;
+                
+                category.items.forEach(item => {
+                    const id = `item-${itemIndex}`;
+                    checklistState[id] = false;
+                    
+                    html += `
+                        <div class="checklist-item" id="${id}-row">
+                            <div class="checkbox" id="${id}" onclick="toggleItem('${id}')"></div>
+                            <div class="item-content">
+                                <div class="item-text">${escapeHtml(item.text)}</div>
+                                ${item.note ? `<div class="item-note">${escapeHtml(item.note)}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                    itemIndex++;
+                });
+                
+                html += '</div>';
+            });
+
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('checklistContent').style.display = 'block';
+            document.getElementById('checklistContent').innerHTML = html;
+            
+            updateProgress();
+            showToast('Checklist generated!');
+        }
+
+        function toggleItem(id) {
+            checklistState[id] = !checklistState[id];
+            const checkbox = document.getElementById(id);
+            const row = document.getElementById(id + '-row');
+            
+            if (checklistState[id]) {
+                checkbox.classList.add('checked');
+                row.classList.add('checked');
+            } else {
+                checkbox.classList.remove('checked');
+                row.classList.remove('checked');
+            }
+            
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const total = Object.keys(checklistState).length;
+            const checked = Object.values(checklistState).filter(v => v).length;
+            const percent = total > 0 ? Math.round((checked / total) * 100) : 0;
+            
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressText').textContent = `${checked} of ${total} items collected (${percent}%)`;
+        }
+
+        function copyAsText() {
+            const content = document.getElementById('checklistContent');
+            if (content.style.display === 'none') {
+                showToast('Generate a checklist first');
+                return;
+            }
+
+            const clientInfo = document.querySelector('.client-info');
+            const clientName = clientInfo?.querySelector('.client-name')?.textContent || 'Client';
+            const clientDetails = clientInfo?.querySelector('.client-details')?.textContent || '';
+
+            let text = `DOCUMENT CHECKLIST\n${clientName}\n${clientDetails}\n${'='.repeat(40)}\n\n`;
+
+            document.querySelectorAll('.category').forEach(cat => {
+                const title = cat.querySelector('.category-title').textContent;
+                text += `${title}\n${'-'.repeat(30)}\n`;
+                
+                cat.querySelectorAll('.checklist-item').forEach(item => {
+                    const id = item.id.replace('-row', '');
+                    const checked = checklistState[id] ? '✓' : '☐';
+                    const itemText = item.querySelector('.item-text').textContent;
+                    const note = item.querySelector('.item-note')?.textContent;
+                    text += `${checked} ${itemText}${note ? ` (${note})` : ''}\n`;
+                });
+                text += '\n';
+            });
+
+            text += `\nGenerated by Oney & Co • ${new Date().toLocaleDateString()}`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Copied to clipboard!');
+            });
+        }
+
+        function resetChecklist() {
+            Object.keys(checklistState).forEach(id => {
+                checklistState[id] = false;
+                document.getElementById(id)?.classList.remove('checked');
+                document.getElementById(id + '-row')?.classList.remove('checked');
+            });
+            updateProgress();
+            showToast('Checklist reset');
+        }
+
+        function getEmploymentLabel(type) {
+            const labels = {
+                payg: 'PAYG Employee',
+                selfEmployed: 'Self-Employed',
+                contractor: 'Contractor',
+                mixed: 'Mixed Income'
+            };
+            return labels[type] || type;
+        }
+
+        function getApplicantLabel(type) {
+            const labels = {
+                single: 'Single Applicant',
+                joint: 'Joint Applicants',
+                company: 'Company/Trust'
+            };
+            return labels[type] || type;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+    </script>
+</body>
+</html>

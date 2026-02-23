@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fixed Rate Expiry Tracker — Oney & Co</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--red:#e74c3c;--orange:#f39c12;--yellow:#f1c40f}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:#e0e0e0;min-height:100vh;padding:20px}
+h1{text-align:center;margin-bottom:6px;font-size:1.6rem}
+h1 span{color:var(--green)}
+.subtitle{text-align:center;color:var(--muted);font-size:.85rem;margin-bottom:24px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.stat .num{font-size:2rem;font-weight:700}
+.stat .label{font-size:.75rem;color:var(--muted);margin-top:4px}
+.stat.expired .num{color:var(--red)}
+.stat.soon .num{color:var(--orange)}
+.stat.upcoming .num{color:var(--yellow)}
+.stat.safe .num{color:var(--green)}
+.controls{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.controls input,.controls select{background:var(--card);border:1px solid var(--border);color:#e0e0e0;padding:8px 12px;border-radius:8px;font-size:.85rem}
+.controls input{flex:1;min-width:200px}
+.btn{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border:none;padding:8px 16px;border-radius:8px;cursor:pointer;font-weight:600;font-size:.85rem;white-space:nowrap}
+.btn:hover{opacity:.9}
+.btn.secondary{background:var(--card);border:1px solid var(--border)}
+.btn.danger{background:var(--red)}
+table{width:100%;border-collapse:collapse;background:var(--card);border-radius:12px;overflow:hidden}
+th{background:var(--border);padding:10px 12px;text-align:left;font-size:.75rem;text-transform:uppercase;color:var(--muted);letter-spacing:.5px}
+td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:.85rem}
+tr:last-child td{border-bottom:none}
+tr:hover{background:rgba(46,204,133,.05)}
+.badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:.7rem;font-weight:600}
+.badge.expired{background:rgba(231,76,60,.2);color:var(--red)}
+.badge.soon{background:rgba(243,156,18,.2);color:var(--orange)}
+.badge.upcoming{background:rgba(241,196,15,.2);color:var(--yellow)}
+.badge.safe{background:rgba(46,204,133,.2);color:var(--green)}
+.badge.contacted{background:rgba(107,76,154,.2);color:#9B59B6}
+.days{font-weight:600}
+.actions-cell{display:flex;gap:6px}
+.actions-cell button{background:none;border:1px solid var(--border);color:var(--muted);padding:4px 8px;border-radius:6px;cursor:pointer;font-size:.75rem}
+.actions-cell button:hover{border-color:var(--green);color:var(--green)}
+/* Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;width:90%;max-width:480px}
+.modal h2{margin-bottom:16px;font-size:1.1rem}
+.modal label{display:block;font-size:.8rem;color:var(--muted);margin:10px 0 4px}
+.modal input,.modal select{width:100%;background:var(--bg);border:1px solid var(--border);color:#e0e0e0;padding:8px 12px;border-radius:8px;font-size:.85rem}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.empty{text-align:center;padding:40px;color:var(--muted)}
+.logo{text-align:center;margin-bottom:16px;opacity:.6;font-size:.7rem;color:var(--muted)}
+@media(max-width:600px){.stats{grid-template-columns:repeat(2,1fr)}.controls{flex-direction:column}}
+</style>
+</head>
+<body>
+<div class="logo">Oney & Co</div>
+<h1>⏰ Fixed Rate <span>Expiry Tracker</span></h1>
+<p class="subtitle">Proactively reach out before clients' fixed rates roll off</p>
+
+<div class="stats" id="stats"></div>
+
+<div class="controls">
+  <input type="text" id="search" placeholder="🔍 Search clients...">
+  <select id="filterStatus">
+    <option value="all">All Status</option>
+    <option value="expired">Expired</option>
+    <option value="soon">≤30 days</option>
+    <option value="upcoming">31-90 days</option>
+    <option value="safe">90+ days</option>
+    <option value="contacted">Contacted</option>
+  </select>
+  <button class="btn" onclick="openModal()">+ Add Client</button>
+  <button class="btn secondary" onclick="exportCSV()">📋 Export CSV</button>
+</div>
+
+<table>
+  <thead><tr><th>Client</th><th>Lender</th><th>Loan $</th><th>Fixed Rate</th><th>Expiry Date</th><th>Days Left</th><th>Status</th><th>Actions</th></tr></thead>
+  <tbody id="tbody"></tbody>
+</table>
+<div class="empty" id="empty" style="display:none">No clients yet. Add your first fixed-rate client above!</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay">
+<div class="modal">
+  <h2 id="modalTitle">Add Client</h2>
+  <input type="hidden" id="editId">
+  <label>Client Name *</label><input id="fName" placeholder="e.g. John Smith">
+  <label>Lender</label><input id="fLender" placeholder="e.g. CBA, ANZ">
+  <label>Loan Amount ($)</label><input id="fAmount" type="number" placeholder="500000">
+  <label>Fixed Rate (%)</label><input id="fRate" type="number" step="0.01" placeholder="5.49">
+  <label>Fixed Rate Expiry Date *</label><input id="fExpiry" type="date">
+  <label>Phone</label><input id="fPhone" placeholder="0400 000 000">
+  <label>Notes</label><input id="fNotes" placeholder="Any notes...">
+  <div class="modal-actions">
+    <button class="btn secondary" onclick="closeModal()">Cancel</button>
+    <button class="btn" onclick="saveClient()">Save</button>
+  </div>
+</div>
+</div>
+
+<script>
+const KEY='oney_fixed_rate_tracker';
+let clients=JSON.parse(localStorage.getItem(KEY)||'[]');
+const $=id=>document.getElementById(id);
+
+function daysUntil(dateStr){const d=new Date(dateStr);const now=new Date();now.setHours(0,0,0,0);d.setHours(0,0,0,0);return Math.ceil((d-now)/(864e5))}
+
+function getStatus(c){
+  if(c.contacted)return'contacted';
+  const d=daysUntil(c.expiry);
+  if(d<0)return'expired';if(d<=30)return'soon';if(d<=90)return'upcoming';return'safe';
+}
+
+function statusLabel(s){return{expired:'Expired',soon:'≤30 Days',upcoming:'31-90 Days',safe:'90+ Days',contacted:'Contacted'}[s]}
+
+function save(){localStorage.setItem(KEY,JSON.stringify(clients))}
+
+function render(){
+  const q=$('search').value.toLowerCase();
+  const f=$('filterStatus').value;
+  let filtered=clients.filter(c=>{
+    const s=getStatus(c);
+    if(f!=='all'&&s!==f)return false;
+    if(q&&!c.name.toLowerCase().includes(q)&&!(c.lender||'').toLowerCase().includes(q))return false;
+    return true;
+  }).sort((a,b)=>new Date(a.expiry)-new Date(b.expiry));
+
+  // Stats
+  const counts={expired:0,soon:0,upcoming:0,safe:0,contacted:0};
+  clients.forEach(c=>counts[getStatus(c)]++);
+  $('stats').innerHTML=`
+    <div class="stat expired"><div class="num">${counts.expired}</div><div class="label">Expired</div></div>
+    <div class="stat soon"><div class="num">${counts.soon}</div><div class="label">≤30 Days</div></div>
+    <div class="stat upcoming"><div class="num">${counts.upcoming}</div><div class="label">31-90 Days</div></div>
+    <div class="stat safe"><div class="num">${counts.safe}</div><div class="label">90+ Days</div></div>
+  `;
+
+  if(filtered.length===0){$('tbody').innerHTML='';$('empty').style.display='block';return}
+  $('empty').style.display='none';
+  $('tbody').innerHTML=filtered.map(c=>{
+    const d=daysUntil(c.expiry);const s=getStatus(c);
+    return`<tr>
+      <td><strong>${c.name}</strong>${c.phone?'<br><span style="color:var(--muted);font-size:.75rem">'+c.phone+'</span>':''}</td>
+      <td>${c.lender||'-'}</td>
+      <td>${c.amount?'$'+Number(c.amount).toLocaleString():'-'}</td>
+      <td>${c.rate?c.rate+'%':'-'}</td>
+      <td>${c.expiry}</td>
+      <td class="days" style="color:${d<0?'var(--red)':d<=30?'var(--orange)':d<=90?'var(--yellow)':'var(--green)'}">${d<0?Math.abs(d)+' ago':d+' days'}</td>
+      <td><span class="badge ${s}">${statusLabel(s)}</span></td>
+      <td class="actions-cell">
+        <button onclick="toggleContacted('${c.id}')" title="Mark contacted">📞</button>
+        <button onclick="editClient('${c.id}')" title="Edit">✏️</button>
+        <button onclick="deleteClient('${c.id}')" title="Delete">🗑️</button>
+      </td>
+    </tr>`}).join('');
+}
+
+function openModal(id){
+  $('editId').value=id||'';
+  $('modalTitle').textContent=id?'Edit Client':'Add Client';
+  if(id){const c=clients.find(x=>x.id===id);$('fName').value=c.name;$('fLender').value=c.lender||'';$('fAmount').value=c.amount||'';$('fRate').value=c.rate||'';$('fExpiry').value=c.expiry;$('fPhone').value=c.phone||'';$('fNotes').value=c.notes||''}
+  else{['fName','fLender','fAmount','fRate','fExpiry','fPhone','fNotes'].forEach(f=>$(f).value='')}
+  $('modalOverlay').classList.add('active');
+}
+
+function closeModal(){$('modalOverlay').classList.remove('active')}
+
+function saveClient(){
+  const name=$('fName').value.trim();const expiry=$('fExpiry').value;
+  if(!name||!expiry){alert('Name and expiry date required');return}
+  const data={name,lender:$('fLender').value.trim(),amount:$('fAmount').value,rate:$('fRate').value,expiry,phone:$('fPhone').value.trim(),notes:$('fNotes').value.trim()};
+  const eid=$('editId').value;
+  if(eid){const c=clients.find(x=>x.id===eid);Object.assign(c,data)}
+  else{data.id=Date.now().toString(36);data.contacted=false;clients.push(data)}
+  save();closeModal();render();
+}
+
+function toggleContacted(id){const c=clients.find(x=>x.id===id);c.contacted=!c.contacted;save();render()}
+function editClient(id){openModal(id)}
+function deleteClient(id){if(!confirm('Delete this client?'))return;clients=clients.filter(x=>x.id!==id);save();render()}
+
+function exportCSV(){
+  const rows=[['Name','Lender','Amount','Rate','Expiry','Phone','Days Left','Status','Notes']];
+  clients.sort((a,b)=>new Date(a.expiry)-new Date(b.expiry)).forEach(c=>{
+    rows.push([c.name,c.lender||'',c.amount||'',c.rate||'',c.expiry,c.phone||'',daysUntil(c.expiry),statusLabel(getStatus(c)),c.notes||'']);
+  });
+  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='fixed-rate-expiry.csv';a.click();
+}
+
+$('search').addEventListener('input',render);
+$('filterStatus').addEventListener('change',render);
+$('modalOverlay').addEventListener('click',e=>{if(e.target===$('modalOverlay'))closeModal()});
+render();
+</script>
+</body>
+</html>

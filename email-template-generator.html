@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Template Generator | Oney & Co</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #2ECC85;
+            --primary-dark: #1FAD73;
+            --bg: #f8faf9;
+            --card: #ffffff;
+            --text: #0a0a0a;
+            --text-muted: #666;
+            --border: #e0e0e0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+        
+        .subtitle {
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .card h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary-dark);
+        }
+        
+        .template-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .template-btn {
+            background: var(--bg);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            padding: 12px 15px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        
+        .template-btn:hover {
+            border-color: var(--primary);
+        }
+        
+        .template-btn.active {
+            background: linear-gradient(135deg, #2ECC85, #1FAD73);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .template-btn .emoji {
+            margin-right: 8px;
+        }
+        
+        .editor-section {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .fields-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .field-group label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+        
+        .field-group input, .field-group select {
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+        
+        .field-group input:focus, .field-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .output-area {
+            flex: 1;
+        }
+        
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .output-header h3 {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #2ECC85, #1FAD73);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(46, 204, 133, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary-dark);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .subject-line {
+            background: var(--bg);
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .subject-line strong {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        
+        #emailOutput {
+            width: 100%;
+            min-height: 300px;
+            padding: 15px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        #emailOutput:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--text);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .tips {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(46, 204, 133, 0.1);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .tips strong {
+            color: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 90">
+                <defs>
+                    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#2ECC85"/>
+                        <stop offset="100%" style="stop-color:#1FAD73"/>
+                    </linearGradient>
+                </defs>
+                <g transform="translate(38, 45)">
+                    <path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#greenGrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/>
+                    <path d="M0 -38 L0 -44" stroke="url(#greenGrad)" stroke-width="5" stroke-linecap="round"/>
+                </g>
+                <text x="32" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#0a0a0a">ney</text>
+                <text x="77" y="50" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="400" fill="url(#greenGrad)">&amp;</text>
+                <text x="94" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#0a0a0a">co</text>
+            </svg>
+            <h1>Email Template Generator</h1>
+            <p class="subtitle">快速生成专业邮件，提升客户沟通效率</p>
+        </header>
+        
+        <div class="main-grid">
+            <div class="card">
+                <h2>📋 选择模板</h2>
+                <div class="template-list">
+                    <button class="template-btn active" data-template="initial-contact">
+                        <span class="emoji">👋</span>Initial Contact
+                    </button>
+                    <button class="template-btn" data-template="document-request">
+                        <span class="emoji">📄</span>Document Request
+                    </button>
+                    <button class="template-btn" data-template="application-submitted">
+                        <span class="emoji">🚀</span>Application Submitted
+                    </button>
+                    <button class="template-btn" data-template="approval-congrats">
+                        <span class="emoji">🎉</span>Approval Congrats
+                    </button>
+                    <button class="template-btn" data-template="follow-up">
+                        <span class="emoji">🔔</span>Follow Up
+                    </button>
+                    <button class="template-btn" data-template="rate-update">
+                        <span class="emoji">📈</span>Rate Update
+                    </button>
+                    <button class="template-btn" data-template="settlement-reminder">
+                        <span class="emoji">🏠</span>Settlement Reminder
+                    </button>
+                </div>
+                
+                <div class="tips">
+                    <strong>💡 Tip:</strong> 编辑输出内容后可直接复制使用。所有字段都可以自定义。
+                </div>
+            </div>
+            
+            <div class="editor-section">
+                <div class="card">
+                    <h2>✏️ 自定义字段</h2>
+                    <div class="fields-grid">
+                        <div class="field-group">
+                            <label>客户姓名</label>
+                            <input type="text" id="clientName" placeholder="John" value="John">
+                        </div>
+                        <div class="field-group">
+                            <label>贷款金额</label>
+                            <input type="text" id="loanAmount" placeholder="$500,000" value="$500,000">
+                        </div>
+                        <div class="field-group">
+                            <label>银行/Lender</label>
+                            <input type="text" id="lenderName" placeholder="NAB" value="NAB">
+                        </div>
+                        <div class="field-group">
+                            <label>利率</label>
+                            <input type="text" id="interestRate" placeholder="6.19%" value="6.19%">
+                        </div>
+                        <div class="field-group">
+                            <label>Settlement Date</label>
+                            <input type="text" id="settlementDate" placeholder="15 Feb 2026" value="15 Feb 2026">
+                        </div>
+                        <div class="field-group">
+                            <label>Your Name</label>
+                            <input type="text" id="brokerName" placeholder="Dong" value="Dong">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card output-area">
+                    <div class="output-header">
+                        <h3>📧 生成的邮件</h3>
+                    </div>
+                    <div class="subject-line">
+                        <strong>Subject:</strong> <span id="subjectLine">Welcome to Oney & Co</span>
+                    </div>
+                    <textarea id="emailOutput"></textarea>
+                    <div class="actions" style="margin-top: 15px;">
+                        <button class="btn" onclick="copyToClipboard()">📋 Copy Email</button>
+                        <button class="btn btn-outline" onclick="copySubject()">Copy Subject</button>
+                        <button class="btn btn-outline" onclick="openInMail()">Open in Mail</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast" id="toast">Copied to clipboard!</div>
+    
+    <script>
+        const templates = {
+            'initial-contact': {
+                subject: 'Welcome to Oney & Co - Let\'s Get Started',
+                body: `Hi {clientName},
+
+Thank you for reaching out to Oney & Co! I'm excited to help you with your home loan journey.
+
+I'd love to learn more about your situation and goals. Here's what I can help with:
+• Finding the best loan product for your needs
+• Comparing rates across 30+ lenders
+• Managing the entire application process
+
+When would be a good time for a quick 15-minute call? I'm flexible and happy to work around your schedule.
+
+Looking forward to speaking with you!
+
+Best regards,
+{brokerName}
+Oney & Co
+📞 0400 000 000
+🌐 oneyco.com.au`
+            },
+            'document-request': {
+                subject: 'Documents Needed for Your Loan Application',
+                body: `Hi {clientName},
+
+Great progress on your loan application! To move forward, I'll need the following documents:
+
+📋 Required Documents:
+□ Last 2 payslips
+□ Last 2 years' tax returns (if self-employed)
+□ 3 months bank statements (all accounts)
+□ Photo ID (driver's licence or passport)
+□ Current loan statements (if refinancing)
+
+💡 Tips for a smooth process:
+• PDFs work best - please avoid screenshots
+• Make sure all pages are included
+• Bank statements should show your name and BSB/account number
+
+You can reply to this email with the attachments, or upload them securely via our portal.
+
+Let me know if you have any questions!
+
+Best regards,
+{brokerName}
+Oney & Co`
+            },
+            'application-submitted': {
+                subject: '🚀 Your Application is Submitted to {lenderName}!',
+                body: `Hi {clientName},
+
+Great news! I've just submitted your loan application to {lenderName}.
+
+📊 Application Summary:
+• Loan Amount: {loanAmount}
+• Lender: {lenderName}
+• Interest Rate: {interestRate}
+
+⏱️ What happens next:
+1. {lenderName} will review your application (typically 3-5 business days)
+2. They may request additional information - I'll let you know ASAP
+3. Once approved, we'll receive formal approval documents
+4. Settlement booking can then proceed
+
+I'll keep you updated every step of the way. Feel free to reach out if you have any questions in the meantime.
+
+Best regards,
+{brokerName}
+Oney & Co`
+            },
+            'approval-congrats': {
+                subject: '🎉 Congratulations! Your Loan is Approved!',
+                body: `Hi {clientName},
+
+FANTASTIC NEWS! 🎉
+
+Your loan application has been APPROVED by {lenderName}!
+
+✅ Approved Details:
+• Loan Amount: {loanAmount}
+• Lender: {lenderName}
+• Interest Rate: {interestRate}
+
+🏠 Next Steps:
+1. Review and sign the loan documents (I'll send these shortly)
+2. Confirm settlement date with your solicitor/conveyancer
+3. Prepare for settlement day!
+
+Target Settlement: {settlementDate}
+
+This is such an exciting milestone - you're almost at the finish line! I'll be in touch with the formal documents within 24-48 hours.
+
+Congratulations again!
+
+Best regards,
+{brokerName}
+Oney & Co`
+            },
+            'follow-up': {
+                subject: 'Checking In - Oney & Co',
+                body: `Hi {clientName},
+
+I hope you're doing well! I wanted to check in and see how things are going.
+
+When we last spoke, you were exploring your home loan options. I'm here to help whenever you're ready to take the next step.
+
+If your circumstances have changed or you have any questions, please don't hesitate to reach out. Even if you're just in the research phase, I'm happy to provide guidance.
+
+Would you like to schedule a quick catch-up call?
+
+Best regards,
+{brokerName}
+Oney & Co
+📞 0400 000 000`
+            },
+            'rate-update': {
+                subject: '📈 Interest Rate Update - Action Required?',
+                body: `Hi {clientName},
+
+I wanted to reach out with an important update on interest rates.
+
+📊 Market Update:
+Recent rate movements may impact your current loan. With your current rate at {interestRate}, there might be an opportunity to:
+• Refinance to a lower rate
+• Renegotiate with your existing lender
+• Restructure your loan for better terms
+
+💰 Potential Savings:
+Based on your loan of {loanAmount}, even a 0.25% rate reduction could save you significant money over the life of the loan.
+
+Would you like me to run a quick comparison to see if there are better options available? It only takes 15 minutes and there's no obligation.
+
+Best regards,
+{brokerName}
+Oney & Co`
+            },
+            'settlement-reminder': {
+                subject: '🏠 Settlement Reminder - {settlementDate}',
+                body: `Hi {clientName},
+
+Your settlement is coming up on {settlementDate}! Here's a quick checklist to ensure everything goes smoothly:
+
+✅ Pre-Settlement Checklist:
+□ Final inspection of property booked
+□ Utilities transfer arranged (electricity, gas, water, internet)
+□ Building insurance active from settlement date
+□ Solicitor/conveyancer has all signed documents
+□ Settlement funds confirmed with lender
+
+📋 Settlement Day:
+• Your solicitor will handle the settlement meeting
+• Keys are typically available same day (check with your agent)
+• I'll confirm once settlement is complete
+
+🎉 Congratulations on reaching this milestone! If you have any last-minute questions, I'm here to help.
+
+Best regards,
+{brokerName}
+Oney & Co`
+            }
+        };
+        
+        let currentTemplate = 'initial-contact';
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTemplate();
+            
+            // Template button listeners
+            document.querySelectorAll('.template-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelector('.template-btn.active').classList.remove('active');
+                    btn.classList.add('active');
+                    currentTemplate = btn.dataset.template;
+                    renderTemplate();
+                });
+            });
+            
+            // Field change listeners
+            document.querySelectorAll('.field-group input').forEach(input => {
+                input.addEventListener('input', renderTemplate);
+            });
+        });
+        
+        function renderTemplate() {
+            const template = templates[currentTemplate];
+            const fields = {
+                clientName: document.getElementById('clientName').value || 'Client',
+                loanAmount: document.getElementById('loanAmount').value || '$500,000',
+                lenderName: document.getElementById('lenderName').value || 'Lender',
+                interestRate: document.getElementById('interestRate').value || '6.19%',
+                settlementDate: document.getElementById('settlementDate').value || 'TBC',
+                brokerName: document.getElementById('brokerName').value || 'Broker'
+            };
+            
+            let subject = template.subject;
+            let body = template.body;
+            
+            for (const [key, value] of Object.entries(fields)) {
+                const regex = new RegExp(`\\{${key}\\}`, 'g');
+                subject = subject.replace(regex, value);
+                body = body.replace(regex, value);
+            }
+            
+            document.getElementById('subjectLine').textContent = subject;
+            document.getElementById('emailOutput').value = body;
+        }
+        
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+        
+        function copyToClipboard() {
+            const output = document.getElementById('emailOutput');
+            output.select();
+            document.execCommand('copy');
+            showToast('Email copied to clipboard! ✅');
+        }
+        
+        function copySubject() {
+            const subject = document.getElementById('subjectLine').textContent;
+            navigator.clipboard.writeText(subject);
+            showToast('Subject copied! ✅');
+        }
+        
+        function openInMail() {
+            const subject = encodeURIComponent(document.getElementById('subjectLine').textContent);
+            const body = encodeURIComponent(document.getElementById('emailOutput').value);
+            window.location.href = `mailto:?subject=${subject}&body=${body}`;
+        }
+    </script>
+</body>
+</html>

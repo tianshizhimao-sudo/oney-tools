@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Split Loan Optimizer — Oney & Co</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;
+  --green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--purple2:#9B59B6;
+  --text:#f0f0f5;--white:#fff;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--green)}
+
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+
+.main{flex:1;max-width:1200px;width:100%;margin:0 auto;padding:24px}
+h2{font-size:1.6rem;font-weight:700;margin-bottom:4px}
+.subtitle{color:var(--muted);margin-bottom:24px;font-size:.95rem}
+
+.grid{display:grid;grid-template-columns:360px 1fr;gap:24px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;transition:box-shadow .2s}
+.card:hover{box-shadow:0 8px 32px rgba(46,204,133,.08)}
+.card h3{font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+
+.field{margin-bottom:18px}
+.field label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.field input,.field select{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.95rem;font-family:inherit;transition:border-color .2s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--green)}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;background:var(--border);border-radius:3px;outline:none;margin-top:8px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green2));cursor:pointer;box-shadow:0 2px 8px rgba(46,204,133,.4)}
+
+.toggle-row{display:flex;gap:8px;flex-wrap:wrap}
+.toggle-btn{flex:1;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:.85rem;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;font-family:inherit}
+.toggle-btn.active{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border-color:var(--green)}
+.toggle-btn:hover:not(.active){border-color:var(--green);color:var(--text)}
+
+.split-visual{margin:20px 0;padding:20px;background:var(--bg);border-radius:12px;border:1px solid var(--border)}
+.split-bar{height:40px;border-radius:8px;overflow:hidden;display:flex;margin-bottom:12px;position:relative}
+.split-fixed{background:linear-gradient(90deg,var(--purple),var(--purple2));display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;transition:width .3s ease}
+.split-variable{background:linear-gradient(90deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:.8rem;font-weight:700;color:#fff;transition:width .3s ease}
+.split-labels{display:flex;justify-content:space-between;font-size:.82rem}
+.split-labels .fixed-lbl{color:var(--purple2)}
+.split-labels .var-lbl{color:var(--green)}
+
+.slider-val{text-align:center;font-size:2rem;font-weight:800;margin:8px 0;background:linear-gradient(135deg,var(--purple2),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+@media(max-width:500px){.stat-grid{grid-template-columns:1fr}}
+.stat{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.stat .val{font-size:1.4rem;font-weight:800;color:var(--green)}
+.stat .val.accent{color:var(--purple2)}
+.stat .lbl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+
+.scenario-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
+.scenario{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:all .2s}
+.scenario:hover{border-color:var(--green);transform:translateY(-2px)}
+.scenario.best{border-color:var(--green);box-shadow:0 0 20px rgba(46,204,133,.15)}
+.scenario .s-title{font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.scenario .s-val{font-size:1.2rem;font-weight:800;color:var(--text)}
+.scenario .s-sub{font-size:.75rem;color:var(--muted);margin-top:4px}
+.scenario .s-badge{display:inline-block;padding:2px 8px;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;font-size:.65rem;font-weight:700;border-radius:4px;margin-top:8px}
+
+.chart-container{position:relative;margin-top:16px}
+canvas{width:100%!important;border-radius:8px}
+
+.table-wrap{overflow-x:auto;margin-top:16px}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{text-align:left;padding:10px 8px;color:var(--muted);font-weight:600;font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:8px;border-bottom:1px solid rgba(61,61,92,.4)}
+tr.highlight-row{background:rgba(46,204,133,.08)}
+tr.highlight-row td{color:var(--green);font-weight:600}
+
+.risk-meter{margin:16px 0}
+.risk-track{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--green),#f1c40f,#e74c3c);position:relative}
+.risk-dot{width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--bg);position:absolute;top:-4px;transition:left .3s ease;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.risk-labels{display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);margin-top:6px}
+
+.note{background:rgba(107,76,154,.1);border:1px solid rgba(107,76,154,.3);border-radius:8px;padding:14px;font-size:.82rem;color:var(--muted);margin-top:16px;line-height:1.5}
+.note strong{color:var(--purple2)}
+
+.saved-list{margin-top:16px}
+.saved-item{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;font-size:.85rem}
+.saved-item .del{color:var(--muted);cursor:pointer;font-size:1rem;transition:color .2s}
+.saved-item .del:hover{color:#e74c3c}
+
+.btn{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;font-weight:600;font-size:.95rem;border:none;border-radius:10px;cursor:pointer;font-family:inherit;transition:transform .15s,box-shadow .2s;width:100%}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(46,204,133,.35)}
+.btn:active{transform:scale(.97)}
+.btn.secondary{background:linear-gradient(135deg,var(--purple),var(--purple2))}
+.btn-row{display:flex;gap:8px;margin-top:12px}
+.btn-row .btn{flex:1}
+
+footer{text-align:center;padding:24px;color:var(--muted);font-size:.78rem;border-top:1px solid var(--border);margin-top:auto}
+
+.results-area{display:flex;flex-direction:column;gap:20px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/>
+      <circle cx="16" cy="16" r="6" fill="#2ECC85"/>
+      <text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text>
+      <text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text>
+    </svg>
+  </div>
+  <h1>Split Loan Optimizer</h1>
+</div>
+
+<div class="main">
+  <h2>⚖️ Split Loan Optimizer</h2>
+  <p class="subtitle">Find the ideal fixed/variable split ratio for your loan — visualize repayments, interest, and rate-change risk</p>
+
+  <div class="grid">
+    <div>
+      <div class="card">
+        <h3>📊 Loan Details</h3>
+        <div class="field">
+          <label>Loan Amount ($)</label>
+          <input type="text" id="loanAmount" value="800,000" oninput="formatAndCalc(this)">
+        </div>
+        <div class="field">
+          <label>Loan Term (Years)</label>
+          <input type="number" id="loanTerm" value="30" min="1" max="40" onchange="calc()">
+        </div>
+        <div class="field">
+          <label>Repayment Type</label>
+          <div class="toggle-row">
+            <div class="toggle-btn active" onclick="setRepType('pi',this)">P&I</div>
+            <div class="toggle-btn" onclick="setRepType('io',this)">Interest Only</div>
+          </div>
+        </div>
+
+        <h3 style="margin-top:20px">📌 Fixed Portion</h3>
+        <div class="field">
+          <label>Fixed Rate (% p.a.)</label>
+          <input type="number" id="fixedRate" value="5.89" step="0.01" min="0" onchange="calc()">
+        </div>
+        <div class="field">
+          <label>Fixed Term</label>
+          <div class="toggle-row">
+            <div class="toggle-btn" onclick="setFixedTerm(1,this)">1yr</div>
+            <div class="toggle-btn active" onclick="setFixedTerm(2,this)">2yr</div>
+            <div class="toggle-btn" onclick="setFixedTerm(3,this)">3yr</div>
+            <div class="toggle-btn" onclick="setFixedTerm(5,this)">5yr</div>
+          </div>
+        </div>
+
+        <h3 style="margin-top:20px">📈 Variable Portion</h3>
+        <div class="field">
+          <label>Variable Rate (% p.a.)</label>
+          <input type="number" id="varRate" value="6.19" step="0.01" min="0" onchange="calc()">
+        </div>
+
+        <div class="split-visual">
+          <label style="font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Split Ratio</label>
+          <div class="slider-val" id="sliderVal">50% Fixed / 50% Variable</div>
+          <input type="range" id="splitSlider" min="0" max="100" value="50" oninput="calc()">
+          <div class="split-bar" id="splitBar">
+            <div class="split-fixed" style="width:50%">Fixed</div>
+            <div class="split-variable" style="width:50%">Variable</div>
+          </div>
+          <div class="split-labels">
+            <span class="fixed-lbl" id="fixedAmt">$400,000</span>
+            <span class="var-lbl" id="varAmt">$400,000</span>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn secondary" onclick="saveScenario()">💾 Save</button>
+          <button class="btn" onclick="findOptimal()">🎯 Find Optimal</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="results-area">
+      <div class="card">
+        <h3>💰 Repayment Summary</h3>
+        <div class="stat-grid" id="stats"></div>
+        <div class="risk-meter">
+          <label style="font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px">Rate Change Risk Exposure</label>
+          <div class="risk-track"><div class="risk-dot" id="riskDot"></div></div>
+          <div class="risk-labels"><span>Low Risk</span><span>Medium</span><span>High Risk</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>🔍 Scenario Comparison</h3>
+        <p style="font-size:.82rem;color:var(--muted);margin-bottom:12px">See how different splits compare — what if rates move ±1%?</p>
+        <div class="scenario-cards" id="scenarios"></div>
+      </div>
+
+      <div class="card">
+        <h3>📈 Rate Sensitivity Analysis</h3>
+        <p style="font-size:.82rem;color:var(--muted);margin-bottom:12px">Monthly repayment at different variable rate levels</p>
+        <div class="chart-container">
+          <canvas id="chart" height="220"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>📋 Yearly Breakdown</h3>
+        <div class="table-wrap">
+          <table id="breakdownTable">
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Fixed Repay/m</th>
+                <th>Variable Repay/m</th>
+                <th>Total/m</th>
+                <th>Fixed Interest</th>
+                <th>Variable Interest</th>
+                <th>Total Interest</th>
+              </tr>
+            </thead>
+            <tbody id="breakdownBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" id="savedCard" style="display:none">
+        <h3>💾 Saved Scenarios</h3>
+        <div class="saved-list" id="savedList"></div>
+      </div>
+
+      <div class="note">
+        <strong>⚠️ Disclaimer:</strong> This calculator provides estimates only. Fixed rate locks your repayment for the chosen term, then reverts to variable. Variable portion is exposed to rate changes but typically allows unlimited extra repayments and offset. Actual rates and terms depend on your lender. Always consult your broker for personalised advice.
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>© 2026 Oney & Co · hello@oneyco.com.au</footer>
+
+<script>
+let repType='pi', fixedTermYrs=2, saved=JSON.parse(localStorage.getItem('oney_split_saved')||'[]');
+
+function $(id){return document.getElementById(id)}
+function fmt(n){return n.toLocaleString('en-AU',{minimumFractionDigits:0,maximumFractionDigits:0})}
+function fmtD(n){return n.toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+function formatAndCalc(el){
+  let v=el.value.replace(/[^0-9]/g,'');
+  el.value=v?parseInt(v).toLocaleString():'';
+  calc();
+}
+
+function setRepType(t,el){
+  repType=t;
+  el.parentElement.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  calc();
+}
+function setFixedTerm(y,el){
+  fixedTermYrs=y;
+  el.parentElement.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  calc();
+}
+
+function monthlyPI(principal,annualRate,years){
+  if(principal<=0)return 0;
+  const r=annualRate/100/12, n=years*12;
+  if(r===0)return principal/n;
+  return principal*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
+}
+function monthlyIO(principal,annualRate){
+  return principal*annualRate/100/12;
+}
+function monthly(principal,rate,years){
+  return repType==='io'?monthlyIO(principal,rate):monthlyPI(principal,rate,years);
+}
+function totalInterest(principal,rate,years){
+  if(principal<=0)return 0;
+  if(repType==='io')return principal*rate/100*years;
+  const m=monthlyPI(principal,rate,years);
+  return m*years*12-principal;
+}
+
+function calc(){
+  const loan=parseInt(($('loanAmount').value||'0').replace(/[^0-9]/g,''))||0;
+  const term=parseInt($('loanTerm').value)||30;
+  const fRate=parseFloat($('fixedRate').value)||0;
+  const vRate=parseFloat($('varRate').value)||0;
+  const split=parseInt($('splitSlider').value);
+
+  const fixedPortion=Math.round(loan*split/100);
+  const varPortion=loan-fixedPortion;
+
+  // Update visual
+  $('sliderVal').textContent=`${split}% Fixed / ${100-split}% Variable`;
+  const fb=$('splitBar');
+  fb.children[0].style.width=Math.max(split,2)+'%';
+  fb.children[0].textContent=split>10?'Fixed':'';
+  fb.children[1].style.width=Math.max(100-split,2)+'%';
+  fb.children[1].textContent=(100-split)>10?'Variable':'';
+  $('fixedAmt').textContent='$'+fmt(fixedPortion);
+  $('varAmt').textContent='$'+fmt(varPortion);
+
+  // Repayments
+  const mFixed=monthly(fixedPortion,fRate,term);
+  const mVar=monthly(varPortion,vRate,term);
+  const mTotal=mFixed+mVar;
+
+  const iFixed=totalInterest(fixedPortion,fRate,term);
+  const iVar=totalInterest(varPortion,vRate,term);
+  const iTotal=iFixed+iVar;
+
+  // Blended rate
+  const blended=loan>0?(fRate*split/100+vRate*(100-split)/100):0;
+
+  // 100% variable comparison
+  const m100Var=monthly(loan,vRate,term);
+  const i100Var=totalInterest(loan,vRate,term);
+  const saving=i100Var-iTotal;
+
+  $('stats').innerHTML=`
+    <div class="stat"><div class="val">$${fmt(mTotal)}</div><div class="lbl">Total Monthly</div></div>
+    <div class="stat"><div class="val accent">${fmtD(blended)}%</div><div class="lbl">Blended Rate</div></div>
+    <div class="stat"><div class="val">$${fmt(mFixed)}</div><div class="lbl">Fixed /month</div></div>
+    <div class="stat"><div class="val">$${fmt(mVar)}</div><div class="lbl">Variable /month</div></div>
+    <div class="stat"><div class="val">$${fmt(iTotal)}</div><div class="lbl">Total Interest</div></div>
+    <div class="stat"><div class="val ${saving>=0?'':'accent'}">${saving>=0?'':'−'}$${fmt(Math.abs(saving))}</div><div class="lbl">vs 100% Variable</div></div>
+  `;
+
+  // Risk dot
+  $('riskDot').style.left=`calc(${100-split}% - 8px)`;
+
+  // Scenarios: different splits
+  const splits=[0,25,50,75,100];
+  let bestSplit=0, bestInterest=Infinity;
+  splits.forEach(s=>{
+    const fp=Math.round(loan*s/100), vp=loan-fp;
+    const ti=totalInterest(fp,fRate,term)+totalInterest(vp,vRate,term);
+    if(ti<bestInterest){bestInterest=ti;bestSplit=s;}
+  });
+
+  // Rate sensitivity scenarios
+  const rateChanges=[-1,0,1,2];
+  let scenHtml='';
+  rateChanges.forEach(rc=>{
+    const newVRate=vRate+rc;
+    const mf=monthly(fixedPortion,fRate,term);
+    const mv=monthly(varPortion,Math.max(0,newVRate),term);
+    const mt=mf+mv;
+    const diff=mt-mTotal;
+    const label=rc===0?'Current':(rc>0?`Var +${rc}%`:`Var ${rc}%`);
+    scenHtml+=`<div class="scenario${rc===0?' best':''}">
+      <div class="s-title">${label}</div>
+      <div class="s-val">$${fmt(mt)}/m</div>
+      <div class="s-sub">${rc===0?`Var @ ${fmtD(newVRate)}%`:`Var @ ${fmtD(newVRate)}%`}</div>
+      ${rc===0?'<div class="s-badge">Current</div>':`<div class="s-sub" style="color:${diff>0?'#e74c3c':'var(--green)'}">${diff>0?'+':''}$${fmt(Math.abs(diff))}/m</div>`}
+    </div>`;
+  });
+  $('scenarios').innerHTML=scenHtml;
+
+  // Chart: sensitivity
+  drawChart(loan,fixedPortion,varPortion,fRate,vRate,term);
+
+  // Yearly breakdown
+  let tbody='';
+  for(let y=1;y<=Math.min(term,30);y++){
+    const inFixed=y<=fixedTermYrs;
+    const yr_fRate=inFixed?fRate:vRate; // after fixed term, reverts to variable
+    const mf=monthly(fixedPortion,yr_fRate,term);
+    const mv=monthly(varPortion,vRate,term);
+    const yfi=fixedPortion>0?fixedPortion*yr_fRate/100:0;
+    const yvi=varPortion>0?varPortion*vRate/100:0;
+    const isTransition=y===fixedTermYrs+1;
+    tbody+=`<tr class="${isTransition?'highlight-row':''}">
+      <td>${y}${inFixed?' 🔒':''}</td>
+      <td>$${fmt(mf)}</td>
+      <td>$${fmt(mv)}</td>
+      <td><strong>$${fmt(mf+mv)}</strong></td>
+      <td>$${fmt(yfi)}</td>
+      <td>$${fmt(yvi)}</td>
+      <td>$${fmt(yfi+yvi)}</td>
+    </tr>`;
+  }
+  $('breakdownBody').innerHTML=tbody;
+
+  renderSaved();
+}
+
+function drawChart(loan,fp,vp,fRate,vRate,term){
+  const canvas=$('chart');
+  const ctx=canvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  const w=canvas.parentElement.clientWidth;
+  const h=220;
+  canvas.width=w*dpr;canvas.height=h*dpr;
+  canvas.style.width=w+'px';canvas.style.height=h+'px';
+  ctx.scale(dpr,dpr);
+
+  const ratePoints=[];
+  for(let r=vRate-2;r<=vRate+3;r+=0.25){
+    const mf=monthly(fp,fRate,term);
+    const mv=monthly(vp,Math.max(0,r),term);
+    ratePoints.push({rate:r,total:mf+mv});
+  }
+  // Also 100% variable line
+  const varPoints=[];
+  for(let r=vRate-2;r<=vRate+3;r+=0.25){
+    varPoints.push({rate:r,total:monthly(loan,Math.max(0,r),term)});
+  }
+
+  const allTotals=[...ratePoints,...varPoints].map(p=>p.total);
+  const minT=Math.min(...allTotals)*0.95;
+  const maxT=Math.max(...allTotals)*1.05;
+  const pad={l:60,r:20,t:20,b:40};
+  const cw=w-pad.l-pad.r, ch=h-pad.t-pad.b;
+
+  ctx.clearRect(0,0,w,h);
+
+  // Grid
+  ctx.strokeStyle='rgba(61,61,92,.4)';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=pad.t+ch*i/4;
+    ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke();
+    ctx.fillStyle='#a3a3b8';ctx.font='10px Inter';ctx.textAlign='right';
+    ctx.fillText('$'+fmt(maxT-(maxT-minT)*i/4),pad.l-8,y+4);
+  }
+
+  // X labels
+  const minR=ratePoints[0].rate, maxR=ratePoints[ratePoints.length-1].rate;
+  for(let i=0;i<=4;i++){
+    const x=pad.l+cw*i/4;
+    const r=minR+(maxR-minR)*i/4;
+    ctx.fillStyle='#a3a3b8';ctx.font='10px Inter';ctx.textAlign='center';
+    ctx.fillText(r.toFixed(1)+'%',x,h-pad.b+20);
+  }
+
+  function drawLine(points,color,dashed){
+    ctx.strokeStyle=color;ctx.lineWidth=2.5;
+    if(dashed)ctx.setLineDash([6,4]);else ctx.setLineDash([]);
+    ctx.beginPath();
+    points.forEach((p,i)=>{
+      const x=pad.l+(p.rate-minR)/(maxR-minR)*cw;
+      const y=pad.t+(1-(p.total-minT)/(maxT-minT))*ch;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();ctx.setLineDash([]);
+  }
+
+  drawLine(varPoints,'rgba(155,89,182,.5)',true);
+  drawLine(ratePoints,'#2ECC85',false);
+
+  // Current rate dot
+  const cx=pad.l+(vRate-minR)/(maxR-minR)*cw;
+  const curTotal=ratePoints.find(p=>Math.abs(p.rate-vRate)<0.01)?.total||0;
+  const cy=pad.t+(1-(curTotal-minT)/(maxT-minT))*ch;
+  ctx.beginPath();ctx.arc(cx,cy,6,0,Math.PI*2);ctx.fillStyle='#2ECC85';ctx.fill();
+  ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.stroke();
+
+  // Legend
+  ctx.fillStyle='#2ECC85';ctx.fillRect(pad.l,h-12,12,3);
+  ctx.fillStyle='#a3a3b8';ctx.font='10px Inter';ctx.textAlign='left';
+  ctx.fillText('Split Loan',pad.l+16,h-8);
+  ctx.strokeStyle='rgba(155,89,182,.5)';ctx.setLineDash([6,4]);ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(pad.l+100,h-10);ctx.lineTo(pad.l+112,h-10);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillText('100% Variable',pad.l+116,h-8);
+}
+
+function findOptimal(){
+  const loan=parseInt(($('loanAmount').value||'0').replace(/[^0-9]/g,''))||0;
+  const term=parseInt($('loanTerm').value)||30;
+  const fRate=parseFloat($('fixedRate').value)||0;
+  const vRate=parseFloat($('varRate').value)||0;
+
+  let bestSplit=0,bestI=Infinity;
+  for(let s=0;s<=100;s++){
+    const fp=Math.round(loan*s/100),vp=loan-fp;
+    const ti=totalInterest(fp,fRate,term)+totalInterest(vp,vRate,term);
+    if(ti<bestI){bestI=ti;bestSplit=s;}
+  }
+  $('splitSlider').value=bestSplit;
+  calc();
+}
+
+function saveScenario(){
+  const split=parseInt($('splitSlider').value);
+  const loan=parseInt(($('loanAmount').value||'0').replace(/[^0-9]/g,''))||0;
+  const fRate=parseFloat($('fixedRate').value)||0;
+  const vRate=parseFloat($('varRate').value)||0;
+  const term=parseInt($('loanTerm').value)||30;
+  const fp=Math.round(loan*split/100),vp=loan-fp;
+  const mTotal=monthly(fp,fRate,term)+monthly(vp,vRate,term);
+  saved.push({split,loan,fRate,vRate,term,repType,fixedTermYrs,mTotal,date:new Date().toLocaleDateString()});
+  localStorage.setItem('oney_split_saved',JSON.stringify(saved));
+  renderSaved();
+}
+
+function renderSaved(){
+  if(saved.length===0){$('savedCard').style.display='none';return;}
+  $('savedCard').style.display='block';
+  $('savedList').innerHTML=saved.map((s,i)=>`
+    <div class="saved-item">
+      <span>${s.split}% Fixed / ${100-s.split}% Var · $${fmt(s.loan)} · ${fmtD(s.fRate)}%/${fmtD(s.vRate)}% · <strong>$${fmt(s.mTotal)}/m</strong></span>
+      <span class="del" onclick="delSaved(${i})">✕</span>
+    </div>
+  `).join('');
+}
+
+function delSaved(i){
+  saved.splice(i,1);
+  localStorage.setItem('oney_split_saved',JSON.stringify(saved));
+  renderSaved();
+}
+
+window.addEventListener('resize',calc);
+calc();
+</script>
+</body>
+</html>

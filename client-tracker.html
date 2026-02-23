@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>🎯 Client Pipeline Tracker | Oney & Co</title>
+  <style>
+    :root {
+      --oney-green: #2ECC85;
+      --oney-dark: #1FAD73;
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --border: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { max-width: 800px; margin: 0 auto; }
+    
+    header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .logo {
+      width: 48px;
+      height: 48px;
+    }
+    h1 { font-size: 24px; }
+    .subtitle { color: var(--muted); font-size: 13px; }
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--oney-green);
+    }
+    .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; }
+    
+    .pipeline {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+    }
+    .stage {
+      flex: 1;
+      min-width: 200px;
+      background: var(--card);
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .stage-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--border);
+    }
+    .stage-title { font-weight: 600; font-size: 14px; }
+    .stage-count {
+      background: var(--oney-green);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+    
+    .client-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid var(--oney-green);
+    }
+    .client-card:hover { background: rgba(255,255,255,0.1); }
+    .client-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+    .client-meta { font-size: 11px; color: var(--muted); }
+    .client-amount { color: var(--oney-green); font-weight: 600; }
+    
+    .add-btn {
+      width: 100%;
+      padding: 10px;
+      background: transparent;
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .add-btn:hover { border-color: var(--oney-green); color: var(--oney-green); }
+    
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1000;
+    }
+    .modal.hidden { display: none; }
+    .modal-content {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 400px;
+    }
+    .modal h2 { margin-bottom: 16px; font-size: 18px; }
+    .form-group { margin-bottom: 12px; }
+    .form-label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    .form-input, .form-select {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+    }
+    .btn-row { display: flex; gap: 10px; margin-top: 16px; }
+    .btn {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary { background: var(--oney-green); color: white; }
+    .btn-secondary { background: var(--border); color: var(--text); }
+    
+    .save-indicator {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--oney-green);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .save-indicator.show { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="oneyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2ECC85"/>
+            <stop offset="100%" stop-color="#1FAD73"/>
+          </linearGradient>
+        </defs>
+        <g transform="translate(50, 50)">
+          <path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#oneyGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/>
+          <path d="M0 -45 L0 -52" stroke="url(#oneyGrad)" stroke-width="6" stroke-linecap="round"/>
+        </g>
+      </svg>
+      <div>
+        <h1>Client Pipeline</h1>
+        <p class="subtitle">Track your mortgage clients</p>
+      </div>
+    </header>
+    
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value" id="totalClients">0</div>
+        <div class="stat-label">Total Clients</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="activeDeals">0</div>
+        <div class="stat-label">Active Deals</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="totalValue">$0</div>
+        <div class="stat-label">Pipeline Value</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value" id="settledCount">0</div>
+        <div class="stat-label">Settled</div>
+      </div>
+    </div>
+    
+    <div class="pipeline" id="pipeline"></div>
+  </div>
+  
+  <div class="modal hidden" id="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Add Client</h2>
+      <input type="hidden" id="editId">
+      <div class="form-group">
+        <label class="form-label">Client Name *</label>
+        <input type="text" class="form-input" id="clientName" placeholder="e.g., John Smith">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Loan Amount</label>
+        <input type="number" class="form-input" id="loanAmount" placeholder="e.g., 500000">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Property Type</label>
+        <select class="form-select" id="propertyType">
+          <option value="residential">🏠 Residential</option>
+          <option value="investment">📈 Investment</option>
+          <option value="commercial">🏢 Commercial</option>
+          <option value="construction">🏗️ Construction</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Stage</label>
+        <select class="form-select" id="clientStage">
+          <option value="inquiry">Inquiry</option>
+          <option value="preapproval">Pre-approval</option>
+          <option value="application">Application</option>
+          <option value="assessment">Assessment</option>
+          <option value="approved">Approved</option>
+          <option value="settled">Settled</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <input type="text" class="form-input" id="clientNotes" placeholder="Any notes...">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveClient()">Save</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="save-indicator" id="saveIndicator">✅ Saved</div>
+
+  <script>
+    const stages = [
+      { id: 'inquiry', name: '📞 Inquiry', color: '#94a3b8' },
+      { id: 'preapproval', name: '📋 Pre-approval', color: '#60a5fa' },
+      { id: 'application', name: '📝 Application', color: '#f59e0b' },
+      { id: 'assessment', name: '🔍 Assessment', color: '#a78bfa' },
+      { id: 'approved', name: '✅ Approved', color: '#22c55e' },
+      { id: 'settled', name: '🎉 Settled', color: '#2ECC85' }
+    ];
+    
+    let clients = [];
+    
+    function loadData() {
+      const saved = localStorage.getItem('oney-client-pipeline');
+      if (saved) clients = JSON.parse(saved);
+    }
+    
+    function saveData() {
+      localStorage.setItem('oney-client-pipeline', JSON.stringify(clients));
+      showSaved();
+    }
+    
+    function showSaved() {
+      const el = document.getElementById('saveIndicator');
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 1500);
+    }
+    
+    function render() {
+      const pipeline = document.getElementById('pipeline');
+      pipeline.innerHTML = stages.map(stage => {
+        const stageClients = clients.filter(c => c.stage === stage.id);
+        return `
+          <div class="stage">
+            <div class="stage-header">
+              <span class="stage-title">${stage.name}</span>
+              <span class="stage-count">${stageClients.length}</span>
+            </div>
+            ${stageClients.map(c => `
+              <div class="client-card" onclick="editClient(${c.id})">
+                <div class="client-name">${c.name}</div>
+                <div class="client-meta">
+                  ${c.propertyType === 'residential' ? '🏠' : c.propertyType === 'investment' ? '📈' : c.propertyType === 'commercial' ? '🏢' : '🏗️'}
+                  <span class="client-amount">$${(c.amount/1000).toFixed(0)}k</span>
+                </div>
+              </div>
+            `).join('')}
+            <button class="add-btn" onclick="openModal('${stage.id}')">+ Add Client</button>
+          </div>
+        `;
+      }).join('');
+      
+      updateStats();
+    }
+    
+    function updateStats() {
+      document.getElementById('totalClients').textContent = clients.length;
+      document.getElementById('activeDeals').textContent = clients.filter(c => c.stage !== 'settled').length;
+      const total = clients.reduce((sum, c) => sum + (c.amount || 0), 0);
+      document.getElementById('totalValue').textContent = '$' + (total/1000000).toFixed(1) + 'M';
+      document.getElementById('settledCount').textContent = clients.filter(c => c.stage === 'settled').length;
+    }
+    
+    function openModal(stage = 'inquiry') {
+      document.getElementById('editId').value = '';
+      document.getElementById('clientName').value = '';
+      document.getElementById('loanAmount').value = '';
+      document.getElementById('propertyType').value = 'residential';
+      document.getElementById('clientStage').value = stage;
+      document.getElementById('clientNotes').value = '';
+      document.getElementById('modalTitle').textContent = 'Add Client';
+      document.getElementById('modal').classList.remove('hidden');
+    }
+    
+    function editClient(id) {
+      const client = clients.find(c => c.id === id);
+      if (!client) return;
+      document.getElementById('editId').value = id;
+      document.getElementById('clientName').value = client.name;
+      document.getElementById('loanAmount').value = client.amount || '';
+      document.getElementById('propertyType').value = client.propertyType || 'residential';
+      document.getElementById('clientStage').value = client.stage;
+      document.getElementById('clientNotes').value = client.notes || '';
+      document.getElementById('modalTitle').textContent = 'Edit Client';
+      document.getElementById('modal').classList.remove('hidden');
+    }
+    
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+    }
+    
+    function saveClient() {
+      const id = document.getElementById('editId').value;
+      const name = document.getElementById('clientName').value.trim();
+      if (!name) return alert('Please enter client name');
+      
+      const data = {
+        name,
+        amount: parseInt(document.getElementById('loanAmount').value) || 0,
+        propertyType: document.getElementById('propertyType').value,
+        stage: document.getElementById('clientStage').value,
+        notes: document.getElementById('clientNotes').value
+      };
+      
+      if (id) {
+        const idx = clients.findIndex(c => c.id === parseInt(id));
+        if (idx >= 0) clients[idx] = { ...clients[idx], ...data };
+      } else {
+        clients.push({ id: Date.now(), ...data });
+      }
+      
+      saveData();
+      render();
+      closeModal();
+    }
+    
+    // Drag & drop would go here in a full version
+    
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target.id === 'modal') closeModal();
+    });
+    
+    loadData();
+    render();
+  </script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commission Calculator — Oney & Co</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--white:#f0f0f5}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;padding:20px}
+.header{text-align:center;margin-bottom:30px}
+.header h1{font-size:1.6rem;color:var(--green)}
+.header p{color:var(--muted);font-size:.85rem;margin-top:4px}
+.logo{width:32px;height:32px;vertical-align:middle;margin-right:8px}
+.container{max-width:900px;margin:0 auto}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card h2{font-size:1rem;color:var(--green);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+label{display:block;color:var(--muted);font-size:.8rem;margin-bottom:4px;margin-top:12px}
+label:first-of-type{margin-top:0}
+input,select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:#1e1e36;color:var(--white);font-size:.95rem;outline:none}
+input:focus,select:focus{border-color:var(--green)}
+.row{display:flex;gap:12px}
+.row>div{flex:1}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.stat{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.stat .val{font-size:1.4rem;font-weight:700;color:var(--green)}
+.stat .lbl{font-size:.75rem;color:var(--muted);margin-top:2px}
+.stat.purple .val{color:var(--purple)}
+.full{grid-column:1/-1}
+.trail-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:.85rem}
+.trail-table th{text-align:left;color:var(--muted);font-weight:500;padding:8px 6px;border-bottom:1px solid var(--border)}
+.trail-table td{padding:8px 6px;border-bottom:1px solid #2a2a45}
+.trail-table tr:last-child td{border:none}
+.trail-table .yr{color:var(--green);font-weight:600}
+.trail-table .total-row td{font-weight:700;color:var(--green);border-top:2px solid var(--green)}
+.tip{background:#2ECC8515;border-left:3px solid var(--green);padding:10px 14px;border-radius:0 8px 8px 0;margin-top:16px;font-size:.8rem;color:var(--muted)}
+.saved-deals{margin-top:20px}
+.deal-chip{display:inline-flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:6px 12px;font-size:.8rem;margin:4px;cursor:pointer;transition:border-color .2s}
+.deal-chip:hover{border-color:var(--green)}
+.deal-chip .x{color:var(--muted);cursor:pointer;margin-left:4px}
+.deal-chip .x:hover{color:#e74c3c}
+.btn{background:linear-gradient(135deg,#2ECC85,#1FAD73);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:.85rem;cursor:pointer;font-weight:600;margin-top:12px}
+.btn:hover{opacity:.9}
+.btn-sm{padding:6px 14px;font-size:.8rem;margin-top:0}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+.watermark{text-align:center;margin-top:30px;color:var(--muted);font-size:.7rem;opacity:.5}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1><svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs><g transform="translate(50,50)"><path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#g)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/><path d="M0 -45 L0 -52" stroke="url(#g)" stroke-width="6" stroke-linecap="round"/></g></svg>Commission Calculator</h1>
+    <p>Estimate upfront & trail commissions per deal</p>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>💰 Deal Details</h2>
+      <label>Loan Amount ($)</label>
+      <input type="number" id="loanAmt" value="500000" min="0" step="10000">
+      <label>Loan Term (years)</label>
+      <input type="number" id="loanTerm" value="30" min="1" max="40">
+      <div class="row">
+        <div>
+          <label>Upfront Rate (%)</label>
+          <input type="number" id="upfrontRate" value="0.65" min="0" max="2" step="0.01">
+        </div>
+        <div>
+          <label>Trail Rate (% p.a.)</label>
+          <input type="number" id="trailRate" value="0.15" min="0" max="1" step="0.01">
+        </div>
+      </div>
+      <label>Aggregator Split (%)</label>
+      <input type="number" id="aggSplit" value="85" min="0" max="100" step="1">
+      <div class="tip">💡 Common: Upfront 0.55-0.70% ex GST, Trail 0.15-0.20% p.a. Aggregator keeps 10-20%.</div>
+      <div class="row" style="margin-top:14px;align-items:center">
+        <div style="flex:2"><input type="text" id="dealName" placeholder="Deal name (optional)"></div>
+        <div style="flex:1"><button class="btn btn-sm" onclick="saveDeal()">💾 Save</button></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📊 Your Commission</h2>
+      <div class="stats">
+        <div class="stat"><div class="val" id="upfrontVal">$0</div><div class="lbl">Upfront (ex GST)</div></div>
+        <div class="stat"><div class="val" id="upfrontGst">$0</div><div class="lbl">Upfront (inc GST)</div></div>
+        <div class="stat purple"><div class="val" id="trailYr1">$0</div><div class="lbl">Trail Year 1</div></div>
+        <div class="stat purple"><div class="val" id="trail5yr">$0</div><div class="lbl">Trail 5-Year Total</div></div>
+        <div class="stat full" style="background:linear-gradient(135deg,#2ECC8520,#6B4C9A20)">
+          <div class="val" id="totalEarnings" style="font-size:1.6rem;background:linear-gradient(135deg,#2ECC85,#6B4C9A);-webkit-background-clip:text;-webkit-text-fill-color:transparent">$0</div>
+          <div class="lbl">Total Estimated Earnings (5yr)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h2>📅 Trail Breakdown (Year by Year)</h2>
+    <table class="trail-table">
+      <thead><tr><th>Year</th><th>Balance (est.)</th><th>Gross Trail</th><th>Your Trail</th><th>Cumulative</th></tr></thead>
+      <tbody id="trailBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card saved-deals" style="margin-top:20px" id="savedSection">
+    <h2>📁 Saved Deals</h2>
+    <div id="dealChips"></div>
+    <div id="savedSummary" style="margin-top:12px"></div>
+  </div>
+
+  <div class="watermark">Oney & Co — Not for commercial use</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>'$'+Math.round(n).toLocaleString();
+
+function calc(){
+  const amt=+$('loanAmt').value||0;
+  const term=+$('loanTerm').value||30;
+  const upR=(+$('upfrontRate').value||0)/100;
+  const trR=(+$('trailRate').value||0)/100;
+  const split=(+$('aggSplit').value||85)/100;
+
+  const grossUp=amt*upR;
+  const netUp=grossUp*split;
+  $('upfrontVal').textContent=fmt(netUp);
+  $('upfrontGst').textContent=fmt(netUp*1.1);
+
+  // Trail: assume ~3% p.a. principal reduction (rough avg over life)
+  let bal=amt,cumTrail=0;
+  const rows=[];
+  const yrs=Math.min(term,10);
+  for(let y=1;y<=yrs;y++){
+    // Approximate declining balance (linear paydown)
+    const paydownRate=1-(y/(term+5));
+    bal=amt*Math.max(paydownRate,0.1);
+    const grossTrail=bal*trR;
+    const netTrail=grossTrail*split;
+    cumTrail+=netTrail;
+    rows.push({y,bal,grossTrail,netTrail,cum:cumTrail});
+  }
+
+  $('trailYr1').textContent=fmt(rows[0]?.netTrail||0);
+  const cum5=rows.length>=5?rows[4].cum:cumTrail;
+  $('trail5yr').textContent=fmt(cum5);
+  $('totalEarnings').textContent=fmt(netUp+cum5);
+
+  let html='';
+  rows.forEach((r,i)=>{
+    const cls=i===rows.length-1?'total-row':'';
+    html+=`<tr class="${cls}"><td class="yr">Year ${r.y}</td><td>${fmt(r.bal)}</td><td>${fmt(r.grossTrail)}</td><td>${fmt(r.netTrail)}</td><td>${fmt(r.cum)}</td></tr>`;
+  });
+  $('trailBody').innerHTML=html;
+  renderDeals();
+}
+
+// Saved deals
+function getDeals(){try{return JSON.parse(localStorage.getItem('oney_comm_deals')||'[]')}catch{return[]}}
+function setDeals(d){localStorage.setItem('oney_comm_deals',JSON.stringify(d))}
+
+function saveDeal(){
+  const deals=getDeals();
+  const name=$('dealName').value||`Deal ${deals.length+1}`;
+  deals.push({name,amt:+$('loanAmt').value,upR:+$('upfrontRate').value,trR:+$('trailRate').value,split:+$('aggSplit').value,term:+$('loanTerm').value,ts:Date.now()});
+  setDeals(deals);
+  $('dealName').value='';
+  renderDeals();
+}
+
+function loadDeal(i){
+  const d=getDeals()[i];if(!d)return;
+  $('loanAmt').value=d.amt;$('upfrontRate').value=d.upR;$('trailRate').value=d.trR;$('aggSplit').value=d.split;$('loanTerm').value=d.term||30;
+  calc();
+}
+
+function delDeal(i){const d=getDeals();d.splice(i,1);setDeals(d);renderDeals();}
+
+function renderDeals(){
+  const deals=getDeals();
+  if(!deals.length){$('savedSection').style.display='none';return}
+  $('savedSection').style.display='block';
+  let chips='',totalUp=0,totalTrail=0;
+  deals.forEach((d,i)=>{
+    const netUp=d.amt*(d.upR/100)*(d.split/100);
+    const yr1Trail=d.amt*(d.trR/100)*(d.split/100);
+    totalUp+=netUp;totalTrail+=yr1Trail;
+    chips+=`<span class="deal-chip" onclick="loadDeal(${i})">${d.name} · ${fmt(d.amt)} <span class="x" onclick="event.stopPropagation();delDeal(${i})">✕</span></span>`;
+  });
+  $('dealChips').innerHTML=chips;
+  $('savedSummary').innerHTML=`<span style="color:var(--muted);font-size:.8rem">${deals.length} deals — Total Upfront: <b style="color:var(--green)">${fmt(totalUp)}</b> · Annual Trail: <b style="color:var(--purple)">${fmt(totalTrail)}</b></span>`;
+}
+
+document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',calc));
+calc();
+</script>
+</body>
+</html>

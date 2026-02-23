@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refinance Break-Even Calculator | Oney & Co</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--red:#e74c3c;--orange:#f39c12}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:#fff;min-height:100vh;padding:20px}
+.container{max-width:900px;margin:0 auto}
+header{text-align:center;margin-bottom:30px}
+header h1{font-size:1.6rem;margin-bottom:4px}
+header p{color:var(--muted);font-size:.9rem}
+.logo{display:inline-block;margin-bottom:10px}
+.logo svg{width:120px;height:50px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
+.card h2{font-size:1.1rem;margin-bottom:16px;color:var(--green)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:4px}
+input,select{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:#1a1a30;color:#fff;font-size:.95rem}
+input:focus,select:focus{outline:none;border-color:var(--green)}
+.field{margin-bottom:12px}
+.btn{background:linear-gradient(135deg,#2ECC85,#1FAD73);color:#fff;border:none;padding:12px 24px;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;width:100%;margin-top:8px}
+.btn:hover{opacity:.9}
+.result-panel{text-align:center;padding:30px}
+.big-number{font-size:2.8rem;font-weight:700;color:var(--green)}
+.big-label{font-size:.9rem;color:var(--muted);margin-top:4px}
+.stat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-top:20px}
+.stat{background:var(--bg);border-radius:10px;padding:16px;text-align:center}
+.stat .val{font-size:1.4rem;font-weight:700}
+.stat .lbl{font-size:.75rem;color:var(--muted);margin-top:2px}
+.negative{color:var(--red)}
+.positive{color:var(--green)}
+.warning{color:var(--orange)}
+canvas{width:100%;max-height:300px;margin-top:16px}
+.table-wrap{overflow-x:auto;margin-top:16px}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{background:var(--bg);padding:10px 8px;text-align:right;color:var(--muted);font-weight:500;position:sticky;top:0}
+td{padding:8px;text-align:right;border-bottom:1px solid var(--border)}
+th:first-child,td:first-child{text-align:left}
+tr.breakeven-row{background:rgba(46,204,133,.15);font-weight:600}
+.costs-section{margin-top:12px}
+.cost-item{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.cost-item:last-child{border:none}
+.cost-total{font-weight:700;color:var(--green);font-size:1.1rem;padding-top:8px;border-top:2px solid var(--border);display:flex;justify-content:space-between}
+.hidden{display:none}
+.scenario-tabs{display:flex;gap:8px;margin-bottom:16px}
+.tab{padding:8px 16px;border-radius:8px;background:var(--bg);border:1px solid var(--border);cursor:pointer;font-size:.85rem;color:var(--muted)}
+.tab.active{border-color:var(--green);color:var(--green);font-weight:600}
+.saved-list{margin-top:12px}
+.saved-item{display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--bg);border-radius:8px;margin-bottom:8px;font-size:.85rem}
+.saved-item .name{font-weight:600}
+.saved-item .months{color:var(--green);font-weight:700}
+.del-btn{background:none;border:none;color:var(--red);cursor:pointer;font-size:1rem}
+@media(max-width:600px){.grid2,.grid3{grid-template-columns:1fr}.big-number{font-size:2rem}}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<div class="logo"><svg viewBox="0 0 190 90" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs><g transform="translate(38,45)"><path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#g)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/><path d="M0 -38 L0 -44" stroke="url(#g)" stroke-width="5" stroke-linecap="round"/></g><text x="32" y="50" font-family="Inter,Arial,sans-serif" font-size="26" font-weight="600" fill="#fff">ney</text><text x="77" y="50" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="400" fill="url(#g)">&amp;</text><text x="94" y="50" font-family="Inter,Arial,sans-serif" font-size="26" font-weight="600" fill="#fff">co</text></svg></div>
+<h1>Refinance Break-Even Calculator</h1>
+<p>Find out exactly when switching lenders starts saving you money</p>
+</header>
+
+<div class="card">
+<h2>📋 Current Loan</h2>
+<div class="grid2">
+<div class="field"><label>Outstanding Balance ($)</label><input type="number" id="balance" value="500000" step="1000"></div>
+<div class="field"><label>Current Rate (%)</label><input type="number" id="currentRate" value="6.50" step="0.01"></div>
+<div class="field"><label>Remaining Term (years)</label><input type="number" id="remainingTerm" value="25" step="1"></div>
+<div class="field"><label>Repayment Type</label><select id="currentType"><option value="pi">Principal & Interest</option><option value="io">Interest Only</option></select></div>
+</div>
+</div>
+
+<div class="card">
+<h2>🆕 New Loan</h2>
+<div class="grid2">
+<div class="field"><label>New Rate (%)</label><input type="number" id="newRate" value="5.99" step="0.01"></div>
+<div class="field"><label>New Loan Term (years)</label><input type="number" id="newTerm" value="30" step="1"></div>
+<div class="field"><label>Repayment Type</label><select id="newType"><option value="pi">Principal & Interest</option><option value="io">Interest Only</option></select></div>
+</div>
+</div>
+
+<div class="card">
+<h2>💰 Switching Costs</h2>
+<div class="grid3">
+<div class="field"><label>Discharge Fee ($)</label><input type="number" id="dischargeFee" value="350" step="10"></div>
+<div class="field"><label>Break Cost / Exit Fee ($)</label><input type="number" id="breakCost" value="0" step="100"></div>
+<div class="field"><label>Government Fees ($)</label><input type="number" id="govFees" value="200" step="10"></div>
+<div class="field"><label>New Lender Application Fee ($)</label><input type="number" id="appFee" value="0" step="10"></div>
+<div class="field"><label>Valuation Fee ($)</label><input type="number" id="valFee" value="0" step="10"></div>
+<div class="field"><label>Legal / Settlement Fee ($)</label><input type="number" id="legalFee" value="300" step="10"></div>
+</div>
+</div>
+
+<button class="btn" onclick="calculate()">Calculate Break-Even Point</button>
+
+<div id="results" class="hidden">
+<div class="card result-panel">
+<div id="breakevenDisplay"></div>
+<div class="stat-row" id="statRow"></div>
+</div>
+
+<div class="card">
+<h2>📊 Cumulative Savings vs Switching Costs</h2>
+<canvas id="chart"></canvas>
+</div>
+
+<div class="card">
+<h2>📅 Monthly Breakdown</h2>
+<div class="table-wrap" style="max-height:400px;overflow-y:auto">
+<table id="breakdownTable"><thead><tr><th>Month</th><th>Monthly Saving</th><th>Cumulative Saving</th><th>Net Position</th></tr></thead><tbody></tbody></table>
+</div>
+</div>
+
+<div class="card">
+<h2>💾 Save Scenario</h2>
+<div class="grid2">
+<div class="field"><label>Scenario Name</label><input type="text" id="scenarioName" placeholder="e.g. CBA → Macquarie"></div>
+<div><button class="btn" onclick="saveScenario()" style="margin-top:18px">Save</button></div>
+</div>
+<div class="saved-list" id="savedList"></div>
+</div>
+</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>'$'+Math.abs(n).toLocaleString('en-AU',{minimumFractionDigits:0,maximumFractionDigits:0});
+const fmtS=n=>(n>=0?'+':'-')+fmt(n);
+let chartInstance=null;
+let scenarios=JSON.parse(localStorage.getItem('oney_refi_scenarios')||'[]');
+
+function monthlyPI(principal,annualRate,months){
+  if(annualRate===0)return principal/months;
+  const r=annualRate/12;
+  return principal*r*Math.pow(1+r,months)/(Math.pow(1+r,months)-1);
+}
+
+function calculate(){
+  const bal=+$('balance').value;
+  const curRate=+$('currentRate').value/100;
+  const remYears=+$('remainingTerm').value;
+  const curType=$('currentType').value;
+  const newRate=+$('newRate').value/100;
+  const newYears=+$('newTerm').value;
+  const newType=$('newType').value;
+
+  const totalCost=[+$('dischargeFee').value,+$('breakCost').value,+$('govFees').value,+$('appFee').value,+$('valFee').value,+$('legalFee').value].reduce((a,b)=>a+b,0);
+
+  const curMonthly=curType==='io'?bal*curRate/12:monthlyPI(bal,curRate,remYears*12);
+  const newMonthly=newType==='io'?bal*newRate/12:monthlyPI(bal,newRate,newYears*12);
+  const monthlySaving=curMonthly-newMonthly;
+
+  // Build month-by-month
+  const months=Math.min(remYears*12,360);
+  const data=[];
+  let cumSaving=0;
+  let breakevenMonth=null;
+
+  for(let m=1;m<=months;m++){
+    cumSaving+=monthlySaving;
+    const net=cumSaving-totalCost;
+    data.push({month:m,saving:monthlySaving,cumSaving,net});
+    if(breakevenMonth===null&&net>=0)breakevenMonth=m;
+  }
+
+  // Results
+  $('results').classList.remove('hidden');
+
+  // Big number
+  let html;
+  if(monthlySaving<=0){
+    html=`<div class="big-number negative">Not Worth It</div><div class="big-label">New loan costs more per month — no break-even point</div>`;
+  }else if(!breakevenMonth){
+    html=`<div class="big-number warning">>${months} months</div><div class="big-label">Break-even beyond loan term</div>`;
+  }else{
+    const yrs=Math.floor(breakevenMonth/12);
+    const mos=breakevenMonth%12;
+    const label=yrs>0?`${yrs} year${yrs>1?'s':''} ${mos} month${mos!==1?'s':''}`:`${mos} month${mos!==1?'s':''}`;
+    html=`<div class="big-number">${label}</div><div class="big-label">to break even on switching costs</div>`;
+  }
+  $('breakevenDisplay').innerHTML=html;
+
+  const saving5yr=data.length>=60?data[59].net:data[data.length-1].net;
+  const totalIntCur=curType==='io'?curMonthly*months:curMonthly*remYears*12-bal;
+  const totalIntNew=newType==='io'?newMonthly*months:newMonthly*newYears*12-bal;
+
+  $('statRow').innerHTML=`
+    <div class="stat"><div class="val">${fmt(curMonthly)}</div><div class="lbl">Current Monthly</div></div>
+    <div class="stat"><div class="val">${fmt(newMonthly)}</div><div class="lbl">New Monthly</div></div>
+    <div class="stat"><div class="val ${monthlySaving>0?'positive':'negative'}">${fmt(monthlySaving)}/mo</div><div class="lbl">Monthly Saving</div></div>
+    <div class="stat"><div class="val">${fmt(totalCost)}</div><div class="lbl">Total Switch Cost</div></div>
+    <div class="stat"><div class="val ${saving5yr>0?'positive':'negative'}">${fmtS(saving5yr)}</div><div class="lbl">Net Position @ 5 Years</div></div>
+  `;
+
+  // Table
+  const tbody=$('breakdownTable').querySelector('tbody');
+  tbody.innerHTML='';
+  // Show first 60 months or until breakeven+12
+  const showUntil=Math.min(months,Math.max(60,breakevenMonth?breakevenMonth+12:60));
+  for(let i=0;i<showUntil&&i<data.length;i++){
+    const d=data[i];
+    const cls=d.month===breakevenMonth?'breakeven-row':'';
+    tbody.innerHTML+=`<tr class="${cls}"><td>${d.month}</td><td>${fmt(d.saving)}</td><td>${fmt(d.cumSaving)}</td><td class="${d.net>=0?'positive':'negative'}">${fmtS(d.net)}</td></tr>`;
+  }
+
+  // Chart
+  drawChart(data.slice(0,showUntil),totalCost);
+
+  renderSaved();
+}
+
+function drawChart(data,totalCost){
+  const canvas=$('chart');
+  const ctx=canvas.getContext('2d');
+  const dpr=window.devicePixelRatio||1;
+  const W=canvas.clientWidth;
+  const H=280;
+  canvas.width=W*dpr;canvas.height=H*dpr;
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,W,H);
+
+  const pad={t:20,r:20,b:40,l:70};
+  const w=W-pad.l-pad.r,h=H-pad.t-pad.b;
+
+  const maxVal=Math.max(...data.map(d=>d.cumSaving),totalCost)*1.1;
+  const minVal=Math.min(0,...data.map(d=>d.net))*1.1;
+  const range=maxVal-minVal;
+
+  const x=i=>pad.l+(i/(data.length-1))*w;
+  const y=v=>pad.t+h-(v-minVal)/range*h;
+
+  // Grid
+  ctx.strokeStyle='#3D3D5C';ctx.lineWidth=.5;
+  for(let i=0;i<=4;i++){
+    const yy=pad.t+h*i/4;
+    ctx.beginPath();ctx.moveTo(pad.l,yy);ctx.lineTo(pad.l+w,yy);ctx.stroke();
+    ctx.fillStyle='#a3a3b8';ctx.font='11px Inter,sans-serif';ctx.textAlign='right';
+    ctx.fillText(fmt(maxVal-(range*i/4)),pad.l-8,yy+4);
+  }
+
+  // Cost line
+  ctx.strokeStyle='#e74c3c';ctx.lineWidth=2;ctx.setLineDash([6,4]);
+  ctx.beginPath();ctx.moveTo(pad.l,y(totalCost));ctx.lineTo(pad.l+w,y(totalCost));ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle='#e74c3c';ctx.font='11px Inter';ctx.textAlign='left';
+  ctx.fillText('Switch Cost',pad.l+4,y(totalCost)-6);
+
+  // Cumulative saving line
+  ctx.strokeStyle='#2ECC85';ctx.lineWidth=2.5;
+  ctx.beginPath();
+  data.forEach((d,i)=>{i===0?ctx.moveTo(x(i),y(d.cumSaving)):ctx.lineTo(x(i),y(d.cumSaving))});
+  ctx.stroke();
+
+  // Fill under
+  ctx.fillStyle='rgba(46,204,133,.1)';
+  ctx.beginPath();
+  ctx.moveTo(x(0),y(0));
+  data.forEach((d,i)=>ctx.lineTo(x(i),y(d.cumSaving)));
+  ctx.lineTo(x(data.length-1),y(0));ctx.closePath();ctx.fill();
+
+  // Net position line
+  ctx.strokeStyle='#6B4C9A';ctx.lineWidth=2;
+  ctx.beginPath();
+  data.forEach((d,i)=>{i===0?ctx.moveTo(x(i),y(d.net)):ctx.lineTo(x(i),y(d.net))});
+  ctx.stroke();
+
+  // Zero line
+  ctx.strokeStyle='#fff';ctx.lineWidth=.5;
+  ctx.beginPath();ctx.moveTo(pad.l,y(0));ctx.lineTo(pad.l+w,y(0));ctx.stroke();
+
+  // X labels
+  ctx.fillStyle='#a3a3b8';ctx.font='11px Inter';ctx.textAlign='center';
+  for(let i=0;i<data.length;i+=Math.max(1,Math.floor(data.length/8))){
+    ctx.fillText('M'+data[i].month,x(i),H-pad.b+20);
+  }
+
+  // Legend
+  const lx=pad.l+10,ly=pad.t+10;
+  [['\u2588 Cumulative Saving','#2ECC85'],['\u2588 Net Position','#6B4C9A'],['--- Switch Cost','#e74c3c']].forEach(([t,c],i)=>{
+    ctx.fillStyle=c;ctx.font='11px Inter';ctx.textAlign='left';
+    ctx.fillText(t,lx+i*140,ly);
+  });
+}
+
+function saveScenario(){
+  const name=$('scenarioName').value.trim()||'Scenario '+(scenarios.length+1);
+  const bal=+$('balance').value;
+  const curRate=+$('currentRate').value;
+  const newRate=+$('newRate').value;
+  const curMonthly=($('currentType').value==='io'?bal*(curRate/100)/12:monthlyPI(bal,curRate/100,+$('remainingTerm').value*12));
+  const newMonthly=($('newType').value==='io'?bal*(newRate/100)/12:monthlyPI(bal,newRate/100,+$('newTerm').value*12));
+  const saving=curMonthly-newMonthly;
+  const totalCost=[+$('dischargeFee').value,+$('breakCost').value,+$('govFees').value,+$('appFee').value,+$('valFee').value,+$('legalFee').value].reduce((a,b)=>a+b,0);
+  const months=saving>0?Math.ceil(totalCost/saving):null;
+
+  scenarios.push({name,balance:bal,curRate,newRate,monthlySaving:Math.round(saving),breakevenMonths:months,totalCost});
+  localStorage.setItem('oney_refi_scenarios',JSON.stringify(scenarios));
+  $('scenarioName').value='';
+  renderSaved();
+}
+
+function renderSaved(){
+  const el=$('savedList');
+  if(!scenarios.length){el.innerHTML='';return}
+  el.innerHTML=scenarios.map((s,i)=>`<div class="saved-item">
+    <div><span class="name">${s.name}</span> — ${s.curRate}% → ${s.newRate}% | Save ${fmt(s.monthlySaving)}/mo</div>
+    <div><span class="months">${s.breakevenMonths?s.breakevenMonths+' months':'N/A'}</span>
+    <button class="del-btn" onclick="delScenario(${i})">✕</button></div>
+  </div>`).join('');
+}
+
+function delScenario(i){scenarios.splice(i,1);localStorage.setItem('oney_refi_scenarios',JSON.stringify(scenarios));renderSaved()}
+
+// Auto-calculate on load
+window.addEventListener('load',()=>{calculate();renderSaved()});
+document.querySelectorAll('input,select').forEach(el=>el.addEventListener('change',calculate));
+</script>
+</body>
+</html>

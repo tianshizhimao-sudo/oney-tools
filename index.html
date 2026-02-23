@@ -164,10 +164,53 @@
     }
     
     .badge-free { background: var(--accent-glow); color: var(--accent-light); }
-    .badge-beta { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+    .badge-new { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
     .badge-coming { background: var(--gold-glow); color: var(--gold); }
     .badge-pro { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
-    
+
+    /* Search */
+    .search-wrap {
+      max-width: 480px;
+      margin: 0 auto 40px;
+      position: relative;
+    }
+    .search-wrap input {
+      width: 100%;
+      padding: 14px 20px 14px 48px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-wrap input::placeholder { color: var(--text-muted); }
+    .search-wrap input:focus { border-color: var(--accent); }
+    .search-wrap .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 18px;
+      pointer-events: none;
+    }
+    .search-count {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: -28px;
+      margin-bottom: 32px;
+    }
+    .no-results {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 60px 20px;
+      font-size: 15px;
+    }
+
     /* Footer */
     footer {
       text-align: center;
@@ -228,165 +271,118 @@
       <a href="https://fhc.oneyco.com.au" style="color:#a3a3b8;text-decoration:none;font-size:13px;font-weight:500;">Health Check</a>
     </div>
   </nav>
+  <div class="container">
+    <header class="header">
       <h1>Oney Tools</h1>
       <p>Financial tools for Australian businesses and borrowers</p>
-      <span class="beta-badge">🚀 Free to Use</span>
+      <span class="beta-badge">Free to Use</span>
     </header>
-    
-    <!-- FHC - Featured -->
-    <div class="section">
-      <h2 class="section-title">💚 Financial Health Check</h2>
-      <div class="tools-grid">
-        <a href="fhc.html" class="tool-card featured">
-          <div class="tool-icon">💚</div>
-          <div class="tool-name">SME Financial Health Check</div>
-          <div class="tool-desc">5-minute assessment of your business lending position. Generates a report you can share with your banker or broker.</div>
-          <span class="tool-badge badge-free">Free</span>
-        </a>
-      </div>
+
+    <div class="search-wrap">
+      <span class="search-icon">&#x1F50D;</span>
+      <input type="text" id="toolSearch" placeholder="Search tools... e.g. stamp duty, LMI, comparison" autocomplete="off">
     </div>
-    
-    <!-- Oney Product Suite -->
-    <div class="section">
-      <h2 class="section-title">🏢 Commercial Lending</h2>
-      <div class="tools-grid">
-        <a href="commercial-servicing-calc.html" class="tool-card featured">
-          <div class="tool-icon">📊</div>
-          <div class="tool-name">Oney Serve</div>
-          <div class="tool-desc">Commercial investment servicing calculator. LVR, ICR, DSCR, WALE analysis with portfolio support. IO/P&I, lease doc assessment.</div>
-          <span class="tool-badge badge-beta">New V4.1</span>
-        </a>
+    <div class="search-count" id="searchCount"></div>
 
-        <a href="commercial-investment-calculator.html" class="tool-card">
-          <div class="tool-icon">🏢</div>
-          <div class="tool-name">Oney Assess</div>
-          <div class="tool-desc">Analyse commercial property investments. Calculate yields, LVR, ICR, DSCR and cash flow.</div>
-          <span class="tool-badge badge-free">Free</span>
-        </a>
+    <div id="toolsContainer"></div>
 
-        <a href="specialised-lending-calculator.html" class="tool-card">
-          <div class="tool-icon">🎯</div>
-          <div class="tool-name">Oney Analyse</div>
-          <div class="tool-desc">MLL calculations for professional services — accounting, legal, finance broker, financial planning, real estate.</div>
-          <span class="tool-badge badge-free">Free</span>
-        </a>
-
-        <a href="security-test.html" class="tool-card">
-          <div class="tool-icon">🔐</div>
-          <div class="tool-name">Oney Secure</div>
-          <div class="tool-desc">Zoning-based LVR policy lookup. Test security parameters for commercial lending deals.</div>
-          <span class="tool-badge badge-free">Free</span>
-        </a>
-
-        <a href="tenancy-schedule.html" class="tool-card featured">
-          <div class="tool-icon">📋</div>
-          <div class="tool-name">Tenancy Schedule</div>
-          <div class="tool-desc">Manage tenant details, WALE calculation, lease expiry timeline. CSV import/export, Oney Serve compatible.</div>
-          <span class="tool-badge badge-beta">New</span>
-        </a>
-
-        <a href="flow-visualiser.html" class="tool-card featured">
-          <div class="tool-icon">🔀</div>
-          <div class="tool-name">Flow & Structure Visualiser</div>
-          <div class="tool-desc">Draw fund flows, group structures, and entity relationships. Drag-and-drop diagrams for complex lending deals.</div>
-          <span class="tool-badge badge-beta">New</span>
-        </a>
-      </div>
-    </div>
-
-    <!-- Broker Tools -->
-    <div class="section">
-      <h2 class="section-title">🛠️ Broker Productivity</h2>
-      <div class="tools-grid">
-        <a href="rate-tracker.html" class="tool-card">
-          <div class="tool-icon">📈</div>
-          <div class="tool-name">Competitor Rate Tracker</div>
-          <div class="tool-desc">Track and compare rates across 14 lenders. Residential & Commercial. Highlight changes with colour coding.</div>
-          <span class="tool-badge badge-beta">New</span>
-        </a>
-
-        <a href="meeting-notes.html" class="tool-card">
-          <div class="tool-icon">📝</div>
-          <div class="tool-name">Meeting Notes → Actions</div>
-          <div class="tool-desc">Paste meeting notes, auto-extract action items with assignees, deadlines, and priority levels.</div>
-          <span class="tool-badge badge-beta">New</span>
-        </a>
-
-        <a href="lead-capture.html" class="tool-card">
-          <div class="tool-icon">📬</div>
-          <div class="tool-name">Lead Capture Form</div>
-          <div class="tool-desc">Collect prospective client details. Loan type, amount range, contact info. Export CSV.</div>
-          <span class="tool-badge badge-beta">New</span>
-        </a>
-
-        <a href="client-pipeline.html" class="tool-card">
-          <div class="tool-icon">📊</div>
-          <div class="tool-name">Client Pipeline</div>
-          <div class="tool-desc">Kanban-style client tracker. Manage deals from lead to settlement.</div>
-          <span class="tool-badge badge-free">Free</span>
-        </a>
-
-        <a href="credit-paper-lite.html" class="tool-card">
-          <div class="tool-icon">📋</div>
-          <div class="tool-name">Credit Paper Lite</div>
-          <div class="tool-desc">Generate simple credit summaries for basic loan applications.</div>
-          <span class="tool-badge badge-free">Free</span>
-        </a>
-
-        <a href="ef-tool.html" class="tool-card">
-          <div class="tool-icon">🚜</div>
-          <div class="tool-name">Equipment Finance Calculator</div>
-          <div class="tool-desc">Calculate equipment finance repayments, balloon payments, and compare lease vs buy.</div>
-          <span class="tool-badge badge-free">Free</span>
-        </a>
-      </div>
-    </div>
-
-    <!-- Market & Research -->
-    <div class="section">
-      <h2 class="section-title">📊 Market Intelligence</h2>
-      <div class="tools-grid">
-        <a href="rba-tracker.html" class="tool-card">
-          <div class="tool-icon">📊</div>
-          <div class="tool-name">RBA Rate & CPI Tracker</div>
-          <div class="tool-desc">Cash rate, CPI data, impact calculator</div>
-          <span class="tool-badge badge-free">Free</span>
-        </a>
-      </div>
-    </div>
-
-    <!-- Premium / Oney Pro -->
-    <div class="section">
-      <h2 class="section-title">💎 Oney Pro</h2>
-      <div class="tools-grid">
-        <a href="suite/index.html" class="tool-card premium">
-          <div class="tool-icon">🛠️</div>
-          <div class="tool-name">Oney Pro Suite</div>
-          <div class="tool-desc">All tools in one dashboard. Data flows from input to credit paper. Export to PDF.</div>
-          <span class="tool-badge badge-pro">Pro</span>
-        </a>
-
-        <div class="tool-card premium" style="opacity: 0.6; pointer-events: none;">
-          <div class="tool-icon">📋</div>
-          <div class="tool-name">Credit Paper Pro</div>
-          <div class="tool-desc">Full-featured credit paper generator with 3C analysis, risk assessment, PDF export.</div>
-          <span class="tool-badge badge-pro">Coming Soon</span>
-        </div>
-
-        <div class="tool-card" style="opacity: 0.6; pointer-events: none;">
-          <div class="tool-icon">📈</div>
-          <div class="tool-name">Rent Roll Analyser</div>
-          <div class="tool-desc">Analyse rental income streams and calculate property valuations based on rent rolls.</div>
-          <span class="tool-badge badge-coming">Coming Soon</span>
-        </div>
-      </div>
-    </div>
-    
     <footer>
       <p>© 2026 Oney & Co. <a href="https://oneyco.com.au">Home</a> · <a href="https://oneyco.com.au/about.html">About</a> · <a href="https://mentor.oneyco.com.au">Mentoring</a> · <a href="https://tools.oneyco.com.au">Tools</a> · <a href="https://fhc.oneyco.com.au">Health Check</a></p>
       <p style="margin-top: 8px;">Questions? <a href="mailto:hello@oneyco.com.au">hello@oneyco.com.au</a></p>
       <p style="margin-top: 20px; font-size: 11px; color: #737373; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.5;">⚠️ For educational purposes only. Not intended for commercial use. The tools and calculations provided are for general information and should not be considered as financial advice.</p>
     </footer>
   </div>
+
+  <script>
+    const CATEGORY_ORDER = ['Health Check', 'Commercial', 'Calculators', 'Workflow Tools'];
+    const CATEGORY_ICONS = {
+      'Health Check': '\ud83d\udc9a',
+      'Commercial': '\ud83c\udfe2',
+      'Calculators': '\ud83e\uddee',
+      'Workflow Tools': '\ud83d\udee0\ufe0f'
+    };
+
+    let allTools = [];
+
+    fetch('data/tools-registry.json')
+      .then(r => r.json())
+      .then(tools => { allTools = tools; render(tools); })
+      .catch(() => {
+        document.getElementById('toolsContainer').innerHTML =
+          '<p class="no-results">Failed to load tools. Please refresh.</p>';
+      });
+
+    function render(tools) {
+      const container = document.getElementById('toolsContainer');
+      const countEl = document.getElementById('searchCount');
+      const query = document.getElementById('toolSearch').value.trim().toLowerCase();
+
+      if (query) {
+        countEl.textContent = tools.length + ' tool' + (tools.length !== 1 ? 's' : '') + ' found';
+      } else {
+        countEl.textContent = '';
+      }
+
+      if (!tools.length) {
+        container.innerHTML = '<p class="no-results">No tools match your search.</p>';
+        return;
+      }
+
+      const grouped = {};
+      for (const cat of CATEGORY_ORDER) grouped[cat] = [];
+      for (const t of tools) {
+        if (!grouped[t.category]) grouped[t.category] = [];
+        grouped[t.category].push(t);
+      }
+
+      let html = '';
+      for (const cat of CATEGORY_ORDER) {
+        const items = grouped[cat];
+        if (!items || !items.length) continue;
+        const icon = CATEGORY_ICONS[cat] || '';
+        html += '<div class="section">';
+        html += '<h2 class="section-title">' + icon + ' ' + cat + '</h2>';
+        html += '<div class="tools-grid">';
+        for (const t of items) {
+          html += cardHTML(t);
+        }
+        html += '</div></div>';
+      }
+      container.innerHTML = html;
+    }
+
+    function cardHTML(t) {
+      const cls = ['tool-card'];
+      if (t.featured && !t.free) cls.push('premium');
+      else if (t.featured) cls.push('featured');
+      else if (!t.free) cls.push('premium');
+
+      let badge = '';
+      if (!t.free) badge = '<span class="tool-badge badge-pro">Pro</span>';
+      else if (t.new) badge = '<span class="tool-badge badge-new">New</span>';
+      else badge = '<span class="tool-badge badge-free">Free</span>';
+
+      const tag = t.url ? 'a' : 'div';
+      const href = t.url ? ' href="' + t.url + '"' : ' style="opacity:0.6;pointer-events:none"';
+
+      return '<' + tag + href + ' class="' + cls.join(' ') + '">' +
+        '<div class="tool-icon">' + (t.icon || '') + '</div>' +
+        '<div class="tool-name">' + t.name + '</div>' +
+        '<div class="tool-desc">' + t.desc + '</div>' +
+        badge +
+        '</' + tag + '>';
+    }
+
+    document.getElementById('toolSearch').addEventListener('input', function() {
+      const q = this.value.trim().toLowerCase();
+      if (!q) { render(allTools); return; }
+      const tokens = q.split(/\s+/);
+      const filtered = allTools.filter(t => {
+        const haystack = (t.name + ' ' + t.desc + ' ' + (t.tags || []).join(' ')).toLowerCase();
+        return tokens.every(tok => haystack.includes(tok));
+      });
+      render(filtered);
+    });
+  </script>
 </body>
 </html>

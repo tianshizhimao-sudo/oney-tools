@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loan Comparison Calculator — Oney & Co</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--text:#e8e8f0;--muted:#a3a3b8;
+  --green:#2ECC85;--green-dark:#1FAD73;--purple:#6B4C9A;--purple-light:#9B59B6;
+  --radius:12px;--font:'Inter',system-ui,sans-serif;
+}
+html{font-size:16px}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;line-height:1.6}
+a{color:var(--green);text-decoration:none}
+
+/* Header */
+.header{padding:1rem 1.5rem;display:flex;align-items:center;gap:.75rem;border-bottom:1px solid var(--border)}
+.logo{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.1rem;letter-spacing:-.02em}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--green),var(--green-dark));border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;color:#fff}
+
+/* Main */
+.main{flex:1;max-width:1100px;width:100%;margin:0 auto;padding:2rem 1.5rem}
+h1{font-size:1.75rem;font-weight:700;margin-bottom:.25rem;background:linear-gradient(135deg,var(--green),var(--purple-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.subtitle{color:var(--muted);margin-bottom:2rem;font-size:.95rem}
+
+/* Grid */
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem}
+@media(max-width:700px){.compare-grid{grid-template-columns:1fr}}
+
+/* Card */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;transition:box-shadow .2s,border-color .2s}
+.card:hover{box-shadow:0 8px 32px rgba(0,0,0,.3);border-color:rgba(46,204,133,.2)}
+.card-title{font-size:1rem;font-weight:600;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}
+.card-title .dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.card-a .dot{background:var(--green)}
+.card-b .dot{background:var(--purple-light)}
+
+/* Form */
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.35rem;font-weight:500;text-transform:uppercase;letter-spacing:.04em}
+.field input,.field select{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.65rem .85rem;color:var(--text);font-family:var(--font);font-size:.95rem;transition:border-color .15s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--green)}
+
+/* Button */
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:.75rem 2rem;background:linear-gradient(135deg,var(--green),var(--green-dark));color:#fff;font-weight:600;font-size:.95rem;border:none;border-radius:8px;cursor:pointer;font-family:var(--font);transition:transform .15s,box-shadow .2s;width:100%}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 20px rgba(46,204,133,.35)}
+.btn:active{transform:scale(.98)}
+
+/* Results */
+.results{display:none}
+.results.show{display:block;animation:fadeUp .4s ease-out}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+@media(max-width:700px){.result-grid{grid-template-columns:1fr}}
+
+.result-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
+.result-card h3{font-size:.85rem;color:var(--muted);font-weight:500;margin-bottom:.75rem;text-transform:uppercase;letter-spacing:.04em}
+.stat{font-size:1.6rem;font-weight:700;margin-bottom:.35rem}
+.stat-label{font-size:.8rem;color:var(--muted)}
+.stat-green{color:var(--green)}
+.stat-purple{color:var(--purple-light)}
+
+.savings-banner{background:linear-gradient(135deg,rgba(46,204,133,.12),rgba(107,76,154,.12));border:1px solid rgba(46,204,133,.25);border-radius:var(--radius);padding:1.25rem;text-align:center;margin-bottom:1.5rem}
+.savings-banner .amount{font-size:2rem;font-weight:700;color:var(--green)}
+.savings-banner .label{color:var(--muted);font-size:.85rem;margin-top:.25rem}
+
+/* Schedule table */
+.schedule-toggle{background:none;border:1px solid var(--border);border-radius:8px;padding:.5rem 1rem;color:var(--muted);font-family:var(--font);font-size:.85rem;cursor:pointer;margin-bottom:1rem;transition:color .15s,border-color .15s}
+.schedule-toggle:hover{color:var(--text);border-color:var(--green)}
+.schedule-wrap{max-height:400px;overflow-y:auto;border-radius:var(--radius);border:1px solid var(--border)}
+.schedule-wrap table{width:100%;border-collapse:collapse;font-size:.8rem}
+.schedule-wrap th{background:var(--card);color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:.6rem .75rem;position:sticky;top:0;text-align:left}
+.schedule-wrap td{padding:.5rem .75rem;border-top:1px solid var(--border);color:var(--text)}
+.schedule-wrap tr:hover td{background:rgba(46,204,133,.04)}
+
+/* Footer */
+.footer{padding:1.5rem;text-align:center;font-size:.8rem;color:var(--muted);border-top:1px solid var(--border)}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon">O</div>
+    Oney & Co
+  </div>
+</header>
+
+<main class="main">
+  <h1>Loan Comparison Calculator</h1>
+  <p class="subtitle">Compare two loan scenarios side by side — see monthly repayments, total interest, and potential savings at a glance.</p>
+
+  <div class="compare-grid">
+    <div class="card card-a">
+      <div class="card-title"><span class="dot"></span> Loan A — Current / Option 1</div>
+      <div class="field"><label>Loan Amount ($)</label><input type="text" id="a-amount" value="500,000" inputmode="numeric"></div>
+      <div class="field"><label>Interest Rate (% p.a.)</label><input type="text" id="a-rate" value="6.20" inputmode="decimal"></div>
+      <div class="field"><label>Loan Term (years)</label><input type="text" id="a-term" value="30" inputmode="numeric"></div>
+      <div class="field"><label>Repayment Type</label>
+        <select id="a-type"><option value="pi">Principal & Interest</option><option value="io">Interest Only</option></select>
+      </div>
+    </div>
+    <div class="card card-b">
+      <div class="card-title"><span class="dot"></span> Loan B — Refinance / Option 2</div>
+      <div class="field"><label>Loan Amount ($)</label><input type="text" id="b-amount" value="500,000" inputmode="numeric"></div>
+      <div class="field"><label>Interest Rate (% p.a.)</label><input type="text" id="b-rate" value="5.89" inputmode="decimal"></div>
+      <div class="field"><label>Loan Term (years)</label><input type="text" id="b-term" value="30" inputmode="numeric"></div>
+      <div class="field"><label>Repayment Type</label>
+        <select id="b-type"><option value="pi">Principal & Interest</option><option value="io">Interest Only</option></select>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="calculate()">Compare Loans</button>
+
+  <div class="results" id="results">
+    <br>
+    <div class="savings-banner" id="savings-banner">
+      <div class="amount" id="savings-amount"></div>
+      <div class="label" id="savings-label"></div>
+    </div>
+
+    <div class="result-grid">
+      <div class="result-card">
+        <h3>Loan A — Monthly Repayment</h3>
+        <div class="stat stat-green" id="r-a-monthly"></div>
+        <div class="stat-label">Total Interest: <strong id="r-a-interest"></strong></div>
+        <div class="stat-label">Total Repaid: <strong id="r-a-total"></strong></div>
+      </div>
+      <div class="result-card">
+        <h3>Loan B — Monthly Repayment</h3>
+        <div class="stat stat-purple" id="r-b-monthly"></div>
+        <div class="stat-label">Total Interest: <strong id="r-b-interest"></strong></div>
+        <div class="stat-label">Total Repaid: <strong id="r-b-total"></strong></div>
+      </div>
+    </div>
+
+    <div class="result-grid">
+      <div class="result-card">
+        <h3>Loan A — Monthly Difference</h3>
+        <div class="stat" id="r-diff-monthly"></div>
+        <div class="stat-label" id="r-diff-label"></div>
+      </div>
+      <div class="result-card">
+        <h3>Interest Saved Over Life</h3>
+        <div class="stat" id="r-diff-interest"></div>
+        <div class="stat-label" id="r-diff-interest-label"></div>
+      </div>
+    </div>
+
+    <button class="schedule-toggle" id="sched-toggle" onclick="toggleSchedule()">▶ Show Amortisation Schedule (Loan A)</button>
+    <div id="schedule-container" style="display:none">
+      <div class="schedule-wrap">
+        <table><thead><tr><th>Year</th><th>Opening</th><th>Repaid</th><th>Interest</th><th>Principal</th><th>Closing</th></tr></thead><tbody id="sched-body"></tbody></table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">© 2026 Oney & Co · <a href="mailto:hello@oneyco.com.au">hello@oneyco.com.au</a></footer>
+
+<script>
+function num(id){return parseFloat(document.getElementById(id).value.replace(/[^0-9.\-]/g,''))||0}
+function fmt(n){return'$'+n.toLocaleString('en-AU',{minimumFractionDigits:0,maximumFractionDigits:0})}
+function fmt2(n){return'$'+n.toLocaleString('en-AU',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+function calcLoan(principal,annualRate,years,type){
+  const r=annualRate/100/12, n=years*12;
+  let monthly,totalInterest,totalRepaid;
+  if(type==='io'){
+    monthly=principal*r;
+    totalInterest=monthly*n;
+    totalRepaid=totalInterest+principal;
+  }else{
+    if(r===0){monthly=principal/n}
+    else{monthly=principal*(r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1)}
+    totalRepaid=monthly*n;
+    totalInterest=totalRepaid-principal;
+  }
+  return{monthly,totalInterest,totalRepaid,principal,r,n,type};
+}
+
+function buildSchedule(loan){
+  const rows=[];
+  let balance=loan.principal;
+  const years=loan.n/12;
+  for(let y=1;y<=years;y++){
+    const opening=balance;
+    let yearInterest=0,yearPrincipal=0,yearRepaid=0;
+    for(let m=0;m<12;m++){
+      const interest=balance*loan.r;
+      let princ=loan.type==='io'?0:loan.monthly-interest;
+      yearInterest+=interest;yearPrincipal+=princ;yearRepaid+=loan.monthly;
+      balance-=princ;
+    }
+    if(balance<0)balance=0;
+    rows.push({year:y,opening,repaid:yearRepaid,interest:yearInterest,principal:yearPrincipal,closing:balance});
+  }
+  return rows;
+}
+
+let lastLoanA=null;
+function calculate(){
+  const a=calcLoan(num('a-amount'),num('a-rate'),num('a-term'),document.getElementById('a-type').value);
+  const b=calcLoan(num('b-amount'),num('b-rate'),num('b-term'),document.getElementById('b-type').value);
+  lastLoanA=a;
+
+  document.getElementById('r-a-monthly').textContent=fmt2(a.monthly);
+  document.getElementById('r-a-interest').textContent=fmt(a.totalInterest);
+  document.getElementById('r-a-total').textContent=fmt(a.totalRepaid);
+
+  document.getElementById('r-b-monthly').textContent=fmt2(b.monthly);
+  document.getElementById('r-b-interest').textContent=fmt(b.totalInterest);
+  document.getElementById('r-b-total').textContent=fmt(b.totalRepaid);
+
+  const diff=a.monthly-b.monthly;
+  const el=document.getElementById('r-diff-monthly');
+  el.textContent=(diff>=0?'-':'+')+fmt2(Math.abs(diff))+'/mo';
+  el.style.color=diff>=0?'var(--green)':'var(--purple-light)';
+  document.getElementById('r-diff-label').textContent=diff>=0?'Loan B is cheaper monthly':'Loan A is cheaper monthly';
+
+  const intDiff=a.totalInterest-b.totalInterest;
+  const el2=document.getElementById('r-diff-interest');
+  el2.textContent=fmt(Math.abs(intDiff));
+  el2.style.color=intDiff>=0?'var(--green)':'var(--purple-light)';
+  document.getElementById('r-diff-interest-label').textContent=intDiff>=0?'Less interest with Loan B':'Less interest with Loan A';
+
+  const savingsAmt=document.getElementById('savings-amount');
+  const savingsLbl=document.getElementById('savings-label');
+  if(Math.abs(intDiff)<1){
+    savingsAmt.textContent='No Difference';
+    savingsLbl.textContent='Both loans cost the same in total interest';
+  }else{
+    savingsAmt.textContent=fmt(Math.abs(intDiff));
+    savingsLbl.textContent=intDiff>=0?'Total interest saved by choosing Loan B':'Total interest saved by choosing Loan A';
+  }
+
+  document.getElementById('results').classList.add('show');
+  document.getElementById('schedule-container').style.display='none';
+  document.getElementById('sched-toggle').textContent='▶ Show Amortisation Schedule (Loan A)';
+}
+
+function toggleSchedule(){
+  const c=document.getElementById('schedule-container');
+  const btn=document.getElementById('sched-toggle');
+  if(c.style.display==='none'){
+    if(!lastLoanA)return;
+    const rows=buildSchedule(lastLoanA);
+    const tbody=document.getElementById('sched-body');
+    tbody.innerHTML=rows.map(r=>`<tr><td>${r.year}</td><td>${fmt(r.opening)}</td><td>${fmt(r.repaid)}</td><td>${fmt(r.interest)}</td><td>${fmt(r.principal)}</td><td>${fmt(r.closing)}</td></tr>`).join('');
+    c.style.display='block';
+    btn.textContent='▼ Hide Amortisation Schedule';
+  }else{
+    c.style.display='none';
+    btn.textContent='▶ Show Amortisation Schedule (Loan A)';
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investment Yield Calculator — Oney & Co</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--red:#e74c3c;--orange:#f39c12}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:#e8e8f0;min-height:100vh;padding:20px}
+.header{text-align:center;margin-bottom:30px}
+.header h1{font-size:1.6rem;color:var(--green);margin-bottom:4px}
+.header p{color:var(--muted);font-size:.85rem}
+.logo{display:inline-block;margin-bottom:8px}
+.logo svg{width:120px;height:50px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:1000px;margin:0 auto}
+@media(max-width:768px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px}
+.card h2{font-size:1rem;color:var(--green);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:4px}
+.field input,.field select{width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:#e8e8f0;font-size:.9rem}
+.field input:focus,.field select:focus{outline:none;border-color:var(--green)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.results{grid-column:1/-1}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.metric{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.metric .val{font-size:1.8rem;font-weight:700;margin:6px 0}
+.metric .lbl{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+.metric.positive .val{color:var(--green)}
+.metric.negative .val{color:var(--red)}
+.metric.neutral .val{color:var(--orange)}
+.metric.highlight{border-color:var(--green);background:rgba(46,204,133,.05)}
+.breakdown{margin-top:20px}
+.breakdown h3{font-size:.9rem;color:var(--green);margin-bottom:12px}
+.breakdown table{width:100%;border-collapse:collapse;font-size:.85rem}
+.breakdown th{text-align:left;color:var(--muted);font-weight:500;padding:8px 0;border-bottom:1px solid var(--border)}
+.breakdown td{padding:8px 0;border-bottom:1px solid rgba(61,61,92,.4)}
+.breakdown td:last-child{text-align:right;font-weight:600}
+.bar-wrap{height:24px;background:var(--bg);border-radius:12px;overflow:hidden;margin-top:12px;display:flex}
+.bar-seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:600;color:#fff;min-width:30px}
+.saved-list{margin-top:16px}
+.saved-item{display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--bg);border-radius:8px;margin-bottom:6px;font-size:.85rem;cursor:pointer;border:1px solid var(--border)}
+.saved-item:hover{border-color:var(--green)}
+.saved-item .del{color:var(--red);cursor:pointer;padding:2px 8px;border-radius:4px}
+.saved-item .del:hover{background:rgba(231,76,60,.15)}
+.btn{padding:10px 20px;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff}
+.btn-purple{background:linear-gradient(135deg,var(--purple),#9B59B6);color:#fff;margin-left:8px}
+.btn:hover{opacity:.9}
+.actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.neg-gear{margin-top:16px;padding:14px;background:rgba(107,76,154,.1);border:1px solid var(--purple);border-radius:10px}
+.neg-gear h3{color:#9B59B6;font-size:.9rem;margin-bottom:8px}
+.neg-gear .row-info{display:flex;justify-content:space-between;padding:4px 0;font-size:.85rem}
+.footer{text-align:center;margin-top:30px;color:var(--muted);font-size:.75rem}
+</style>
+</head>
+<body>
+
+<div class="header">
+<div class="logo">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 90">
+<defs><linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs>
+<g transform="translate(38,45)"><path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#greenGrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/><path d="M0 -38 L0 -44" stroke="url(#greenGrad)" stroke-width="5" stroke-linecap="round"/></g>
+<text x="32" y="50" font-family="Inter,Arial,sans-serif" font-size="26" font-weight="600" fill="#e8e8f0">ney</text>
+<text x="77" y="50" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="400" fill="url(#greenGrad)">&amp;</text>
+<text x="94" y="50" font-family="Inter,Arial,sans-serif" font-size="26" font-weight="600" fill="#e8e8f0">co</text>
+</svg>
+</div>
+<h1>🏠 Investment Yield Calculator</h1>
+<p>Gross & net yield, cash flow analysis, and negative gearing estimate</p>
+</div>
+
+<div class="grid">
+<div class="card">
+<h2>🏘️ Property Details</h2>
+<div class="field"><label>Property Name / Address</label><input type="text" id="propName" placeholder="e.g. 42 Smith St, Parramatta"></div>
+<div class="row">
+<div class="field"><label>Purchase Price ($)</label><input type="number" id="price" value="800000"></div>
+<div class="field"><label>Weekly Rent ($)</label><input type="number" id="rent" value="550"></div>
+</div>
+<div class="row">
+<div class="field"><label>Stamp Duty ($)</label><input type="number" id="stamp" value="31000"></div>
+<div class="field"><label>Other Purchase Costs ($)</label><input type="number" id="otherCosts" value="3000" placeholder="Legal, inspections"></div>
+</div>
+<h2 style="margin-top:20px">💰 Loan Details</h2>
+<div class="row">
+<div class="field"><label>Deposit (%)</label><input type="number" id="deposit" value="20" min="0" max="100"></div>
+<div class="field"><label>Interest Rate (%)</label><input type="number" id="rate" value="6.2" step="0.01"></div>
+</div>
+<div class="row">
+<div class="field"><label>Loan Term (years)</label><input type="number" id="term" value="30"></div>
+<div class="field"><label>Repayment Type</label>
+<select id="repType"><option value="pi">Principal & Interest</option><option value="io">Interest Only</option></select>
+</div>
+</div>
+</div>
+
+<div class="card">
+<h2>📋 Annual Expenses</h2>
+<div class="row">
+<div class="field"><label>Council Rates ($)</label><input type="number" id="council" value="1800"></div>
+<div class="field"><label>Water Rates ($)</label><input type="number" id="water" value="700"></div>
+</div>
+<div class="row">
+<div class="field"><label>Strata / Body Corp ($)</label><input type="number" id="strata" value="0"></div>
+<div class="field"><label>Insurance ($)</label><input type="number" id="insurance" value="1500"></div>
+</div>
+<div class="row">
+<div class="field"><label>Property Management (%)</label><input type="number" id="mgmt" value="7" step="0.1"></div>
+<div class="field"><label>Maintenance ($)</label><input type="number" id="maint" value="2000"></div>
+</div>
+<div class="row">
+<div class="field"><label>Vacancy Rate (%)</label><input type="number" id="vacancy" value="3" step="0.5"></div>
+<div class="field"><label>Land Tax ($)</label><input type="number" id="landtax" value="0"></div>
+</div>
+
+<h2 style="margin-top:20px">🧾 Tax Estimate</h2>
+<div class="row">
+<div class="field"><label>Marginal Tax Rate (%)</label>
+<select id="taxRate">
+<option value="0">0% ($0-$18,200)</option>
+<option value="16">16% ($18,201-$45,000)</option>
+<option value="30">30% ($45,001-$135,000)</option>
+<option value="37" selected>37% ($135,001-$190,000)</option>
+<option value="45">45% ($190,001+)</option>
+</select>
+</div>
+<div class="field"><label>Depreciation (Year 1, $)</label><input type="number" id="depreciation" value="8000"></div>
+</div>
+<div class="actions">
+<button class="btn btn-green" onclick="calculate()">Calculate</button>
+<button class="btn btn-purple" onclick="saveScenario()">💾 Save Scenario</button>
+</div>
+</div>
+
+<div class="card results" id="resultsCard" style="display:none">
+<h2>📊 Results</h2>
+<div class="metric-grid" id="metrics"></div>
+
+<div class="breakdown">
+<h3>Annual Cash Flow Breakdown</h3>
+<table><thead><tr><th>Item</th><th>Amount</th></tr></thead><tbody id="breakdownBody"></tbody></table>
+</div>
+
+<div style="margin-top:16px">
+<h3 style="font-size:.85rem;color:var(--muted);margin-bottom:8px">Expense Composition</h3>
+<div class="bar-wrap" id="expBar"></div>
+</div>
+
+<div class="neg-gear" id="negGear"></div>
+</div>
+
+<div class="card" style="grid-column:1/-1">
+<h2>💾 Saved Scenarios</h2>
+<div class="saved-list" id="savedList"><p style="color:var(--muted);font-size:.85rem">No saved scenarios yet</p></div>
+</div>
+</div>
+
+<div class="footer">Oney & Co — Investment Yield Calculator — For estimation purposes only</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>'$'+Math.round(n).toLocaleString();
+const fmtW=n=>fmt(n/52)+'/wk';
+
+function calculate(){
+  const price=+$('price').value, rentW=+$('rent').value, stamp=+$('stamp').value, other=+$('otherCosts').value;
+  const depPct=+$('deposit').value/100, rate=+$('rate').value/100, termY=+$('term').value, repType=$('repType').value;
+  const council=+$('council').value, water=+$('water').value, strata=+$('strata').value, ins=+$('insurance').value;
+  const mgmtPct=+$('mgmt').value/100, maint=+$('maint').value, vacPct=+$('vacancy').value/100, landtax=+$('landtax').value;
+  const taxRate=+$('taxRate').value/100, deprec=+$('depreciation').value;
+
+  const totalCost=price+stamp+other;
+  const loan=price*(1-depPct);
+  const annualRent=rentW*52;
+  const effectiveRent=annualRent*(1-vacPct);
+  const mgmtCost=effectiveRent*mgmtPct;
+
+  // Loan repayment
+  const mr=rate/12, n=termY*12;
+  let annualRepay;
+  if(repType==='io'){annualRepay=loan*rate}
+  else{const mp=loan*mr*Math.pow(1+mr,n)/(Math.pow(1+mr,n)-1);annualRepay=mp*12}
+  const annualInterest=loan*rate; // approx year 1
+
+  // Expenses
+  const totalExp=council+water+strata+ins+mgmtCost+maint+landtax;
+  const netIncome=effectiveRent-totalExp;
+  const cashFlow=netIncome-annualRepay;
+  const cashFlowWeekly=cashFlow/52;
+
+  // Yields
+  const grossYield=(annualRent/price)*100;
+  const netYield=(netIncome/totalCost)*100;
+
+  // Negative gearing
+  const taxableIncome=effectiveRent-totalExp-annualInterest-deprec;
+  const taxBenefit=taxableIncome<0?Math.abs(taxableIncome)*taxRate:0;
+  const afterTaxCashFlow=cashFlow+taxBenefit;
+
+  // Display
+  $('resultsCard').style.display='block';
+
+  const gyCls=grossYield>=5?'positive':grossYield>=3.5?'neutral':'negative';
+  const nyCls=netYield>=3?'positive':netYield>=1.5?'neutral':'negative';
+  const cfCls=afterTaxCashFlow>=0?'positive':'negative';
+
+  $('metrics').innerHTML=`
+    <div class="metric highlight"><div class="lbl">Gross Yield</div><div class="val">${grossYield.toFixed(2)}%</div></div>
+    <div class="metric ${nyCls}"><div class="lbl">Net Yield</div><div class="val">${netYield.toFixed(2)}%</div></div>
+    <div class="metric ${cfCls}"><div class="lbl">Weekly Cash Flow (After Tax)</div><div class="val">${afterTaxCashFlow>=0?'+':''}$${Math.round(afterTaxCashFlow/52)}</div></div>
+    <div class="metric"><div class="lbl">Loan Amount</div><div class="val" style="color:var(--muted);font-size:1.4rem">${fmt(loan)}</div></div>
+    <div class="metric"><div class="lbl">Total Investment</div><div class="val" style="color:var(--muted);font-size:1.4rem">${fmt(totalCost)}</div></div>
+    <div class="metric"><div class="lbl">Deposit Required</div><div class="val" style="color:var(--muted);font-size:1.4rem">${fmt(price*depPct+stamp+other)}</div></div>
+  `;
+
+  const rows=[
+    ['Gross Rental Income',fmt(annualRent)],
+    ['Less Vacancy ('+$('vacancy').value+'%)','-'+fmt(annualRent*vacPct)],
+    ['<strong>Effective Rent</strong>','<strong>'+fmt(effectiveRent)+'</strong>'],
+    ['Council Rates','-'+fmt(council)],['Water','-'+fmt(water)],
+    ['Strata/Body Corp','-'+fmt(strata)],['Insurance','-'+fmt(ins)],
+    ['Management ('+$('mgmt').value+'%)','-'+fmt(mgmtCost)],
+    ['Maintenance','-'+fmt(maint)],['Land Tax','-'+fmt(landtax)],
+    ['<strong>Net Rental Income</strong>','<strong>'+fmt(netIncome)+'</strong>'],
+    ['Loan Repayment ('+repType.toUpperCase()+')','-'+fmt(annualRepay)],
+    ['<strong>Pre-Tax Cash Flow</strong>','<strong style="color:'+(cashFlow>=0?'var(--green)':'var(--red)')+'">'+fmt(cashFlow)+'</strong>'],
+  ];
+  $('breakdownBody').innerHTML=rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
+
+  // Expense bar
+  const exps=[{l:'Council',v:council,c:'#3498db'},{l:'Water',v:water,c:'#2980b9'},{l:'Strata',v:strata,c:'#8e44ad'},{l:'Insurance',v:ins,c:'#e67e22'},{l:'Mgmt',v:mgmtCost,c:'#e74c3c'},{l:'Maint',v:maint,c:'#f39c12'},{l:'Land Tax',v:landtax,c:'#1abc9c'}];
+  const totalE=exps.reduce((a,e)=>a+e.v,0);
+  $('expBar').innerHTML=exps.filter(e=>e.v>0).map(e=>`<div class="bar-seg" style="width:${e.v/totalE*100}%;background:${e.c}" title="${e.l}: ${fmt(e.v)}">${e.v/totalE>.08?e.l:''}</div>`).join('');
+
+  // Negative gearing
+  $('negGear').innerHTML=`<h3>🧾 Negative Gearing & Tax</h3>
+    <div class="row-info"><span>Rental Income (effective)</span><span>${fmt(effectiveRent)}</span></div>
+    <div class="row-info"><span>Less Expenses</span><span>-${fmt(totalExp)}</span></div>
+    <div class="row-info"><span>Less Interest (Year 1 est.)</span><span>-${fmt(annualInterest)}</span></div>
+    <div class="row-info"><span>Less Depreciation</span><span>-${fmt(deprec)}</span></div>
+    <div class="row-info" style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px"><strong>Taxable Property Income</strong><strong style="color:${taxableIncome>=0?'var(--green)':'var(--red)'}"> ${fmt(taxableIncome)}</strong></div>
+    ${taxableIncome<0?`<div class="row-info"><span>Tax Benefit @ ${(taxRate*100).toFixed(0)}%</span><span style="color:var(--green)">+${fmt(taxBenefit)}/yr</span></div>`:''}
+    <div class="row-info" style="border-top:1px solid var(--border);padding-top:8px;margin-top:4px"><strong>After-Tax Cash Flow</strong><strong style="color:${afterTaxCashFlow>=0?'var(--green)':'var(--red)'}"> ${fmt(afterTaxCashFlow)}/yr (${afterTaxCashFlow>=0?'+':''}$${Math.round(afterTaxCashFlow/52)}/wk)</strong></div>`;
+
+  $('resultsCard').scrollIntoView({behavior:'smooth'});
+}
+
+function getInputs(){
+  return {propName:$('propName').value,price:$('price').value,rent:$('rent').value,stamp:$('stamp').value,otherCosts:$('otherCosts').value,deposit:$('deposit').value,rate:$('rate').value,term:$('term').value,repType:$('repType').value,council:$('council').value,water:$('water').value,strata:$('strata').value,insurance:$('insurance').value,mgmt:$('mgmt').value,maint:$('maint').value,vacancy:$('vacancy').value,landtax:$('landtax').value,taxRate:$('taxRate').value,depreciation:$('depreciation').value};
+}
+function setInputs(d){Object.keys(d).forEach(k=>{if($(k))$(k).value=d[k]})}
+
+function saveScenario(){
+  const d=getInputs();
+  const name=d.propName||'Scenario '+(new Date().toLocaleTimeString());
+  d._name=name;d._ts=Date.now();
+  let saved=JSON.parse(localStorage.getItem('oney_yield_scenarios')||'[]');
+  saved.push(d);
+  localStorage.setItem('oney_yield_scenarios',JSON.stringify(saved));
+  renderSaved();
+}
+
+function renderSaved(){
+  let saved=JSON.parse(localStorage.getItem('oney_yield_scenarios')||'[]');
+  if(!saved.length){$('savedList').innerHTML='<p style="color:var(--muted);font-size:.85rem">No saved scenarios yet</p>';return}
+  $('savedList').innerHTML=saved.map((s,i)=>`<div class="saved-item"><span onclick="loadScenario(${i})">${s._name} — ${new Date(s._ts).toLocaleDateString()}</span><span class="del" onclick="delScenario(${i})">✕</span></div>`).join('');
+}
+function loadScenario(i){
+  let saved=JSON.parse(localStorage.getItem('oney_yield_scenarios')||'[]');
+  setInputs(saved[i]);calculate();
+}
+function delScenario(i){
+  let saved=JSON.parse(localStorage.getItem('oney_yield_scenarios')||'[]');
+  saved.splice(i,1);
+  localStorage.setItem('oney_yield_scenarios',JSON.stringify(saved));
+  renderSaved();
+}
+
+renderSaved();
+calculate();
+</script>
+</body>
+</html>

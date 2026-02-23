@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Extra Repayment Calculator — Oney & Co</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;
+  --green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--purple2:#9B59B6;
+  --text:#f0f0f5;--white:#fff;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--green)}
+
+/* Header */
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+
+/* Main */
+.main{flex:1;max-width:1100px;width:100%;margin:0 auto;padding:24px}
+h2{font-size:1.6rem;font-weight:700;margin-bottom:4px}
+.subtitle{color:var(--muted);margin-bottom:24px;font-size:.95rem}
+
+/* Grid */
+.grid{display:grid;grid-template-columns:340px 1fr;gap:24px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+
+/* Card */
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;transition:box-shadow .2s}
+.card:hover{box-shadow:0 8px 32px rgba(46,204,133,.08)}
+
+/* Form */
+.field{margin-bottom:18px}
+.field label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.field input,.field select{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.95rem;font-family:inherit;transition:border-color .2s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--green)}
+
+/* Range */
+.range-wrap{position:relative}
+.range-wrap input[type=range]{width:100%;-webkit-appearance:none;background:transparent;margin-top:8px}
+.range-wrap input[type=range]::-webkit-slider-track{height:6px;border-radius:3px;background:var(--border)}
+.range-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--green2));cursor:pointer;margin-top:-7px;box-shadow:0 2px 8px rgba(46,204,133,.4)}
+.range-val{font-size:1.3rem;font-weight:700;color:var(--green)}
+
+/* Button */
+.btn{display:inline-block;padding:12px 28px;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;font-weight:600;font-size:.95rem;border:none;border-radius:10px;cursor:pointer;font-family:inherit;transition:transform .15s,box-shadow .2s;width:100%}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(46,204,133,.35)}
+.btn:active{transform:scale(.97)}
+
+/* Results */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+@media(max-width:500px){.stat-grid{grid-template-columns:1fr}}
+.stat{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.stat .val{font-size:1.5rem;font-weight:800;color:var(--green)}
+.stat .val.accent{color:var(--purple2)}
+.stat .lbl{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+
+/* Table */
+.table-wrap{overflow-x:auto;margin-top:16px}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{text-align:left;padding:10px 8px;color:var(--muted);font-weight:600;font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:8px;border-bottom:1px solid rgba(61,61,92,.4)}
+tr.saved{background:rgba(46,204,133,.08)}
+tr.saved td{color:var(--green);font-weight:600}
+
+/* Chart */
+.chart-container{position:relative;margin-top:20px;height:260px}
+canvas{width:100%!important}
+
+/* Footer */
+.footer{text-align:center;padding:20px;color:var(--muted);font-size:.8rem;border-top:1px solid var(--border)}
+
+/* Highlight */
+.highlight{background:linear-gradient(135deg,rgba(46,204,133,.1),rgba(107,76,154,.1));border:1px solid rgba(46,204,133,.2);border-radius:10px;padding:16px;text-align:center;margin-bottom:20px}
+.highlight .big{font-size:2rem;font-weight:800;color:var(--green)}
+.highlight .desc{color:var(--muted);font-size:.85rem;margin-top:4px}
+
+.tabs{display:flex;gap:8px;margin-bottom:16px}
+.tab{padding:8px 16px;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:inherit;transition:all .2s}
+.tab.active{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border-color:transparent}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <svg viewBox="0 0 200 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="20" cy="20" r="16" fill="#2ECC85"/>
+      <text x="12" y="26" font-family="Inter" font-weight="800" font-size="18" fill="#1A1A2E">O</text>
+      <text x="44" y="27" font-family="Inter" font-weight="700" font-size="18" fill="#f0f0f5">Oney</text>
+      <text x="96" y="27" font-family="Inter" font-weight="300" font-size="18" fill="#a3a3b8">&amp; Co</text>
+    </svg>
+  </div>
+  <h1>Extra Repayment Calculator</h1>
+</div>
+
+<div class="main">
+  <h2>Extra Repayment Impact</h2>
+  <p class="subtitle">See how additional repayments save interest and shorten your loan term</p>
+
+  <div class="grid">
+    <!-- Inputs -->
+    <div class="card">
+      <div class="field">
+        <label>Loan Amount ($)</label>
+        <input type="number" id="loanAmt" value="600000" min="10000" step="10000">
+      </div>
+      <div class="field">
+        <label>Interest Rate (% p.a.)</label>
+        <input type="number" id="rate" value="6.2" min="0.1" step="0.05">
+      </div>
+      <div class="field">
+        <label>Loan Term (years)</label>
+        <input type="number" id="term" value="30" min="1" max="40">
+      </div>
+      <div class="field">
+        <label>Repayment Type</label>
+        <select id="repType"><option value="pi">Principal & Interest</option><option value="io">Interest Only</option></select>
+      </div>
+
+      <div class="field">
+        <label>Extra Repayment (per month)</label>
+        <div class="range-wrap">
+          <span class="range-val" id="extraVal">$500</span>
+          <input type="range" id="extra" min="0" max="5000" step="50" value="500">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Or enter exact amount ($)</label>
+        <input type="number" id="extraInput" value="500" min="0" step="50">
+      </div>
+
+      <button class="btn" onclick="calculate()">Calculate Impact</button>
+    </div>
+
+    <!-- Results -->
+    <div>
+      <div class="card" id="resultsCard" style="display:none">
+        <div class="highlight">
+          <div class="big" id="savedInterest">$0</div>
+          <div class="desc">Total Interest Saved</div>
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat">
+            <div class="val" id="origPayment">$0</div>
+            <div class="lbl">Original Monthly</div>
+          </div>
+          <div class="stat">
+            <div class="val" id="newPayment">$0</div>
+            <div class="lbl">With Extra</div>
+          </div>
+          <div class="stat">
+            <div class="val accent" id="origTerm">0 yrs</div>
+            <div class="lbl">Original Term</div>
+          </div>
+          <div class="stat">
+            <div class="val" id="newTerm">0 yrs</div>
+            <div class="lbl">New Term</div>
+          </div>
+          <div class="stat">
+            <div class="val accent" id="origInterest">$0</div>
+            <div class="lbl">Original Total Interest</div>
+          </div>
+          <div class="stat">
+            <div class="val" id="newInterest">$0</div>
+            <div class="lbl">New Total Interest</div>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <button class="tab active" onclick="showTab('chart',this)">Chart</button>
+          <button class="tab" onclick="showTab('table',this)">Year-by-Year</button>
+        </div>
+
+        <div id="chartView">
+          <div class="chart-container"><canvas id="chart"></canvas></div>
+        </div>
+        <div id="tableView" style="display:none">
+          <div class="table-wrap">
+            <table><thead><tr><th>Year</th><th>Balance (Orig)</th><th>Balance (Extra)</th><th>Interest Saved</th><th>Status</th></tr></thead><tbody id="tbody"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">© 2026 Oney & Co · <a href="mailto:hello@oneyco.com.au">hello@oneyco.com.au</a></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const fmt=n=>'$'+Math.round(n).toLocaleString();
+const slider=$('extra'), valDisp=$('extraVal'), exactInput=$('extraInput');
+
+slider.oninput=()=>{exactInput.value=slider.value;valDisp.textContent='$'+Number(slider.value).toLocaleString()};
+exactInput.oninput=()=>{slider.value=exactInput.value;valDisp.textContent='$'+Number(exactInput.value).toLocaleString()};
+
+let myChart=null;
+
+function amortize(principal,monthlyRate,months,extraMonthly,isIO){
+  let bal=principal,totalInt=0,yearly=[];
+  let yearInt=0,m=0;
+  while(bal>0.01&&m<600){
+    let interest=bal*monthlyRate;
+    totalInt+=interest;yearInt+=interest;
+    let princPay=isIO?0:0;
+    if(!isIO){
+      let basePayment=principal*monthlyRate/(1-Math.pow(1+monthlyRate,-months));
+      princPay=basePayment-interest+extraMonthly;
+    }else{
+      princPay=extraMonthly;
+    }
+    if(princPay>bal)princPay=bal;
+    bal-=princPay;m++;
+    if(m%12===0||bal<=0.01){
+      yearly.push({year:Math.ceil(m/12),balance:Math.max(0,bal),interest:yearInt,cumInterest:totalInt});
+      yearInt=0;
+    }
+  }
+  return{months:m,totalInterest:totalInt,yearly};
+}
+
+function calculate(){
+  const P=+$('loanAmt').value, r=+$('rate').value/100/12, n=+$('term').value*12, extra=+$('extraInput').value;
+  const isIO=$('repType').value==='io';
+
+  const orig=amortize(P,r,n,0,isIO);
+  const withExtra=amortize(P,r,n,extra,isIO);
+
+  const basePmt=isIO?P*r:P*r/(1-Math.pow(1+r,-n));
+
+  $('origPayment').textContent=fmt(basePmt);
+  $('newPayment').textContent=fmt(basePmt+extra);
+  $('origTerm').textContent=Math.ceil(orig.months/12)+' yrs '+orig.months%12+' mo';
+  $('newTerm').textContent=Math.ceil(withExtra.months/12)+' yrs '+withExtra.months%12+' mo';
+  $('origInterest').textContent=fmt(orig.totalInterest);
+  $('newInterest').textContent=fmt(withExtra.totalInterest);
+  $('savedInterest').textContent=fmt(orig.totalInterest-withExtra.totalInterest);
+
+  // Table
+  const maxYears=Math.max(orig.yearly.length,withExtra.yearly.length);
+  let html='';
+  for(let i=0;i<maxYears;i++){
+    const o=orig.yearly[i],e=withExtra.yearly[i];
+    const oBal=o?o.balance:0,eBal=e?e.balance:0;
+    const saved=o?(o.cumInterest-(e?e.cumInterest:withExtra.totalInterest)):0;
+    const done=!e||eBal<=0.01;
+    html+=`<tr class="${done&&oBal>0?'saved':''}"><td>${i+1}</td><td>${fmt(oBal)}</td><td>${eBal>0.01?fmt(eBal):'✅ Paid off'}</td><td>${fmt(saved)}</td><td>${done&&oBal>0?'🎉 Saved':'—'}</td></tr>`;
+  }
+  $('tbody').innerHTML=html;
+
+  // Chart
+  const labels=orig.yearly.map(y=>'Yr '+y.year);
+  const origData=orig.yearly.map(y=>Math.round(y.balance));
+  const extraData=[];
+  for(let i=0;i<orig.yearly.length;i++){
+    const e=withExtra.yearly[i];
+    extraData.push(e?Math.round(e.balance):0);
+  }
+
+  if(myChart)myChart.destroy();
+  myChart=new Chart($('chart'),{type:'line',data:{labels,datasets:[
+    {label:'Without Extra',data:origData,borderColor:'#9B59B6',backgroundColor:'rgba(155,89,182,.1)',fill:true,tension:.3,pointRadius:0},
+    {label:'With Extra',data:extraData,borderColor:'#2ECC85',backgroundColor:'rgba(46,204,133,.1)',fill:true,tension:.3,pointRadius:0}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#a3a3b8',font:{family:'Inter'}}}},scales:{
+    x:{ticks:{color:'#a3a3b8',font:{family:'Inter',size:10}},grid:{color:'rgba(61,61,92,.3)'}},
+    y:{ticks:{color:'#a3a3b8',callback:v=>'$'+Math.round(v/1000)+'k'},grid:{color:'rgba(61,61,92,.3)'}}
+  }}});
+
+  $('resultsCard').style.display='block';
+}
+
+function showTab(tab,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  $('chartView').style.display=tab==='chart'?'block':'none';
+  $('tableView').style.display=tab==='table'?'block':'none';
+}
+
+calculate();
+</script>
+</body>
+</html>

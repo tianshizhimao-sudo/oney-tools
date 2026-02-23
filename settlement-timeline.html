@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settlement Timeline Tracker | Oney & Co</title>
+    <style>
+        :root {
+            --primary: #2ECC85;
+            --primary-dark: #1FAD73;
+            --bg: #0a0a0a;
+            --card: #141414;
+            --card-hover: #1a1a1a;
+            --border: #2a2a2a;
+            --text: #ffffff;
+            --text-muted: #888888;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --info: #3498db;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo {
+            width: 50px;
+            height: 50px;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        
+        h1 span {
+            color: var(--primary);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--bg);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(46, 204, 133, 0.3);
+        }
+        
+        .btn-secondary {
+            background: var(--card);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--card-hover);
+            box-shadow: none;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+        }
+        
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 5px;
+        }
+        
+        .cases-grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .case-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            transition: all 0.2s;
+        }
+        
+        .case-card:hover {
+            border-color: var(--primary);
+        }
+        
+        .case-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .case-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        
+        .case-meta {
+            display: flex;
+            gap: 15px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .case-meta span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .case-meta span strong {
+            color: var(--primary);
+        }
+        
+        .case-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .case-actions button {
+            padding: 8px 12px;
+            font-size: 0.8rem;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        
+        .timeline-bar {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            transform: translateY(-50%);
+        }
+        
+        .timeline-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+            border-radius: 2px;
+            transition: width 0.3s;
+        }
+        
+        .timeline-steps {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .timeline-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            z-index: 1;
+        }
+        
+        .step-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 3px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            font-size: 12px;
+        }
+        
+        .step-dot.completed {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: var(--bg);
+        }
+        
+        .step-dot.current {
+            border-color: var(--primary);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(46, 204, 133, 0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(46, 204, 133, 0); }
+        }
+        
+        .step-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+            text-align: center;
+            max-width: 80px;
+        }
+        
+        .step-label.completed {
+            color: var(--primary);
+        }
+        
+        .step-date {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        
+        .days-remaining {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .days-remaining.on-track {
+            background: rgba(46, 204, 133, 0.15);
+            color: var(--primary);
+        }
+        
+        .days-remaining.warning {
+            background: rgba(243, 156, 18, 0.15);
+            color: var(--warning);
+        }
+        
+        .days-remaining.urgent {
+            background: rgba(231, 76, 60, 0.15);
+            color: var(--danger);
+        }
+        
+        .days-remaining.settled {
+            background: rgba(46, 204, 133, 0.15);
+            color: var(--primary);
+        }
+        
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal h2 {
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 25px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+        
+        .empty-state h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+        
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-bar select, .filter-bar input {
+            padding: 10px 15px;
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+        
+        .filter-bar input {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        @media (max-width: 600px) {
+            .step-label {
+                font-size: 0.65rem;
+                max-width: 50px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo-section">
+                <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#2ECC85"/>
+                            <stop offset="100%" style="stop-color:#1FAD73"/>
+                        </linearGradient>
+                    </defs>
+                    <g transform="translate(50, 50)">
+                        <path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#greenGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/>
+                        <path d="M0 -45 L0 -52" stroke="url(#greenGrad)" stroke-width="6" stroke-linecap="round"/>
+                    </g>
+                </svg>
+                <div>
+                    <h1>Settlement <span>Timeline</span></h1>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Track your loans from application to settlement</p>
+                </div>
+            </div>
+            <button class="btn" onclick="openModal()">+ New Case</button>
+        </header>
+        
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-value" id="totalCases">0</div>
+                <div class="stat-label">Total Active</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="thisWeek">0</div>
+                <div class="stat-label">Settling This Week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgDays">0</div>
+                <div class="stat-label">Avg Days to Settlement</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="settledCount">0</div>
+                <div class="stat-label">Settled This Month</div>
+            </div>
+        </div>
+        
+        <div class="filter-bar">
+            <input type="text" id="searchInput" placeholder="Search client name or lender..." onkeyup="renderCases()">
+            <select id="filterStatus" onchange="renderCases()">
+                <option value="all">All Status</option>
+                <option value="active">Active Only</option>
+                <option value="settled">Settled Only</option>
+            </select>
+            <select id="sortBy" onchange="renderCases()">
+                <option value="settlement">Sort by Settlement Date</option>
+                <option value="created">Sort by Created Date</option>
+                <option value="name">Sort by Client Name</option>
+            </select>
+        </div>
+        
+        <div class="cases-grid" id="casesGrid">
+            <!-- Cases will be rendered here -->
+        </div>
+    </div>
+    
+    <!-- Add/Edit Modal -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h2 id="modalTitle">Add New Case</h2>
+            <form id="caseForm">
+                <input type="hidden" id="caseId">
+                
+                <div class="form-group">
+                    <label>Client Name *</label>
+                    <input type="text" id="clientName" required placeholder="e.g. John Smith">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Loan Amount *</label>
+                        <input type="number" id="loanAmount" required placeholder="e.g. 500000">
+                    </div>
+                    <div class="form-group">
+                        <label>Lender *</label>
+                        <input type="text" id="lender" required placeholder="e.g. CBA">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Loan Type</label>
+                        <select id="loanType">
+                            <option value="Owner Occupied">Owner Occupied</option>
+                            <option value="Investment">Investment</option>
+                            <option value="Refinance">Refinance</option>
+                            <option value="Construction">Construction</option>
+                            <option value="Commercial">Commercial</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Property State</label>
+                        <select id="propertyState">
+                            <option value="NSW">NSW</option>
+                            <option value="VIC">VIC</option>
+                            <option value="QLD">QLD</option>
+                            <option value="WA">WA</option>
+                            <option value="SA">SA</option>
+                            <option value="TAS">TAS</option>
+                            <option value="ACT">ACT</option>
+                            <option value="NT">NT</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Settlement Date *</label>
+                    <input type="date" id="settlementDate" required>
+                </div>
+                
+                <h3 style="margin: 25px 0 15px; font-size: 1rem; color: var(--text-muted);">Milestone Dates (optional)</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Application Submitted</label>
+                        <input type="date" id="dateSubmitted">
+                    </div>
+                    <div class="form-group">
+                        <label>Conditional Approval</label>
+                        <input type="date" id="dateConditional">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Valuation Complete</label>
+                        <input type="date" id="dateValuation">
+                    </div>
+                    <div class="form-group">
+                        <label>Formal Approval</label>
+                        <input type="date" id="dateFormal">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Docs Issued</label>
+                        <input type="date" id="dateDocsIssued">
+                    </div>
+                    <div class="form-group">
+                        <label>Docs Signed</label>
+                        <input type="date" id="dateDocsSigned">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Notes</label>
+                    <input type="text" id="notes" placeholder="Any additional notes...">
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn">Save Case</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <footer>
+        <p>Settlement Timeline Tracker — Built by Oney & Co</p>
+    </footer>
+    
+    <script>
+        const STORAGE_KEY = 'oney_settlement_tracker';
+        const MILESTONES = [
+            { key: 'dateSubmitted', label: 'Submitted' },
+            { key: 'dateConditional', label: 'Conditional' },
+            { key: 'dateValuation', label: 'Valuation' },
+            { key: 'dateFormal', label: 'Formal' },
+            { key: 'dateDocsIssued', label: 'Docs Issued' },
+            { key: 'dateDocsSigned', label: 'Docs Signed' },
+            { key: 'settlementDate', label: 'Settled' }
+        ];
+        
+        let cases = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        
+        function saveCases() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(cases));
+        }
+        
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
+        }
+        
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-AU', {
+                style: 'currency',
+                currency: 'AUD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+        
+        function getDaysUntil(dateStr) {
+            const target = new Date(dateStr);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            target.setHours(0, 0, 0, 0);
+            return Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+        }
+        
+        function calculateProgress(caseData) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let completedSteps = 0;
+            for (const milestone of MILESTONES) {
+                if (caseData[milestone.key]) {
+                    const mDate = new Date(caseData[milestone.key]);
+                    mDate.setHours(0, 0, 0, 0);
+                    if (mDate <= today) {
+                        completedSteps++;
+                    }
+                }
+            }
+            return (completedSteps / MILESTONES.length) * 100;
+        }
+        
+        function getCurrentMilestone(caseData) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            for (let i = MILESTONES.length - 1; i >= 0; i--) {
+                const milestone = MILESTONES[i];
+                if (caseData[milestone.key]) {
+                    const mDate = new Date(caseData[milestone.key]);
+                    mDate.setHours(0, 0, 0, 0);
+                    if (mDate <= today) {
+                        return i;
+                    }
+                }
+            }
+            return -1;
+        }
+        
+        function updateStats() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const activeCases = cases.filter(c => {
+                const settlementDate = new Date(c.settlementDate);
+                settlementDate.setHours(0, 0, 0, 0);
+                return settlementDate >= today;
+            });
+            
+            // Settling this week
+            const weekFromNow = new Date(today);
+            weekFromNow.setDate(weekFromNow.getDate() + 7);
+            const thisWeekCases = activeCases.filter(c => {
+                const sd = new Date(c.settlementDate);
+                sd.setHours(0, 0, 0, 0);
+                return sd >= today && sd <= weekFromNow;
+            });
+            
+            // Settled this month
+            const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+            const settledThisMonth = cases.filter(c => {
+                const sd = new Date(c.settlementDate);
+                sd.setHours(0, 0, 0, 0);
+                return sd >= startOfMonth && sd < today;
+            });
+            
+            // Average days to settlement (for active cases)
+            let avgDays = 0;
+            if (activeCases.length > 0) {
+                const totalDays = activeCases.reduce((sum, c) => {
+                    return sum + Math.max(0, getDaysUntil(c.settlementDate));
+                }, 0);
+                avgDays = Math.round(totalDays / activeCases.length);
+            }
+            
+            document.getElementById('totalCases').textContent = activeCases.length;
+            document.getElementById('thisWeek').textContent = thisWeekCases.length;
+            document.getElementById('avgDays').textContent = avgDays;
+            document.getElementById('settledCount').textContent = settledThisMonth.length;
+        }
+        
+        function renderCases() {
+            const grid = document.getElementById('casesGrid');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('filterStatus').value;
+            const sortBy = document.getElementById('sortBy').value;
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let filtered = cases.filter(c => {
+                const matchesSearch = c.clientName.toLowerCase().includes(search) || 
+                                     c.lender.toLowerCase().includes(search);
+                
+                const settlementDate = new Date(c.settlementDate);
+                settlementDate.setHours(0, 0, 0, 0);
+                const isSettled = settlementDate < today;
+                
+                if (statusFilter === 'active') return matchesSearch && !isSettled;
+                if (statusFilter === 'settled') return matchesSearch && isSettled;
+                return matchesSearch;
+            });
+            
+            // Sort
+            filtered.sort((a, b) => {
+                if (sortBy === 'settlement') {
+                    return new Date(a.settlementDate) - new Date(b.settlementDate);
+                } else if (sortBy === 'created') {
+                    return new Date(b.createdAt) - new Date(a.createdAt);
+                } else {
+                    return a.clientName.localeCompare(b.clientName);
+                }
+            });
+            
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No Cases Found</h3>
+                        <p>Add your first case to start tracking settlements!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            grid.innerHTML = filtered.map(c => {
+                const daysUntil = getDaysUntil(c.settlementDate);
+                const progress = calculateProgress(c);
+                const currentMilestone = getCurrentMilestone(c);
+                
+                let statusClass, statusText;
+                if (daysUntil < 0) {
+                    statusClass = 'settled';
+                    statusText = '✓ Settled';
+                } else if (daysUntil <= 3) {
+                    statusClass = 'urgent';
+                    statusText = `${daysUntil} days left`;
+                } else if (daysUntil <= 7) {
+                    statusClass = 'warning';
+                    statusText = `${daysUntil} days left`;
+                } else {
+                    statusClass = 'on-track';
+                    statusText = `${daysUntil} days left`;
+                }
+                
+                return `
+                    <div class="case-card">
+                        <div class="case-header">
+                            <div>
+                                <div class="case-title">${c.clientName}</div>
+                                <div class="case-meta">
+                                    <span><strong>${formatCurrency(c.loanAmount)}</strong></span>
+                                    <span>${c.lender}</span>
+                                    <span>${c.loanType}</span>
+                                    <span>Settlement: <strong>${formatDate(c.settlementDate)}</strong></span>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <span class="days-remaining ${statusClass}">${statusText}</span>
+                                <div class="case-actions">
+                                    <button class="btn btn-secondary" onclick="editCase('${c.id}')">Edit</button>
+                                    <button class="btn btn-danger" onclick="deleteCase('${c.id}')">×</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline">
+                            <div class="timeline-bar">
+                                <div class="timeline-progress" style="width: ${progress}%"></div>
+                            </div>
+                            <div class="timeline-steps">
+                                ${MILESTONES.map((m, i) => {
+                                    const hasDate = c[m.key];
+                                    const isCompleted = i <= currentMilestone;
+                                    const isCurrent = i === currentMilestone + 1;
+                                    
+                                    return `
+                                        <div class="timeline-step" onclick="quickUpdateDate('${c.id}', '${m.key}')">
+                                            <div class="step-dot ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}">
+                                                ${isCompleted ? '✓' : ''}
+                                            </div>
+                                            <div class="step-label ${isCompleted ? 'completed' : ''}">${m.label}</div>
+                                            <div class="step-date">${hasDate ? formatDate(c[m.key]) : '—'}</div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                        
+                        ${c.notes ? `<p style="margin-top: 15px; font-size: 0.85rem; color: var(--text-muted);">📝 ${c.notes}</p>` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            updateStats();
+        }
+        
+        function quickUpdateDate(caseId, field) {
+            const caseData = cases.find(c => c.id === caseId);
+            if (!caseData) return;
+            
+            const currentValue = caseData[field] || new Date().toISOString().split('T')[0];
+            const newValue = prompt(`Update ${field.replace('date', '')} date:`, currentValue);
+            
+            if (newValue && newValue !== currentValue) {
+                caseData[field] = newValue;
+                saveCases();
+                renderCases();
+            }
+        }
+        
+        function openModal(caseId = null) {
+            document.getElementById('modalOverlay').classList.add('active');
+            document.getElementById('modalTitle').textContent = caseId ? 'Edit Case' : 'Add New Case';
+            document.getElementById('caseForm').reset();
+            document.getElementById('caseId').value = '';
+            
+            // Set default settlement date to 30 days from now
+            const defaultDate = new Date();
+            defaultDate.setDate(defaultDate.getDate() + 30);
+            document.getElementById('settlementDate').value = defaultDate.toISOString().split('T')[0];
+            
+            if (caseId) {
+                const caseData = cases.find(c => c.id === caseId);
+                if (caseData) {
+                    document.getElementById('caseId').value = caseData.id;
+                    document.getElementById('clientName').value = caseData.clientName;
+                    document.getElementById('loanAmount').value = caseData.loanAmount;
+                    document.getElementById('lender').value = caseData.lender;
+                    document.getElementById('loanType').value = caseData.loanType;
+                    document.getElementById('propertyState').value = caseData.propertyState;
+                    document.getElementById('settlementDate').value = caseData.settlementDate;
+                    document.getElementById('dateSubmitted').value = caseData.dateSubmitted || '';
+                    document.getElementById('dateConditional').value = caseData.dateConditional || '';
+                    document.getElementById('dateValuation').value = caseData.dateValuation || '';
+                    document.getElementById('dateFormal').value = caseData.dateFormal || '';
+                    document.getElementById('dateDocsIssued').value = caseData.dateDocsIssued || '';
+                    document.getElementById('dateDocsSigned').value = caseData.dateDocsSigned || '';
+                    document.getElementById('notes').value = caseData.notes || '';
+                }
+            }
+        }
+        
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+        
+        function editCase(caseId) {
+            openModal(caseId);
+        }
+        
+        function deleteCase(caseId) {
+            if (confirm('Delete this case?')) {
+                cases = cases.filter(c => c.id !== caseId);
+                saveCases();
+                renderCases();
+            }
+        }
+        
+        document.getElementById('caseForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const caseId = document.getElementById('caseId').value;
+            const caseData = {
+                id: caseId || Date.now().toString(),
+                clientName: document.getElementById('clientName').value,
+                loanAmount: parseFloat(document.getElementById('loanAmount').value),
+                lender: document.getElementById('lender').value,
+                loanType: document.getElementById('loanType').value,
+                propertyState: document.getElementById('propertyState').value,
+                settlementDate: document.getElementById('settlementDate').value,
+                dateSubmitted: document.getElementById('dateSubmitted').value,
+                dateConditional: document.getElementById('dateConditional').value,
+                dateValuation: document.getElementById('dateValuation').value,
+                dateFormal: document.getElementById('dateFormal').value,
+                dateDocsIssued: document.getElementById('dateDocsIssued').value,
+                dateDocsSigned: document.getElementById('dateDocsSigned').value,
+                notes: document.getElementById('notes').value,
+                createdAt: caseId ? cases.find(c => c.id === caseId)?.createdAt : new Date().toISOString()
+            };
+            
+            if (caseId) {
+                const index = cases.findIndex(c => c.id === caseId);
+                if (index > -1) cases[index] = caseData;
+            } else {
+                cases.push(caseData);
+            }
+            
+            saveCases();
+            closeModal();
+            renderCases();
+        });
+        
+        // Close modal on outside click
+        document.getElementById('modalOverlay').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('modalOverlay')) {
+                closeModal();
+            }
+        });
+        
+        // Initial render
+        renderCases();
+    </script>
+</body>
+</html>

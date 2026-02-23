@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Quote Calculator | Oney & Co</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2ECC85;
+            --primary-dark: #1FAD73;
+            --text-dark: #0a0a0a;
+            --text-muted: #666;
+            --bg-light: #f8faf9;
+            --white: #ffffff;
+            --border: #e0e0e0;
+            --shadow: rgba(46, 204, 133, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 2px 12px var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title span {
+            font-size: 1.2rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+
+        input[type="number"], select {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 1.1rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="number"]:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--shadow);
+        }
+
+        .input-prefix {
+            position: relative;
+        }
+
+        .input-prefix::before {
+            content: '$';
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .input-prefix input {
+            padding-left: 32px;
+        }
+
+        .input-suffix {
+            position: relative;
+        }
+
+        .input-suffix::after {
+            content: attr(data-suffix);
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .input-suffix input {
+            padding-right: 50px;
+        }
+
+        .quick-rates {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .quick-rate {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-rate:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .term-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .term-btn {
+            flex: 1;
+            padding: 12px;
+            font-size: 0.95rem;
+            background: var(--bg-light);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .term-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .term-btn:hover:not(.active) {
+            border-color: var(--primary);
+        }
+
+        .results-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+        }
+
+        .results-card .card-title {
+            color: white;
+        }
+
+        .result-main {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 24px;
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .result-amount {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+        }
+
+        .result-period {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .detail-item {
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            opacity: 0.85;
+            margin-bottom: 6px;
+        }
+
+        .detail-value {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .comparison-section {
+            margin-top: 24px;
+        }
+
+        .comparison-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .comparison-item {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            border: 2px solid var(--border);
+            transition: all 0.2s;
+        }
+
+        .comparison-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .comparison-item.highlight {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(46, 204, 133, 0.05), rgba(31, 173, 115, 0.05));
+        }
+
+        .comp-rate {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .comp-amount {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .comp-diff {
+            font-size: 0.75rem;
+            margin-top: 6px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .comp-diff.savings {
+            background: rgba(46, 204, 133, 0.15);
+            color: var(--primary-dark);
+        }
+
+        .comp-diff.extra {
+            background: rgba(239, 68, 68, 0.1);
+            color: #dc2626;
+        }
+
+        .disclaimer {
+            margin-top: 24px;
+            padding: 16px;
+            background: var(--bg-light);
+            border-radius: 10px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .copy-btn {
+            margin-top: 20px;
+            width: 100%;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            background: var(--white);
+            color: var(--primary-dark);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .copy-btn:hover {
+            background: rgba(255,255,255,0.9);
+            transform: translateY(-1px);
+        }
+
+        .copy-btn.copied {
+            background: var(--text-dark);
+            color: var(--white);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 90" width="140">
+                    <defs>
+                        <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#2ECC85"/>
+                            <stop offset="100%" style="stop-color:#1FAD73"/>
+                        </linearGradient>
+                    </defs>
+                    <g transform="translate(38, 45)">
+                        <path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#greenGrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/>
+                        <path d="M0 -38 L0 -44" stroke="url(#greenGrad)" stroke-width="5" stroke-linecap="round"/>
+                    </g>
+                    <text x="32" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#0a0a0a">ney</text>
+                    <text x="77" y="50" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="400" fill="url(#greenGrad)">&amp;</text>
+                    <text x="94" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#0a0a0a">co</text>
+                </svg>
+            </div>
+            <h1>Quick Quote Calculator</h1>
+            <p class="subtitle">快速估算贷款还款额</p>
+        </header>
+
+        <div class="main-grid">
+            <div class="card">
+                <h2 class="card-title"><span>📝</span> Loan Details</h2>
+                
+                <div class="form-group">
+                    <label>Loan Amount 贷款金额</label>
+                    <div class="input-prefix">
+                        <input type="number" id="loanAmount" value="500000" min="10000" max="10000000" step="10000">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Interest Rate 利率 (p.a.)</label>
+                    <div class="input-suffix" data-suffix="% p.a.">
+                        <input type="number" id="interestRate" value="6.5" min="0.1" max="20" step="0.05">
+                    </div>
+                    <div class="quick-rates">
+                        <span class="quick-rate" onclick="setRate(5.99)">5.99%</span>
+                        <span class="quick-rate" onclick="setRate(6.29)">6.29%</span>
+                        <span class="quick-rate" onclick="setRate(6.49)">6.49%</span>
+                        <span class="quick-rate" onclick="setRate(6.79)">6.79%</span>
+                        <span class="quick-rate" onclick="setRate(7.19)">7.19%</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Loan Term 贷款期限</label>
+                    <div class="term-buttons">
+                        <button class="term-btn" onclick="setTerm(20)">20 yrs</button>
+                        <button class="term-btn" onclick="setTerm(25)">25 yrs</button>
+                        <button class="term-btn active" onclick="setTerm(30)">30 yrs</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Repayment Type 还款方式</label>
+                    <select id="repaymentType">
+                        <option value="pi">Principal & Interest 本息同还</option>
+                        <option value="io">Interest Only 只还利息</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card results-card">
+                <h2 class="card-title"><span>💰</span> Your Quote</h2>
+                
+                <div class="result-main">
+                    <div class="result-label">Monthly Repayment 月供</div>
+                    <div class="result-amount" id="monthlyPayment">$3,160</div>
+                    <div class="result-period">per month</div>
+                </div>
+
+                <div class="result-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Total Interest 总利息</div>
+                        <div class="detail-value" id="totalInterest">$637,612</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Total Repayment 总还款</div>
+                        <div class="detail-value" id="totalRepayment">$1,137,612</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Weekly 每周</div>
+                        <div class="detail-value" id="weeklyPayment">$729</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Fortnightly 双周</div>
+                        <div class="detail-value" id="fortnightlyPayment">$1,458</div>
+                    </div>
+                </div>
+
+                <button class="copy-btn" onclick="copyQuote()">
+                    <span>📋</span> Copy Quote 复制报价
+                </button>
+            </div>
+        </div>
+
+        <div class="card comparison-section">
+            <h3 class="comparison-title"><span>📊</span> Rate Comparison 利率对比</h3>
+            <div class="comparison-grid" id="comparisonGrid">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>⚠️ Disclaimer 免责声明:</strong> This calculator provides estimates only and does not constitute financial advice. Actual repayments may vary based on fees, charges, and lender policies. Always consult with a qualified mortgage broker for accurate quotes.<br><br>
+            此计算器仅提供估算，不构成财务建议。实际还款可能因费用和贷方政策而异。请咨询专业贷款经纪人获取准确报价。
+        </div>
+
+        <footer>
+            <p>Built with 💚 by Oney & Co</p>
+        </footer>
+    </div>
+
+    <script>
+        let loanTerm = 30;
+
+        function setRate(rate) {
+            document.getElementById('interestRate').value = rate;
+            calculate();
+        }
+
+        function setTerm(years) {
+            loanTerm = years;
+            document.querySelectorAll('.term-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.includes(years)) {
+                    btn.classList.add('active');
+                }
+            });
+            calculate();
+        }
+
+        function formatCurrency(amount) {
+            return '$' + Math.round(amount).toLocaleString('en-AU');
+        }
+
+        function calculateMonthlyPayment(principal, annualRate, years, interestOnly = false) {
+            const monthlyRate = annualRate / 100 / 12;
+            const numPayments = years * 12;
+
+            if (interestOnly) {
+                return principal * monthlyRate;
+            }
+
+            if (monthlyRate === 0) {
+                return principal / numPayments;
+            }
+
+            return principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
+                   (Math.pow(1 + monthlyRate, numPayments) - 1);
+        }
+
+        function calculate() {
+            const principal = parseFloat(document.getElementById('loanAmount').value) || 500000;
+            const rate = parseFloat(document.getElementById('interestRate').value) || 6.5;
+            const isInterestOnly = document.getElementById('repaymentType').value === 'io';
+
+            const monthlyPayment = calculateMonthlyPayment(principal, rate, loanTerm, isInterestOnly);
+            const totalPayment = monthlyPayment * loanTerm * 12;
+            const totalInterest = isInterestOnly ? monthlyPayment * loanTerm * 12 : totalPayment - principal;
+
+            document.getElementById('monthlyPayment').textContent = formatCurrency(monthlyPayment);
+            document.getElementById('totalInterest').textContent = formatCurrency(totalInterest);
+            document.getElementById('totalRepayment').textContent = formatCurrency(totalPayment);
+            document.getElementById('weeklyPayment').textContent = formatCurrency(monthlyPayment * 12 / 52);
+            document.getElementById('fortnightlyPayment').textContent = formatCurrency(monthlyPayment * 12 / 26);
+
+            // Update comparison
+            updateComparison(principal, rate, loanTerm, isInterestOnly);
+        }
+
+        function updateComparison(principal, currentRate, years, isInterestOnly) {
+            const rates = [currentRate - 0.5, currentRate, currentRate + 0.5];
+            const currentMonthly = calculateMonthlyPayment(principal, currentRate, years, isInterestOnly);
+            
+            const grid = document.getElementById('comparisonGrid');
+            grid.innerHTML = rates.map((rate, index) => {
+                const monthly = calculateMonthlyPayment(principal, rate, years, isInterestOnly);
+                const diff = monthly - currentMonthly;
+                const isHighlight = index === 1;
+                
+                let diffHtml = '';
+                if (diff < 0) {
+                    diffHtml = `<div class="comp-diff savings">Save ${formatCurrency(Math.abs(diff))}/mo</div>`;
+                } else if (diff > 0) {
+                    diffHtml = `<div class="comp-diff extra">+${formatCurrency(diff)}/mo</div>`;
+                } else {
+                    diffHtml = `<div class="comp-diff" style="background:#e5e5e5;color:#666;">Current</div>`;
+                }
+
+                return `
+                    <div class="comparison-item ${isHighlight ? 'highlight' : ''}">
+                        <div class="comp-rate">${rate.toFixed(2)}% p.a.</div>
+                        <div class="comp-amount">${formatCurrency(monthly)}</div>
+                        ${diffHtml}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function copyQuote() {
+            const principal = parseFloat(document.getElementById('loanAmount').value) || 500000;
+            const rate = parseFloat(document.getElementById('interestRate').value) || 6.5;
+            const monthly = document.getElementById('monthlyPayment').textContent;
+            const weekly = document.getElementById('weeklyPayment').textContent;
+            const fortnightly = document.getElementById('fortnightlyPayment').textContent;
+            const totalInterest = document.getElementById('totalInterest').textContent;
+            const repType = document.getElementById('repaymentType').value === 'io' ? 'Interest Only' : 'Principal & Interest';
+
+            const quote = `📊 Loan Quote from Oney & Co
+
+Loan Amount: $${principal.toLocaleString('en-AU')}
+Interest Rate: ${rate}% p.a.
+Loan Term: ${loanTerm} years
+Repayment Type: ${repType}
+
+💰 Estimated Repayments:
+• Monthly: ${monthly}
+• Fortnightly: ${fortnightly}
+• Weekly: ${weekly}
+
+Total Interest: ${totalInterest}
+
+⚠️ This is an estimate only. Contact us for a personalised quote.
+🌐 Oney & Co | Your lending partner`;
+
+            navigator.clipboard.writeText(quote).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.innerHTML = '<span>✅</span> Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.innerHTML = '<span>📋</span> Copy Quote 复制报价';
+                    btn.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Event listeners
+        document.getElementById('loanAmount').addEventListener('input', calculate);
+        document.getElementById('interestRate').addEventListener('input', calculate);
+        document.getElementById('repaymentType').addEventListener('change', calculate);
+
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>

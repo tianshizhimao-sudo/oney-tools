@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMI Calculator | Oney & Co</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2ECC85;
+            --primary-dark: #1FAD73;
+            --text-dark: #0a0a0a;
+            --text-muted: #666;
+            --bg-light: #f8faf9;
+            --border: #e0e0e0;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo {
+            width: 50px;
+            height: 50px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .info-banner {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border: 1px solid #f59e0b;
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+
+        .info-banner .icon {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .info-banner p {
+            font-size: 0.9rem;
+            color: #92400e;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .form-group input, .form-group select {
+            padding: 0.875rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 204, 133, 0.15);
+        }
+
+        .input-prefix {
+            position: relative;
+        }
+
+        .input-prefix::before {
+            content: '$';
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .input-prefix input {
+            padding-left: 1.75rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: var(--bg-light);
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary);
+        }
+
+        .checkbox-group label {
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .checkbox-group small {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(46, 204, 133, 0.4);
+        }
+
+        .result-section {
+            display: none;
+        }
+
+        .result-section.active {
+            display: block;
+        }
+
+        .lvr-meter {
+            background: #e5e7eb;
+            height: 24px;
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 1rem 0;
+            position: relative;
+        }
+
+        .lvr-fill {
+            height: 100%;
+            border-radius: 12px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 0.75rem;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .lvr-fill.low { background: linear-gradient(90deg, #10b981, #34d399); }
+        .lvr-fill.medium { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .lvr-fill.high { background: linear-gradient(90deg, #ef4444, #f87171); }
+
+        .lvr-markers {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .result-item {
+            background: var(--bg-light);
+            padding: 1.25rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .result-item .label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .result-item .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .result-item .value.primary {
+            color: var(--primary-dark);
+        }
+
+        .result-item .value.warning {
+            color: var(--warning);
+        }
+
+        .result-item .value.danger {
+            color: var(--danger);
+        }
+
+        .lmi-breakdown {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .lmi-breakdown h3 {
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .breakdown-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .breakdown-table td {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(46, 204, 133, 0.2);
+        }
+
+        .breakdown-table tr:last-child td {
+            border-bottom: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .breakdown-table td:last-child {
+            text-align: right;
+        }
+
+        .no-lmi-message {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .no-lmi-message .icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .no-lmi-message h3 {
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .tip-box {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .tip-box h4 {
+            color: #0369a1;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .tip-box ul {
+            margin-left: 1.5rem;
+            color: #0c4a6e;
+            font-size: 0.9rem;
+        }
+
+        .tip-box li {
+            margin-bottom: 0.25rem;
+        }
+
+        .rate-table {
+            margin-top: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .rate-table table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .rate-table th, .rate-table td {
+            padding: 0.75rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+
+        .rate-table th {
+            background: var(--bg-light);
+            font-weight: 600;
+        }
+
+        .rate-table .current-band {
+            background: rgba(46, 204, 133, 0.15);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .footer a {
+            color: var(--primary-dark);
+            text-decoration: none;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 1rem;
+            }
+            .card {
+                padding: 1.5rem;
+            }
+            .header {
+                padding: 1rem;
+            }
+            .result-item .value {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="logoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#fff"/>
+                    <stop offset="100%" style="stop-color:#e0f5ea"/>
+                </linearGradient>
+            </defs>
+            <g transform="translate(50, 50)">
+                <path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#logoGrad)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/>
+                <path d="M0 -45 L0 -52" stroke="url(#logoGrad)" stroke-width="6" stroke-linecap="round"/>
+            </g>
+        </svg>
+        <div>
+            <h1>LMI Calculator</h1>
+            <p>Lenders Mortgage Insurance Estimator</p>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="info-banner">
+            <span class="icon">ℹ️</span>
+            <p><strong>What is LMI?</strong> Lenders Mortgage Insurance protects the lender (not you) when your deposit is less than 20%. It's a one-off premium added to your loan or paid upfront. This tool provides estimates only — actual premiums vary by lender.</p>
+        </div>
+
+        <div class="card">
+            <h2 class="card-title">📊 Loan Details</h2>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="propertyValue">Property Value</label>
+                    <div class="input-prefix">
+                        <input type="number" id="propertyValue" placeholder="800,000" min="0" step="1000">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="loanAmount">Loan Amount</label>
+                    <div class="input-prefix">
+                        <input type="number" id="loanAmount" placeholder="700,000" min="0" step="1000">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="loanPurpose">Loan Purpose</label>
+                    <select id="loanPurpose">
+                        <option value="owner">Owner Occupied</option>
+                        <option value="investment">Investment</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="repaymentType">Repayment Type</label>
+                    <select id="repaymentType">
+                        <option value="pi">Principal & Interest</option>
+                        <option value="io">Interest Only</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+                <div class="checkbox-group" onclick="document.getElementById('fhb').click()">
+                    <input type="checkbox" id="fhb">
+                    <div>
+                        <label for="fhb">First Home Buyer</label>
+                        <small>Some lenders offer LMI discounts for first home buyers</small>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn" onclick="calculateLMI()">Calculate LMI</button>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="card">
+                <h2 class="card-title">📈 LVR Analysis</h2>
+                
+                <div class="lvr-meter">
+                    <div class="lvr-fill" id="lvrFill">
+                        <span id="lvrText"></span>
+                    </div>
+                </div>
+                <div class="lvr-markers">
+                    <span>0%</span>
+                    <span>60%</span>
+                    <span>80% (LMI threshold)</span>
+                    <span>95%</span>
+                </div>
+
+                <div class="result-grid">
+                    <div class="result-item">
+                        <div class="label">Loan-to-Value Ratio</div>
+                        <div class="value" id="lvrValue">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">Deposit Amount</div>
+                        <div class="value" id="depositValue">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="label">Deposit Percentage</div>
+                        <div class="value" id="depositPercent">-</div>
+                    </div>
+                </div>
+
+                <div id="lmiResult"></div>
+
+                <div class="tip-box">
+                    <h4>💡 Ways to Reduce or Avoid LMI</h4>
+                    <ul>
+                        <li>Save a 20% deposit to avoid LMI entirely</li>
+                        <li>Use a guarantor (family pledge) to boost your deposit</li>
+                        <li>Check if you qualify for First Home Guarantee (no LMI for eligible buyers)</li>
+                        <li>Some professions (doctors, lawyers, accountants) may get LMI waivers</li>
+                        <li>Compare lenders — LMI premiums vary significantly</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 class="card-title">📋 LMI Rate Table (Indicative)</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Based on typical LMI premiums. Your highlighted band is shown below.</p>
+                
+                <div class="rate-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>LVR Band</th>
+                                <th>Up to $500k</th>
+                                <th>$500k - $750k</th>
+                                <th>$750k - $1m</th>
+                                <th>Over $1m</th>
+                            </tr>
+                        </thead>
+                        <tbody id="rateTableBody">
+                            <tr data-band="80.01-85">
+                                <td>80.01% - 85%</td>
+                                <td>0.65%</td>
+                                <td>0.85%</td>
+                                <td>1.05%</td>
+                                <td>1.25%</td>
+                            </tr>
+                            <tr data-band="85.01-88">
+                                <td>85.01% - 88%</td>
+                                <td>1.20%</td>
+                                <td>1.50%</td>
+                                <td>1.85%</td>
+                                <td>2.15%</td>
+                            </tr>
+                            <tr data-band="88.01-90">
+                                <td>88.01% - 90%</td>
+                                <td>1.90%</td>
+                                <td>2.35%</td>
+                                <td>2.80%</td>
+                                <td>3.25%</td>
+                            </tr>
+                            <tr data-band="90.01-92">
+                                <td>90.01% - 92%</td>
+                                <td>2.70%</td>
+                                <td>3.25%</td>
+                                <td>3.70%</td>
+                                <td>4.20%</td>
+                            </tr>
+                            <tr data-band="92.01-95">
+                                <td>92.01% - 95%</td>
+                                <td>3.60%</td>
+                                <td>4.25%</td>
+                                <td>4.80%</td>
+                                <td>5.40%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>Built with 💚 by <a href="https://oneyco.com.au">Oney & Co</a></p>
+        <p style="margin-top: 0.5rem; font-size: 0.8rem;">Estimates only. Actual LMI premiums vary by lender and individual circumstances.</p>
+    </footer>
+
+    <script>
+        // Format number as currency
+        function formatCurrency(num) {
+            return new Intl.NumberFormat('en-AU', {
+                style: 'currency',
+                currency: 'AUD',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(num);
+        }
+
+        // LMI rate table (indicative rates)
+        const lmiRates = {
+            owner: {
+                pi: {
+                    '80.01-85': { 500000: 0.0065, 750000: 0.0085, 1000000: 0.0105, over: 0.0125 },
+                    '85.01-88': { 500000: 0.0120, 750000: 0.0150, 1000000: 0.0185, over: 0.0215 },
+                    '88.01-90': { 500000: 0.0190, 750000: 0.0235, 1000000: 0.0280, over: 0.0325 },
+                    '90.01-92': { 500000: 0.0270, 750000: 0.0325, 1000000: 0.0370, over: 0.0420 },
+                    '92.01-95': { 500000: 0.0360, 750000: 0.0425, 1000000: 0.0480, over: 0.0540 }
+                },
+                io: {
+                    '80.01-85': { 500000: 0.0075, 750000: 0.0095, 1000000: 0.0120, over: 0.0145 },
+                    '85.01-88': { 500000: 0.0140, 750000: 0.0175, 1000000: 0.0215, over: 0.0250 },
+                    '88.01-90': { 500000: 0.0220, 750000: 0.0275, 1000000: 0.0325, over: 0.0375 },
+                    '90.01-92': { 500000: 0.0315, 750000: 0.0375, 1000000: 0.0430, over: 0.0485 },
+                    '92.01-95': { 500000: 0.0420, 750000: 0.0495, 1000000: 0.0560, over: 0.0625 }
+                }
+            },
+            investment: {
+                pi: {
+                    '80.01-85': { 500000: 0.0085, 750000: 0.0110, 1000000: 0.0135, over: 0.0160 },
+                    '85.01-88': { 500000: 0.0155, 750000: 0.0195, 1000000: 0.0240, over: 0.0280 },
+                    '88.01-90': { 500000: 0.0250, 750000: 0.0305, 1000000: 0.0365, over: 0.0420 },
+                    '90.01-92': { 500000: 0.0350, 750000: 0.0420, 1000000: 0.0480, over: 0.0545 },
+                    '92.01-95': { 500000: 0.0465, 750000: 0.0550, 1000000: 0.0625, over: 0.0700 }
+                },
+                io: {
+                    '80.01-85': { 500000: 0.0100, 750000: 0.0130, 1000000: 0.0160, over: 0.0190 },
+                    '85.01-88': { 500000: 0.0180, 750000: 0.0225, 1000000: 0.0280, over: 0.0325 },
+                    '88.01-90': { 500000: 0.0290, 750000: 0.0355, 1000000: 0.0425, over: 0.0490 },
+                    '90.01-92': { 500000: 0.0405, 750000: 0.0490, 1000000: 0.0560, over: 0.0635 },
+                    '92.01-95': { 500000: 0.0540, 750000: 0.0640, 1000000: 0.0730, over: 0.0815 }
+                }
+            }
+        };
+
+        function getLVRBand(lvr) {
+            if (lvr <= 80) return null;
+            if (lvr <= 85) return '80.01-85';
+            if (lvr <= 88) return '85.01-88';
+            if (lvr <= 90) return '88.01-90';
+            if (lvr <= 92) return '90.01-92';
+            if (lvr <= 95) return '92.01-95';
+            return null; // Over 95% usually not available
+        }
+
+        function getLoanSizeTier(loanAmount) {
+            if (loanAmount <= 500000) return 500000;
+            if (loanAmount <= 750000) return 750000;
+            if (loanAmount <= 1000000) return 1000000;
+            return 'over';
+        }
+
+        function calculateLMI() {
+            const propertyValue = parseFloat(document.getElementById('propertyValue').value) || 0;
+            const loanAmount = parseFloat(document.getElementById('loanAmount').value) || 0;
+            const purpose = document.getElementById('loanPurpose').value;
+            const repaymentType = document.getElementById('repaymentType').value;
+            const isFHB = document.getElementById('fhb').checked;
+
+            if (propertyValue <= 0 || loanAmount <= 0) {
+                alert('Please enter valid property value and loan amount');
+                return;
+            }
+
+            if (loanAmount > propertyValue) {
+                alert('Loan amount cannot exceed property value');
+                return;
+            }
+
+            const lvr = (loanAmount / propertyValue) * 100;
+            const deposit = propertyValue - loanAmount;
+            const depositPercent = (deposit / propertyValue) * 100;
+
+            // Show results section
+            document.getElementById('resultSection').classList.add('active');
+
+            // Update LVR meter
+            const lvrFill = document.getElementById('lvrFill');
+            const displayLvr = Math.min(lvr, 100);
+            lvrFill.style.width = displayLvr + '%';
+            document.getElementById('lvrText').textContent = lvr.toFixed(1) + '%';
+
+            // Set color based on LVR
+            lvrFill.classList.remove('low', 'medium', 'high');
+            if (lvr <= 80) {
+                lvrFill.classList.add('low');
+            } else if (lvr <= 90) {
+                lvrFill.classList.add('medium');
+            } else {
+                lvrFill.classList.add('high');
+            }
+
+            // Update result values
+            document.getElementById('lvrValue').textContent = lvr.toFixed(2) + '%';
+            document.getElementById('depositValue').textContent = formatCurrency(deposit);
+            document.getElementById('depositPercent').textContent = depositPercent.toFixed(1) + '%';
+
+            // Color code LVR value
+            const lvrValueEl = document.getElementById('lvrValue');
+            lvrValueEl.classList.remove('primary', 'warning', 'danger');
+            if (lvr <= 80) {
+                lvrValueEl.classList.add('primary');
+            } else if (lvr <= 90) {
+                lvrValueEl.classList.add('warning');
+            } else {
+                lvrValueEl.classList.add('danger');
+            }
+
+            // Calculate LMI
+            const band = getLVRBand(lvr);
+            const lmiResultDiv = document.getElementById('lmiResult');
+
+            // Highlight rate table
+            document.querySelectorAll('#rateTableBody tr').forEach(row => {
+                row.classList.remove('current-band');
+            });
+
+            if (!band) {
+                if (lvr <= 80) {
+                    lmiResultDiv.innerHTML = `
+                        <div class="no-lmi-message">
+                            <div class="icon">🎉</div>
+                            <h3>No LMI Required!</h3>
+                            <p>With an LVR of ${lvr.toFixed(2)}%, you're below the 80% threshold. You won't need to pay Lenders Mortgage Insurance.</p>
+                        </div>
+                    `;
+                } else {
+                    lmiResultDiv.innerHTML = `
+                        <div class="lmi-breakdown" style="background: linear-gradient(135deg, #fef2f2, #fecaca); border-color: #ef4444;">
+                            <h3 style="color: #dc2626;">⚠️ LVR Too High</h3>
+                            <p>With an LVR of ${lvr.toFixed(2)}%, most lenders won't approve this loan. The maximum LVR is typically 95%.</p>
+                            <p style="margin-top: 0.5rem;">You need an additional deposit of <strong>${formatCurrency(loanAmount - (propertyValue * 0.95))}</strong> to reach 95% LVR.</p>
+                        </div>
+                    `;
+                }
+                return;
+            }
+
+            // Get LMI rate
+            const tier = getLoanSizeTier(loanAmount);
+            const rates = lmiRates[purpose][repaymentType];
+            let rate = rates[band][tier];
+
+            // Apply FHB discount (typically 10-20%)
+            if (isFHB) {
+                rate = rate * 0.85; // 15% discount for FHB
+            }
+
+            // Investment property loading (already factored into rates above)
+            
+            const lmiPremium = loanAmount * rate;
+            const stampDutyOnLMI = lmiPremium * 0.10; // Approx stamp duty on LMI
+            const totalLMI = lmiPremium + stampDutyOnLMI;
+
+            // If capitalised, calculate new total
+            const newLoanTotal = loanAmount + totalLMI;
+            const newLVR = (newLoanTotal / propertyValue) * 100;
+
+            // Highlight current band in table
+            const bandRow = document.querySelector(`#rateTableBody tr[data-band="${band}"]`);
+            if (bandRow) {
+                bandRow.classList.add('current-band');
+            }
+
+            lmiResultDiv.innerHTML = `
+                <div class="lmi-breakdown">
+                    <h3>💰 Estimated LMI Cost</h3>
+                    <table class="breakdown-table">
+                        <tr>
+                            <td>LMI Premium (${(rate * 100).toFixed(2)}% of loan)</td>
+                            <td>${formatCurrency(lmiPremium)}</td>
+                        </tr>
+                        <tr>
+                            <td>Stamp Duty on LMI (approx)</td>
+                            <td>${formatCurrency(stampDutyOnLMI)}</td>
+                        </tr>
+                        ${isFHB ? `<tr><td colspan="2" style="color: var(--primary-dark);">✨ Includes ~15% First Home Buyer discount</td></tr>` : ''}
+                        <tr>
+                            <td><strong>Total LMI Cost</strong></td>
+                            <td><strong style="color: var(--primary-dark);">${formatCurrency(totalLMI)}</strong></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div style="background: #f9fafb; border-radius: 12px; padding: 1.25rem; margin-top: 1rem;">
+                    <h4 style="margin-bottom: 0.75rem; color: var(--text-dark);">📌 If Capitalised into Loan:</h4>
+                    <p>New loan amount: <strong>${formatCurrency(newLoanTotal)}</strong></p>
+                    <p>New LVR: <strong>${newLVR.toFixed(2)}%</strong></p>
+                    <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem;">Note: Capitalising LMI means you'll pay interest on it over the life of the loan.</p>
+                </div>
+            `;
+
+            // Scroll to results
+            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Add input formatting
+        ['propertyValue', 'loanAmount'].forEach(id => {
+            document.getElementById(id).addEventListener('input', function(e) {
+                // Remove non-numeric characters except for decimal
+                this.value = this.value.replace(/[^0-9.]/g, '');
+            });
+        });
+    </script>
+</body>
+</html>

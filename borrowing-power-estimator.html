@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Borrowing Power Estimator | Oney & Co</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #2ECC85;
+            --primary-dark: #1FAD73;
+            --bg: #f8faf9;
+            --card: #ffffff;
+            --text: #0a0a0a;
+            --text-muted: #666;
+            --border: #e0e0e0;
+            --red: #e74c3c;
+            --yellow: #f39c12;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 1.5rem 2rem;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+        
+        .logo {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .card h2 {
+            font-size: 1.1rem;
+            margin-bottom: 1.25rem;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.35rem;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+        }
+        
+        .toggle-row label {
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+        
+        .toggle {
+            position: relative;
+            width: 48px;
+            height: 26px;
+        }
+        
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--border);
+            border-radius: 26px;
+            transition: 0.3s;
+        }
+        
+        .toggle .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+        
+        .toggle input:checked + .slider {
+            background: var(--primary);
+        }
+        
+        .toggle input:checked + .slider:before {
+            transform: translateX(22px);
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .result-card h2 {
+            color: white;
+            opacity: 0.9;
+            justify-content: center;
+        }
+        
+        .result-amount {
+            font-size: 2.8rem;
+            font-weight: 700;
+            margin: 1rem 0;
+        }
+        
+        .result-range {
+            font-size: 0.95rem;
+            opacity: 0.85;
+            margin-bottom: 1.5rem;
+        }
+        
+        .result-breakdown {
+            background: rgba(255,255,255,0.15);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: left;
+        }
+        
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            font-size: 0.9rem;
+        }
+        
+        .breakdown-row.total {
+            border-top: 1px solid rgba(255,255,255,0.3);
+            margin-top: 0.5rem;
+            padding-top: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .monthly-card {
+            margin-top: 1.5rem;
+        }
+        
+        .monthly-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .monthly-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 8px;
+        }
+        
+        .monthly-item .rate {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+        
+        .monthly-item .amount {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        
+        .note {
+            background: #fff9e6;
+            border-left: 3px solid var(--yellow);
+            padding: 1rem;
+            margin-top: 1.5rem;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.85rem;
+            color: #7a6a00;
+        }
+        
+        .dsr-indicator {
+            margin-top: 1.5rem;
+        }
+        
+        .dsr-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+        
+        .dsr-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s, background 0.3s;
+        }
+        
+        .dsr-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        .dsr-value {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+        
+        .watermark {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        
+        .watermark svg {
+            width: 24px;
+            height: 24px;
+            vertical-align: middle;
+            margin-right: 0.25rem;
+        }
+        
+        .info-tip {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        .applicant-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .applicant-tab {
+            flex: 1;
+            padding: 0.6rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .applicant-tab:hover {
+            border-color: var(--primary);
+        }
+        
+        .applicant-tab.active {
+            border-color: var(--primary);
+            background: rgba(46, 204, 133, 0.1);
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g transform="translate(50, 50)">
+                <path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="white" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/>
+                <path d="M0 -45 L0 -52" stroke="white" stroke-width="6" stroke-linecap="round"/>
+            </g>
+        </svg>
+        <h1>Borrowing Power Estimator</h1>
+        <p>Quick estimate for initial client conversations</p>
+    </div>
+    
+    <div class="container">
+        <div class="grid">
+            <div>
+                <div class="card">
+                    <h2>👤 Applicant Details</h2>
+                    
+                    <div class="applicant-tabs">
+                        <button class="applicant-tab active" data-value="1" onclick="setApplicants(1)">Single</button>
+                        <button class="applicant-tab" data-value="2" onclick="setApplicants(2)">Joint</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Number of Dependants</label>
+                        <select id="dependants" onchange="calculate()">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4+</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 1.5rem;">
+                    <h2>💰 Income (Annual, Before Tax)</h2>
+                    
+                    <div class="form-group">
+                        <label>Base Salary</label>
+                        <input type="text" id="salary" placeholder="$0" oninput="formatCurrency(this); calculate()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Other Income (Bonus, Overtime, etc.)</label>
+                        <input type="text" id="otherIncome" placeholder="$0" oninput="formatCurrency(this); calculate()">
+                        <div class="info-tip">Usually shaded at 80%</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Rental Income (Annual)</label>
+                        <input type="text" id="rentalIncome" placeholder="$0" oninput="formatCurrency(this); calculate()">
+                        <div class="info-tip">Usually shaded at 80%</div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 1.5rem;">
+                    <h2>📋 Existing Commitments</h2>
+                    
+                    <div class="form-group">
+                        <label>Existing Home Loan Balance</label>
+                        <input type="text" id="existingLoan" placeholder="$0" oninput="formatCurrency(this); calculate()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Credit Card Limit (Total)</label>
+                        <input type="text" id="creditCard" placeholder="$0" oninput="formatCurrency(this); calculate()">
+                        <div class="info-tip">3% of limit used for assessment</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Car Loan / Personal Loan (Monthly)</label>
+                        <input type="text" id="otherDebt" placeholder="$0" oninput="formatCurrency(this); calculate()">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>HECS/HELP Debt</label>
+                        <input type="text" id="hecs" placeholder="$0" oninput="formatCurrency(this); calculate()">
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card result-card">
+                    <h2>🎯 Estimated Borrowing Power</h2>
+                    <div class="result-amount" id="borrowingPower">$0</div>
+                    <div class="result-range" id="borrowingRange">Conservative to Optimistic range</div>
+                    
+                    <div class="result-breakdown">
+                        <div class="breakdown-row">
+                            <span>Gross Annual Income</span>
+                            <span id="totalIncome">$0</span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span>Net Monthly Income (est.)</span>
+                            <span id="netMonthly">$0</span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span>Monthly Commitments</span>
+                            <span id="monthlyCommitments">$0</span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span>Living Expenses (HEM)</span>
+                            <span id="livingExpenses">$0</span>
+                        </div>
+                        <div class="breakdown-row total">
+                            <span>Monthly Surplus</span>
+                            <span id="surplus">$0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card" style="margin-top: 1.5rem;">
+                    <div class="dsr-indicator">
+                        <label style="font-size: 0.9rem; color: var(--text-muted);">Debt Servicing Ratio (DSR)</label>
+                        <div class="dsr-value" id="dsrValue">0%</div>
+                        <div class="dsr-bar">
+                            <div class="dsr-fill" id="dsrFill" style="width: 0%;"></div>
+                        </div>
+                        <div class="dsr-labels">
+                            <span>Comfortable</span>
+                            <span>Moderate</span>
+                            <span>Stretched</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card monthly-card">
+                    <h2>📊 Monthly Repayments at Estimated Max</h2>
+                    <div class="monthly-grid">
+                        <div class="monthly-item">
+                            <div class="rate">@ 5.5%</div>
+                            <div class="amount" id="repay55">$0</div>
+                        </div>
+                        <div class="monthly-item">
+                            <div class="rate">@ 6.0%</div>
+                            <div class="amount" id="repay60">$0</div>
+                        </div>
+                        <div class="monthly-item">
+                            <div class="rate">@ 6.5%</div>
+                            <div class="amount" id="repay65">$0</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="note">
+                    <strong>⚠️ Estimate Only:</strong> This is a rough guide for initial conversations. Actual borrowing power depends on lender policies, credit history, property type, and full serviceability assessment. Always run formal serviceability before quoting clients.
+                </div>
+            </div>
+        </div>
+        
+        <div class="watermark">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g transform="translate(50, 50)">
+                    <path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="#2ECC85" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/>
+                    <path d="M0 -45 L0 -52" stroke="#2ECC85" stroke-width="6" stroke-linecap="round"/>
+                </g>
+            </svg>
+            Oney & Co — Nightly Build 2026-02-08
+        </div>
+    </div>
+    
+    <script>
+        let applicants = 1;
+        
+        // HEM (Household Expenditure Measure) approximations - simplified
+        const hemTable = {
+            1: { 0: 1600, 1: 2000, 2: 2300, 3: 2600, 4: 2900 },
+            2: { 0: 2400, 1: 2800, 2: 3100, 3: 3400, 4: 3700 }
+        };
+        
+        function setApplicants(num) {
+            applicants = num;
+            document.querySelectorAll('.applicant-tab').forEach(tab => {
+                tab.classList.toggle('active', parseInt(tab.dataset.value) === num);
+            });
+            calculate();
+        }
+        
+        function parseCurrency(value) {
+            return parseFloat(value.replace(/[^0-9.-]/g, '')) || 0;
+        }
+        
+        function formatCurrency(input) {
+            let value = input.value.replace(/[^0-9]/g, '');
+            if (value) {
+                value = parseInt(value).toLocaleString('en-AU');
+                input.value = '$' + value;
+            }
+        }
+        
+        function formatMoney(amount) {
+            return '$' + Math.round(amount).toLocaleString('en-AU');
+        }
+        
+        function calculateMonthlyRepayment(principal, annualRate, years = 30) {
+            const monthlyRate = annualRate / 100 / 12;
+            const numPayments = years * 12;
+            if (monthlyRate === 0) return principal / numPayments;
+            return principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / (Math.pow(1 + monthlyRate, numPayments) - 1);
+        }
+        
+        function estimateNetIncome(gross) {
+            // Simplified Australian tax calculation
+            let tax = 0;
+            if (gross > 190000) {
+                tax = 51667 + (gross - 190000) * 0.45;
+            } else if (gross > 135000) {
+                tax = 31288 + (gross - 135000) * 0.37;
+            } else if (gross > 45000) {
+                tax = 5092 + (gross - 45000) * 0.30;
+            } else if (gross > 18200) {
+                tax = (gross - 18200) * 0.19;
+            }
+            // Add Medicare levy ~2%
+            tax += gross * 0.02;
+            return (gross - tax) / 12;
+        }
+        
+        function calculate() {
+            // Get inputs
+            const salary = parseCurrency(document.getElementById('salary').value);
+            const otherIncome = parseCurrency(document.getElementById('otherIncome').value) * 0.8;
+            const rentalIncome = parseCurrency(document.getElementById('rentalIncome').value) * 0.8;
+            const existingLoan = parseCurrency(document.getElementById('existingLoan').value);
+            const creditCard = parseCurrency(document.getElementById('creditCard').value);
+            const otherDebt = parseCurrency(document.getElementById('otherDebt').value);
+            const hecs = parseCurrency(document.getElementById('hecs').value);
+            const dependants = parseInt(document.getElementById('dependants').value);
+            
+            // Calculate totals
+            const grossAnnual = salary + otherIncome + rentalIncome;
+            const netMonthly = estimateNetIncome(grossAnnual);
+            
+            // Monthly commitments
+            const existingLoanMonthly = existingLoan > 0 ? calculateMonthlyRepayment(existingLoan, 8.5) : 0; // Assessment rate
+            const creditCardMonthly = creditCard * 0.03; // 3% of limit
+            const hecsMonthly = hecs > 0 ? (grossAnnual * 0.05) / 12 : 0; // Rough HECS repayment
+            const totalCommitments = existingLoanMonthly + creditCardMonthly + otherDebt + hecsMonthly;
+            
+            // Living expenses (HEM)
+            const hem = hemTable[applicants][Math.min(dependants, 4)];
+            
+            // Monthly surplus
+            const surplus = netMonthly - totalCommitments - hem;
+            
+            // Borrowing power (based on surplus at assessment rate ~8-9%)
+            const assessmentRate = 8.5;
+            let borrowingPower = 0;
+            
+            if (surplus > 0) {
+                // Reverse engineer: what principal gives this monthly payment at assessment rate?
+                const monthlyRate = assessmentRate / 100 / 12;
+                const numPayments = 30 * 12;
+                borrowingPower = surplus * (Math.pow(1 + monthlyRate, numPayments) - 1) / (monthlyRate * Math.pow(1 + monthlyRate, numPayments));
+            }
+            
+            // Cap at reasonable multipliers
+            const maxMultiple = applicants === 1 ? 6 : 5.5;
+            const multipleCap = grossAnnual * maxMultiple;
+            borrowingPower = Math.min(borrowingPower, multipleCap);
+            borrowingPower = Math.max(borrowingPower, 0);
+            
+            // Conservative and optimistic
+            const conservative = borrowingPower * 0.85;
+            const optimistic = borrowingPower * 1.1;
+            
+            // DSR (Debt Servicing Ratio)
+            const proposedMonthly = borrowingPower > 0 ? calculateMonthlyRepayment(borrowingPower, assessmentRate) : 0;
+            const totalDebtService = proposedMonthly + totalCommitments;
+            const dsr = netMonthly > 0 ? (totalDebtService / netMonthly) * 100 : 0;
+            
+            // Update UI
+            document.getElementById('borrowingPower').textContent = formatMoney(borrowingPower);
+            document.getElementById('borrowingRange').textContent = `Range: ${formatMoney(conservative)} — ${formatMoney(optimistic)}`;
+            document.getElementById('totalIncome').textContent = formatMoney(grossAnnual);
+            document.getElementById('netMonthly').textContent = formatMoney(netMonthly);
+            document.getElementById('monthlyCommitments').textContent = formatMoney(totalCommitments);
+            document.getElementById('livingExpenses').textContent = formatMoney(hem);
+            document.getElementById('surplus').textContent = formatMoney(surplus);
+            
+            // DSR
+            document.getElementById('dsrValue').textContent = dsr.toFixed(1) + '%';
+            const dsrFill = document.getElementById('dsrFill');
+            dsrFill.style.width = Math.min(dsr, 100) + '%';
+            if (dsr < 35) {
+                dsrFill.style.background = '#2ECC85';
+            } else if (dsr < 50) {
+                dsrFill.style.background = '#f39c12';
+            } else {
+                dsrFill.style.background = '#e74c3c';
+            }
+            
+            // Monthly repayments
+            document.getElementById('repay55').textContent = formatMoney(calculateMonthlyRepayment(borrowingPower, 5.5));
+            document.getElementById('repay60').textContent = formatMoney(calculateMonthlyRepayment(borrowingPower, 6.0));
+            document.getElementById('repay65').textContent = formatMoney(calculateMonthlyRepayment(borrowingPower, 6.5));
+        }
+        
+        // Initial calculation
+        calculate();
+    </script>
+</body>
+</html>
