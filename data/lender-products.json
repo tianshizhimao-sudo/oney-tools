@@ -1,0 +1,65 @@
+{
+  "version": "1.0",
+  "updatedAt": "2026-02-24",
+  "source": "oney-tools",
+  "data": {
+    "note": "Live rate data is in data/rates.json (auto-fetched from Open Banking APIs). This file contains static lender product metadata for comparison tools.",
+    "categories": [
+      {
+        "id": "major-banks",
+        "name": "Major Banks",
+        "lenders": ["CBA", "Westpac", "NAB", "ANZ"],
+        "characteristics": {
+          "rateRange": "5.5%-6.5%",
+          "approval": "5-10 business days",
+          "criteria": "strict",
+          "docType": "full-doc"
+        }
+      },
+      {
+        "id": "non-major-banks",
+        "name": "Non-Major Banks",
+        "lenders": ["Macquarie", "ING", "Bankwest", "Suncorp"],
+        "characteristics": {
+          "rateRange": "5.7%-6.8%",
+          "approval": "3-7 business days",
+          "criteria": "moderate",
+          "docType": "full-doc"
+        }
+      },
+      {
+        "id": "non-bank",
+        "name": "Non-Bank Lenders",
+        "lenders": ["Pepper", "Liberty", "La Trobe", "Resimac"],
+        "characteristics": {
+          "rateRange": "6.5%-9.0%",
+          "approval": "2-5 business days",
+          "criteria": "flexible",
+          "docType": "full-doc / alt-doc"
+        }
+      },
+      {
+        "id": "private",
+        "name": "Private Lenders",
+        "lenders": ["Private Funding"],
+        "characteristics": {
+          "rateRange": "9.0%-15.0%",
+          "approval": "24-48 hours",
+          "criteria": "asset-based",
+          "docType": "minimal"
+        }
+      }
+    ],
+    "comparisonFactors": [
+      "interestRate",
+      "comparisonRate",
+      "repaymentType",
+      "maxLVR",
+      "offsetAccount",
+      "redrawFacility",
+      "fixedRateOptions",
+      "fees",
+      "approvalSpeed"
+    ]
+  }
+}

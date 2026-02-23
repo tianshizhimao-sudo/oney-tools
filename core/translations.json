@@ -1,0 +1,613 @@
+{
+  "version": "1.0",
+  "updatedAt": "2026-02-24",
+  "locale": "zh-CN",
+  "common": {
+    "calculate": "计算",
+    "reset": "重置",
+    "result": "结果",
+    "results": "结果",
+    "download": "下载",
+    "share": "分享",
+    "save": "保存",
+    "delete": "删除",
+    "edit": "编辑",
+    "add": "添加",
+    "remove": "移除",
+    "close": "关闭",
+    "back": "返回",
+    "next": "下一步",
+    "previous": "上一步",
+    "submit": "提交",
+    "cancel": "取消",
+    "loading": "加载中...",
+    "error": "错误",
+    "success": "成功",
+    "warning": "警告",
+    "info": "信息",
+    "yes": "是",
+    "no": "否",
+    "total": "总计",
+    "monthly": "每月",
+    "annually": "每年",
+    "weekly": "每周",
+    "fortnightly": "每两周",
+    "years": "年",
+    "months": "月",
+    "days": "天",
+    "loanAmount": "贷款金额",
+    "interestRate": "利率",
+    "loanTerm": "贷款期限",
+    "propertyValue": "房产价值",
+    "deposit": "首付",
+    "repayment": "还款",
+    "principalAndInterest": "本金加利息",
+    "interestOnly": "只还利息",
+    "ownerOccupied": "自住",
+    "investment": "投资",
+    "variable": "浮动利率",
+    "fixed": "固定利率",
+    "comparison": "比较",
+    "summary": "摘要",
+    "details": "详情",
+    "exportPDF": "导出 PDF",
+    "print": "打印",
+    "copyLink": "复制链接",
+    "poweredBy": "由 Oney & Co 提供",
+    "disclaimer": "免责声明",
+    "estimateOnly": "仅供参考",
+    "contactBroker": "联系贷款经纪人",
+    "learnMore": "了解更多",
+    "perMonth": "每月",
+    "perYear": "每年",
+    "perWeek": "每周"
+  },
+  "fhc": {
+    "title": "财务健康检查（个人与中小企业）",
+    "subtitle": "5分钟免费财务健康评估，了解您的贷款申请状况",
+    "labels": {
+      "startAssessment": "开始评估",
+      "viewReport": "查看报告",
+      "overallScore": "总体评分",
+      "incomeStability": "收入稳定性",
+      "savingsHabit": "储蓄习惯",
+      "debtManagement": "债务管理",
+      "creditHealth": "信用健康"
+    }
+  },
+  "fhc-sme": {
+    "title": "财务健康检查（扩展版）",
+    "subtitle": "更深入的财务健康评估，适合需要全面了解的客户",
+    "labels": {
+      "businessRevenue": "营业收入",
+      "businessExpenses": "营业支出",
+      "profitMargin": "利润率",
+      "cashFlow": "现金流",
+      "assetBase": "资产基础"
+    }
+  },
+  "ef-tool": {
+    "title": "设备融资计算器",
+    "subtitle": "计算设备融资还款、尾款及租赁与购买对比",
+    "labels": {
+      "equipmentCost": "设备成本",
+      "depositAmount": "首付金额",
+      "balloonPayment": "尾款（气球贷）",
+      "financeType": "融资类型",
+      "chattelMortgage": "动产抵押",
+      "financeLease": "融资租赁",
+      "operatingLease": "经营租赁",
+      "monthlyRepayment": "每月还款",
+      "totalInterest": "总利息",
+      "totalCost": "总成本",
+      "leaseVsBuy": "租赁 vs 购买"
+    }
+  },
+  "rba-tracker": {
+    "title": "RBA 利率与 CPI 追踪器",
+    "subtitle": "现金利率历史、CPI 数据及影响计算",
+    "labels": {
+      "currentCashRate": "当前现金利率",
+      "nextMeeting": "下次会议",
+      "rateHistory": "利率历史",
+      "cpiData": "CPI 数据",
+      "impactCalculator": "影响计算器",
+      "rateChange": "利率变动",
+      "monthlyImpact": "每月影响"
+    }
+  },
+  "quick-quote-calculator": {
+    "title": "快速报价计算器",
+    "subtitle": "快速生成贷款报价，提供还款估算",
+    "labels": {
+      "clientName": "客户姓名",
+      "purchasePrice": "购买价格",
+      "generateQuote": "生成报价",
+      "quoteNumber": "报价编号",
+      "monthlyRepayment": "每月还款",
+      "totalRepayment": "总还款额",
+      "shareQuote": "分享报价"
+    }
+  },
+  "borrowing-power-estimator": {
+    "title": "借款能力估算器",
+    "subtitle": "根据收入、支出和负债估算可借金额",
+    "labels": {
+      "grossIncome": "税前收入",
+      "otherIncome": "其他收入",
+      "rentalIncome": "租金收入",
+      "livingExpenses": "生活支出",
+      "existingLoans": "现有贷款",
+      "creditCardLimits": "信用卡额度",
+      "dependants": "受抚养人数",
+      "borrowingPower": "借款能力",
+      "assessmentRate": "评估利率",
+      "debtServiceRatio": "债务偿还比率",
+      "surplus": "盈余",
+      "estimateOnly": "仅供估算"
+    }
+  },
+  "lmi-calculator": {
+    "title": "贷款保险计算器",
+    "subtitle": "根据贷款金额和 LVR 估算贷款保险费用",
+    "labels": {
+      "loanAmount": "贷款金额",
+      "propertyValue": "房产价值",
+      "lvr": "LVR（贷款价值比）",
+      "occupancyType": "居住类型",
+      "repaymentType": "还款类型",
+      "lmiPremium": "LMI 保费",
+      "lmiAsPercentage": "保费占比",
+      "depositAmount": "首付金额",
+      "depositPercent": "首付比例",
+      "noLmiRequired": "无需 LMI！",
+      "lmiThreshold": "LMI 门槛",
+      "rateTable": "费率表",
+      "currentBand": "当前区间"
+    }
+  },
+  "loan-scenario-comparator": {
+    "title": "贷款方案对比器",
+    "subtitle": "并排比较多种贷款方案，可视化本金与利息分布",
+    "labels": {
+      "scenario": "方案",
+      "addScenario": "添加方案",
+      "removeScenario": "移除方案",
+      "principalBreakdown": "本金分解",
+      "interestBreakdown": "利息分解",
+      "totalCost": "总成本",
+      "monthlySavings": "每月节省",
+      "totalSavings": "总节省"
+    }
+  },
+  "commission-calculator": {
+    "title": "佣金计算器",
+    "subtitle": "计算贷款交易的前期佣金和尾随佣金",
+    "labels": {
+      "loanAmount": "贷款金额",
+      "upfrontRate": "前期佣金率",
+      "trailingRate": "尾随佣金率",
+      "upfrontCommission": "前期佣金",
+      "trailingCommission": "尾随佣金（年）",
+      "totalFirstYear": "第一年总收入",
+      "dealHistory": "交易记录",
+      "saveDeal": "保存交易"
+    }
+  },
+  "investment-yield-calculator": {
+    "title": "投资收益计算器",
+    "subtitle": "计算毛租金收益率和净租金收益率",
+    "labels": {
+      "purchasePrice": "购买价格",
+      "weeklyRent": "每周租金",
+      "annualExpenses": "年度支出",
+      "councilRates": "市政费",
+      "insurance": "保险",
+      "managementFees": "管理费",
+      "maintenance": "维护费",
+      "grossYield": "毛收益率",
+      "netYield": "净收益率",
+      "annualIncome": "年租金收入",
+      "annualCashflow": "年现金流"
+    }
+  },
+  "offset-calculator": {
+    "title": "对冲账户计算器",
+    "subtitle": "计算对冲账户的利息节省",
+    "labels": {
+      "loanBalance": "贷款余额",
+      "offsetBalance": "对冲账户余额",
+      "interestSaved": "利息节省",
+      "timeSaved": "节省时间",
+      "withOffset": "有对冲",
+      "withoutOffset": "无对冲"
+    }
+  },
+  "refinance-breakeven": {
+    "title": "转贷盈亏平衡计算器",
+    "subtitle": "计算转贷需要多久才能回本",
+    "labels": {
+      "currentRate": "当前利率",
+      "newRate": "新利率",
+      "switchingCosts": "转换成本",
+      "dischargeFee": "解除费",
+      "applicationFee": "申请费",
+      "valuationFee": "估值费",
+      "legalFees": "法律费用",
+      "breakevenPeriod": "盈亏平衡期",
+      "monthlySavings": "每月节省",
+      "totalSavings": "总节省（贷款期限内）"
+    }
+  },
+  "extra-repayment-calculator": {
+    "title": "额外还款计算器",
+    "subtitle": "看看额外还款能节省多少利息和时间",
+    "labels": {
+      "extraMonthly": "每月额外还款",
+      "extraFortnightly": "每两周额外还款",
+      "lumpSum": "一次性还款",
+      "interestSaved": "利息节省",
+      "timeSaved": "节省时间",
+      "newPayoffDate": "新还清日期"
+    }
+  },
+  "stamp-duty-calculator": {
+    "title": "印花税计算器",
+    "subtitle": "计算各州房产印花税及首次置业优惠",
+    "labels": {
+      "state": "州/领地",
+      "purchasePrice": "购买价格",
+      "buyerType": "买家类型",
+      "standard": "普通买家",
+      "firstHomeBuyer": "首次置业者",
+      "foreign": "海外买家",
+      "propertyType": "房产类型",
+      "existingHome": "二手房",
+      "newHome": "新房",
+      "land": "土地",
+      "stampDuty": "印花税",
+      "concession": "减免",
+      "foreignSurcharge": "海外买家附加税",
+      "totalDuty": "总印花税",
+      "stateComparison": "各州对比"
+    }
+  },
+  "split-loan-optimizer": {
+    "title": "分拆贷款优化器",
+    "subtitle": "优化固定与浮动利率的分拆比例",
+    "labels": {
+      "fixedPortion": "固定部分",
+      "variablePortion": "浮动部分",
+      "fixedRate": "固定利率",
+      "variableRate": "浮动利率",
+      "splitRatio": "分拆比例",
+      "blendedRate": "混合利率",
+      "totalRepayment": "总还款"
+    }
+  },
+  "loan-comparison": {
+    "title": "贷款产品对比",
+    "subtitle": "比较不同银行的贷款产品",
+    "labels": {
+      "selectLenders": "选择银行",
+      "compareRates": "比较利率",
+      "features": "产品特点",
+      "fees": "费用",
+      "offset": "对冲账户",
+      "redraw": "重提取",
+      "maxLVR": "最高 LVR",
+      "approvalTime": "审批时间"
+    }
+  },
+  "commercial-servicing-calc": {
+    "title": "商业贷款偿债能力计算器",
+    "subtitle": "评估商业贷款的偿债能力",
+    "labels": {
+      "businessIncome": "营业收入",
+      "addBacks": "加回项",
+      "depreciation": "折旧",
+      "interestExpense": "利息支出",
+      "proposedLoan": "拟申请贷款",
+      "dscr": "DSCR（偿债覆盖率）",
+      "icr": "ICR（利息覆盖率）",
+      "serviceable": "可通过",
+      "notServiceable": "不可通过"
+    }
+  },
+  "commercial-investment-calculator": {
+    "title": "商业投资计算器",
+    "subtitle": "分析商业物业投资回报",
+    "labels": {
+      "purchasePrice": "购买价格",
+      "netIncome": "净收入",
+      "capRate": "资本化率",
+      "roi": "投资回报率",
+      "cashOnCash": "现金回报率",
+      "tenantProfile": "租户概况",
+      "leaseTerms": "租赁条款"
+    }
+  },
+  "specialised-lending-calculator": {
+    "title": "专项贷款计算器",
+    "subtitle": "计算开发贷、过桥贷等专项贷款",
+    "labels": {
+      "loanType": "贷款类型",
+      "developmentFinance": "开发贷款",
+      "bridgingFinance": "过桥贷款",
+      "mezzanineFinance": "夹层融资",
+      "constructionCost": "建设成本",
+      "landValue": "土地价值",
+      "gdv": "GDV（完工总价值）",
+      "feasibility": "可行性"
+    }
+  },
+  "security-test": {
+    "title": "安全测试工具",
+    "subtitle": "测试房产可作为抵押品的资格",
+    "labels": {
+      "propertyType": "房产类型",
+      "zoning": "分区",
+      "titleType": "产权类型",
+      "landArea": "土地面积",
+      "acceptable": "可接受",
+      "restricted": "受限",
+      "notAcceptable": "不可接受",
+      "lenderPolicy": "银行政策"
+    }
+  },
+  "tenancy-schedule": {
+    "title": "租约明细表",
+    "subtitle": "管理商业物业的租户和租约信息",
+    "labels": {
+      "tenant": "租户",
+      "leaseStart": "租约开始",
+      "leaseEnd": "租约到期",
+      "monthlyRent": "月租金",
+      "annualRent": "年租金",
+      "occupancy": "入住率",
+      "wale": "WALE（加权平均租约期限）",
+      "addTenant": "添加租户"
+    }
+  },
+  "flow-visualiser": {
+    "title": "贷款流程可视化",
+    "subtitle": "可视化展示贷款申请流程",
+    "labels": {
+      "preApproval": "预批准",
+      "application": "申请",
+      "assessment": "评估",
+      "approval": "批准",
+      "settlement": "交割",
+      "timeline": "时间线",
+      "currentStep": "当前步骤"
+    }
+  },
+  "rate-tracker": {
+    "title": "利率追踪器",
+    "subtitle": "追踪和比较各银行最新贷款利率",
+    "labels": {
+      "bankRates": "银行利率",
+      "lastUpdated": "最后更新",
+      "ownerOccupied": "自住",
+      "investment": "投资",
+      "variableRates": "浮动利率",
+      "fixedRates": "固定利率",
+      "comparisonRate": "比较利率"
+    }
+  },
+  "rate-tracker-competitor": {
+    "title": "竞争对手利率追踪",
+    "subtitle": "监控竞争对手的利率变动",
+    "labels": {
+      "competitor": "竞争对手",
+      "ourRate": "我们的利率",
+      "theirRate": "他们的利率",
+      "difference": "差异",
+      "addCompetitor": "添加竞争对手",
+      "priceMatch": "价格匹配"
+    }
+  },
+  "meeting-notes": {
+    "title": "会议记录",
+    "subtitle": "结构化记录客户会议内容和行动项",
+    "labels": {
+      "meetingDate": "会议日期",
+      "clientName": "客户姓名",
+      "attendees": "参会人员",
+      "agenda": "议程",
+      "notes": "记录",
+      "actionItems": "行动项",
+      "followUp": "跟进事项",
+      "saveMeeting": "保存会议"
+    }
+  },
+  "lead-capture": {
+    "title": "潜在客户获取",
+    "subtitle": "记录和管理潜在客户信息",
+    "labels": {
+      "leadName": "客户姓名",
+      "phone": "电话",
+      "email": "邮箱",
+      "source": "来源",
+      "loanPurpose": "贷款目的",
+      "estimatedAmount": "预计金额",
+      "status": "状态",
+      "new": "新客户",
+      "contacted": "已联系",
+      "qualified": "已资格审查",
+      "converted": "已转化"
+    }
+  },
+  "client-pipeline": {
+    "title": "客户管道",
+    "subtitle": "可视化管理贷款申请进度",
+    "labels": {
+      "enquiry": "咨询",
+      "preApproval": "预批准",
+      "submitted": "已提交",
+      "conditional": "有条件批准",
+      "unconditional": "无条件批准",
+      "settled": "已交割",
+      "totalValue": "总价值",
+      "moveStage": "移至下一阶段"
+    }
+  },
+  "credit-paper-lite": {
+    "title": "信贷审批简报（精简版）",
+    "subtitle": "快速生成贷款审批简报",
+    "labels": {
+      "borrower": "借款人",
+      "loanPurpose": "贷款目的",
+      "securityDetails": "抵押品详情",
+      "incomeDetails": "收入详情",
+      "recommendation": "建议",
+      "riskAssessment": "风险评估",
+      "generateReport": "生成报告"
+    }
+  },
+  "creditsheet": {
+    "title": "信贷工作表",
+    "subtitle": "完整的信贷分析工作表",
+    "labels": {
+      "applicant": "申请人",
+      "coApplicant": "共同申请人",
+      "employmentDetails": "就业详情",
+      "assets": "资产",
+      "liabilities": "负债",
+      "netPosition": "净资产",
+      "affordability": "可负担性",
+      "compliance": "合规性"
+    }
+  },
+  "client-tracker": {
+    "title": "客户追踪器",
+    "subtitle": "追踪和管理所有客户信息",
+    "labels": {
+      "clientName": "客户姓名",
+      "loanStatus": "贷款状态",
+      "settleDate": "交割日期",
+      "lastContact": "最后联系",
+      "nextAction": "下一步行动",
+      "totalClients": "总客户数",
+      "activeLoans": "活跃贷款"
+    }
+  },
+  "email-template-generator": {
+    "title": "邮件模板生成器",
+    "subtitle": "快速生成专业贷款沟通邮件",
+    "labels": {
+      "templateType": "模板类型",
+      "welcome": "欢迎邮件",
+      "followUp": "跟进邮件",
+      "preApproval": "预批准通知",
+      "settlement": "交割通知",
+      "rateChange": "利率变动通知",
+      "clientName": "客户姓名",
+      "generateEmail": "生成邮件",
+      "copyToClipboard": "复制到剪贴板"
+    }
+  },
+  "daily-task-prioritizer": {
+    "title": "每日任务优先排序",
+    "subtitle": "使用优先级矩阵管理每日任务",
+    "labels": {
+      "taskName": "任务名称",
+      "priority": "优先级",
+      "urgent": "紧急",
+      "important": "重要",
+      "dueDate": "截止日期",
+      "completed": "已完成",
+      "pending": "待处理",
+      "addTask": "添加任务"
+    }
+  },
+  "document-checklist": {
+    "title": "文件清单",
+    "subtitle": "贷款申请所需文件清单",
+    "labels": {
+      "documentType": "文件类型",
+      "identity": "身份证明",
+      "income": "收入证明",
+      "assets": "资产证明",
+      "liabilities": "负债证明",
+      "property": "房产文件",
+      "received": "已收到",
+      "pending": "待提供",
+      "notRequired": "不需要",
+      "sendReminder": "发送提醒"
+    }
+  },
+  "settlement-timeline": {
+    "title": "交割时间线",
+    "subtitle": "追踪贷款从申请到交割的每个步骤",
+    "labels": {
+      "applicationDate": "申请日期",
+      "valuationOrdered": "已安排估值",
+      "valuationReceived": "已收到估值",
+      "conditionalApproval": "有条件批准",
+      "unconditionalApproval": "无条件批准",
+      "documentsSigned": "文件已签署",
+      "settlementBooked": "交割已预约",
+      "settled": "已交割",
+      "daysRemaining": "剩余天数"
+    }
+  },
+  "referral-source-tracker": {
+    "title": "推荐来源追踪器",
+    "subtitle": "追踪和分析客户推荐来源",
+    "labels": {
+      "referralSource": "推荐来源",
+      "realEstate": "房产中介",
+      "accountant": "会计师",
+      "financialPlanner": "理财师",
+      "existingClient": "现有客户",
+      "online": "线上",
+      "totalReferrals": "总推荐数",
+      "conversionRate": "转化率",
+      "revenueGenerated": "产生收入"
+    }
+  },
+  "client-birthday-reminder": {
+    "title": "客户生日提醒",
+    "subtitle": "记录客户生日，维护客户关系",
+    "labels": {
+      "clientName": "客户姓名",
+      "birthday": "生日",
+      "upcomingBirthdays": "即将到来的生日",
+      "sendWishes": "发送祝福",
+      "daysUntil": "还有几天",
+      "addClient": "添加客户"
+    }
+  },
+  "client-followup-scheduler": {
+    "title": "客户跟进日程",
+    "subtitle": "安排和管理客户跟进任务",
+    "labels": {
+      "clientName": "客户姓名",
+      "followUpDate": "跟进日期",
+      "followUpType": "跟进类型",
+      "call": "电话",
+      "email": "邮件",
+      "meeting": "会议",
+      "notes": "备注",
+      "overdue": "逾期",
+      "upcoming": "即将到来",
+      "completed": "已完成"
+    }
+  },
+  "fixed-rate-expiry-tracker": {
+    "title": "固定利率到期追踪",
+    "subtitle": "追踪客户固定利率贷款的到期日",
+    "labels": {
+      "clientName": "客户姓名",
+      "lender": "银行",
+      "fixedRate": "固定利率",
+      "expiryDate": "到期日期",
+      "loanBalance": "贷款余额",
+      "daysToExpiry": "距到期天数",
+      "revertRate": "回归利率",
+      "potentialSavings": "潜在节省",
+      "contactClient": "联系客户"
+    }
+  }
+}

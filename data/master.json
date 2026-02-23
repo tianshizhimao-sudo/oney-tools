@@ -1,0 +1,63 @@
+{
+  "version": "1.0",
+  "updatedAt": "2026-02-24",
+  "source": "oney-tools",
+  "data": {
+    "files": [
+      {
+        "id": "stamp-duty",
+        "path": "data/stamp-duty.json",
+        "description": "Stamp duty rates and FHB concessions for all Australian states/territories",
+        "usedBy": ["stamp-duty-calculator"]
+      },
+      {
+        "id": "lmi-rates",
+        "path": "data/lmi-rates.json",
+        "description": "LMI premium rates by LVR band, loan size, occupancy type, and repayment type",
+        "usedBy": ["lmi-calculator"]
+      },
+      {
+        "id": "serviceability",
+        "path": "data/serviceability.json",
+        "description": "Stress test parameters, HEM benchmarks, DSR limits, and income shading by lender",
+        "usedBy": ["borrowing-power-estimator", "commercial-servicing-calc"]
+      },
+      {
+        "id": "lender-products",
+        "path": "data/lender-products.json",
+        "description": "Static lender product metadata for comparison tools",
+        "usedBy": ["loan-comparison", "loan-scenario-comparator"]
+      },
+      {
+        "id": "rates",
+        "path": "data/rates.json",
+        "description": "Live mortgage rates from Open Banking APIs (auto-fetched)",
+        "usedBy": ["rate-tracker", "rate-tracker-competitor", "loan-comparison"]
+      },
+      {
+        "id": "lenders",
+        "path": "data/lenders.json",
+        "description": "Lender profiles for specialised/commercial lending",
+        "usedBy": ["specialised-lending-calculator", "commercial-investment-calculator"]
+      },
+      {
+        "id": "servicing-standards",
+        "path": "data/servicing-standards.json",
+        "description": "Bank serviceability assessment standards",
+        "usedBy": ["borrowing-power-estimator", "commercial-servicing-calc"]
+      },
+      {
+        "id": "tools-registry",
+        "path": "data/tools-registry.json",
+        "description": "Master registry of all tools with metadata",
+        "usedBy": ["index", "tools"]
+      },
+      {
+        "id": "translations",
+        "path": "core/translations.json",
+        "description": "Chinese (zh-CN) translations for all tool UI text — not yet integrated",
+        "usedBy": []
+      }
+    ]
+  }
+}

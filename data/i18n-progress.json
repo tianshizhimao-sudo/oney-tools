@@ -1,0 +1,15 @@
+{
+  "status": "translations-ready",
+  "completedAt": "2026-02-24",
+  "note": "Translations in core/translations.json, not yet integrated into HTML",
+  "dataFiles": [
+    "data/stamp-duty.json",
+    "data/lmi-rates.json",
+    "data/serviceability.json",
+    "data/lender-products.json",
+    "data/master.json"
+  ],
+  "translationFile": "core/translations.json",
+  "toolsCovered": 38,
+  "locale": "zh-CN"
+}
