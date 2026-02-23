@@ -294,12 +294,12 @@
   </div>
 
   <script>
-    const CATEGORY_ORDER = ['Health Check', 'Commercial', 'Calculators', 'Workflow Tools'];
+    const CATEGORY_ORDER = ['Health Check', 'Calculators', 'Commercial', 'Broker/Banker Workflow Tools'];
     const CATEGORY_ICONS = {
       'Health Check': '\ud83d\udc9a',
-      'Commercial': '\ud83c\udfe2',
       'Calculators': '\ud83e\uddee',
-      'Workflow Tools': '\ud83d\udee0\ufe0f'
+      'Commercial': '\ud83c\udfe2',
+      'Broker/Banker Workflow Tools': '\ud83d\udee0\ufe0f'
     };
 
     let allTools = [];
@@ -334,6 +334,10 @@
         if (!grouped[t.category]) grouped[t.category] = [];
         grouped[t.category].push(t);
       }
+      // Sort within each category: free first, paid last
+      for (const cat of CATEGORY_ORDER) {
+        if (grouped[cat]) grouped[cat].sort((a, b) => (b.free ? 1 : 0) - (a.free ? 1 : 0));
+      }
 
       let html = '';
       for (const cat of CATEGORY_ORDER) {
@@ -363,7 +367,10 @@
       else badge = '<span class="tool-badge badge-free">Free</span>';
 
       const tag = t.url ? 'a' : 'div';
-      const href = t.url ? ' href="' + t.url + '"' : ' style="opacity:0.6;pointer-events:none"';
+      const isExternal = t.external || (t.url && t.url.startsWith('http'));
+      const href = t.url
+        ? ' href="' + t.url + '"' + (isExternal ? ' target="_blank" rel="noopener"' : '')
+        : ' style="opacity:0.6;pointer-events:none"';
 
       return '<' + tag + href + ' class="' + cls.join(' ') + '">' +
         '<div class="tool-icon">' + (t.icon || '') + '</div>' +

@@ -625,12 +625,6 @@ td input.computed {
 /* File input hidden */
 #csvFileInput { display: none; }
 </style>
-  <meta property="og:title" content="Tenancy Schedule — Oney & Co Tools">
-  <meta property="og:description" content="Free Tenancy Schedule tool for Australian mortgage brokers — by Oney & Co">
-  <meta property="og:image" content="https://tools.oneyco.com.au/assets/og-image.png">
-  <meta property="og:url" content="https://tools.oneyco.com.au/tenancy-schedule.html">
-  <meta property="og:type" content="website">
-  <link rel="canonical" href="https://tools.oneyco.com.au/tenancy-schedule.html">
 </head>
 <body data-theme="dark">
 
@@ -638,28 +632,327 @@ td input.computed {
 <header class="app-header">
   <div class="header-inner">
     <div class="logo-section">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 195 80" style="height:44px;width:auto;">
+      <a href="https://oneyco.com.au" style="text-decoration:none;display:flex;align-items:center;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 195 80" style="height:40px;width:auto;">
           <defs>
-            <linearGradient id="fillGradL1" x1="0%" y1="100%" x2="0%" y2="0%">
+            <linearGradient id="tsFillGrad" x1="0%" y1="100%" x2="0%" y2="0%">
               <stop offset="0%" style="stop-color:#1FAD73"/>
               <stop offset="55%" style="stop-color:#2ECC85"/>
               <stop offset="55%" style="stop-color:transparent"/>
               <stop offset="100%" style="stop-color:transparent"/>
             </linearGradient>
-            <linearGradient id="strokeGradL1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <linearGradient id="tsStrokeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" style="stop-color:#2ECC85"/>
               <stop offset="100%" style="stop-color:#1FAD73"/>
             </linearGradient>
           </defs>
           <g transform="translate(40, 45)">
-            <circle cx="0" cy="0" r="32" fill="none" stroke="url(#strokeGradL1)" stroke-width="7"/>
-            <circle cx="0" cy="0" r="24" fill="url(#fillGradL1)"/>
+            <circle cx="0" cy="0" r="32" fill="none" stroke="url(#tsStrokeGrad)" stroke-width="7"/>
+            <circle cx="0" cy="0" r="24" fill="url(#tsFillGrad)"/>
           </g>
-          <text x="82" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#1a1a1a" letter-spacing="-0.5">ney</text>
-          <text x="129" y="52" font-family="Inter, system-ui, sans-serif" font-size="21" font-weight="500" fill="url(#strokeGradL1)">&amp;</text>
-          <text x="148" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#1a1a1a" letter-spacing="-0.5">co</text>
+          <text x="82" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">ney</text>
+          <text x="129" y="52" font-family="Inter, system-ui, sans-serif" font-size="21" font-weight="500" fill="url(#tsStrokeGrad)">&amp;</text>
+          <text x="148" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">co</text>
           <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
-        </svg></button></td>
+        </svg>
+      </a>
+    </div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-icon" onclick="toggleTheme()" title="Toggle theme">
+        <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+      <button class="btn" onclick="document.getElementById('csvFileInput').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        <span class="btn-text">Import CSV</span>
+      </button>
+      <input type="file" id="csvFileInput" accept=".csv" onchange="importCSV(event)">
+      <div style="position:relative">
+        <button class="btn" onclick="toggleExportMenu()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          <span class="btn-text">Export</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div id="exportMenu" style="display:none;position:absolute;right:0;top:100%;margin-top:4px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,0.2);z-index:50;min-width:150px;">
+          <button class="btn" style="border:none;border-radius:0;width:100%;justify-content:flex-start;padding:10px 16px" onclick="exportCSV()">📄 Export CSV</button>
+          <button class="btn" style="border:none;border-radius:0;width:100%;justify-content:flex-start;padding:10px 16px" onclick="exportJSON()">📋 Export JSON</button>
+          <button class="btn" style="border:none;border-radius:0;width:100%;justify-content:flex-start;padding:10px 16px" onclick="exportPDF()">📑 Export PDF</button>
+        </div>
+      </div>
+      <button class="btn btn-danger" onclick="confirmClearAll()" title="Clear all data">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== PROPERTY INFO BAR ===== -->
+<div class="property-bar">
+  <div class="property-bar-inner">
+    <div class="property-field">
+      <label>Property</label>
+      <input type="text" id="propName" class="wide" placeholder="e.g. 123 Collins Street, Melbourne" oninput="saveData()">
+    </div>
+    <div class="property-field">
+      <label>Owner</label>
+      <input type="text" id="propOwner" class="medium" placeholder="e.g. ABC Trust" oninput="saveData()">
+    </div>
+    <div class="property-field">
+      <label>Total NLA</label>
+      <input type="number" id="propNLA" class="narrow" placeholder="sqm" oninput="recalcAll()">
+    </div>
+    <div class="property-field">
+      <label>As at</label>
+      <input type="date" id="propDate" class="narrow" oninput="recalcAll()">
+    </div>
+  </div>
+</div>
+
+<!-- ===== KPI DASHBOARD ===== -->
+<div class="dashboard">
+  <div class="kpi-card">
+    <div class="kpi-label">Total Passing Rent</div>
+    <div class="kpi-value" id="kpiTotalRent">$0</div>
+    <div class="kpi-sub">per annum</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">WALE (by Income)</div>
+    <div class="kpi-value" id="kpiWaleIncome">0.0</div>
+    <div class="kpi-sub">years</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">WALE (by Area)</div>
+    <div class="kpi-value" id="kpiWaleArea">0.0</div>
+    <div class="kpi-sub">years</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Occupancy</div>
+    <div class="kpi-value" id="kpiOccupancy">0%</div>
+    <div class="kpi-sub" id="kpiOccSub">0 / 0 sqm</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Avg Rent / sqm</div>
+    <div class="kpi-value" id="kpiAvgRent">$0</div>
+    <div class="kpi-sub">per annum</div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Tenancies</div>
+    <div class="kpi-value" id="kpiTenancies">0</div>
+    <div class="kpi-sub" id="kpiTenSub">active leases</div>
+  </div>
+</div>
+
+<!-- ===== TENANCY TABLE ===== -->
+<div class="table-section">
+  <div class="table-toolbar">
+    <div class="table-toolbar-left">
+      <button class="btn btn-primary" onclick="addRow()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        Add Tenant
+      </button>
+      <button class="btn" onclick="addSampleData()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg>
+        <span class="btn-text">Sample Data</span>
+      </button>
+    </div>
+    <div class="table-toolbar-right">
+      <span style="font-size:11px;color:var(--text-muted)" id="rowCount">0 rows</span>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table id="tenancyTable">
+      <thead>
+        <tr>
+          <th style="width:30px">#</th>
+          <th style="min-width:140px">Tenant</th>
+          <th style="min-width:80px">Suite</th>
+          <th style="min-width:80px">Area (sqm)</th>
+          <th style="min-width:120px">Lease Start</th>
+          <th style="min-width:120px">Lease Expiry</th>
+          <th style="min-width:90px">Options</th>
+          <th style="min-width:110px">Passing Rent ($)</th>
+          <th style="min-width:80px">$/sqm</th>
+          <th style="min-width:100px">Review Type</th>
+          <th style="min-width:120px">Review Date</th>
+          <th style="min-width:100px">Outgoings</th>
+          <th style="min-width:100px">Bond ($)</th>
+          <th style="min-width:140px">Notes</th>
+          <th style="width:36px"></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== LEASE EXPIRY TIMELINE ===== -->
+<div class="timeline-section">
+  <div class="section-title">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Lease Expiry Timeline
+  </div>
+  <div class="timeline-card">
+    <canvas id="timelineCanvas" class="timeline-canvas"></canvas>
+    <div class="timeline-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#2ECC85"></div> Active (>2 yrs)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ffc107"></div> Expiring (<2 yrs)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ff6b6b"></div> Critical (<6 mths)</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#6c9dff"></div> Expired / Holdover</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="app-footer">
+  <p>Tenancy Schedule V1 — Built by <a href="https://oney.co" target="_blank">Oney & Co</a> · Free for commercial use · Data stored locally in your browser</p>
+</footer>
+
+<!-- ===== MODAL ===== -->
+<div class="modal-overlay" id="clearModal">
+  <div class="modal">
+    <h3>⚠️ Clear All Data?</h3>
+    <p>This will remove all tenancy data and property information. This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeClearModal()">Cancel</button>
+      <button class="btn btn-danger" onclick="clearAll()">Clear All</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST CONTAINER ===== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+/* ============================================
+   ONEY TENANCY SCHEDULE — CORE ENGINE
+   ============================================ */
+
+// ===== CONSTANTS =====
+const STORAGE_KEY = 'oney_tenancy_schedule_v1';
+const REVIEW_TYPES = ['CPI', 'Fixed %', 'Market', 'CPI + Fixed', 'Other'];
+const OUTGOING_TYPES = ['Net', 'Gross', 'Semi-Gross'];
+const COLORS = {
+  active: '#2ECC85',
+  expiring: '#ffc107',
+  critical: '#ff6b6b',
+  expired: '#6c9dff',
+  grid: 'rgba(150,150,150,0.15)',
+  text: null // set dynamically
+};
+
+// ===== STATE =====
+let rows = [];
+let nextId = 1;
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', () => {
+  // Set today's date as default
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('propDate').value = today;
+
+  loadData();
+  if (rows.length === 0) addRow(); // Start with one empty row
+  renderAll();
+});
+
+// ===== THEME =====
+function toggleTheme() {
+  const body = document.body;
+  const current = body.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  body.setAttribute('data-theme', next);
+  localStorage.setItem('oney_ts_theme', next);
+  updateThemeIcon(next);
+  drawTimeline();
+}
+
+function updateThemeIcon(theme) {
+  const icon = document.getElementById('themeIcon');
+  if (theme === 'light') {
+    icon.innerHTML = '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>';
+  } else {
+    icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  }
+}
+
+// Load saved theme
+(function() {
+  const saved = localStorage.getItem('oney_ts_theme');
+  if (saved) {
+    document.body.setAttribute('data-theme', saved);
+    updateThemeIcon(saved);
+  }
+})();
+
+// ===== ROW MANAGEMENT =====
+function createEmptyRow() {
+  return {
+    id: nextId++,
+    tenant: '',
+    suite: '',
+    area: '',
+    leaseStart: '',
+    leaseExpiry: '',
+    options: '',
+    rent: '',
+    reviewType: '',
+    reviewDate: '',
+    outgoings: '',
+    bond: '',
+    notes: ''
+  };
+}
+
+function addRow(data) {
+  const row = data || createEmptyRow();
+  if (!data) row.id = nextId++;
+  rows.push(row);
+  renderTable();
+  recalcAll();
+  saveData();
+}
+
+function deleteRow(id) {
+  rows = rows.filter(r => r.id !== id);
+  renderTable();
+  recalcAll();
+  saveData();
+}
+
+// ===== TABLE RENDERING =====
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  rows.forEach((row, idx) => {
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-id', row.id);
+
+    // Computed rent/sqm
+    const rentPerSqm = (row.rent && row.area) ? (parseFloat(row.rent) / parseFloat(row.area)).toFixed(0) : '';
+
+    tr.innerHTML = `
+      <td><div class="row-num">${idx + 1}</div></td>
+      <td><input type="text" value="${esc(row.tenant)}" placeholder="Tenant name" data-field="tenant" oninput="updateField(${row.id}, 'tenant', this.value)"></td>
+      <td><input type="text" value="${esc(row.suite)}" placeholder="Suite" data-field="suite" oninput="updateField(${row.id}, 'suite', this.value)"></td>
+      <td><input type="number" value="${row.area}" placeholder="0" min="0" step="0.1" data-field="area" oninput="updateField(${row.id}, 'area', this.value)"></td>
+      <td><input type="date" value="${row.leaseStart}" data-field="leaseStart" onchange="updateField(${row.id}, 'leaseStart', this.value)"></td>
+      <td><input type="date" value="${row.leaseExpiry}" data-field="leaseExpiry" onchange="updateField(${row.id}, 'leaseExpiry', this.value)"></td>
+      <td><input type="text" value="${esc(row.options)}" placeholder="e.g. 2×5yr" data-field="options" oninput="updateField(${row.id}, 'options', this.value)"></td>
+      <td><input type="number" value="${row.rent}" placeholder="0" min="0" step="100" data-field="rent" oninput="updateField(${row.id}, 'rent', this.value)"></td>
+      <td><input type="text" class="computed" value="${rentPerSqm ? '$' + Number(rentPerSqm).toLocaleString() : ''}" tabindex="-1" readonly></td>
+      <td><select data-field="reviewType" onchange="updateField(${row.id}, 'reviewType', this.value)">
+        <option value="">—</option>
+        ${REVIEW_TYPES.map(t => `<option value="${t}" ${row.reviewType === t ? 'selected' : ''}>${t}</option>`).join('')}
+      </select></td>
+      <td><input type="date" value="${row.reviewDate}" data-field="reviewDate" onchange="updateField(${row.id}, 'reviewDate', this.value)"></td>
+      <td><select data-field="outgoings" onchange="updateField(${row.id}, 'outgoings', this.value)">
+        <option value="">—</option>
+        ${OUTGOING_TYPES.map(t => `<option value="${t}" ${row.outgoings === t ? 'selected' : ''}>${t}</option>`).join('')}
+      </select></td>
+      <td><input type="number" value="${row.bond}" placeholder="0" min="0" step="100" data-field="bond" oninput="updateField(${row.id}, 'bond', this.value)"></td>
+      <td><input type="text" value="${esc(row.notes)}" placeholder="Notes..." data-field="notes" oninput="updateField(${row.id}, 'notes', this.value)"></td>
+      <td><button class="del-btn" onclick="deleteRow(${row.id})" title="Remove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button></td>
     `;
     tbody.appendChild(tr);
   });
@@ -1243,6 +1536,5 @@ document.addEventListener('keydown', (e) => {
   }
 });
 </script>
-<script>
 </body>
 </html>
