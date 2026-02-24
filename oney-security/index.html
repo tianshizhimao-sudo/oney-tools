@@ -2275,6 +2275,10 @@ function showSmartLinks(address) {
       <span onclick="this.closest('#smart-links-card').remove()" style="position:absolute;top:10px;right:14px;cursor:pointer;font-size:16px;color:var(--text-muted);font-weight:400;">✕</span>
     </div>
     <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      <button onclick="navigator.clipboard.writeText('${address}').then(()=>{this.textContent='✅ Copied!';setTimeout(()=>{this.textContent='📋 Copy Address'},1500)})"
+        style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--primary);border:1px solid var(--primary);color:#fff;font-size:12px;font-weight:500;cursor:pointer;">
+        📋 Copy Address
+      </button>
       <a href="https://www.commercialrealestate.com.au/property/${encoded}" target="_blank" rel="noopener"
         style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:12px;text-decoration:none;font-weight:500;transition:border-color 0.2s;">
         🏢 Commercial RE
