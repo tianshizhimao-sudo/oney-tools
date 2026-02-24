@@ -805,6 +805,99 @@ select.locked-field { pointer-events: none; opacity: 0.55; cursor: not-allowed; 
 </style>
 </head>
 <body>
+
+<!-- ═══ PASSWORD GATE ═══════════════════════════════════════════════════════ -->
+<div id="pw-gate" style="
+  position:fixed;inset:0;z-index:99999;
+  background:#1A1A2E;
+  display:flex;align-items:center;justify-content:center;
+  font-family:Inter,system-ui,sans-serif;
+">
+  <div style="
+    background:#252540;border:1px solid #3D3D5C;border-radius:16px;
+    padding:40px 36px;width:340px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.5);
+  ">
+    <div style="margin-bottom:20px;">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 90" style="height:36px;width:auto;">
+        <defs>
+          <linearGradient id="gf" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" style="stop-color:#1FAD73"/>
+            <stop offset="55%" style="stop-color:#2ECC85"/>
+            <stop offset="55%" style="stop-color:transparent"/>
+            <stop offset="100%" style="stop-color:transparent"/>
+          </linearGradient>
+          <linearGradient id="gs" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#2ECC85"/>
+            <stop offset="100%" style="stop-color:#1FAD73"/>
+          </linearGradient>
+        </defs>
+        <g transform="translate(40,45)">
+          <circle cx="0" cy="0" r="32" fill="none" stroke="url(#gs)" stroke-width="7"/>
+          <circle cx="0" cy="0" r="24" fill="url(#gf)"/>
+        </g>
+        <text x="82" y="52" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">ney</text>
+        <text x="129" y="52" font-family="Inter,system-ui,sans-serif" font-size="21" font-weight="500" fill="url(#gs)">&amp;</text>
+        <text x="148" y="52" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">co</text>
+        <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
+      </svg>
+    </div>
+    <div style="font-size:13px;color:#a3a3b8;margin-bottom:6px;">🔐 Beta Access</div>
+    <div style="font-size:20px;font-weight:700;color:#fff;margin-bottom:4px;">Oney Security</div>
+    <div style="font-size:12px;color:#a3a3b8;margin-bottom:28px;">Security Certainty for Complex Lending</div>
+    <input id="pw-input" type="password" placeholder="Enter access code"
+      style="
+        width:100%;box-sizing:border-box;padding:12px 16px;
+        background:#1A1A2E;border:1px solid #3D3D5C;border-radius:10px;
+        color:#fff;font-size:15px;font-family:inherit;outline:none;
+        transition:border-color 0.2s;text-align:center;letter-spacing:2px;
+      "
+      onkeydown="if(event.key==='Enter')pwSubmit()"
+      onfocus="this.style.borderColor='#2ECC85'"
+      onblur="this.style.borderColor='#3D3D5C'"
+    />
+    <div id="pw-err" style="height:18px;font-size:12px;color:#f87171;margin-top:8px;"></div>
+    <button onclick="pwSubmit()" style="
+      margin-top:8px;width:100%;padding:13px;
+      background:linear-gradient(135deg,#2ECC85,#1FAD73);
+      border:none;border-radius:10px;color:#fff;
+      font-size:15px;font-weight:600;font-family:inherit;
+      cursor:pointer;transition:opacity 0.2s;
+    " onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+      Access Tool →
+    </button>
+    <div style="margin-top:20px;font-size:11px;color:#3D3D5C;">
+      General information only · Not financial advice
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var PASS = 'Oneytest';
+  var SESSION_KEY = 'oney-security-auth';
+  function pwSubmit(){
+    var val = document.getElementById('pw-input').value;
+    if(val === PASS){
+      sessionStorage.setItem(SESSION_KEY,'1');
+      var gate = document.getElementById('pw-gate');
+      gate.style.opacity='0';gate.style.transition='opacity 0.4s';
+      setTimeout(function(){ gate.style.display='none'; }, 400);
+    } else {
+      var err = document.getElementById('pw-err');
+      err.textContent = 'Incorrect access code';
+      var inp = document.getElementById('pw-input');
+      inp.style.borderColor='#f87171';
+      inp.value='';
+      setTimeout(function(){ err.textContent=''; inp.style.borderColor='#3D3D5C'; }, 2000);
+    }
+  }
+  window.pwSubmit = pwSubmit;
+  if(sessionStorage.getItem(SESSION_KEY)==='1'){
+    document.getElementById('pw-gate').style.display='none';
+  }
+})();
+</script>
+<!-- ═══ END PASSWORD GATE ════════════════════════════════════════════════════ -->
+
 <!-- Print header -->
 <div class="print-header">
   <h1>Oney Security — Assessment Report</h1>
@@ -2146,6 +2239,38 @@ function applyNSWZoningResult(data) {
     badge.classList.remove('hidden');
     if (lepName) badge.querySelector('span').textContent = '✓ Auto-filled: ' + zoneCode + (lepName ? ' (' + lepName + ')' : '');
   }
+  // ── Auto-select Property Category from Zone Code ────────────────────
+  if (zoneCode) {
+    const prefix = (zoneCode.match(/^[A-Z]+/) || [''])[0];
+    const ZONE_CAT_MAP = {
+      R: 'residential',
+      RU: 'commercial',  // Rural → commercial (rural sub-type)
+      B: 'commercial',   // Business/commercial zones
+      IN: 'commercial',  // Industrial → commercial sub-type
+      SP: 'commercial',  // Special purpose
+      E:  'commercial',  // Environmental (not financeable, but commercial category)
+      MU: 'commercial',  // Mixed use
+      RE: 'commercial',  // Recreation
+      W:  'commercial',  // Waterways
+    };
+    // Try longest prefix match first (e.g. RU before R)
+    const longestMatch = Object.keys(ZONE_CAT_MAP)
+      .filter(k => prefix.startsWith(k) || k === prefix)
+      .sort((a,b) => b.length - a.length)[0];
+    const suggestedCat = longestMatch ? ZONE_CAT_MAP[longestMatch] : null;
+
+    if (suggestedCat) {
+      // Activate the correct pill in #z-propCategory
+      const pills = document.querySelectorAll('#z-propCategory .pill');
+      pills.forEach(p => {
+        if (p.dataset.val === suggestedCat) {
+          p.click(); // triggers initPillGroup callback → sets CrossTab.rawCategory
+        }
+      });
+      showAddrToast('🏷️ Category auto-set: ' + (suggestedCat === 'residential' ? 'Residential' : 'Commercial') + ' (from zone ' + zoneCode + ')');
+    }
+  }
+  // ─────────────────────────────────────────────────────────────────────
   autoSave(); recalcAll();
 }
 
