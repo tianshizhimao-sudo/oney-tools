@@ -752,6 +752,15 @@ html { scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
 .pill-group.locked .pill { cursor: not-allowed; }
 .locked-hint { font-size: 11px; color: var(--text-muted); margin-top: 6px; font-style: italic; }
 select.locked-field { pointer-events: none; opacity: 0.55; cursor: not-allowed; background-image: none; }
+.state-badge { display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:100px;
+  background:rgba(46,204,133,0.15); color:#2ECC85; margin-left:8px; vertical-align:middle; }
+.autofill-badge { font-size:12px; color:#2ECC85; padding:6px 10px;
+  background:rgba(46,204,133,0.1); border-radius:8px; margin-top:6px;
+  display:flex; align-items:center; justify-content:space-between; }
+.autofill-badge .edit-manual { cursor:pointer; font-size:11px; color:var(--text-muted); text-decoration:underline; }
+.zoning-loading { font-size:12px; color:var(--text-secondary); padding:6px 0; }
+.zoning-loading::after { content:''; display:inline-block; width:12px; height:12px; border:2px solid var(--primary); border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite; margin-left:6px; vertical-align:middle; }
+@keyframes spin { to { transform:rotate(360deg); } }
 </style>
 
 <!-- 1-page report styles (screen hidden, print shown) -->
@@ -796,99 +805,6 @@ select.locked-field { pointer-events: none; opacity: 0.55; cursor: not-allowed; 
 </style>
 </head>
 <body>
-
-<!-- ═══ PASSWORD GATE ═══════════════════════════════════════════════════════ -->
-<div id="pw-gate" style="
-  position:fixed;inset:0;z-index:99999;
-  background:#1A1A2E;
-  display:flex;align-items:center;justify-content:center;
-  font-family:Inter,system-ui,sans-serif;
-">
-  <div style="
-    background:#252540;border:1px solid #3D3D5C;border-radius:16px;
-    padding:40px 36px;width:340px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.5);
-  ">
-    <div style="margin-bottom:20px;">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 90" style="height:36px;width:auto;">
-        <defs>
-          <linearGradient id="gf" x1="0%" y1="100%" x2="0%" y2="0%">
-            <stop offset="0%" style="stop-color:#1FAD73"/>
-            <stop offset="55%" style="stop-color:#2ECC85"/>
-            <stop offset="55%" style="stop-color:transparent"/>
-            <stop offset="100%" style="stop-color:transparent"/>
-          </linearGradient>
-          <linearGradient id="gs" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#2ECC85"/>
-            <stop offset="100%" style="stop-color:#1FAD73"/>
-          </linearGradient>
-        </defs>
-        <g transform="translate(40,45)">
-          <circle cx="0" cy="0" r="32" fill="none" stroke="url(#gs)" stroke-width="7"/>
-          <circle cx="0" cy="0" r="24" fill="url(#gf)"/>
-        </g>
-        <text x="82" y="52" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">ney</text>
-        <text x="129" y="52" font-family="Inter,system-ui,sans-serif" font-size="21" font-weight="500" fill="url(#gs)">&amp;</text>
-        <text x="148" y="52" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">co</text>
-        <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
-      </svg>
-    </div>
-    <div style="font-size:13px;color:#a3a3b8;margin-bottom:6px;">🔐 Beta Access</div>
-    <div style="font-size:20px;font-weight:700;color:#fff;margin-bottom:4px;">Oney Security</div>
-    <div style="font-size:12px;color:#a3a3b8;margin-bottom:28px;">Security Certainty for Complex Lending</div>
-    <input id="pw-input" type="password" placeholder="Enter access code"
-      style="
-        width:100%;box-sizing:border-box;padding:12px 16px;
-        background:#1A1A2E;border:1px solid #3D3D5C;border-radius:10px;
-        color:#fff;font-size:15px;font-family:inherit;outline:none;
-        transition:border-color 0.2s;text-align:center;letter-spacing:2px;
-      "
-      onkeydown="if(event.key==='Enter')pwSubmit()"
-      onfocus="this.style.borderColor='#2ECC85'"
-      onblur="this.style.borderColor='#3D3D5C'"
-    />
-    <div id="pw-err" style="height:18px;font-size:12px;color:#f87171;margin-top:8px;"></div>
-    <button onclick="pwSubmit()" style="
-      margin-top:8px;width:100%;padding:13px;
-      background:linear-gradient(135deg,#2ECC85,#1FAD73);
-      border:none;border-radius:10px;color:#fff;
-      font-size:15px;font-weight:600;font-family:inherit;
-      cursor:pointer;transition:opacity 0.2s;
-    " onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-      Access Tool →
-    </button>
-    <div style="margin-top:20px;font-size:11px;color:#3D3D5C;">
-      General information only · Not financial advice
-    </div>
-  </div>
-</div>
-<script>
-(function(){
-  var PASS = 'Oneytest';
-  var SESSION_KEY = 'oney-security-auth';
-  function pwSubmit(){
-    var val = document.getElementById('pw-input').value;
-    if(val === PASS){
-      sessionStorage.setItem(SESSION_KEY,'1');
-      var gate = document.getElementById('pw-gate');
-      gate.style.opacity='0';gate.style.transition='opacity 0.4s';
-      setTimeout(function(){ gate.style.display='none'; }, 400);
-    } else {
-      var err = document.getElementById('pw-err');
-      err.textContent = 'Incorrect access code';
-      var inp = document.getElementById('pw-input');
-      inp.style.borderColor='#f87171';
-      inp.value='';
-      setTimeout(function(){ err.textContent=''; inp.style.borderColor='#3D3D5C'; }, 2000);
-    }
-  }
-  window.pwSubmit = pwSubmit;
-  if(sessionStorage.getItem(SESSION_KEY)==='1'){
-    document.getElementById('pw-gate').style.display='none';
-  }
-})();
-</script>
-<!-- ═══ END PASSWORD GATE ════════════════════════════════════════════════════ -->
-
 <!-- Print header -->
 <div class="print-header">
   <h1>Oney Security — Assessment Report</h1>
@@ -1172,6 +1088,7 @@ select.locked-field { pointer-events: none; opacity: 0.55; cursor: not-allowed; 
     <!-- Zoning Classification -->
     <div class="form-group">
       <label>Zoning Classification</label>
+      <div id="z-zoning-loading" class="zoning-loading hidden">Looking up zoning from NSW Planning Portal…</div>
       <select id="z-zoning">
         <option value="">Select zoning code…</option>
         <option value="UNSURE">⚠️ Unsure / Not Yet Confirmed</option>
@@ -1225,6 +1142,10 @@ select.locked-field { pointer-events: none; opacity: 0.55; cursor: not-allowed; 
           <option value="W2">W2 — Recreational Waterways</option>
         </optgroup>
       </select>
+    </div>
+    <div id="z-autofill-badge" class="autofill-badge hidden">
+      <span>✓ Auto-filled from NSW Planning Portal</span>
+      <span class="edit-manual" onclick="clearZoningAutofill()">Edit manually</span>
     </div>
     <div class="form-group">
       <label>Permitted Use Status</label>
@@ -2086,10 +2007,18 @@ document.addEventListener('input', (e) => {
     if (e.target && e.target.id === 'z-address') updateCategoryResults();
   }, 300);
 });
-document.addEventListener('change', () => { autoSave(); recalcAll(); });
+document.addEventListener('change', (e) => {
+  autoSave(); recalcAll();
+  if (e.target && e.target.id === 'z-zoning' && window._addrState && window._addrState.zoningAutoFilled) {
+    clearZoningAutofill();
+  }
+});
 
 // ===== ADDRESS AUTOCOMPLETE (Google Places API) =====
 // This is called by Google Maps script callback
+// T1: appState extensions for address auto-zoning
+window._addrState = { coords: { lat: null, lng: null }, propertyState: null, zoningAutoFilled: false };
+
 function initGooglePlaces() {
   const input = document.getElementById('z-address');
   if (!input) { setTimeout(initGooglePlaces, 500); return; }
@@ -2099,7 +2028,6 @@ function initGooglePlaces() {
       types: ['address'],
       fields: ['address_components', 'formatted_address', 'geometry']
     });
-    // Prevent form submit on Enter when selecting from dropdown
     input.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') e.preventDefault();
     });
@@ -2107,11 +2035,34 @@ function initGooglePlaces() {
       const place = autocomplete.getPlace();
       if (!place || !place.address_components) return;
       input.value = place.formatted_address || '';
+      // T5: Extract coords + state
+      if (place.geometry && place.geometry.location) {
+        window._addrState.coords = { lat: place.geometry.location.lat(), lng: place.geometry.location.lng() };
+      }
       const stateEl = document.getElementById('z-state');
+      let detectedState = null;
       for (const comp of place.address_components) {
-        if (comp.types.includes('administrative_area_level_1') && stateEl) {
-          stateEl.value = comp.long_name;
+        if (comp.types.includes('administrative_area_level_1')) {
+          detectedState = comp.short_name; // e.g. "NSW", "VIC"
+          if (stateEl) stateEl.value = comp.long_name;
         }
+      }
+      window._addrState.propertyState = detectedState;
+      // Show state badge
+      let badge = document.getElementById('addr-state-badge');
+      if (!badge) {
+        badge = document.createElement('span');
+        badge.id = 'addr-state-badge';
+        badge.className = 'state-badge';
+        input.parentNode.appendChild(badge);
+      }
+      badge.textContent = detectedState || '';
+      badge.style.display = detectedState ? 'inline-block' : 'none';
+      // T5 R3: State routing — auto-trigger NSW zoning
+      if (detectedState === 'NSW' && window._addrState.coords.lat) {
+        fetchNSWZoning(window._addrState.coords.lat, window._addrState.coords.lng);
+      } else if (detectedState && detectedState !== 'NSW') {
+        showAddrToast('Auto-fill coming soon for ' + detectedState + ' — please enter zoning manually', 'warning');
       }
       autoSave(); recalcAll();
     });
@@ -2120,6 +2071,106 @@ function initGooglePlaces() {
     console.warn('Google Places init error:', e);
     initManualAddressFallback();
   }
+}
+
+// T6: Fetch NSW Zoning
+async function fetchNSWZoning(lat, lng) {
+  const loadingEl = document.getElementById('z-zoning-loading');
+  if (loadingEl) loadingEl.classList.remove('hidden');
+  const b = 0.001;
+  const url = 'https://mapprod3.environment.nsw.gov.au/arcgis/rest/services/Planning/EPI_Primary_Planning_Layers/MapServer/identify'
+    + '?geometry=' + lng + ',' + lat + '&geometryType=esriGeometryPoint'
+    + '&layers=all&tolerance=2'
+    + '&mapExtent=' + (lng-b) + ',' + (lat-b) + ',' + (lng+b) + ',' + (lat+b)
+    + '&imageDisplay=800,600,96&returnGeometry=false&f=json';
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    const data = await res.json();
+    applyNSWZoningResult(data);
+  } catch(e) {
+    console.warn('NSW Zoning fetch error:', e);
+    showAddrToast('Could not auto-fill zoning — please enter manually', 'warning');
+  } finally {
+    if (loadingEl) loadingEl.classList.add('hidden');
+  }
+}
+
+// T7: Apply NSW Zoning Result
+function applyNSWZoningResult(data) {
+  if (!data || !data.results || data.results.length === 0) {
+    showAddrToast('Zoning not found — please enter manually', 'warning');
+    return;
+  }
+  let zoneCode = null, zoneName = null, lepName = null;
+  for (const r of data.results) {
+    const attrs = r.attributes || {};
+    if (attrs.SYM_CODE || attrs.Zone_Code || attrs.LAY_CLASS) {
+      zoneCode = attrs.SYM_CODE || attrs.Zone_Code || attrs.LAY_CLASS || '';
+      zoneName = attrs.Zone_Name || attrs.LAY_CLASS || '';
+      lepName = attrs.LEP_NAME || attrs.EPI_NAME || '';
+      break;
+    }
+  }
+  if (!zoneCode) {
+    showAddrToast('Zoning not found in results — please enter manually', 'warning');
+    return;
+  }
+  // Match to dropdown
+  const select = document.getElementById('z-zoning');
+  if (!select) return;
+  // Try exact match first, then prefix match
+  let matched = false;
+  for (const opt of select.options) {
+    if (opt.value && (opt.value === zoneCode || zoneCode.startsWith(opt.value))) {
+      select.value = opt.value;
+      matched = true;
+      break;
+    }
+  }
+  if (!matched) {
+    // Try matching just the letter+number prefix (e.g. "R2" from "R2 Low Density Residential")
+    const prefix = zoneCode.match(/^[A-Z]+[0-9]*/);
+    if (prefix) {
+      for (const opt of select.options) {
+        if (opt.value === prefix[0]) { select.value = opt.value; matched = true; break; }
+      }
+    }
+  }
+  if (!matched) {
+    showAddrToast('Zone "' + zoneCode + '" not in dropdown — please select manually', 'warning');
+  }
+  // Show autofill badge
+  window._addrState.zoningAutoFilled = true;
+  const badge = document.getElementById('z-autofill-badge');
+  if (badge) {
+    badge.classList.remove('hidden');
+    if (lepName) badge.querySelector('span').textContent = '✓ Auto-filled: ' + zoneCode + (lepName ? ' (' + lepName + ')' : '');
+  }
+  autoSave(); recalcAll();
+}
+
+// T8: Clear zoning autofill
+function clearZoningAutofill() {
+  window._addrState.zoningAutoFilled = false;
+  const badge = document.getElementById('z-autofill-badge');
+  if (badge) badge.classList.add('hidden');
+}
+
+// Simple toast notification
+function showAddrToast(msg, type) {
+  let toast = document.getElementById('addr-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'addr-toast';
+    toast.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:500;max-width:400px;transition:opacity 0.3s;pointer-events:none;';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.background = type === 'warning' ? 'rgba(251,191,36,0.95)' : 'rgba(46,204,133,0.95)';
+  toast.style.color = type === 'warning' ? '#1a1a2e' : '#fff';
+  toast.style.opacity = '1';
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => { toast.style.opacity = '0'; }, 4000);
 }
 
 // ===== FALLBACK: Manual address entry when Places API unavailable =====
