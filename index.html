@@ -126,14 +126,20 @@
       transform: translateY(-2px);
     }
     
+    /* 🟢 Free consumer */
     .tool-card.featured {
-      border-color: var(--accent);
-      background: linear-gradient(135deg, var(--accent-glow), transparent);
+      border-color: #2ECC85;
+      background: linear-gradient(135deg, rgba(46,204,133,0.08), transparent);
     }
-    
+    /* 🟣 Broker/Banker professional */
+    .tool-card.broker-card {
+      border-color: #7c3aed;
+      background: linear-gradient(135deg, rgba(107,76,154,0.1), transparent);
+    }
+    /* 🟠 Paid */
     .tool-card.premium {
-      border-color: var(--gold);
-      background: linear-gradient(135deg, var(--gold-glow), transparent);
+      border-color: #fb923c;
+      background: linear-gradient(135deg, rgba(251,146,60,0.08), transparent);
     }
     
     .tool-icon {
@@ -163,29 +169,35 @@
       text-transform: uppercase;
     }
     
-    .badge-free { background: var(--accent-glow); color: var(--accent-light); }
+    /* 🟢 Free consumer tools */
+    .badge-free { background: rgba(46, 204, 133, 0.15); color: #2ECC85; }
+    /* 🟣 Broker/Banker professional tools (free) */
+    .badge-broker { background: rgba(107, 76, 154, 0.18); color: #a855f7; }
+    /* 🟠 Paid tools */
+    .badge-paid { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
+    /* Other */
     .badge-new { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
     .badge-coming { background: var(--gold-glow); color: var(--gold); }
-    .badge-pro { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
+    .badge-pro { background: rgba(251, 146, 60, 0.15); color: #fb923c; }
 
     .section-pro {
       margin-top: 48px;
       padding-top: 24px;
-      border-top: 1px solid rgba(168, 85, 247, 0.25);
+      border-top: 1px solid rgba(251, 146, 60, 0.25);
     }
     .section-pro .section-title {
-      color: #a855f7;
+      color: #fb923c;
     }
     .section-pro .section-title::after {
-      background: linear-gradient(90deg, #a855f7, transparent);
+      background: linear-gradient(90deg, #fb923c, transparent);
     }
     .pro-label {
       display: inline-block;
       font-size: 11px;
       font-weight: 600;
-      color: #a855f7;
-      background: rgba(168, 85, 247, 0.12);
-      border: 1px solid rgba(168, 85, 247, 0.25);
+      color: #fb923c;
+      background: rgba(251, 146, 60, 0.12);
+      border: 1px solid rgba(251, 146, 60, 0.25);
       padding: 3px 10px;
       border-radius: 100px;
       margin-left: 10px;
@@ -405,16 +417,22 @@
       container.innerHTML = html;
     }
 
+    const BROKER_CATS = ['Commercial', 'Broker/Banker Workflow Tools'];
+
     function cardHTML(t) {
+      const isPaid   = !t.free;
+      const isBroker = BROKER_CATS.includes(t.category);
       const cls = ['tool-card'];
-      if (t.featured && !t.free) cls.push('premium');
+
+      if (isPaid)        cls.push('premium');
+      else if (isBroker) cls.push('broker-card');
       else if (t.featured) cls.push('featured');
-      else if (!t.free) cls.push('premium');
 
       let badge = '';
-      if (!t.free) badge = '<span class="tool-badge badge-pro">Pro</span>';
-      else if (t.new) badge = '<span class="tool-badge badge-new">New</span>';
-      else badge = '<span class="tool-badge badge-free">Free</span>';
+      if (isPaid)        badge = '<span class="tool-badge badge-paid">Pro</span>';
+      else if (isBroker) badge = '<span class="tool-badge badge-broker">' + (t.new ? 'New · Broker' : 'Broker') + '</span>';
+      else if (t.new)    badge = '<span class="tool-badge badge-new">New</span>';
+      else               badge = '<span class="tool-badge badge-free">Free</span>';
 
       const tag = t.url ? 'a' : 'div';
       const isExternal = t.external || (t.url && t.url.startsWith('http'));
