@@ -1088,7 +1088,7 @@ select.locked-field { pointer-events: none; opacity: 0.55; cursor: not-allowed; 
     <!-- Zoning Classification -->
     <div class="form-group">
       <label>Zoning Classification</label>
-      <div id="z-zoning-loading" class="zoning-loading hidden">Looking up zoning from NSW Planning Portal…</div>
+      <div id="z-zoning-loading" class="zoning-loading hidden">🔍 Looking up zoning from NSW Planning Portal…</div>
       <select id="z-zoning">
         <option value="">Select zoning code…</option>
         <option value="UNSURE">⚠️ Unsure / Not Yet Confirmed</option>
@@ -2063,6 +2063,8 @@ function initGooglePlaces() {
         fetchNSWZoning(window._addrState.coords.lat, window._addrState.coords.lng);
       } else if (detectedState && detectedState !== 'NSW') {
         showAddrToast('Auto-fill coming soon for ' + detectedState + ' — please enter zoning manually', 'warning');
+        // Show smart links even for non-NSW
+        showSmartLinks(place.formatted_address || input.value);
       }
       autoSave(); recalcAll();
     });
@@ -2073,80 +2075,234 @@ function initGooglePlaces() {
   }
 }
 
-// T6: Fetch NSW Zoning
+// T6: Fetch NSW Zoning via E-Planning API (address → propId → layerintersect)
 async function fetchNSWZoning(lat, lng) {
   const loadingEl = document.getElementById('z-zoning-loading');
-  if (loadingEl) loadingEl.classList.remove('hidden');
-  const b = 0.001;
-  const url = 'https://mapprod3.environment.nsw.gov.au/arcgis/rest/services/Planning/EPI_Primary_Planning_Layers/MapServer/identify'
-    + '?geometry=' + lng + ',' + lat + '&geometryType=esriGeometryPoint'
-    + '&layers=all&tolerance=2'
-    + '&mapExtent=' + (lng-b) + ',' + (lat-b) + ',' + (lng+b) + ',' + (lat+b)
-    + '&imageDisplay=800,600,96&returnGeometry=false&f=json';
+  if (loadingEl) { loadingEl.textContent = '🔍 Looking up zoning from NSW Planning Portal…'; loadingEl.classList.remove('hidden'); }
   try {
-    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
-    const data = await res.json();
-    applyNSWZoningResult(data);
+    // Step 1: Get propId from address
+    const addr = document.getElementById('z-address').value;
+    const addrRes = await fetch('https://api.apps1.nsw.gov.au/planning/viewersf/V1/ePlanningApi/address?a=' + encodeURIComponent(addr) + '&noofresult=3', { signal: AbortSignal.timeout(8000) });
+    const addrData = await addrRes.json();
+    if (!addrData || addrData.length === 0) { showAddrToast('Address not found in NSW Planning Portal — please enter zoning manually', 'warning'); return; }
+    const propId = addrData[0].propId;
+    window._addrState.propId = propId;
+
+    // Step 2: Layer intersect for zoning data
+    if (loadingEl) loadingEl.textContent = '🔍 Fetching zoning, FSR, height, heritage…';
+    const layerRes = await fetch('https://api.apps1.nsw.gov.au/planning/viewersf/V1/ePlanningApi/layerintersect?type=property&id=' + propId + '&layers=epi', { signal: AbortSignal.timeout(10000) });
+    const layerData = await layerRes.json();
+    applyNSWZoningResult(layerData, propId);
+
+    // Step 3: Fetch lot area from SIX Maps (non-blocking)
+    fetchSIXMapsLotArea(propId);
+
+    // Step 4: Show smart links
+    showSmartLinks(addr);
   } catch(e) {
-    console.warn('NSW Zoning fetch error:', e);
+    console.warn('NSW E-Planning API error:', e);
     showAddrToast('Could not auto-fill zoning — please enter manually', 'warning');
   } finally {
     if (loadingEl) loadingEl.classList.add('hidden');
   }
 }
 
-// T7: Apply NSW Zoning Result
-function applyNSWZoningResult(data) {
-  if (!data || !data.results || data.results.length === 0) {
+// T7: Apply NSW Zoning Result (E-Planning layerintersect format)
+function applyNSWZoningResult(data, propId) {
+  if (!data || !Array.isArray(data) || data.length === 0) {
     showAddrToast('Zoning not found — please enter manually', 'warning');
     return;
   }
   let zoneCode = null, zoneName = null, lepName = null;
-  for (const r of data.results) {
-    const attrs = r.attributes || {};
-    if (attrs.SYM_CODE || attrs.Zone_Code || attrs.LAY_CLASS) {
-      zoneCode = attrs.SYM_CODE || attrs.Zone_Code || attrs.LAY_CLASS || '';
-      zoneName = attrs.Zone_Name || attrs.LAY_CLASS || '';
-      lepName = attrs.LEP_NAME || attrs.EPI_NAME || '';
-      break;
+  let fsr = null, height = null, heritage = null, acidSulfate = null;
+
+  for (const layer of data) {
+    const ln = (layer.layerName || '').toLowerCase();
+    const results = layer.results || [];
+    if (ln.includes('land zoning') && results.length > 0) {
+      const title = results[0].title || '';
+      // Parse "SP5: Metropolitan Centre" → code="SP5", name="Metropolitan Centre"
+      const m = title.match(/^([A-Z]+\d*)(?:\s*:\s*(.+))?$/i);
+      if (m) { zoneCode = m[1].toUpperCase(); zoneName = m[2] || ''; }
+      lepName = results[0]['EPI Name'] || '';
     }
-  }
-  if (!zoneCode) {
-    showAddrToast('Zoning not found in results — please enter manually', 'warning');
-    return;
-  }
-  // Match to dropdown
-  const select = document.getElementById('z-zoning');
-  if (!select) return;
-  // Try exact match first, then prefix match
-  let matched = false;
-  for (const opt of select.options) {
-    if (opt.value && (opt.value === zoneCode || zoneCode.startsWith(opt.value))) {
-      select.value = opt.value;
-      matched = true;
-      break;
-    }
-  }
-  if (!matched) {
-    // Try matching just the letter+number prefix (e.g. "R2" from "R2 Low Density Residential")
-    const prefix = zoneCode.match(/^[A-Z]+[0-9]*/);
-    if (prefix) {
-      for (const opt of select.options) {
-        if (opt.value === prefix[0]) { select.value = opt.value; matched = true; break; }
+    if (ln.includes('floor space ratio') && results.length > 0) {
+      // FSR in title like "8:1" or "3.5:1"
+      for (const r of results) {
+        const t = (r.title || '').trim();
+        if (t && /^[\d.]+:\d+$/.test(t)) { fsr = t; break; }
       }
     }
+    if (ln.includes('height of building') && results.length > 0) {
+      for (const r of results) {
+        const t = (r.title || '').trim();
+        const hm = t.match(/^([\d.]+)\s*m$/i);
+        if (hm) { height = parseFloat(hm[1]); break; }
+      }
+    }
+    if (ln.includes('heritage') && results.length > 0) {
+      heritage = results[0].title || 'Yes';
+    }
+    if (ln.includes('acid sulfate') && results.length > 0) {
+      acidSulfate = results[0].title || 'Yes';
+    }
   }
-  if (!matched) {
-    showAddrToast('Zone "' + zoneCode + '" not in dropdown — please select manually', 'warning');
+
+  // Apply zoning to dropdown
+  const select = document.getElementById('z-zoning');
+  if (select && zoneCode) {
+    let matched = false;
+    for (const opt of select.options) {
+      if (opt.value && (opt.value === zoneCode || zoneCode.startsWith(opt.value))) {
+        select.value = opt.value; matched = true; break;
+      }
+    }
+    if (!matched) {
+      const prefix = zoneCode.match(/^[A-Z]+[0-9]*/);
+      if (prefix) {
+        for (const opt of select.options) {
+          if (opt.value === prefix[0]) { select.value = opt.value; matched = true; break; }
+        }
+      }
+    }
+    if (!matched) showAddrToast('Zone "' + zoneCode + '" not in dropdown — please select manually', 'warning');
   }
-  // Show autofill badge
+
+  // Apply FSR
+  if (fsr) {
+    const fsrNum = parseFloat(fsr.split(':')[0]);
+    const fsrEl = document.getElementById('z-fsr');
+    if (fsrEl && fsrNum) fsrEl.value = fsrNum;
+  }
+
+  // Apply Height
+  if (height) {
+    const heightEl = document.getElementById('z-height');
+    if (heightEl) heightEl.value = height;
+  }
+
+  // Apply Heritage risk flag
+  if (heritage) {
+    const heritagePills = document.querySelectorAll('#z-flag-heritage .pill');
+    heritagePills.forEach(p => {
+      p.classList.remove('active');
+      if (p.dataset.val === 'yes') p.classList.add('active');
+    });
+    if (CrossTab.riskFlags) CrossTab.riskFlags.heritage = 'yes';
+  }
+
+  // Apply Acid Sulfate risk flag
+  if (acidSulfate) {
+    const acidPills = document.querySelectorAll('#z-flag-acid-sulfate .pill');
+    acidPills.forEach(p => {
+      p.classList.remove('active');
+      if (p.dataset.val === 'yes') p.classList.add('active');
+    });
+    if (CrossTab.riskFlags) CrossTab.riskFlags['acid-sulfate'] = 'yes';
+  }
+
+  // Show autofill badge with details
   window._addrState.zoningAutoFilled = true;
   const badge = document.getElementById('z-autofill-badge');
   if (badge) {
     badge.classList.remove('hidden');
-    if (lepName) badge.querySelector('span').textContent = '✓ Auto-filled: ' + zoneCode + (lepName ? ' (' + lepName + ')' : '');
+    let info = zoneCode || 'Unknown';
+    if (zoneName) info += ': ' + zoneName;
+    if (fsr) info += ' | FSR ' + fsr;
+    if (height) info += ' | Height ' + height + 'm';
+    if (heritage) info += ' | Heritage ⚠️';
+    badge.querySelector('span').textContent = '✓ Auto-filled: ' + info;
   }
+
+  // Build enrichment summary
+  const parts = [];
+  if (zoneCode) parts.push('Zone: ' + zoneCode + (zoneName ? ' (' + zoneName + ')' : ''));
+  if (fsr) parts.push('FSR: ' + fsr);
+  if (height) parts.push('Height: ' + height + 'm');
+  if (heritage) parts.push('Heritage: ' + heritage);
+  if (acidSulfate) parts.push('Acid Sulfate: ' + acidSulfate);
+  if (parts.length > 0) {
+    showAddrToast('Auto-filled: ' + parts.join(' · '), 'success');
+  }
+
   autoSave(); recalcAll();
+}
+
+// T8a: Fetch lot area from NSW SIX Maps ArcGIS
+async function fetchSIXMapsLotArea(propId) {
+  try {
+    const url = 'https://maps.six.nsw.gov.au/arcgis/rest/services/public/NSW_Property/MapServer/0/query'
+      + '?where=propid=' + propId + '&outFields=shape_area,lot,plan,propid&f=json&returnGeometry=false';
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    const data = await res.json();
+    if (data.features && data.features.length > 0) {
+      const attrs = data.features[0].attributes || {};
+      const areaSqm = attrs.shape_area || attrs.Shape_Area;
+      if (areaSqm && areaSqm > 0) {
+        window._addrState.lotArea = Math.round(areaSqm);
+        // Show lot area in a subtle badge near address
+        let lotBadge = document.getElementById('addr-lot-badge');
+        if (!lotBadge) {
+          lotBadge = document.createElement('span');
+          lotBadge.id = 'addr-lot-badge';
+          lotBadge.style.cssText = 'display:inline-block;margin-left:8px;padding:2px 10px;border-radius:8px;font-size:11px;background:rgba(46,204,133,0.15);color:var(--primary);font-weight:500;';
+          const wrap = document.querySelector('.autocomplete-wrap');
+          if (wrap) wrap.appendChild(lotBadge);
+        }
+        lotBadge.textContent = '📐 ' + Math.round(areaSqm).toLocaleString() + ' sqm';
+        lotBadge.style.display = 'inline-block';
+        console.log('SIX Maps lot area:', areaSqm, 'sqm');
+      }
+    }
+  } catch(e) {
+    console.warn('SIX Maps lot area fetch error:', e);
+  }
+}
+
+// T8b: Show smart links card for property research
+function showSmartLinks(address) {
+  // Remove existing card if any
+  const existing = document.getElementById('smart-links-card');
+  if (existing) existing.remove();
+
+  const encoded = encodeURIComponent(address);
+  const card = document.createElement('div');
+  card.id = 'smart-links-card';
+  card.style.cssText = 'margin-top:12px;padding:14px 18px;border-radius:12px;background:rgba(107,76,154,0.08);border:1px solid rgba(107,76,154,0.2);position:relative;';
+  card.innerHTML = `
+    <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">
+      🔍 Research this property
+      <span onclick="this.closest('#smart-links-card').remove()" style="position:absolute;top:10px;right:14px;cursor:pointer;font-size:16px;color:var(--text-muted);font-weight:400;">✕</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;">
+      <a href="https://www.commercialrealestate.com.au/property/${encoded}" target="_blank" rel="noopener"
+        style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:12px;text-decoration:none;font-weight:500;transition:border-color 0.2s;">
+        🏢 Commercial RE
+      </a>
+      <a href="https://www.realestate.com.au/property/?searchTerm=${encoded}" target="_blank" rel="noopener"
+        style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:12px;text-decoration:none;font-weight:500;transition:border-color 0.2s;">
+        🏠 REA
+      </a>
+      <a href="https://www.domain.com.au/sale/?terms=${encoded}" target="_blank" rel="noopener"
+        style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:12px;text-decoration:none;font-weight:500;transition:border-color 0.2s;">
+        🏘️ Domain
+      </a>
+      <a href="https://www.planningportal.nsw.gov.au/spatialviewer/#/find-a-property/address/${encoded}" target="_blank" rel="noopener"
+        style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:12px;text-decoration:none;font-weight:500;transition:border-color 0.2s;">
+        🗺️ NSW Planning
+      </a>
+      <a href="https://maps.six.nsw.gov.au/?search=${encoded}" target="_blank" rel="noopener"
+        style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:12px;text-decoration:none;font-weight:500;transition:border-color 0.2s;">
+        📍 SIX Maps
+      </a>
+    </div>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">
+      Click to open in new tab · Links generated from property address
+    </div>
+  `;
+  // Insert after the address card
+  const addrCard = document.getElementById('z-address')?.closest('.card');
+  if (addrCard) addrCard.after(card);
 }
 
 // T8: Clear zoning autofill
