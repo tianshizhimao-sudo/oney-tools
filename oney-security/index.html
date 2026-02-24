@@ -2352,16 +2352,62 @@ async function fetchSIXMapsLotArea(propId) {
   }
 }
 
-// T8b: Show smart links card for property research
+// T8b: Show smart links card for property research (state-aware)
 function showSmartLinks(address) {
   // Remove existing card if any
   const existing = document.getElementById('smart-links-card');
   if (existing) existing.remove();
 
   const encoded = encodeURIComponent(address);
+  const state = window._addrState?.propertyState || '';
+  
+  // Build links array based on state
+  const links = [];
+  
+  // Universal links
+  links.push({
+    href: 'https://www.google.com/search?q=' + encoded + '+commercial+real+estate',
+    icon: '🏢', label: 'Commercial RE'
+  });
+  links.push({
+    href: 'https://www.realestate.com.au/property/?searchTerm=' + encoded,
+    icon: '🏠', label: 'REA'
+  });
+  links.push({
+    href: 'https://www.domain.com.au/sale/?terms=' + encoded,
+    icon: '🏘️', label: 'Domain'
+  });
+  links.push({
+    href: 'https://www.google.com/search?q=' + encoded,
+    icon: '🔎', label: 'Google'
+  });
+  
+  // State-specific links
+  if (state === 'NSW') {
+    links.push({
+      href: 'https://www.planningportal.nsw.gov.au/spatialviewer/#/find-a-property/address/' + encoded,
+      icon: '🗺️', label: 'NSW Planning'
+    });
+    links.push({
+      href: 'https://maps.six.nsw.gov.au/?search=' + encoded,
+      icon: '📍', label: 'SIX Maps'
+    });
+  }
+  if (state === 'VIC') {
+    links.push({
+      href: 'https://mapshare.vic.gov.au/vicplan/?search=' + encoded,
+      icon: '🗺️', label: 'VicPlan'
+    });
+  }
+
   const card = document.createElement('div');
   card.id = 'smart-links-card';
   card.style.cssText = 'margin-top:12px;padding:14px 18px;border-radius:12px;background:rgba(107,76,154,0.08);border:1px solid rgba(107,76,154,0.2);position:relative;';
+  
+  const linksHtml = links.map(l => 
+    '<a href="' + l.href + '" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:12px;text-decoration:none;font-weight:500;transition:border-color 0.2s;">' + l.icon + ' ' + l.label + '</a>'
+  ).join('\n      ');
+
   card.innerHTML = `
     <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;">
       🔍 Research this property
@@ -2372,36 +2418,12 @@ function showSmartLinks(address) {
         style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--primary);border:1px solid var(--primary);color:#fff;font-size:12px;font-weight:500;cursor:pointer;">
         📋 Copy Address
       </button>
-      <a href="https://www.commercialrealestate.com.au/property/${encoded}" target="_blank" rel="noopener"
-        style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:12px;text-decoration:none;font-weight:500;transition:border-color 0.2s;">
-        🏢 Commercial RE
-      </a>
-      <a href="https://www.realestate.com.au/property/?searchTerm=${encoded}" target="_blank" rel="noopener"
-        style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:12px;text-decoration:none;font-weight:500;transition:border-color 0.2s;">
-        🏠 REA
-      </a>
-      <a href="https://www.domain.com.au/sale/?terms=${encoded}" target="_blank" rel="noopener"
-        style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:12px;text-decoration:none;font-weight:500;transition:border-color 0.2s;">
-        🏘️ Domain
-      </a>
-      <a href="https://www.planningportal.nsw.gov.au/spatialviewer/#/find-a-property/address/${encoded}" target="_blank" rel="noopener"
-        style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:12px;text-decoration:none;font-weight:500;transition:border-color 0.2s;">
-        🗺️ NSW Planning
-      </a>
-      <a href="https://maps.six.nsw.gov.au/?search=${encoded}" target="_blank" rel="noopener"
-        style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:12px;text-decoration:none;font-weight:500;transition:border-color 0.2s;">
-        📍 SIX Maps
-      </a>
-      <a href="https://www.google.com/search?q=${encoded}" target="_blank" rel="noopener"
-        style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;background:var(--card);border:1px solid var(--border);color:var(--text);font-size:12px;text-decoration:none;font-weight:500;transition:border-color 0.2s;">
-        🔎 Google
-      </a>
+      ${linksHtml}
     </div>
     <div style="font-size:11px;color:var(--text-muted);margin-top:8px;">
       Click to open in new tab · Links generated from property address
     </div>
   `;
-  // Insert after the address card
   const addrCard = document.getElementById('z-address')?.closest('.card');
   if (addrCard) addrCard.after(card);
 }
