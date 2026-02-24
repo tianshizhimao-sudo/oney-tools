@@ -168,6 +168,32 @@
     .badge-coming { background: var(--gold-glow); color: var(--gold); }
     .badge-pro { background: rgba(168, 85, 247, 0.15); color: #a855f7; }
 
+    .section-pro {
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(168, 85, 247, 0.25);
+    }
+    .section-pro .section-title {
+      color: #a855f7;
+    }
+    .section-pro .section-title::after {
+      background: linear-gradient(90deg, #a855f7, transparent);
+    }
+    .pro-label {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #a855f7;
+      background: rgba(168, 85, 247, 0.12);
+      border: 1px solid rgba(168, 85, 247, 0.25);
+      padding: 3px 10px;
+      border-radius: 100px;
+      margin-left: 10px;
+      vertical-align: middle;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
     /* Search */
     .search-wrap {
       max-width: 480px;
@@ -339,9 +365,21 @@
         if (grouped[cat]) grouped[cat].sort((a, b) => (b.free ? 1 : 0) - (a.free ? 1 : 0));
       }
 
+      // Separate free vs paid tools
+      const paidTools = tools.filter(t => !t.free);
+      const freeTools = tools.filter(t => t.free);
+
+      // Re-group only free tools by category
+      const freeGrouped = {};
+      for (const cat of CATEGORY_ORDER) freeGrouped[cat] = [];
+      for (const t of freeTools) {
+        if (!freeGrouped[t.category]) freeGrouped[t.category] = [];
+        freeGrouped[t.category].push(t);
+      }
+
       let html = '';
       for (const cat of CATEGORY_ORDER) {
-        const items = grouped[cat];
+        const items = freeGrouped[cat];
         if (!items || !items.length) continue;
         const icon = CATEGORY_ICONS[cat] || '';
         html += '<div class="section">';
@@ -352,6 +390,18 @@
         }
         html += '</div></div>';
       }
+
+      // Pro tools section at the bottom
+      if (paidTools.length) {
+        html += '<div class="section section-pro">';
+        html += '<h2 class="section-title">💎 Pro Tools <span class="pro-label">Premium</span></h2>';
+        html += '<div class="tools-grid">';
+        for (const t of paidTools) {
+          html += cardHTML(t);
+        }
+        html += '</div></div>';
+      }
+
       container.innerHTML = html;
     }
 

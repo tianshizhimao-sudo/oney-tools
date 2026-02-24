@@ -414,6 +414,27 @@
     "new": false
   },
   {
+    "id": "oney-security",
+    "name": "Oney Security",
+    "desc": "Property security assessment for complex lending. Score zoning risk, LVR, valuation, tenancy, environmental flags, and portfolio position — all in one structured workflow.",
+    "tags": [
+      "security",
+      "property",
+      "lvr",
+      "zoning",
+      "commercial",
+      "assessment",
+      "lender",
+      "risk"
+    ],
+    "url": "oney-security/",
+    "icon": "🛡️",
+    "category": "Commercial",
+    "free": false,
+    "featured": true,
+    "new": true
+  },
+  {
     "id": "rate-tracker",
     "name": "Competitor Rate Tracker",
     "desc": "Track and compare rates across 14 lenders. Residential & commercial. Highlight changes with colour coding.",
