@@ -2058,12 +2058,15 @@ function initGooglePlaces() {
       }
       badge.textContent = detectedState || '';
       badge.style.display = detectedState ? 'inline-block' : 'none';
-      // T5 R3: State routing — auto-trigger NSW zoning
+      // T5 R3: State routing — auto-trigger zoning lookup
       if (detectedState === 'NSW' && window._addrState.coords.lat) {
         fetchNSWZoning(window._addrState.coords.lat, window._addrState.coords.lng);
-      } else if (detectedState && detectedState !== 'NSW') {
+      } else if (detectedState === 'VIC' && window._addrState.coords.lat) {
+        fetchVICZoning(window._addrState.coords.lat, window._addrState.coords.lng);
+        showSmartLinks(place.formatted_address || input.value);
+      } else if (detectedState && !['NSW','VIC'].includes(detectedState)) {
         showAddrToast('Auto-fill coming soon for ' + detectedState + ' — please enter zoning manually', 'warning');
-        // Show smart links even for non-NSW
+        // Show smart links even for unsupported states
         showSmartLinks(place.formatted_address || input.value);
       }
       autoSave(); recalcAll();
@@ -2225,6 +2228,96 @@ function applyNSWZoningResult(data, propId) {
     showAddrToast('Auto-filled: ' + parts.join(' · '), 'success');
   }
 
+  autoSave(); recalcAll();
+}
+
+// T6b: Fetch VIC Zoning via VicPlan ArcGIS REST API
+async function fetchVICZoning(lat, lng) {
+  const loadingEl = document.getElementById('z-zoning-loading');
+  if (loadingEl) { loadingEl.textContent = '🔍 Looking up zoning from VicPlan…'; loadingEl.classList.remove('hidden'); }
+  try {
+    const b = 0.001;
+    const url = 'https://plan-gis.mapshare.vic.gov.au/arcgis/rest/services/Planning/Vicplan_PlanningSchemeZones/MapServer/identify'
+      + '?geometry=' + lng + ',' + lat + '&geometryType=esriGeometryPoint&sr=4326'
+      + '&layers=all&tolerance=5'
+      + '&mapExtent=' + (lng-b) + ',' + (lat-b) + ',' + (lng+b) + ',' + (lat+b)
+      + '&imageDisplay=800,600,96&returnGeometry=false&f=json';
+    const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    const data = await res.json();
+    applyVICZoningResult(data);
+  } catch(e) {
+    console.warn('VIC Zoning fetch error:', e);
+    showAddrToast('Could not auto-fill VIC zoning — please enter manually', 'warning');
+  } finally {
+    if (loadingEl) loadingEl.classList.add('hidden');
+  }
+}
+
+// T7b: Apply VIC Zoning Result
+function applyVICZoningResult(data) {
+  if (!data || !data.results || data.results.length === 0) {
+    showAddrToast('VIC zoning not found — please enter manually', 'warning');
+    return;
+  }
+  // VicPlan returns ZONE_CODE (e.g. "CCZ2", "GRZ1", "NRZ1") and ZONE_DESCRIPTION
+  let zoneCode = null, zoneDesc = null, lga = null;
+  for (const r of data.results) {
+    const attrs = r.attributes || {};
+    if (attrs.ZONE_CODE) {
+      zoneCode = attrs.ZONE_CODE;
+      zoneDesc = attrs.ZONE_DESCRIPTION || '';
+      lga = attrs.LGA || '';
+      break;
+    }
+  }
+  if (!zoneCode) {
+    showAddrToast('VIC zoning not found in results — please enter manually', 'warning');
+    return;
+  }
+
+  // Map VIC zone codes to our dropdown
+  // VIC uses different codes: GRZ→R1/R2, NRZ→R2, RGZ→R3/R4, C1Z/C2Z→B1-B4, CCZ→B3, IN1Z/IN3Z→IN1-IN3, etc.
+  const vicToNswMap = {
+    'GRZ': 'R1', 'NRZ': 'R2', 'LDRZ': 'R5', 'RGZ': 'R3', 'TZ': 'R4',
+    'MUZ': 'B4', 'C1Z': 'B1', 'C2Z': 'B2', 'C3Z': 'B3', 'CCZ': 'B3', 'ACZ': 'B3',
+    'B1Z': 'B5', 'B2Z': 'B6', 'B3Z': 'B7', 'B4Z': 'B5', 'B5Z': 'B7',
+    'IN1Z': 'IN1', 'IN2Z': 'IN2', 'IN3Z': 'IN3',
+    'SUZ': 'SP1', 'PUZ': 'SP2',
+    'FZ': 'RU1', 'RAZ': 'RU2', 'RLZ': 'RU4', 'GWZ': 'RU5', 'RCZ': 'RU4',
+    'PCRZ': 'RE1', 'PPRZ': 'RE2',
+    'UFZ': 'E4',
+  };
+
+  // Get base code without schedule number (e.g. "CCZ2" → "CCZ", "GRZ1" → "GRZ")
+  const baseCode = zoneCode.replace(/[0-9]+$/, '');
+  const mappedCode = vicToNswMap[baseCode] || vicToNswMap[zoneCode] || null;
+
+  const select = document.getElementById('z-zoning');
+  if (select && mappedCode) {
+    let matched = false;
+    for (const opt of select.options) {
+      if (opt.value === mappedCode) { select.value = opt.value; matched = true; break; }
+    }
+    if (!matched) {
+      showAddrToast('VIC zone "' + zoneCode + '" mapped to "' + mappedCode + '" but not in dropdown', 'warning');
+    }
+  } else if (select && !mappedCode) {
+    showAddrToast('VIC zone "' + zoneCode + '" — please select equivalent manually', 'warning');
+  }
+
+  // Show autofill badge
+  window._addrState.zoningAutoFilled = true;
+  const badge = document.getElementById('z-autofill-badge');
+  if (badge) {
+    badge.classList.remove('hidden');
+    let info = zoneCode;
+    if (zoneDesc) info += ': ' + zoneDesc;
+    if (lga) info += ' (' + lga + ')';
+    if (mappedCode) info += ' → mapped to ' + mappedCode;
+    badge.querySelector('span').textContent = '✓ Auto-filled from VicPlan: ' + info;
+  }
+
+  showAddrToast('Auto-filled: Zone ' + zoneCode + (zoneDesc ? ' — ' + zoneDesc : ''), 'success');
   autoSave(); recalcAll();
 }
 
