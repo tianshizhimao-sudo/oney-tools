@@ -2342,7 +2342,7 @@ const COMM_LVR_MATRIX = {
   'IDL':  { oo:{ideal:0.65,max:0.70,note:'Strong appetite'},      inv:{ideal:0.60,max:0.65,note:'Metro industrial; strong mkt'} },
   'TL':   { oo:{ideal:0.55,max:0.60,note:'Going concern req.'},   inv:{ideal:0.50,max:0.55,note:'Operating income history req.'} },
   'LDS':  { oo:{ideal:0.40,max:0.50,note:'Case by case; <50%'},  inv:{ideal:0.40,max:0.50,note:'Case by case'} },
-  'OTH':  { oo:{ideal:0.60,max:0.65,note:''},                    inv:{ideal:0.50,max:0.55,note:''} },
+  'OTH':  { oo:{ideal:0.65,max:0.70,note:''},                    inv:{ideal:0.65,max:0.65,note:''} },
   // ── Specialised ──
   'spec-oth-medical':   { oo:{ideal:0.60,max:0.65,note:'Specialist suite'},       inv:{ideal:0.50,max:0.60,note:'Long-term lease req.'} },
   'spec-oth-childcare': { oo:{ideal:0.60,max:0.65,note:'Going concern'},          inv:{ideal:0.50,max:0.55,note:'Going concern req.'} },
@@ -2365,7 +2365,7 @@ const COMM_LVR_MATRIX = {
   'spec-oth-landfill': { _decline:true, note:'Environmental risk' },
   'spec-oth-quarry':   { _decline:true, note:'Environmental/specialist risk' },
   // ── Default fallback ──
-  '_default': { oo:{ideal:0.60,max:0.65,note:''}, inv:{ideal:0.50,max:0.55,note:''} }
+  '_default': { oo:{ideal:0.65,max:0.70,note:''}, inv:{ideal:0.65,max:0.65,note:''} }
 };
 
 // Build lender array for commercial (used in valuation + score tabs)
@@ -2381,12 +2381,14 @@ function getCommercialLenders(isOO) {
   const wbcIdeal = Math.min(baseI + 0.02, wbcMax);
   const wbcNote  = isOO ? 'Up to $3M O/O — confirm BDM' : 'Premium standalone → 70%';
   const nabNote  = isOO && base >= 0.65 ? 'Up to 80% (≤$2M) — confirm BDM' : (lvd.note || '');
+  // Use max as ideal (binary ✅/❌ — no middle zone for commercial)
+  const nbMax = Math.min(base+0.10, 0.85);
   return [
-    { name:'NAB',                   icon:'🏦', max:base,                         ideal:baseI,                         note2:nabNote,  minScore:65, condScore:50, lvrIdeal:baseI,                    lvrMax:base },
-    { name:'CBA',                   icon:'🏦', max:base,                         ideal:baseI,                         note2:'',       minScore:65, condScore:50, lvrIdeal:baseI,                    lvrMax:base },
-    { name:'ANZ',                   icon:'🏦', max:base,                         ideal:baseI,                         note2:'',       minScore:65, condScore:50, lvrIdeal:baseI,                    lvrMax:base },
-    { name:'Westpac',               icon:'🏦', max:wbcMax,                       ideal:wbcIdeal,                      note2:wbcNote,  minScore:65, condScore:50, lvrIdeal:wbcIdeal,                 lvrMax:wbcMax },
-    { name:'Non-Bank / Specialist', icon:'💼', max:Math.min(base+0.10,0.85),     ideal:Math.min(baseI+0.05,0.80),     note2:'Macquarie, Thinktank etc.', minScore:45, condScore:30, lvrIdeal:Math.min(baseI+0.05,0.80), lvrMax:Math.min(base+0.10,0.85) },
+    { name:'NAB',                   icon:'🏦', max:base,   ideal:base,   note2:nabNote,  minScore:65, condScore:50, lvrIdeal:base,   lvrMax:base   },
+    { name:'CBA',                   icon:'🏦', max:base,   ideal:base,   note2:'',       minScore:65, condScore:50, lvrIdeal:base,   lvrMax:base   },
+    { name:'ANZ',                   icon:'🏦', max:base,   ideal:base,   note2:'',       minScore:65, condScore:50, lvrIdeal:base,   lvrMax:base   },
+    { name:'Westpac',               icon:'🏦', max:wbcMax, ideal:wbcMax, note2:wbcNote,  minScore:65, condScore:50, lvrIdeal:wbcMax, lvrMax:wbcMax },
+    { name:'Non-Bank / Specialist', icon:'💼', max:nbMax,  ideal:nbMax,  note2:'Macquarie, Thinktank etc.', minScore:45, condScore:30, lvrIdeal:nbMax, lvrMax:nbMax },
   ];
 }
 
@@ -3446,10 +3448,11 @@ const V = {
     const securityValRaw = Math.min(price || Infinity, val || Infinity);
     const securityVal = securityValRaw === Infinity ? 0 : securityValRaw;
     const lvr = securityVal > 0 && loan ? loan / securityVal : 0;
-    // v1.8: Forced sale only for commercial
-    const forcedSaleLow = (!isResidential && securityVal > 0) ? securityVal * 0.7 : 0;
-    const forcedSaleHigh = (!isResidential && securityVal > 0) ? securityVal * 0.8 : 0;
-    const lvrForced30 = loan && forcedSaleLow ? loan / forcedSaleLow : 0;
+    // v1.8: Forced sale only for development (resolvedPath C = commercial-dev/development)
+    const isDevelopment = CrossTab.resolvedPath === 'C';
+    const forcedSaleLow  = (isDevelopment && securityVal > 0) ? securityVal * 0.7 : 0;
+    const forcedSaleHigh = (isDevelopment && securityVal > 0) ? securityVal * 0.8 : 0;
+    const lvrForced30 = loan && forcedSaleLow  ? loan / forcedSaleLow  : 0;
     const lvrForced20 = loan && forcedSaleHigh ? loan / forcedSaleHigh : 0;
     const lvrOC = loan && ocv ? loan / ocv : 0;
     const capRate = noi && price ? noi / price : 0;
@@ -3476,16 +3479,18 @@ const V = {
       else if (lvr > 0.80) { score -= 8; issues.push({t:`LVR ${fmtPct(lvr)} — above 80%, LMI or special conditions required`, s:'amber'}); }
       else if (lvr > 0) { score += 10; }
     } else {
-      // Commercial / Non-Specialised / Specialised LVR thresholds
-      const commercialMax = isCommercialLoan ? 0.70 : 0.65;
+      // Commercial LVR threshold from COMM_LVR_MATRIX (property-type-specific)
+      const _subType    = $('#z-propSubType').value || 'OTH';
+      const _lvTable    = COMM_LVR_MATRIX[_subType] || COMM_LVR_MATRIX['_default'];
+      const _isOO       = CrossTab.commercialPurpose === 'owner-occupied';
+      const commercialMax = _lvTable._decline ? 0.40 : (_lvTable[_isOO ? 'oo' : 'inv']?.max || 0.65);
       if (lvr > 0.80) { score -= 35; issues.push({t:`LVR ${fmtPct(lvr)} exceeds 80% — very high risk for commercial`, s:'red'}); }
-      else if (lvr > commercialMax) { score -= 25; issues.push({t:`LVR ${fmtPct(lvr)} — elevated for commercial (max ~${(commercialMax*100).toFixed(0)}%)`, s:'red'}); }
-      else if (lvr > 0.60) { score -= 8; issues.push({t:`LVR ${fmtPct(lvr)} — within range but tight for Big 4 commercial`, s:'amber'}); }
+      else if (lvr > commercialMax) { score -= 25; issues.push({t:`LVR ${fmtPct(lvr)} exceeds max ${(commercialMax*100).toFixed(0)}% for this property type`, s:'red'}); }
       else if (lvr > 0) { score += 10; }
     }
 
-    // v1.8: Forced sale test only for commercial
-    if (!isResidential) {
+    // v1.8: Forced sale test only for development sites
+    if (isDevelopment) {
       if (lvrForced30 > 1.0) { score -= 15; issues.push({t:`Forced sale (30% discount) LVR ${fmtPct(lvrForced30)} — loan exceeds forced-sale value`, s:'red'}); }
       else if (lvrForced30 > 0.85) { score -= 8; issues.push({t:`Forced sale (30% discount) LVR ${fmtPct(lvrForced30)} — thin equity buffer`, s:'amber'}); }
     }
@@ -3525,8 +3530,10 @@ const V = {
       if (lvr > 0.80 && lvr <= resiMax) html += `<div class="result-row"><span class="label" style="color:var(--warning)">🟡 LMI required (LVR > 80%)</span></div>`;
     } else {
       html += `<div class="result-row"><span class="label">LVR (As-Is)</span><span class="value ${lvr>0.65?lvr>0.75?'red':'amber':'green'}">${fmtPct(lvr)}</span></div>`;
-      html += `<div class="result-row"><span class="label">LVR (Forced Sale -20%)</span><span class="value ${lvrForced20>0.85?'red':'amber'}">${fmtPct(lvrForced20)}</span></div>`;
-      html += `<div class="result-row"><span class="label">LVR (Forced Sale -30%)</span><span class="value ${lvrForced30>0.9?'red':'amber'}">${fmtPct(lvrForced30)}</span></div>`;
+      if (isDevelopment) {
+        html += `<div class="result-row"><span class="label">LVR (Forced Sale -20%)</span><span class="value ${lvrForced20>0.85?'red':'amber'}">${fmtPct(lvrForced20)}</span></div>`;
+        html += `<div class="result-row"><span class="label">LVR (Forced Sale -30%)</span><span class="value ${lvrForced30>0.9?'red':'amber'}">${fmtPct(lvrForced30)}</span></div>`;
+      }
     }
     if (ocv && CrossTab.daStatus === 'yes') html += `<div class="result-row"><span class="label">LVR (On-Completion)</span><span class="value ${lvrOC>0.65?'amber':'green'}">${fmtPct(lvrOC)}</span></div>`;
     if (capRate && (purpose === 'investment' || purpose === 'mixed')) html += `<div class="result-row"><span class="label">Cap Rate</span><span class="value">${(capRate*100).toFixed(2)}%</span></div>`;
@@ -3558,8 +3565,9 @@ const V = {
       if (statusClass !== 'red' && (propCat === 'specialised' || location === 'rural')) {
         if (!isResidential) { status = '⚠️ Possible'; statusClass = 'amber'; note = 'Asset type/location — verify with BDM'; }
       }
+      if (statusClass === 'green') note = `Max ${(l.max*100).toFixed(0)}% LVR — within policy`;
       if (statusClass === 'amber') note = `Max ${(l.max*100).toFixed(0)}% LVR — conditions likely`;
-      if (statusClass === 'red') note = `Max ~${(l.max*100).toFixed(0)}% LVR`;
+      if (statusClass === 'red') note = `Exceeds max ${(l.max*100).toFixed(0)}% LVR`;
       if (l.note2) note += ' · ' + l.note2;
       lHtml += `<div class="lender-row"><span>${l.icon}</span><span class="lender-name">${l.name}</span><span class="lender-status" style="color:var(--${statusClass==='green'?'success':statusClass==='amber'?'warning':'danger'})">${status}</span><span class="lender-note">${note}</span></div>`;
     });
