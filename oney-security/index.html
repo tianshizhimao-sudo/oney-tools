@@ -805,99 +805,6 @@ select.locked-field { pointer-events: none; opacity: 0.55; cursor: not-allowed; 
 </style>
 </head>
 <body>
-
-<!-- ═══ PASSWORD GATE ═══════════════════════════════════════════════════════ -->
-<div id="pw-gate" style="
-  position:fixed;inset:0;z-index:99999;
-  background:#1A1A2E;
-  display:flex;align-items:center;justify-content:center;
-  font-family:Inter,system-ui,sans-serif;
-">
-  <div style="
-    background:#252540;border:1px solid #3D3D5C;border-radius:16px;
-    padding:40px 36px;width:340px;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,0.5);
-  ">
-    <div style="margin-bottom:20px;">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 90" style="height:36px;width:auto;">
-        <defs>
-          <linearGradient id="gf" x1="0%" y1="100%" x2="0%" y2="0%">
-            <stop offset="0%" style="stop-color:#1FAD73"/>
-            <stop offset="55%" style="stop-color:#2ECC85"/>
-            <stop offset="55%" style="stop-color:transparent"/>
-            <stop offset="100%" style="stop-color:transparent"/>
-          </linearGradient>
-          <linearGradient id="gs" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:#2ECC85"/>
-            <stop offset="100%" style="stop-color:#1FAD73"/>
-          </linearGradient>
-        </defs>
-        <g transform="translate(40,45)">
-          <circle cx="0" cy="0" r="32" fill="none" stroke="url(#gs)" stroke-width="7"/>
-          <circle cx="0" cy="0" r="24" fill="url(#gf)"/>
-        </g>
-        <text x="82" y="52" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">ney</text>
-        <text x="129" y="52" font-family="Inter,system-ui,sans-serif" font-size="21" font-weight="500" fill="url(#gs)">&amp;</text>
-        <text x="148" y="52" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">co</text>
-        <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
-      </svg>
-    </div>
-    <div style="font-size:13px;color:#a3a3b8;margin-bottom:6px;">🔐 Beta Access</div>
-    <div style="font-size:20px;font-weight:700;color:#fff;margin-bottom:4px;">Oney Security</div>
-    <div style="font-size:12px;color:#a3a3b8;margin-bottom:28px;">Security Certainty for Complex Lending</div>
-    <input id="pw-input" type="password" placeholder="Enter access code"
-      style="
-        width:100%;box-sizing:border-box;padding:12px 16px;
-        background:#1A1A2E;border:1px solid #3D3D5C;border-radius:10px;
-        color:#fff;font-size:15px;font-family:inherit;outline:none;
-        transition:border-color 0.2s;text-align:center;letter-spacing:2px;
-      "
-      onkeydown="if(event.key==='Enter')pwSubmit()"
-      onfocus="this.style.borderColor='#2ECC85'"
-      onblur="this.style.borderColor='#3D3D5C'"
-    />
-    <div id="pw-err" style="height:18px;font-size:12px;color:#f87171;margin-top:8px;"></div>
-    <button onclick="pwSubmit()" style="
-      margin-top:8px;width:100%;padding:13px;
-      background:linear-gradient(135deg,#2ECC85,#1FAD73);
-      border:none;border-radius:10px;color:#fff;
-      font-size:15px;font-weight:600;font-family:inherit;
-      cursor:pointer;transition:opacity 0.2s;
-    " onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
-      Access Tool →
-    </button>
-    <div style="margin-top:20px;font-size:11px;color:#3D3D5C;">
-      General information only · Not financial advice
-    </div>
-  </div>
-</div>
-<script>
-(function(){
-  var PASS = 'Oneytest';
-  var SESSION_KEY = 'oney-security-auth';
-  function pwSubmit(){
-    var val = document.getElementById('pw-input').value;
-    if(val === PASS){
-      sessionStorage.setItem(SESSION_KEY,'1');
-      var gate = document.getElementById('pw-gate');
-      gate.style.opacity='0';gate.style.transition='opacity 0.4s';
-      setTimeout(function(){ gate.style.display='none'; }, 400);
-    } else {
-      var err = document.getElementById('pw-err');
-      err.textContent = 'Incorrect access code';
-      var inp = document.getElementById('pw-input');
-      inp.style.borderColor='#f87171';
-      inp.value='';
-      setTimeout(function(){ err.textContent=''; inp.style.borderColor='#3D3D5C'; }, 2000);
-    }
-  }
-  window.pwSubmit = pwSubmit;
-  if(sessionStorage.getItem(SESSION_KEY)==='1'){
-    document.getElementById('pw-gate').style.display='none';
-  }
-})();
-</script>
-<!-- ═══ END PASSWORD GATE ════════════════════════════════════════════════════ -->
-
 <!-- Print header -->
 <div class="print-header">
   <h1>Oney Security — Assessment Report</h1>
@@ -2239,38 +2146,6 @@ function applyNSWZoningResult(data) {
     badge.classList.remove('hidden');
     if (lepName) badge.querySelector('span').textContent = '✓ Auto-filled: ' + zoneCode + (lepName ? ' (' + lepName + ')' : '');
   }
-  // ── Auto-select Property Category from Zone Code ────────────────────
-  if (zoneCode) {
-    const prefix = (zoneCode.match(/^[A-Z]+/) || [''])[0];
-    const ZONE_CAT_MAP = {
-      R: 'residential',
-      RU: 'commercial',  // Rural → commercial (rural sub-type)
-      B: 'commercial',   // Business/commercial zones
-      IN: 'commercial',  // Industrial → commercial sub-type
-      SP: 'commercial',  // Special purpose
-      E:  'commercial',  // Environmental (not financeable, but commercial category)
-      MU: 'commercial',  // Mixed use
-      RE: 'commercial',  // Recreation
-      W:  'commercial',  // Waterways
-    };
-    // Try longest prefix match first (e.g. RU before R)
-    const longestMatch = Object.keys(ZONE_CAT_MAP)
-      .filter(k => prefix.startsWith(k) || k === prefix)
-      .sort((a,b) => b.length - a.length)[0];
-    const suggestedCat = longestMatch ? ZONE_CAT_MAP[longestMatch] : null;
-
-    if (suggestedCat) {
-      // Activate the correct pill in #z-propCategory
-      const pills = document.querySelectorAll('#z-propCategory .pill');
-      pills.forEach(p => {
-        if (p.dataset.val === suggestedCat) {
-          p.click(); // triggers initPillGroup callback → sets CrossTab.rawCategory
-        }
-      });
-      showAddrToast('🏷️ Category auto-set: ' + (suggestedCat === 'residential' ? 'Residential' : 'Commercial') + ' (from zone ' + zoneCode + ')');
-    }
-  }
-  // ─────────────────────────────────────────────────────────────────────
   autoSave(); recalcAll();
 }
 
@@ -2454,6 +2329,66 @@ const SPECIALISED = [
   {val:'spec-land-subdiv-multi', label:'Land — Subdivision Multi Stage (≥50 lots)'},
   {val:'spec-other', label:'Other (specify below)'}
 ];
+
+// ===== COMMERCIAL LVR MATRIX (Verified Feb 2026 · D. Mao) =====
+// Format per sub-type: { oo:{ideal,max,note}, inv:{ideal,max,note} }
+// OO = Owner-Occupied | inv = Investment
+// NAB/CBA/ANZ share same base policy pending individual confirmation.
+// Westpac: OO up to $3M same as NAB; inv premium standalone assets → 70%.
+const COMM_LVR_MATRIX = {
+  // ── Non-Specialised Commercial (APRA categories) ──
+  'OFC':  { oo:{ideal:0.65,max:0.70,note:'Standard O/O'},         inv:{ideal:0.55,max:0.65,note:'Prime metro; suburban 50–60%'} },
+  'RTL':  { oo:{ideal:0.65,max:0.70,note:'Strip/retail O/O'},     inv:{ideal:0.45,max:0.50,note:'Strip retail; SC up to 60%'} },
+  'IDL':  { oo:{ideal:0.65,max:0.70,note:'Strong appetite'},      inv:{ideal:0.60,max:0.65,note:'Metro industrial; strong mkt'} },
+  'TL':   { oo:{ideal:0.55,max:0.60,note:'Going concern req.'},   inv:{ideal:0.50,max:0.55,note:'Operating income history req.'} },
+  'LDS':  { oo:{ideal:0.40,max:0.50,note:'Case by case; <50%'},  inv:{ideal:0.40,max:0.50,note:'Case by case'} },
+  'OTH':  { oo:{ideal:0.60,max:0.65,note:''},                    inv:{ideal:0.50,max:0.55,note:''} },
+  // ── Specialised ──
+  'spec-oth-medical':   { oo:{ideal:0.60,max:0.65,note:'Specialist suite'},       inv:{ideal:0.50,max:0.60,note:'Long-term lease req.'} },
+  'spec-oth-childcare': { oo:{ideal:0.60,max:0.65,note:'Going concern'},          inv:{ideal:0.50,max:0.55,note:'Going concern req.'} },
+  'spec-oth-nursing':   { oo:{ideal:0.40,max:0.50,note:'Specialist lender req.'}, inv:{ideal:0.35,max:0.45,note:'<50%; very limited lenders'} },
+  'spec-oth-retirement':{ oo:{ideal:0.40,max:0.50,note:'Specialist lender req.'}, inv:{ideal:0.35,max:0.45,note:'Very limited lenders'} },
+  'spec-oth-hospital':  { oo:{ideal:0.40,max:0.50,note:'Specialist lender req.'}, inv:{ideal:0.35,max:0.45,note:'Very limited lenders'} },
+  'spec-oth-storage':   { oo:{ideal:0.60,max:0.65,note:'Appetite growing'},       inv:{ideal:0.55,max:0.60,note:'Appetite increasing'} },
+  'spec-oth-carpark':   { oo:{ideal:0.50,max:0.60,note:'Income stability key'},   inv:{ideal:0.45,max:0.55,note:'Income stability key'} },
+  'spec-tl-hotel':      { oo:{ideal:0.55,max:0.60,note:'Going concern'},          inv:{ideal:0.50,max:0.55,note:'Going concern req.'} },
+  'spec-tl-motel':      { oo:{ideal:0.55,max:0.60,note:'Going concern'},          inv:{ideal:0.50,max:0.55,note:'Going concern req.'} },
+  'spec-tl-resort':     { oo:{ideal:0.50,max:0.55,note:'Going concern'},          inv:{ideal:0.45,max:0.50,note:'Complex; limited lenders'} },
+  'spec-tl-serviced':   { oo:{ideal:0.55,max:0.60,note:''},                       inv:{ideal:0.50,max:0.55,note:''} },
+  'spec-tl-clubs':      { oo:{ideal:0.50,max:0.55,note:'Going concern'},          inv:{ideal:0.45,max:0.50,note:'Very limited lenders'} },
+  'spec-tl-gaming':     { oo:{ideal:0.50,max:0.55,note:'Going concern'},          inv:{ideal:0.45,max:0.50,note:'Very limited lenders'} },
+  'spec-tl-boarding':   { oo:{ideal:0.55,max:0.60,note:''},                       inv:{ideal:0.50,max:0.55,note:''} },
+  'spec-rtl-servo':     { oo:{ideal:0.45,max:0.50,note:'⚠️ Env. risk; Phase 1 req.'}, inv:{ideal:0.40,max:0.45,note:'⚠️ Very limited; env. risk'} },
+  // ── Auto-Decline ──
+  'spec-oth-worship':  { _decline:true, note:'Special purpose; limited market depth' },
+  'spec-oth-prison':   { _decline:true, note:'Special purpose' },
+  'spec-oth-landfill': { _decline:true, note:'Environmental risk' },
+  'spec-oth-quarry':   { _decline:true, note:'Environmental/specialist risk' },
+  // ── Default fallback ──
+  '_default': { oo:{ideal:0.60,max:0.65,note:''}, inv:{ideal:0.50,max:0.55,note:''} }
+};
+
+// Build lender array for commercial (used in valuation + score tabs)
+function getCommercialLenders(isOO) {
+  const subType = $('#z-propSubType').value || 'OTH';
+  const lvrTable = COMM_LVR_MATRIX[subType] || COMM_LVR_MATRIX['_default'];
+  if (lvrTable._decline) {
+    return [{ name:'Most Lenders', max:0.40, ideal:0.30, icon:'🚫', note2:lvrTable.note, minScore:999, condScore:999, lvrIdeal:0.30, lvrMax:0.40 }];
+  }
+  const lvd = lvrTable[isOO ? 'oo' : 'inv'];
+  const base = lvd.max, baseI = lvd.ideal;
+  const wbcMax   = Math.min(base + 0.05, 0.70);
+  const wbcIdeal = Math.min(baseI + 0.02, wbcMax);
+  const wbcNote  = isOO ? 'Up to $3M O/O — confirm BDM' : 'Premium standalone → 70%';
+  const nabNote  = isOO && base >= 0.65 ? 'Up to 80% (≤$2M) — confirm BDM' : (lvd.note || '');
+  return [
+    { name:'NAB',                   icon:'🏦', max:base,                         ideal:baseI,                         note2:nabNote,  minScore:65, condScore:50, lvrIdeal:baseI,                    lvrMax:base },
+    { name:'CBA',                   icon:'🏦', max:base,                         ideal:baseI,                         note2:'',       minScore:65, condScore:50, lvrIdeal:baseI,                    lvrMax:base },
+    { name:'ANZ',                   icon:'🏦', max:base,                         ideal:baseI,                         note2:'',       minScore:65, condScore:50, lvrIdeal:baseI,                    lvrMax:base },
+    { name:'Westpac',               icon:'🏦', max:wbcMax,                       ideal:wbcIdeal,                      note2:wbcNote,  minScore:65, condScore:50, lvrIdeal:wbcIdeal,                 lvrMax:wbcMax },
+    { name:'Non-Bank / Specialist', icon:'💼', max:Math.min(base+0.10,0.85),     ideal:Math.min(baseI+0.05,0.80),     note2:'Macquarie, Thinktank etc.', minScore:45, condScore:30, lvrIdeal:Math.min(baseI+0.05,0.80), lvrMax:Math.min(base+0.10,0.85) },
+  ];
+}
 
 // ===== CURRENCY FORMATTING =====
 function formatCurrencyInput(input) {
@@ -3611,21 +3546,21 @@ const V = {
       {name:'Regional Banks', max: hasLMI ? 0.90 : 0.80, ideal: 0.75, icon:'🏛️'},
       {name:'Non-Bank Lenders', max: hasLMI ? 0.95 : 0.85, ideal: 0.80, icon:'💼'},
       {name:'Private / Specialist', max: hasFG ? 1.00 : 0.90, ideal: 0.85, icon:'🔒', note2: hasFG ? 'Family guarantee' : ''}
-    ] : [
-      {name:'Big 4 Banks', max:0.60, ideal:0.55, icon:'🏦'},
-      {name:'Regional Banks', max:0.65, ideal:0.60, icon:'🏛️'},
-      {name:'Non-Bank Lenders', max:0.75, ideal:0.65, icon:'💼'},
-      {name:'Private Credit', max:0.85, ideal:0.75, icon:'🔒'}
-    ];
-    let lHtml = '<div class="card-title">🏦 Lender Appetite by LVR</div>';
+    ] : getCommercialLenders(CrossTab.commercialPurpose === 'owner-occupied');
+    const _commPurpose = CrossTab.commercialPurpose;
+    const _purposeLabel = isResidential ? '' : (_commPurpose === 'owner-occupied' ? ' · 🏢 Owner Occupied' : ' · 📈 Investment');
+    let lHtml = `<div class="card-title">🏦 Lender Appetite${_purposeLabel}</div><div style="font-size:11px;color:var(--text-muted);margin:-4px 0 10px;">Data verified Feb 2026 · Update lenders as policies confirmed</div>`;
     lenders.forEach(l => {
       let status, statusClass, note;
       if (lvr <= l.ideal) { status = '✅ Likely'; statusClass = 'green'; note = 'Within comfort zone'; }
       else if (lvr <= l.max) { status = '⚠️ Possible'; statusClass = 'amber'; note = 'May require conditions'; }
       else { status = '❌ Unlikely'; statusClass = 'red'; note = `Max ~${(l.max*100).toFixed(0)}% LVR`; }
-      if (statusClass !== 'red' && l.name === 'Big 4 Banks' && (propCat === 'specialised' || location === 'rural')) {
-        status = '⚠️ Possible'; statusClass = 'amber'; note = 'Asset type/location concern';
+      if (statusClass !== 'red' && (propCat === 'specialised' || location === 'rural')) {
+        if (!isResidential) { status = '⚠️ Possible'; statusClass = 'amber'; note = 'Asset type/location — verify with BDM'; }
       }
+      if (statusClass === 'amber') note = `Max ${(l.max*100).toFixed(0)}% LVR — conditions likely`;
+      if (statusClass === 'red') note = `Max ~${(l.max*100).toFixed(0)}% LVR`;
+      if (l.note2) note += ' · ' + l.note2;
       lHtml += `<div class="lender-row"><span>${l.icon}</span><span class="lender-name">${l.name}</span><span class="lender-status" style="color:var(--${statusClass==='green'?'success':statusClass==='amber'?'warning':'danger'})">${status}</span><span class="lender-note">${note}</span></div>`;
     });
     $('#v-lenderAppetite').innerHTML = lHtml;
@@ -4223,12 +4158,7 @@ const S = {
       {name:'Regional Banks',   icon:'🏛️', minScore:60, condScore:45, lvrIdeal:0.75, lvrMax:0.80},
       {name:'Non-Bank Lenders', icon:'💼', minScore:45, condScore:30, lvrIdeal:0.80, lvrMax:0.90},
       {name:'Private Credit',   icon:'🔒', minScore:25, condScore:15, lvrIdeal:0.85, lvrMax:0.95}
-    ] : [
-      {name:'Big 4 Banks',      icon:'🏦', minScore:70, condScore:55, lvrIdeal:0.55, lvrMax:0.60},
-      {name:'Regional Banks',   icon:'🏛️', minScore:60, condScore:45, lvrIdeal:0.60, lvrMax:0.65},
-      {name:'Non-Bank Lenders', icon:'💼', minScore:45, condScore:30, lvrIdeal:0.65, lvrMax:0.75},
-      {name:'Private Credit',   icon:'🔒', minScore:25, condScore:15, lvrIdeal:0.75, lvrMax:0.85}
-    ];
+    ] : getCommercialLenders(CrossTab.commercialPurpose === 'owner-occupied');
     const lvr = v ? v.lvr : 0;
     const wale = t ? t.waleByIncome : 999;
 
