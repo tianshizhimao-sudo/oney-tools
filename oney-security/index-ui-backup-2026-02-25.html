@@ -1,6 +1,4 @@
 <!DOCTYPE html>
-<!-- v1.8.3 — Added Geoscape Predictive API as address autocomplete fallback -->
-<!-- v1.8.2 — Added NSW Bushfire Prone Land API integration -->
 <!-- v1.8.1 — Added postMessage interface for Pro Suite integration -->
 <html lang="en" data-theme="dark">
 <head>
@@ -22,15 +20,15 @@ document.addEventListener('DOMContentLoaded', function() {
     if (typeof initGooglePlaces === 'function') initGooglePlaces();
   };
   script.onerror = function() {
-    console.warn('Google Places API failed to load — falling back to Geoscape');
+    console.warn('Google Places API failed to load.');
     window._placesApiFailed = true;
-    if (typeof initGeoscapeAutocomplete === 'function') initGeoscapeAutocomplete();
+    if (typeof initManualAddressFallback === 'function') initManualAddressFallback();
   };
   // Also detect API key restriction errors (loads but fails silently)
   setTimeout(function() {
     if (!window.google || !window.google.maps || !window.google.maps.places) {
       window._placesApiFailed = true;
-      if (typeof initGeoscapeAutocomplete === 'function') initGeoscapeAutocomplete();
+      if (typeof initManualAddressFallback === 'function') initManualAddressFallback();
     }
   }, 3000);
   document.head.appendChild(script);
@@ -419,122 +417,6 @@ td input, td select {
 }
 .property-card .pc-title { font-weight: 600; font-size: 14px; }
 
-/* ===== PHASE 1: DASHBOARD COMPONENTS ===== */
-
-/* KPI Hero Cards Row */
-.kpi-row {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px; margin-bottom: 24px;
-}
-.kpi-card {
-  background: var(--card); border: 1px solid var(--border);
-  border-radius: 12px; padding: 20px; position: relative; overflow: hidden;
-  transition: transform var(--transition), box-shadow var(--transition);
-}
-.kpi-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
-.kpi-card .kpi-label {
-  font-size: 12px; font-weight: 500; color: var(--text-muted);
-  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
-}
-.kpi-card .kpi-value {
-  font-size: 32px; font-weight: 700; line-height: 1.1; margin-bottom: 4px;
-}
-.kpi-card .kpi-badge {
-  display: inline-block; font-size: 11px; font-weight: 500;
-  padding: 2px 8px; border-radius: 6px; margin-top: 4px;
-}
-.kpi-card .kpi-source {
-  font-size: 11px; color: var(--text-muted); margin-top: 8px;
-  border-top: 1px solid var(--border); padding-top: 6px;
-}
-.kpi-card .kpi-ring {
-  width: 56px; height: 56px; position: absolute; top: 16px; right: 16px;
-}
-.kpi-card .kpi-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-.kpi-card .kpi-ring circle { fill: none; stroke-width: 5; }
-.kpi-card .kpi-ring .ring-bg { stroke: var(--border); }
-.kpi-card .kpi-ring .ring-fg { stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
-.kpi-value.risk-low { color: #2ECC85; }
-.kpi-value.risk-medium { color: #F4C542; }
-.kpi-value.risk-elevated { color: #E67E22; }
-.kpi-value.risk-high { color: #E74C3C; }
-.kpi-badge.risk-low { background: rgba(46,204,133,0.12); color: #2ECC85; }
-.kpi-badge.risk-medium { background: rgba(244,197,66,0.12); color: #F4C542; }
-.kpi-badge.risk-elevated { background: rgba(230,126,34,0.12); color: #E67E22; }
-.kpi-badge.risk-high { background: rgba(231,76,60,0.12); color: #E74C3C; }
-
-/* Status Badge */
-.status-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  font-size: 11px; font-weight: 500; padding: 3px 10px;
-  border-radius: 6px;
-}
-.status-badge.assessed { background: rgba(46,204,133,0.12); color: #2ECC85; }
-.status-badge.draft { background: rgba(136,136,170,0.15); color: #8888AA; }
-.status-badge.flagged { background: rgba(231,76,60,0.12); color: #E74C3C; }
-
-/* Source Badge (pill) */
-.source-badge {
-  display: inline-flex; align-items: center; gap: 3px;
-  font-size: 10px; font-weight: 500; padding: 2px 6px;
-  border-radius: 4px; background: rgba(107,76,154,0.12); color: #9B59B6;
-  white-space: nowrap;
-}
-.source-text {
-  font-size: 11px; color: var(--text-muted); margin-top: 2px;
-}
-
-/* Risk Factor Table */
-.risk-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.risk-table th {
-  background: var(--table-header); padding: 10px 12px; text-align: left;
-  font-weight: 600; color: var(--text-secondary); font-size: 11px;
-  text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
-}
-.risk-table td { padding: 12px; border-top: 1px solid var(--border); vertical-align: middle; }
-.risk-table tr:nth-child(even) { background: var(--table-alt); }
-.risk-table tr:hover { background: var(--card-hover, #2D2D50); }
-.risk-table .rt-status { font-size: 16px; text-align: center; width: 40px; }
-.risk-table .rt-factor { font-weight: 500; }
-.risk-table .rt-value { font-weight: 600; }
-.risk-table .rt-threshold { color: var(--text-muted); font-size: 12px; }
-.risk-table .rt-source { font-size: 11px; color: var(--text-muted); }
-.risk-table .rt-impact { font-weight: 700; text-align: center; width: 60px; }
-.rt-impact.positive { color: #2ECC85; }
-.rt-impact.negative { color: #E74C3C; }
-.rt-impact.neutral { color: var(--text-muted); }
-
-/* Lender Matrix Grid */
-.lender-grid { width: 100%; border-collapse: collapse; font-size: 13px; }
-.lender-grid th {
-  background: var(--table-header); padding: 10px 8px; text-align: center;
-  font-weight: 600; color: var(--text-secondary); font-size: 11px;
-  text-transform: uppercase; letter-spacing: 0.3px;
-}
-.lender-grid th:first-child { text-align: left; }
-.lender-grid td { padding: 10px 8px; border-top: 1px solid var(--border); text-align: center; }
-.lender-grid tr:nth-child(even) { background: var(--table-alt); }
-.lender-grid tr:last-child { font-weight: 700; }
-.lender-grid td:first-child { text-align: left; font-weight: 500; }
-.lender-grid .cell-pass { background: rgba(46,204,133,0.08); }
-.lender-grid .cell-fail { background: rgba(231,76,60,0.08); }
-.lender-grid .cell-cond { background: rgba(244,197,66,0.08); }
-
-/* Dashboard Tabs (within score panel) */
-.dash-tabs {
-  display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 20px;
-}
-.dash-tab {
-  padding: 10px 20px; font-size: 13px; font-weight: 500;
-  color: var(--text-muted); background: none; border: none;
-  border-bottom: 2px solid transparent; margin-bottom: -2px;
-  cursor: pointer; transition: all var(--transition); font-family: inherit;
-}
-.dash-tab:hover { color: var(--text); }
-.dash-tab.active { color: #6B4C9A; border-bottom-color: #6B4C9A; font-weight: 600; }
-.dash-panel { display: none; }
-.dash-panel.active { display: block; }
-
 /* Autocomplete dropdown */
 /* Google Places Autocomplete styling */
 .pac-container { z-index: 10000 !important; border-radius: 8px; margin-top: 4px; font-family: 'Inter', sans-serif; }
@@ -880,91 +762,6 @@ select.locked-field { pointer-events: none; opacity: 0.55; cursor: not-allowed; 
 .zoning-loading { font-size:12px; color:var(--text-secondary); padding:6px 0; }
 .zoning-loading::after { content:''; display:inline-block; width:12px; height:12px; border:2px solid var(--primary); border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite; margin-left:6px; vertical-align:middle; }
 @keyframes spin { to { transform:rotate(360deg); } }
-
-/* ===== PHASE 2: SIDEBAR NAVIGATION ===== */
-.app-layout { display: flex; min-height: 100vh; }
-.sidebar {
-  width: 220px; min-width: 220px; background: #252540;
-  border-right: 1px solid var(--border); display: flex; flex-direction: column;
-  position: fixed; top: 0; left: 0; bottom: 0; z-index: 150;
-  transition: transform 0.3s ease;
-}
-.sidebar-logo {
-  padding: 20px; display: flex; align-items: center; gap: 10px;
-  border-bottom: 1px solid var(--border);
-}
-.sidebar-logo svg { width: 32px; height: 32px; flex-shrink: 0; }
-.sidebar-logo .logo-text { font-size: 15px; font-weight: 700; color: #fff; }
-.sidebar-logo .logo-text span { color: #2ECC85; }
-.sidebar-nav { flex: 1; padding: 12px 0; }
-.sidebar-nav-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 20px; font-size: 13px; font-weight: 500;
-  color: #8888AA; cursor: pointer; transition: all 0.2s;
-  border-left: 3px solid transparent; text-decoration: none;
-}
-.sidebar-nav-item:hover { color: #fff; background: rgba(255,255,255,0.04); }
-.sidebar-nav-item.active {
-  color: #2ECC85; border-left-color: #2ECC85;
-  background: rgba(46,204,133,0.08);
-}
-.sidebar-nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
-.sidebar-footer {
-  padding: 16px 20px; border-top: 1px solid var(--border);
-  font-size: 11px; color: #555570;
-}
-.app-main { margin-left: 220px; flex: 1; min-width: 0; }
-
-/* Hamburger toggle for sidebar */
-.sidebar-toggle {
-  display: none; position: fixed; top: 12px; left: 12px; z-index: 200;
-  width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border);
-  background: var(--card); color: var(--text); cursor: pointer;
-  font-size: 20px; align-items: center; justify-content: center;
-}
-.sidebar-overlay {
-  display: none; position: fixed; inset: 0; z-index: 140;
-  background: rgba(0,0,0,0.5);
-}
-
-@media (max-width: 767px) {
-  .sidebar { transform: translateX(-100%); }
-  .sidebar.open { transform: translateX(0); }
-  .sidebar-toggle { display: flex; }
-  .sidebar-overlay.open { display: block; }
-  .app-main { margin-left: 0; }
-}
-
-/* ===== PHASE 2: LENDER CROSS-TABLE ===== */
-.lender-cross-table {
-  width: 100%; border-collapse: collapse; font-size: 13px;
-}
-.lender-cross-table th {
-  background: var(--table-header); padding: 10px 12px;
-  font-weight: 600; color: var(--text-secondary); font-size: 11px;
-  text-transform: uppercase; letter-spacing: 0.3px; text-align: center;
-  white-space: nowrap;
-}
-.lender-cross-table th:first-child { text-align: left; min-width: 130px; }
-.lender-cross-table td {
-  padding: 10px 12px; border-top: 1px solid var(--border);
-  text-align: center; vertical-align: middle;
-}
-.lender-cross-table td:first-child { text-align: left; font-weight: 500; }
-.lender-cross-table tr:nth-child(even) { background: var(--table-alt); }
-.lender-cross-table tr:hover { background: var(--card-hover); }
-.lender-cross-table tr.lct-overall {
-  font-weight: 700; border-top: 2px solid var(--border);
-  background: var(--table-header);
-}
-.lct-cell {
-  display: inline-flex; align-items: center; gap: 4px;
-  padding: 3px 8px; border-radius: 6px; font-size: 12px; font-weight: 500;
-}
-.lct-cell.pass { background: rgba(46,204,133,0.10); color: #2ECC85; }
-.lct-cell.cond { background: rgba(244,197,66,0.10); color: #F4C542; }
-.lct-cell.fail { background: rgba(231,76,60,0.10); color: #E74C3C; }
-.lct-cell .lct-val { font-size: 11px; opacity: 0.85; }
 </style>
 
 <!-- 1-page report styles (screen hidden, print shown) -->
@@ -1015,41 +812,6 @@ select.locked-field { pointer-events: none; opacity: 0.55; cursor: not-allowed; 
   <div class="print-tagline">Security Certainty for Complex Lending</div>
   <div class="print-date" id="printDate"></div>
 </div>
-
-<!-- Sidebar Toggle (mobile) -->
-<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">☰</button>
-<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-
-<div class="app-layout">
-
-<!-- Left Sidebar -->
-<aside class="sidebar" id="appSidebar">
-  <div class="sidebar-logo">
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <defs><linearGradient id="sG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2ECC85"/><stop offset="100%" stop-color="#1FAD73"/></linearGradient></defs>
-      <g transform="translate(50,50)"><path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#sG)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/><path d="M0 -45 L0 -52" stroke="url(#sG)" stroke-width="6" stroke-linecap="round"/></g>
-    </svg>
-    <div class="logo-text">Oney <span>Security</span></div>
-  </div>
-  <nav class="sidebar-nav">
-    <a class="sidebar-nav-item active" data-sidebar="dashboard" onclick="switchSidebarNav('dashboard')">
-      <span class="nav-icon">📊</span> Dashboard
-    </a>
-    <a class="sidebar-nav-item" data-sidebar="risk" onclick="switchSidebarNav('risk')">
-      <span class="nav-icon">⚠️</span> Risk Analysis
-    </a>
-    <a class="sidebar-nav-item" data-sidebar="lenders" onclick="switchSidebarNav('lenders')">
-      <span class="nav-icon">🏦</span> Lender Matrix
-    </a>
-    <a class="sidebar-nav-item" data-sidebar="report" onclick="switchSidebarNav('report')">
-      <span class="nav-icon">📄</span> Report
-    </a>
-  </nav>
-  <div class="sidebar-footer">Oney Security v1.8.3</div>
-</aside>
-
-<!-- Main Content Area -->
-<div class="app-main">
 
 <!-- App Header -->
 <header class="app-header">
@@ -2031,83 +1793,27 @@ select.locked-field { pointer-events: none; opacity: 0.55; cursor: not-allowed; 
 
 <!-- ============ MODULE 6: SECURITY RISK SCORE ============ -->
 <div class="tab-panel" id="panel-score">
-  <!-- KPI Hero Cards -->
-  <div class="kpi-row" id="s-kpiRow">
-    <div class="kpi-card" id="kpi-score">
-      <div class="kpi-label">Risk Score</div>
-      <div class="kpi-value" id="kpiScoreVal">—</div>
-      <div class="kpi-badge draft" id="kpiScoreBadge">Incomplete</div>
-      <div class="kpi-ring">
-        <svg viewBox="0 0 56 56"><circle class="ring-bg" cx="28" cy="28" r="22" /><circle class="ring-fg" id="kpiRingFg" cx="28" cy="28" r="22" stroke-dasharray="138.2" stroke-dashoffset="138.2"/></svg>
+  <div class="card">
+    <div class="card-title text-center">⭐ Overall Security Risk Score</div>
+    <div class="gauge-wrap">
+      <div class="gauge">
+        <canvas id="gaugeCanvas" width="200" height="120"></canvas>
+        <div class="gauge-score">
+          <div class="gs-num" id="gaugeNum">—</div>
+          <div class="gs-label" id="gaugeLabel">Complete modules to score</div>
+        </div>
       </div>
     </div>
-    <div class="kpi-card" id="kpi-lvr">
-      <div class="kpi-label">Max LVR</div>
-      <div class="kpi-value" id="kpiLvrVal">—</div>
-      <div class="kpi-badge draft" id="kpiLvrBadge">No data</div>
-      <div class="kpi-source" id="kpiLvrSource">Complete valuation module</div>
-    </div>
-    <div class="kpi-card" id="kpi-lenders">
-      <div class="kpi-label">Lender Matches</div>
-      <div class="kpi-value" id="kpiLenderVal">—</div>
-      <div class="kpi-badge draft" id="kpiLenderBadge">of 4 assessed</div>
-    </div>
-    <div class="kpi-card" id="kpi-flag">
-      <div class="kpi-label">Key Flag</div>
-      <div class="kpi-value" style="font-size:16px;" id="kpiFlagVal">—</div>
-      <div class="kpi-badge draft" id="kpiFlagBadge">No flags</div>
-    </div>
   </div>
-
-  <!-- Dashboard Sub-tabs -->
-  <div class="dash-tabs" id="s-dashTabs">
-    <button class="dash-tab active" data-dtab="overview" onclick="switchDashTab('overview')">Overview</button>
-    <button class="dash-tab" data-dtab="risk" onclick="switchDashTab('risk')">Risk Detail</button>
-    <button class="dash-tab" data-dtab="lenders" onclick="switchDashTab('lenders')">Lender Matrix</button>
+  <div class="score-dashboard" id="s-moduleDash"></div>
+  <div class="card">
+    <div class="card-title">🏦 Lender Appetite Matrix</div>
+    <div class="lender-matrix" id="s-lenderMatrix"></div>
   </div>
-
-  <!-- Overview Tab -->
-  <div class="dash-panel active" id="dpanel-overview">
-    <div class="score-dashboard" id="s-moduleDash"></div>
-    <div class="card">
-      <div class="card-title">⚠️ Key Risk Flags</div>
-      <ul class="rec-list" id="s-recommendations"></ul>
-    </div>
+  <div class="card">
+    <div class="card-title">💡 Risk Mitigation Recommendations</div>
+    <ul class="rec-list" id="s-recommendations"></ul>
   </div>
-
-  <!-- Risk Detail Tab -->
-  <div class="dash-panel" id="dpanel-risk">
-    <div class="card" style="overflow-x:auto;">
-      <div class="card-title">Risk Factor Analysis</div>
-      <table class="risk-table" id="s-riskTable">
-        <thead><tr>
-          <th style="width:40px"></th>
-          <th>Risk Factor</th>
-          <th>Value</th>
-          <th>Threshold</th>
-          <th>Source</th>
-          <th style="width:60px">Impact</th>
-        </tr></thead>
-        <tbody id="s-riskTbody"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Lender Matrix Tab -->
-  <div class="dash-panel" id="dpanel-lenders">
-    <div class="card">
-      <div class="card-title">🏦 Lender Appetite Matrix</div>
-      <div class="lender-matrix" id="s-lenderMatrix"></div>
-    </div>
-  </div>
-
-  <!-- Hidden gauge for backward compat (print report uses it) -->
-  <div style="display:none;">
-    <canvas id="gaugeCanvas" width="200" height="120"></canvas>
-    <div id="gaugeNum" style="display:none;">—</div>
-    <div id="gaugeLabel" style="display:none;">Complete modules to score</div>
-  </div>
-
   <div class="btn-group no-print">
     <button class="btn btn-primary" onclick="S.generateReport()">📄 Generate Report</button>
     <button class="btn btn-secondary" onclick="S.exportJSON()">💾 Export JSON</button>
@@ -2133,7 +1839,7 @@ select.locked-field { pointer-events: none; opacity: 0.55; cursor: not-allowed; 
 <footer class="app-footer no-print">
   <div style="margin-bottom:8px;">
     <svg width="24" height="24" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-right:6px;opacity:0.6;"><defs><linearGradient id="fG" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2ECC85"/><stop offset="100%" stop-color="#1FAD73"/></linearGradient></defs><g transform="translate(50,50)"><path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#fG)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/><path d="M0 -45 L0 -52" stroke="url(#fG)" stroke-width="6" stroke-linecap="round"/></g></svg>
-    <span style="font-weight:600;color:var(--text-secondary);">Oney Security</span> <span style="opacity:0.5">v1.8.3</span>
+    <span style="font-weight:600;color:var(--text-secondary);">Oney Security</span> <span style="opacity:0.5">v1.8</span>
   </div>
   © 2026 Oney & Co · <a href="mailto:hello@oneyco.com.au" style="color:var(--primary);text-decoration:none;">hello@oneyco.com.au</a>
 </footer>
@@ -2158,61 +1864,6 @@ function getVerdict(score) {
   if (score >= 45) return 'Marginal';
   if (score >= 25) return 'Weak';
   return 'Decline';
-}
-function getRiskClass(score) {
-  if (score <= 30) return 'risk-low';
-  if (score <= 60) return 'risk-medium';
-  if (score <= 80) return 'risk-elevated';
-  return 'risk-high';
-}
-// Invert: our scores are "quality" (high=good), risk class needs inversion
-function getRiskClassFromScore(score) {
-  if (score >= 70) return 'risk-low';
-  if (score >= 40) return 'risk-medium';
-  if (score >= 25) return 'risk-elevated';
-  return 'risk-high';
-}
-function getRiskLabel(score) {
-  if (score >= 70) return 'Low Risk';
-  if (score >= 40) return 'Medium';
-  if (score >= 25) return 'Elevated';
-  return 'High Risk';
-}
-
-// ===== PHASE 2: SIDEBAR NAVIGATION =====
-function toggleSidebar() {
-  const sb = document.getElementById('appSidebar');
-  const ov = document.getElementById('sidebarOverlay');
-  sb.classList.toggle('open');
-  ov.classList.toggle('open');
-}
-function switchSidebarNav(section) {
-  // Update active state
-  document.querySelectorAll('.sidebar-nav-item').forEach(n => n.classList.toggle('active', n.dataset.sidebar === section));
-  // Close mobile sidebar
-  if (window.innerWidth < 768) toggleSidebar();
-  // Map sidebar items to actions
-  if (section === 'dashboard') {
-    // Switch to score tab, overview sub-tab
-    const scoreBtn = document.querySelector('[data-tab="score"]');
-    if (scoreBtn) scoreBtn.click();
-    switchDashTab('overview');
-  } else if (section === 'risk') {
-    const scoreBtn = document.querySelector('[data-tab="score"]');
-    if (scoreBtn) scoreBtn.click();
-    switchDashTab('risk');
-  } else if (section === 'lenders') {
-    const scoreBtn = document.querySelector('[data-tab="score"]');
-    if (scoreBtn) scoreBtn.click();
-    switchDashTab('lenders');
-  } else if (section === 'report') {
-    if (typeof S !== 'undefined' && S.generateReport) S.generateReport();
-  }
-}
-
-function switchDashTab(tab) {
-  document.querySelectorAll('.dash-tab').forEach(t => t.classList.toggle('active', t.dataset.dtab === tab));
-  document.querySelectorAll('.dash-panel').forEach(p => p.classList.toggle('active', p.id === 'dpanel-' + tab));
 }
 
 // ===== CROSS-TAB STATE =====
@@ -2411,7 +2062,6 @@ function initGooglePlaces() {
       // T5 R3: State routing — auto-trigger zoning lookup
       if (detectedState === 'NSW' && window._addrState.coords.lat) {
         fetchNSWZoning(window._addrState.coords.lat, window._addrState.coords.lng);
-        fetchBushfireData(window._addrState.coords.lat, window._addrState.coords.lng);
       } else if (detectedState === 'VIC' && window._addrState.coords.lat) {
         fetchVICZoning(window._addrState.coords.lat, window._addrState.coords.lng);
         showSmartLinks(place.formatted_address || input.value);
@@ -2425,7 +2075,7 @@ function initGooglePlaces() {
     console.log('Google Places Autocomplete initialized ✅');
   } catch(e) {
     console.warn('Google Places init error:', e);
-    initGeoscapeAutocomplete();
+    initManualAddressFallback();
   }
 }
 
@@ -2703,50 +2353,6 @@ async function fetchSIXMapsLotArea(propId) {
   }
 }
 
-// v1.8.2: Fetch NSW Bushfire Prone Land data
-async function fetchBushfireData(lat, lng) {
-  window._addrState.bushfireData = { status: 'loading' };
-  try {
-    const delta = 0.005; // ~500m bounding box
-    const geom = JSON.stringify({ xmin: lng - delta, ymin: lat - delta, xmax: lng + delta, ymax: lat + delta });
-    const params = new URLSearchParams({
-      geometry: geom,
-      geometryType: 'esriGeometryEnvelope',
-      spatialRel: 'esriSpatialRelIntersects',
-      outFields: 'd_Category,d_Guidelin',
-      f: 'json',
-      inSR: '4283',
-      resultRecordCount: '5'
-    });
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
-    const resp = await fetch('https://mapprod3.environment.nsw.gov.au/arcgis/rest/services/Fire/BFPL/MapServer/0/query?' + params, { signal: controller.signal });
-    clearTimeout(timeout);
-    const data = await resp.json();
-    if (data.features && data.features.length > 0) {
-      // Pick highest risk category found
-      const cats = data.features.map(f => f.attributes.d_Category).filter(Boolean);
-      let topCat = null;
-      const priority = ['Vegetation Category 1', 'Vegetation Category 2', 'Vegetation Category 3', 'Vegetation Buffer'];
-      for (const p of priority) { if (cats.includes(p)) { topCat = p; break; } }
-      const guideline = data.features[0].attributes.d_Guidelin || '';
-      window._addrState.bushfireData = { status: 'found', category: topCat || cats[0], guideline, allCategories: cats };
-      // Auto-set bushfire risk flag to 'yes'
-      if (CrossTab.riskFlags) CrossTab.riskFlags.bushfire = 'yes';
-      showAddrToast(`🔥 Bushfire Prone Land: ${topCat || cats[0]}`, topCat === 'Vegetation Category 1' ? 'error' : 'warning');
-    } else {
-      window._addrState.bushfireData = { status: 'clear' };
-      showAddrToast('✅ Not in Bush Fire Prone Land', 'success');
-    }
-  } catch(e) {
-    console.warn('Bushfire API error:', e);
-    window._addrState.bushfireData = { status: 'error', message: e.message };
-  }
-  // Refresh risk flags UI if visible
-  if (typeof buildRiskFlags === 'function') buildRiskFlags();
-  recalcAll();
-}
-
 // T8b: Show smart links card for property research (state-aware)
 function showSmartLinks(address) {
   // Remove existing card if any
@@ -2866,149 +2472,6 @@ function initManualAddressFallback() {
     stateEl.parentNode.replaceChild(select, stateEl);
   }
   console.log('📍 Manual address fallback activated');
-}
-
-// ===== GEOSCAPE PREDICTIVE API — Address Autocomplete Fallback =====
-const GEOSCAPE_API_KEY = 'Ab57LpJbXMuZPVgCl5fTRftXdRPhzYrr';
-const GEOSCAPE_BASE = 'https://api.psma.com.au/v1/predictive/address';
-
-function initGeoscapeAutocomplete() {
-  const input = document.getElementById('z-address');
-  if (!input || input._geoscapeApplied) return;
-  input._geoscapeApplied = true;
-  input.placeholder = 'Start typing an Australian address… (Geoscape)';
-
-  // Create dropdown list
-  let list = input.parentNode.querySelector('.autocomplete-list');
-  if (!list) {
-    list = document.createElement('div');
-    list.className = 'autocomplete-list';
-    input.parentNode.appendChild(list);
-  }
-
-  let debounceTimer = null;
-  let currentResults = [];
-
-  input.addEventListener('input', function() {
-    const q = input.value.trim();
-    clearTimeout(debounceTimer);
-    if (q.length < 3) { list.classList.remove('show'); list.innerHTML = ''; return; }
-    debounceTimer = setTimeout(() => geoscapeSuggest(q, list), 300);
-  });
-
-  // Close dropdown on outside click
-  document.addEventListener('click', function(e) {
-    if (!input.parentNode.contains(e.target)) { list.classList.remove('show'); }
-  });
-
-  // Prevent form submit on enter
-  input.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') e.preventDefault();
-  });
-
-  async function geoscapeSuggest(query, listEl) {
-    try {
-      const res = await fetch(GEOSCAPE_BASE + '/?query=' + encodeURIComponent(query), {
-        headers: { 'Authorization': GEOSCAPE_API_KEY },
-        signal: AbortSignal.timeout(5000)
-      });
-      const data = await res.json();
-      const items = (data.suggest || []).slice(0, 5);
-      currentResults = items;
-      if (items.length === 0) { listEl.classList.remove('show'); listEl.innerHTML = ''; return; }
-      listEl.innerHTML = items.map((item, i) =>
-        '<div class="autocomplete-item" data-idx="' + i + '">' + escapeHtml(item.address) + '</div>'
-      ).join('');
-      listEl.classList.add('show');
-
-      // Attach click handlers
-      listEl.querySelectorAll('.autocomplete-item').forEach(el => {
-        el.addEventListener('click', function() {
-          const idx = parseInt(this.dataset.idx);
-          const selected = currentResults[idx];
-          if (selected) geoscapeSelect(selected, input, listEl);
-        });
-      });
-    } catch(e) {
-      console.warn('Geoscape suggest error:', e);
-      listEl.classList.remove('show');
-    }
-  }
-
-  async function geoscapeSelect(item, inputEl, listEl) {
-    inputEl.value = item.address;
-    listEl.classList.remove('show');
-    listEl.innerHTML = '';
-
-    try {
-      const res = await fetch(GEOSCAPE_BASE + '/' + encodeURIComponent(item.id), {
-        headers: { 'Authorization': GEOSCAPE_API_KEY },
-        signal: AbortSignal.timeout(5000)
-      });
-      const data = await res.json();
-      const props = data.address && data.address.properties || {};
-      const geom = data.address && data.address.geometry || {};
-      const coords = geom.coordinates || []; // [lng, lat]
-
-      // Store coords (Geoscape returns [lng, lat])
-      if (coords.length >= 2) {
-        window._addrState.coords = { lat: coords[1], lng: coords[0] };
-      }
-
-      // Extract state
-      const detectedState = props.state_territory || null; // "NSW", "VIC", etc.
-      window._addrState.propertyState = detectedState;
-
-      // Fill state field
-      const stateEl = document.getElementById('z-state');
-      if (stateEl && detectedState) {
-        const stateNames = { NSW:'New South Wales', VIC:'Victoria', QLD:'Queensland', SA:'South Australia', WA:'Western Australia', TAS:'Tasmania', NT:'Northern Territory', ACT:'Australian Capital Territory' };
-        stateEl.value = stateNames[detectedState] || detectedState;
-      }
-
-      // Show state badge
-      let badge = document.getElementById('addr-state-badge');
-      if (!badge) {
-        badge = document.createElement('span');
-        badge.id = 'addr-state-badge';
-        badge.className = 'state-badge';
-        inputEl.parentNode.appendChild(badge);
-      }
-      badge.textContent = detectedState || '';
-      badge.style.display = detectedState ? 'inline-block' : 'none';
-
-      // Store Geoscape extras
-      if (props.cadastral_identifier) {
-        window._addrState.cadastralId = props.cadastral_identifier;
-      }
-      if (props.postcode) window._addrState.postcode = props.postcode;
-      if (props.locality_name) window._addrState.suburb = props.locality_name;
-
-      // Trigger zoning lookups (same as Google Places flow)
-      if (detectedState === 'NSW' && window._addrState.coords.lat) {
-        fetchNSWZoning(window._addrState.coords.lat, window._addrState.coords.lng);
-        fetchBushfireData(window._addrState.coords.lat, window._addrState.coords.lng);
-      } else if (detectedState === 'VIC' && window._addrState.coords.lat) {
-        fetchVICZoning(window._addrState.coords.lat, window._addrState.coords.lng);
-        showSmartLinks(item.address);
-      } else if (detectedState && !['NSW','VIC'].includes(detectedState)) {
-        showAddrToast('Auto-fill coming soon for ' + detectedState + ' — please enter zoning manually', 'warning');
-        showSmartLinks(item.address);
-      }
-
-      autoSave(); recalcAll();
-      console.log('📍 Geoscape address selected:', item.address, coords);
-    } catch(e) {
-      console.warn('Geoscape detail fetch error:', e);
-      showAddrToast('Could not fetch address details — please enter zoning manually', 'warning');
-    }
-  }
-
-  function escapeHtml(str) {
-    const d = document.createElement('div'); d.textContent = str; return d.innerHTML;
-  }
-
-  console.log('📍 Geoscape Predictive autocomplete initialized ✅');
 }
 
 // ===== RISK FLAGS: Yes/No/NA for each =====
@@ -4171,15 +3634,7 @@ const Z = {
           case 'conservation': score -= 10; issues.push({t:'Conservation area — development constraints', s:'amber'}); break;
           case 'contaminated': score -= 25; issues.push({t:'Contaminated land — remediation liability, lender concern', s:'red'}); break;
           case 'flood': score -= 20; issues.push({t:'Flood zone — insurance cost, damage risk, reduced lender appetite', s:'red'}); break;
-          case 'bushfire': {
-            // v1.8.2: Granular scoring from BFPL API data
-            const bfCat = window._addrState?.bushfireData?.category || '';
-            if (bfCat.includes('Category 1')) { score -= 25; issues.push({t:'Vegetation Category 1 — highest bushfire risk, BAL-40/FZ likely, lender restrictions apply', s:'red'}); }
-            else if (bfCat.includes('Category 2')) { score -= 15; issues.push({t:'Vegetation Category 2 — moderate bushfire risk, BAL requirements apply', s:'amber'}); }
-            else if (bfCat.includes('Category 3') || bfCat.includes('Buffer')) { score -= 8; issues.push({t:'Vegetation Category 3/Buffer — lower bushfire risk, construction standards may apply', s:'amber'}); }
-            else { score -= 15; issues.push({t:'Bushfire prone area — insurance loading, BAL requirements', s:'amber'}); }
-            break;
-          }
+          case 'bushfire': score -= 15; issues.push({t:'Bushfire prone area — insurance loading, BAL requirements', s:'amber'}); break;
           case 'acid-sulfate': score -= 8; issues.push({t:'Acid sulfate soils — construction cost implications', s:'amber'}); break;
         }
       } else if (val === 'na') {
@@ -4345,25 +3800,25 @@ const V = {
     const color = getColor(score);
     $('#v-scoreLight').style.background = `var(--${color === 'green' ? 'success' : color === 'amber' ? 'warning' : 'danger'})`;
 
-    let html = `<div class="result-row"><span class="label">Valuation Score</span><span class="value ${color}">${score}/100 · ${getVerdict(score)}</span></div>`;
+    let html = `<div class="result-row"><span class="label">Valuation Score</span><span class="value ${color}">${score}/100 — ${getVerdict(score)}</span></div>`;
     if (purpose) html += `<div class="result-row"><span class="label">Purpose</span><span class="value">${purpose === 'owner-occupied' ? 'Owner Occupied' : purpose === 'investment' ? 'Investment' : 'Mixed'}</span></div>`;
     if (isResidential) {
       const resiMax = this.getResidentialMaxLvr();
-      html += `<div class="result-row"><span class="label">LVR (As-Is)</span><span class="value ${lvr>0.95?'red':lvr>0.80?'amber':'green'}">${fmtPct(lvr)}<span class="source-text" style="margin-left:8px">Source: Assessment inputs</span></span></div>`;
-      html += `<div class="result-row"><span class="label">Standard Max LVR</span><span class="value">80% <span class="source-badge">APRA</span></span></div>`;
-      html += `<div class="result-row"><span class="label">Eligible Max LVR</span><span class="value green">${(resiMax*100).toFixed(0)}%</span></div>`;
-      if (lvr > 0.80 && lvr <= resiMax) html += `<div class="result-row"><span class="label" style="color:var(--warning)">⚠️ LMI required (LVR > 80%)</span></div>`;
+      html += `<div class="result-row"><span class="label">LVR (As-Is)</span><span class="value ${lvr>0.95?'red':lvr>0.80?'amber':'green'}">${fmtPct(lvr)}</span></div>`;
+      html += `<div class="result-row"><span class="label">Standard Max LVR</span><span class="value">80%</span></div>`;
+      html += `<div class="result-row"><span class="label">Your Eligible Max LVR</span><span class="value green">${(resiMax*100).toFixed(0)}%</span></div>`;
+      if (lvr > 0.80 && lvr <= resiMax) html += `<div class="result-row"><span class="label" style="color:var(--warning)">🟡 LMI required (LVR > 80%)</span></div>`;
     } else {
-      html += `<div class="result-row"><span class="label">LVR (As-Is)</span><span class="value ${lvr>0.65?lvr>0.75?'red':'amber':'green'}">${fmtPct(lvr)}<span class="source-text" style="margin-left:8px">Source: Assessment inputs</span></span></div>`;
+      html += `<div class="result-row"><span class="label">LVR (As-Is)</span><span class="value ${lvr>0.65?lvr>0.75?'red':'amber':'green'}">${fmtPct(lvr)}</span></div>`;
       if (isDevelopment) {
-        html += `<div class="result-row"><span class="label">LVR (Forced Sale −20%)</span><span class="value ${lvrForced20>0.85?'red':'amber'}">${fmtPct(lvrForced20)}</span></div>`;
-        html += `<div class="result-row"><span class="label">LVR (Forced Sale −30%)</span><span class="value ${lvrForced30>0.9?'red':'amber'}">${fmtPct(lvrForced30)}</span></div>`;
+        html += `<div class="result-row"><span class="label">LVR (Forced Sale -20%)</span><span class="value ${lvrForced20>0.85?'red':'amber'}">${fmtPct(lvrForced20)}</span></div>`;
+        html += `<div class="result-row"><span class="label">LVR (Forced Sale -30%)</span><span class="value ${lvrForced30>0.9?'red':'amber'}">${fmtPct(lvrForced30)}</span></div>`;
       }
     }
     if (ocv && CrossTab.daStatus === 'yes') html += `<div class="result-row"><span class="label">LVR (On-Completion)</span><span class="value ${lvrOC>0.65?'amber':'green'}">${fmtPct(lvrOC)}</span></div>`;
-    if (capRate && (purpose === 'investment' || purpose === 'mixed')) html += `<div class="result-row"><span class="label">Cap Rate</span><span class="value">${(capRate*100).toFixed(2)}% <span class="source-badge">Market benchmark</span></span></div>`;
-    html += `<div class="result-row"><span class="label">Security Value</span><span class="value">${fmtMoney(securityVal)} <span class="source-text">Lower of price/valuation</span></span></div>`;
-    issues.forEach(i => { html += `<div class="result-row"><span class="label" style="color:var(--${i.s==='red'?'danger':'warning'})">${i.s==='red'?'🔴':'⚠️'} ${i.t}</span></div>`; });
+    if (capRate && (purpose === 'investment' || purpose === 'mixed')) html += `<div class="result-row"><span class="label">Cap Rate</span><span class="value">${(capRate*100).toFixed(2)}%</span></div>`;
+    html += `<div class="result-row"><span class="label">Security Value (lower of)</span><span class="value">${fmtMoney(securityVal)}</span></div>`;
+    issues.forEach(i => { html += `<div class="result-row"><span class="label" style="color:var(--${i.s==='red'?'danger':'warning'})">${i.s==='red'?'🔴':'🟡'} ${i.t}</span></div>`; });
     $('#v-resultBox').innerHTML = html;
 
     // Lender appetite
@@ -4381,7 +3836,7 @@ const V = {
     ] : getCommercialLenders(CrossTab.commercialPurpose === 'owner-occupied');
     const _commPurpose = CrossTab.commercialPurpose;
     const _purposeLabel = isResidential ? '' : (_commPurpose === 'owner-occupied' ? ' · 🏢 Owner Occupied' : ' · 📈 Investment');
-    let lHtml = `<div class="card-title">🏦 Lender Appetite${_purposeLabel}</div><div style="font-size:11px;color:var(--text-muted);margin:-4px 0 10px;"><span class="source-badge">Lender Policy</span> Data verified Feb 2026</div>`;
+    let lHtml = `<div class="card-title">🏦 Lender Appetite${_purposeLabel}</div><div style="font-size:11px;color:var(--text-muted);margin:-4px 0 10px;">Data verified Feb 2026 · Update lenders as policies confirmed</div>`;
     lenders.forEach(l => {
       let status, statusClass, note;
       if (lvr <= l.ideal) { status = '✅ Likely'; statusClass = 'green'; note = 'Within comfort zone'; }
@@ -4969,117 +4424,7 @@ const S = {
     const color = getColor(overallScore);
     this.lastScores = { overallScore, verdict, color, modules: completed, allIssues };
 
-    // ===== KPI HERO CARDS =====
-    const riskCls = getRiskClassFromScore(overallScore);
-    const riskLbl = getRiskLabel(overallScore);
-    $('#kpiScoreVal').textContent = overallScore;
-    $('#kpiScoreVal').className = 'kpi-value ' + riskCls;
-    $('#kpiScoreBadge').textContent = riskLbl;
-    $('#kpiScoreBadge').className = 'kpi-badge ' + riskCls;
-    // Ring animation
-    const ringFg = $('#kpiRingFg');
-    const circumference = 138.2;
-    ringFg.style.strokeDashoffset = circumference - (overallScore / 100) * circumference;
-    ringFg.style.stroke = overallScore >= 70 ? '#2ECC85' : overallScore >= 40 ? '#F4C542' : overallScore >= 25 ? '#E67E22' : '#E74C3C';
-
-    // LVR KPI
-    const lvr = v ? v.lvr : 0;
-    if (lvr > 0) {
-      $('#kpiLvrVal').textContent = fmtPct(lvr);
-      const lvrCls = lvr > 0.80 ? 'risk-high' : lvr > 0.65 ? 'risk-elevated' : 'risk-low';
-      $('#kpiLvrVal').className = 'kpi-value ' + lvrCls;
-      $('#kpiLvrBadge').textContent = lvr > 0.80 ? 'Above 80%' : lvr > 0.65 ? 'Elevated' : 'Within policy';
-      $('#kpiLvrBadge').className = 'kpi-badge ' + lvrCls;
-      $('#kpiLvrSource').textContent = 'Source: Assessment inputs · Valuation module';
-    } else {
-      $('#kpiLvrVal').textContent = '—';
-      $('#kpiLvrVal').className = 'kpi-value';
-      $('#kpiLvrBadge').textContent = 'No data';
-      $('#kpiLvrBadge').className = 'kpi-badge draft';
-      $('#kpiLvrSource').textContent = 'Complete valuation module';
-    }
-
-    // Lender match KPI
-    const isResiScore = (CrossTab.propCategory || 'commercial') === 'residential';
-    const resiMaxLvr = isResiScore && V.getResidentialMaxLvr ? V.getResidentialMaxLvr() : 0.80;
-
-    const lenders = isResiScore ? [
-      {name:'Big 4 Banks',      icon:'🏦', minScore:70, condScore:55, lvrIdeal:0.70, lvrMax: resiMaxLvr},
-      {name:'Regional Banks',   icon:'🏛️', minScore:60, condScore:45, lvrIdeal:0.75, lvrMax:0.80},
-      {name:'Non-Bank Lenders', icon:'💼', minScore:45, condScore:30, lvrIdeal:0.80, lvrMax:0.90},
-      {name:'Private Credit',   icon:'🔒', minScore:25, condScore:15, lvrIdeal:0.85, lvrMax:0.95}
-    ] : getCommercialLenders(CrossTab.commercialPurpose === 'owner-occupied');
-    const wale = t ? t.waleByIncome : 999;
-
-    let likelyCount = 0;
-    // Build per-lender assessment data for cross-table
-    const lenderData = lenders.map(l => {
-      // LVR check
-      let lvrStatus, lvrCls;
-      if (lvr <= l.lvrIdeal) { lvrStatus = '✅'; lvrCls = 'pass'; }
-      else if (lvr <= l.lvrMax) { lvrStatus = '⚠️'; lvrCls = 'cond'; }
-      else { lvrStatus = '🔴'; lvrCls = 'fail'; }
-      const lvrVal = `${(l.lvrMax*100).toFixed(0)}%`;
-
-      // Risk Score check
-      let scoreStatus, scoreCls;
-      if (overallScore >= l.minScore) { scoreStatus = '✅'; scoreCls = 'pass'; }
-      else if (overallScore >= l.condScore) { scoreStatus = '⚠️'; scoreCls = 'cond'; }
-      else { scoreStatus = '🔴'; scoreCls = 'fail'; }
-
-      // WALE check (commercial only)
-      let waleStatus = '✅', waleCls = 'pass';
-      if (!isResiScore && t) {
-        if (wale < 2) { waleStatus = '🔴'; waleCls = 'fail'; }
-        else if (wale < 3) { waleStatus = '⚠️'; waleCls = 'cond'; }
-      }
-
-      // Overall
-      let overall, overallCls, overallLabel;
-      if (overallScore >= l.minScore && lvr <= l.lvrIdeal && (isResiScore || wale >= 3 || !t)) {
-        overall = '✅'; overallCls = 'pass'; overallLabel = 'Likely'; likelyCount++;
-      } else if (scoreCls === 'fail' || lvrCls === 'fail') {
-        overall = '🔴'; overallCls = 'fail'; overallLabel = 'Unlikely';
-      } else {
-        overall = '⚠️'; overallCls = 'cond'; overallLabel = 'Conditional';
-      }
-
-      return { name: l.name, icon: l.icon, lvrStatus, lvrCls, lvrVal, scoreStatus, scoreCls, waleStatus, waleCls, overall, overallCls, overallLabel };
-    });
-
-    // Render cross-table
-    let matrixHtml = '<table class="lender-cross-table"><thead><tr><th>Lender</th><th>LVR Cap</th><th>Risk Score</th>';
-    if (!isResiScore) matrixHtml += '<th>WALE</th>';
-    matrixHtml += '<th>Overall</th></tr></thead><tbody>';
-    lenderData.forEach(d => {
-      matrixHtml += `<tr>
-        <td>${d.icon} ${d.name}</td>
-        <td><span class="lct-cell ${d.lvrCls}">${d.lvrStatus} <span class="lct-val">${d.lvrVal}</span></span></td>
-        <td><span class="lct-cell ${d.scoreCls}">${d.scoreStatus} <span class="lct-val">${overallScore}</span></span></td>`;
-      if (!isResiScore) matrixHtml += `<td><span class="lct-cell ${d.waleCls}">${d.waleStatus} <span class="lct-val">${wale < 999 ? wale.toFixed(1)+'yr' : 'N/A'}</span></span></td>`;
-      matrixHtml += `<td><span class="lct-cell ${d.overallCls}">${d.overall} ${d.overallLabel}</span></td></tr>`;
-    });
-    matrixHtml += '</tbody></table>';
-    $('#s-lenderMatrix').innerHTML = matrixHtml;
-
-    $('#kpiLenderVal').textContent = likelyCount;
-    $('#kpiLenderBadge').textContent = `of ${lenders.length} assessed`;
-    $('#kpiLenderBadge').className = 'kpi-badge ' + (likelyCount >= 2 ? 'risk-low' : likelyCount >= 1 ? 'risk-medium' : 'risk-high');
-
-    // Key flag KPI
-    const topFlag = allIssues.find(i => i.s === 'red') || allIssues[0];
-    if (topFlag) {
-      const flagText = topFlag.t.length > 50 ? topFlag.t.slice(0, 48) + '…' : topFlag.t;
-      $('#kpiFlagVal').textContent = flagText;
-      $('#kpiFlagBadge').textContent = topFlag.s === 'red' ? 'High Impact' : 'Warning';
-      $('#kpiFlagBadge').className = 'kpi-badge ' + (topFlag.s === 'red' ? 'risk-high' : 'risk-medium');
-    } else {
-      $('#kpiFlagVal').textContent = 'None';
-      $('#kpiFlagBadge').textContent = 'No flags';
-      $('#kpiFlagBadge').className = 'kpi-badge risk-low';
-    }
-
-    // ===== MODULE DASHBOARD (Overview tab) =====
+    // Module dashboard
     let dashHtml = '';
     modules.forEach(m => {
       const sc = m.result ? m.result.score : null;
@@ -5092,60 +4437,47 @@ const S = {
     });
     $('#s-moduleDash').innerHTML = dashHtml;
 
-    // ===== RISK FACTOR TABLE (Risk Detail tab) =====
-    let riskRows = '';
-    const sourceMap = {
-      zoning: 'Council / NSW E-Planning',
-      valuation: 'Assessment inputs · Lender policy',
-      tenancy: 'Lease schedule',
-      environmental: 'NSW Flood Data / EPA',
-      portfolio: 'Borrower disclosure',
-      development: 'DA / QS Report'
-    };
-    completed.forEach(m => {
-      (m.result.issues || []).forEach(iss => {
-        const icon = iss.s === 'red' ? '🔴' : iss.s === 'amber' ? '⚠️' : '✅';
-        const impactCls = iss.s === 'red' ? 'negative' : iss.s === 'amber' ? 'negative' : 'neutral';
-        const source = sourceMap[m.key] || '—';
-        riskRows += `<tr>
-          <td class="rt-status">${icon}</td>
-          <td class="rt-factor">${m.icon} ${m.name}</td>
-          <td class="rt-value">${iss.t}</td>
-          <td class="rt-threshold">—</td>
-          <td class="rt-source"><span class="source-badge">${source}</span></td>
-          <td class="rt-impact ${impactCls}">${iss.s === 'red' ? '−' : iss.s === 'amber' ? '−' : '0'}</td>
-        </tr>`;
-      });
+    // Lender matrix — residential vs commercial LVR thresholds
+    const isResiScore = (CrossTab.propCategory || 'commercial') === 'residential';
+    const resiMaxLvr = isResiScore && V.getResidentialMaxLvr ? V.getResidentialMaxLvr() : 0.80;
+
+    const lenders = isResiScore ? [
+      {name:'Big 4 Banks',      icon:'🏦', minScore:70, condScore:55, lvrIdeal:0.70, lvrMax: resiMaxLvr},
+      {name:'Regional Banks',   icon:'🏛️', minScore:60, condScore:45, lvrIdeal:0.75, lvrMax:0.80},
+      {name:'Non-Bank Lenders', icon:'💼', minScore:45, condScore:30, lvrIdeal:0.80, lvrMax:0.90},
+      {name:'Private Credit',   icon:'🔒', minScore:25, condScore:15, lvrIdeal:0.85, lvrMax:0.95}
+    ] : getCommercialLenders(CrossTab.commercialPurpose === 'owner-occupied');
+    const lvr = v ? v.lvr : 0;
+    const wale = t ? t.waleByIncome : 999;
+
+    let matrixHtml = '';
+    lenders.forEach(l => {
+      let status, sColor, note;
+      if (overallScore >= l.minScore) {
+        if (lvr <= l.lvrIdeal) {
+          status = '✅ Likely to approve'; sColor = 'success'; note = 'Within comfort zone';
+        } else if (lvr <= l.lvrMax) {
+          status = '⚠️ Possible with conditions'; sColor = 'warning'; note = `LVR ${fmtPct(lvr)} — may require conditions`;
+        } else {
+          status = '❌ Unlikely'; sColor = 'danger'; note = `LVR ${fmtPct(lvr)} above maximum`;
+        }
+        // WALE check for commercial only
+        if (!isResiScore && wale < 3 && t && sColor !== 'danger') {
+          status = '⚠️ Possible with conditions'; sColor = 'warning'; note = `WALE ${wale.toFixed(1)}yr below preference`;
+        }
+      } else if (overallScore >= l.condScore) {
+        status = '⚠️ Possible with conditions'; sColor = 'warning'; note = 'Score — additional security likely';
+      } else {
+        status = '❌ Unlikely'; sColor = 'danger'; note = 'Score below threshold';
+      }
+      matrixHtml += `<div class="lender-row"><span>${l.icon}</span><span class="lender-name">${l.name}</span><span class="lender-status" style="color:var(--${sColor})">${status}</span><span class="lender-note">${note}</span></div>`;
     });
-    // v1.8.2: Bushfire Prone Land row
-    const bfData = window._addrState?.bushfireData;
-    const bfState = window._addrState?.propertyState;
-    if (bfState && bfState !== 'NSW') {
-      riskRows += `<tr><td class="rt-status">ℹ️</td><td class="rt-factor">🔥 Bushfire Risk</td><td class="rt-value">N/A — NSW only</td><td class="rt-threshold">—</td><td class="rt-source"><span class="source-badge">NSW RFS BFPL</span></td><td class="rt-impact neutral">0</td></tr>`;
-    } else if (bfData?.status === 'found') {
-      const cat = bfData.category || '';
-      const isCat1 = cat.includes('Category 1');
-      const isCat2 = cat.includes('Category 2');
-      const sev = isCat1 ? 'red' : isCat2 ? 'amber' : 'green';
-      const icon = isCat1 ? '🔴' : isCat2 ? '⚠️' : '✅';
-      const impactCls = isCat1 ? 'negative' : isCat2 ? 'negative' : 'neutral';
-      const impactTxt = isCat1 ? '−−' : isCat2 ? '−' : '0';
-      riskRows += `<tr><td class="rt-status">${icon}</td><td class="rt-factor">🔥 Bushfire Risk</td><td class="rt-value">${cat}${bfData.guideline ? ' (' + bfData.guideline + ')' : ''}</td><td class="rt-threshold">Source: NSW RFS Bush Fire Prone Land Map</td><td class="rt-source"><span class="source-badge">NSW RFS BFPL</span></td><td class="rt-impact ${impactCls}">${impactTxt}</td></tr>`;
-    } else if (bfData?.status === 'clear') {
-      riskRows += `<tr><td class="rt-status">✅</td><td class="rt-factor">🔥 Bushfire Risk</td><td class="rt-value">Not in Bush Fire Prone Land</td><td class="rt-threshold">—</td><td class="rt-source"><span class="source-badge">NSW RFS BFPL</span></td><td class="rt-impact neutral">0</td></tr>`;
-    } else if (bfData?.status === 'error') {
-      riskRows += `<tr><td class="rt-status">⚠️</td><td class="rt-factor">🔥 Bushfire Risk</td><td class="rt-value">Bushfire data unavailable</td><td class="rt-threshold">—</td><td class="rt-source"><span class="source-badge">NSW RFS BFPL</span></td><td class="rt-impact neutral">0</td></tr>`;
-    } else if (bfData?.status === 'loading') {
-      riskRows += `<tr><td class="rt-status">⏳</td><td class="rt-factor">🔥 Bushfire Risk</td><td class="rt-value">Loading bushfire data…</td><td class="rt-threshold">—</td><td class="rt-source"><span class="source-badge">NSW RFS BFPL</span></td><td class="rt-impact neutral">0</td></tr>`;
-    }
+    $('#s-lenderMatrix').innerHTML = matrixHtml;
 
-    if (!riskRows) riskRows = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:40px">No risk factors identified yet</td></tr>';
-    $('#s-riskTbody').innerHTML = riskRows;
-
-    // Recommendations (now as key risk flags)
+    // Recommendations
     this.generateRecommendations(completed, overallScore, allIssues);
 
-    // Gauge (kept for print report backward compat)
+    // Gauge
     this.drawGauge(overallScore, color);
     $('#gaugeNum').textContent = overallScore;
     $('#gaugeNum').style.color = `var(--${color==='green'?'success':color==='amber'?'warning':'danger'})`;
@@ -5203,17 +4535,8 @@ const S = {
   },
 
   renderEmpty() {
-    // Reset KPI cards
-    $('#kpiScoreVal').textContent = '—'; $('#kpiScoreVal').className = 'kpi-value';
-    $('#kpiScoreBadge').textContent = 'Incomplete'; $('#kpiScoreBadge').className = 'kpi-badge draft';
-    $('#kpiRingFg').style.strokeDashoffset = '138.2';
-    $('#kpiLvrVal').textContent = '—'; $('#kpiLvrBadge').textContent = 'No data'; $('#kpiLvrBadge').className = 'kpi-badge draft';
-    $('#kpiLvrSource').textContent = 'Complete valuation module';
-    $('#kpiLenderVal').textContent = '—'; $('#kpiLenderBadge').textContent = 'of 4 assessed'; $('#kpiLenderBadge').className = 'kpi-badge draft';
-    $('#kpiFlagVal').textContent = '—'; $('#kpiFlagBadge').textContent = 'No flags'; $('#kpiFlagBadge').className = 'kpi-badge draft';
     $('#s-moduleDash').innerHTML = '<div class="text-center text-muted" style="padding:40px;grid-column:1/-1">Complete modules to generate risk assessment</div>';
     $('#s-lenderMatrix').innerHTML = '<div class="text-muted text-sm">Complete assessment modules for lender appetite analysis</div>';
-    $('#s-riskTbody').innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--text-muted);padding:40px">Complete modules to see risk analysis</td></tr>';
     $('#s-recommendations').innerHTML = '<li>Begin by completing the Zoning & Compliance and Valuation modules</li>';
     this.drawGauge(0, '');
     $('#gaugeNum').textContent = '—';
@@ -5311,33 +4634,18 @@ const S = {
     const lenderEl = $('#s-lenderMatrix');
     let lenderHtml = '';
     if (lenderEl) {
-      // Read from cross-table rows (Phase 2 format)
-      lenderEl.querySelectorAll('.lender-cross-table tbody tr').forEach(row => {
-        const cells = row.querySelectorAll('td');
-        if (cells.length >= 3) {
-          const name = cells[0]?.textContent?.trim() || '';
-          const lastCell = cells[cells.length - 1];
-          const overallText = lastCell?.textContent?.trim() || '';
-          const isGreen = overallText.includes('Likely') && !overallText.includes('Unlikely');
-          const isRed = overallText.includes('Unlikely');
+      lenderEl.querySelectorAll('.lender-row').forEach(row => {
+        const cells = row.querySelectorAll('span');
+        if (cells.length >= 4) {
+          const name = cells[1]?.textContent || '';
+          const status = cells[2]?.textContent || '';
+          const note = cells[3]?.textContent || '';
+          const isGreen = status.includes('Likely');
+          const isRed   = status.includes('Unlikely');
           const cl = isGreen ? 'score-green' : isRed ? 'score-red' : 'score-amber';
-          lenderHtml += `<div class="op-lender"><div class="op-lender-name">${name}</div><div class="op-lender-status ${cl}">${overallText}</div></div>`;
+          lenderHtml += `<div class="op-lender"><div class="op-lender-name">${name}</div><div class="op-lender-status ${cl}">${status}</div><div class="op-lender-note">${note}</div></div>`;
         }
       });
-      // Fallback: try old .lender-row format
-      if (!lenderHtml) {
-        lenderEl.querySelectorAll('.lender-row').forEach(row => {
-          const cells = row.querySelectorAll('span');
-          if (cells.length >= 4) {
-            const name = cells[1]?.textContent || '';
-            const status = cells[2]?.textContent || '';
-            const isGreen = status.includes('Likely');
-            const isRed = status.includes('Unlikely');
-            const cl = isGreen ? 'score-green' : isRed ? 'score-red' : 'score-amber';
-            lenderHtml += `<div class="op-lender"><div class="op-lender-name">${name}</div><div class="op-lender-status ${cl}">${status}</div></div>`;
-          }
-        });
-      }
     }
 
     // Issues (top 8)
@@ -5379,7 +4687,7 @@ const S = {
       <div class="op-recs">${recsHtml || '<div style="font-size:10px;color:#aaa">Complete assessment for recommendations</div>'}</div>
       <div class="op-footer">
         <div class="op-disclaimer">General information only — not financial advice. This report is for broker use only and does not constitute a credit assessment or guarantee of approval. © Oney &amp; Co Pty Ltd ACN 688 704 912</div>
-        <div class="op-date">Generated ${dateStr} · v1.8.3</div>
+        <div class="op-date">Generated ${dateStr} · v1.8</div>
       </div>
     `;
     window.print();
@@ -5984,8 +5292,5 @@ recalcAll();
 
 <!-- ============ 1-PAGE PRINT REPORT (hidden on screen) ============ -->
 <div id="print-one-page"></div>
-
-</div><!-- /.app-main -->
-</div><!-- /.app-layout -->
 </body>
 </html>

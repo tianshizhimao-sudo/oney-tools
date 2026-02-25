@@ -1,3 +1,4 @@
+<!-- v3.1 — Added postMessage interface for Pro Suite integration -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1434,7 +1435,58 @@ function updatePreview() {
   const presenterPhone = document.getElementById('presenterPhone').value;
   const presenterEmail = document.getElementById('presenterEmail').value;
   document.getElementById('footerContact').textContent = [presenterPhone, presenterEmail].filter(Boolean).join(' | ');
+
+  // ===== v3.1 postMessage to parent (Pro Suite integration) =====
+  try {
+    if (window.parent !== window) {
+      const totalFacilities = state.facilityGroups.reduce((sum, g) => sum + g.facilities.reduce((s, f) => s + (parseFloat(f.amount) || 0), 0), 0);
+      const totalSecurityValue = state.securities.reduce((sum, s) => sum + (parseFloat(s.value) || 0), 0);
+      const resultPayload = {
+        type: 'ONEY_CREDIT_PAPER_RESULT',
+        data: {
+          txnType: state.txnType,
+          txnSubType: state.txnSubType,
+          txnLabel: txnLabels[state.txnSubType || state.txnType] || state.txnType,
+          targetLender: document.getElementById('targetLender').value,
+          entities: state.entities.map(e => ({ name: e.name, role: e.role, entityType: e.entityType })),
+          facilityGroups: state.facilityGroups.map(g => ({
+            lender: g.lender,
+            facilities: g.facilities.map(f => ({ purpose: f.purpose, amount: parseFloat(f.amount) || 0, term: f.term, rate: f.rate, type: f.type }))
+          })),
+          totalFacilities,
+          securities: state.securities.map(s => ({ address: s.address, type: s.type, value: parseFloat(s.value) || 0, tenure: s.tenure, ownerType: s.ownerType })),
+          totalSecurityValue,
+          lvr: totalSecurityValue > 0 ? +(totalFacilities / totalSecurityValue * 100).toFixed(1) : null,
+          riskFactors: state.riskFactors,
+          dealBreakers: state.dealBreakers,
+          overallSurplus: document.getElementById('overallSurplus').value,
+          overallICR: document.getElementById('overallICR').value,
+          overallDSCR: document.getElementById('overallDSCR').value,
+          businessBackground: document.getElementById('businessBackground').value,
+          presenterName: presenterName,
+          presenterCompany: presenterCompany,
+          timestamp: new Date().toISOString()
+        }
+      };
+      window.parent.postMessage(resultPayload, '*');
+    }
+  } catch (err) {
+    console.warn('Credit Paper postMessage failed:', err);
+  }
 }
+
+// ===== v3.1 Listen for requests from Pro Suite =====
+window.addEventListener('message', function(event) {
+  if (event.source === window) return;
+  const msg = event.data;
+  if (msg && msg.type === 'ONEY_CREDIT_PAPER_REQUEST') {
+    try {
+      updatePreview();
+    } catch (err) {
+      console.warn('Credit Paper request handler failed:', err);
+    }
+  }
+});
 
 // SAVE/LOAD
 function saveDraft() {
