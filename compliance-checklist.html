@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>if(new URLSearchParams(location.search).has("embed"))document.write("<style>.header,.disclaimer-footer,[class*=disclaimer],[class*=header-back],nav.top-nav,.sidebar-toggle{display:none!important}body{padding-top:0!important}.main{padding-top:16px!important}</style>")</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compliance Checklist — Oney & Co</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root,[data-theme="dark"]{--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--purple2:#9B59B6;--text:#f0f0f5;--white:#fff}
+[data-theme="light"]{--bg:#f5f5f5;--card:#ffffff;--border:#e0e0e0;--muted:#666;--text:#1a1a1a;--green:#1FAD73;--green2:#2ECC85;--purple:#6B4C9A}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--green)}
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+.header-back{margin-left:auto;color:var(--green);text-decoration:none;font-size:.85rem;font-weight:500}
+.main{flex:1;max-width:900px;width:100%;margin:0 auto;padding:24px}
+h2{font-size:1.6rem;font-weight:700;margin-bottom:4px}
+.subtitle{color:var(--muted);margin-bottom:24px;font-size:.95rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
+.card h3{font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.progress-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--green2));border-radius:4px;transition:width .3s}
+.progress-text{font-size:.8rem;color:var(--muted);margin-bottom:20px}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:600px){.stat-grid{grid-template-columns:1fr}}
+.stat{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.stat .val{font-size:1.4rem;font-weight:800;color:var(--green)}
+.stat .val.warn{color:#e67e22}
+.stat .lbl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.section-title{font-size:.85rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:4px;cursor:pointer;transition:background .2s}
+.check-item:hover{background:rgba(255,255,255,.04)}
+.check-item.done{opacity:.6}
+.check-item.done .check-label{text-decoration:line-through}
+.check-box{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:12px;margin-top:1px}
+.check-item.done .check-box{background:var(--green);border-color:var(--green);color:#fff}
+.check-label{font-size:.9rem;flex:1}
+.check-hint{font-size:.75rem;color:var(--muted);margin-top:2px}
+.priority{display:inline-block;padding:1px 6px;border-radius:3px;font-size:.6rem;font-weight:700;text-transform:uppercase;margin-left:6px}
+.priority-high{background:rgba(231,76,60,.2);color:#e74c3c}
+.priority-med{background:rgba(230,126,34,.2);color:#e67e22}
+.priority-low{background:rgba(46,204,133,.2);color:var(--green)}
+.actions{display:flex;gap:10px;margin-bottom:20px}
+.btn{padding:10px 20px;border:none;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+.disclaimer-footer{text-align:center;padding:16px 24px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:auto}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo"><svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/><circle cx="16" cy="16" r="6" fill="#2ECC85"/><text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text><text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text></svg></div>
+  <h1>Compliance Checklist</h1>
+  <a href="index.html" class="header-back">← Back to Tools</a>
+</div>
+
+<div class="main">
+  <h2>✅ Broker Compliance Checklist</h2>
+  <p class="subtitle">Ensure every client file meets regulatory requirements</p>
+
+  <div class="stat-grid">
+    <div class="stat"><div class="val" id="sDone">0</div><div class="lbl">Completed</div></div>
+    <div class="stat"><div class="val warn" id="sRemaining">0</div><div class="lbl">Remaining</div></div>
+    <div class="stat"><div class="val" id="sPct">0%</div><div class="lbl">Compliance Score</div></div>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-text" id="progressText"></div>
+
+  <div class="actions">
+    <button class="btn btn-green" onclick="resetAll()">🔄 Reset All</button>
+    <button class="btn btn-outline" onclick="window.print()">🖨️ Print</button>
+  </div>
+
+  <div id="checklistContainer"></div>
+</div>
+
+<div class="disclaimer-footer">⚠️ This checklist is a guide only. Always refer to current legislation and your aggregator's compliance requirements.</div>
+
+<script>
+const SECTIONS=[
+  {title:'Best Interest Duty (BID)',items:[
+    {id:'bid_assess',label:'Client needs and objectives assessed and documented',priority:'high',hint:'Record what the client told you they need and want'},
+    {id:'bid_enquiry',label:'Reasonable enquiries made about financial situation',priority:'high',hint:'Income, expenses, assets, liabilities, credit history'},
+    {id:'bid_consider',label:'Range of products considered and documented',priority:'high',hint:'Evidence of comparing multiple lenders/products'},
+    {id:'bid_recommend',label:'Recommendation clearly linked to client\'s best interest',priority:'high',hint:'Document WHY this product is best for THIS client'},
+    {id:'bid_conflict',label:'Conflicts of interest identified and managed',priority:'med',hint:'Commission structures, ownership interests, referral arrangements'},
+  ]},
+  {title:'Credit Guide & Disclosures',items:[
+    {id:'cg_provided',label:'Credit Guide provided to client',priority:'high',hint:'Must be provided before any credit assistance is given'},
+    {id:'cg_ack',label:'Client acknowledgment obtained',priority:'high',hint:'Signed or electronic acknowledgment of receipt'},
+    {id:'cg_current',label:'Credit Guide is current version',priority:'med',hint:'Review annually or when business details change'},
+    {id:'fee_disclosure',label:'Fee disclosure provided',priority:'high',hint:'All fees, charges and commissions disclosed'},
+  ]},
+  {title:'Privacy & Consent',items:[
+    {id:'privacy_notice',label:'Privacy notice / collection statement provided',priority:'high',hint:'How personal information will be collected, used, disclosed'},
+    {id:'privacy_consent',label:'Written consent to collect information',priority:'high',hint:'Authority to access credit reports, bank statements, employer'},
+    {id:'third_party',label:'Third party consent (if applicable)',priority:'med',hint:'Consent from guarantors, co-borrowers, referees'},
+    {id:'marketing_consent',label:'Marketing consent documented',priority:'low',hint:'Opt-in/out for future communications'},
+  ]},
+  {title:'Responsible Lending',items:[
+    {id:'rl_verify',label:'Income verified (not just declared)',priority:'high',hint:'Payslips, tax returns, bank statements'},
+    {id:'rl_expenses',label:'Expenses verified and reasonable',priority:'high',hint:'HEM benchmark comparison, bank statement review'},
+    {id:'rl_surplus',label:'Surplus/deficit calculation documented',priority:'high',hint:'Show client can afford repayments with buffer'},
+    {id:'rl_buffer',label:'Interest rate buffer applied',priority:'med',hint:'Typically 2-3% above current rate'},
+    {id:'rl_not_unsuitable',label:'"Not unsuitable" assessment documented',priority:'high',hint:'Loan meets client objectives without causing hardship'},
+  ]},
+  {title:'Record Keeping',items:[
+    {id:'rk_file_notes',label:'Detailed file notes maintained',priority:'high',hint:'Conversations, decisions, advice given — dated and signed'},
+    {id:'rk_correspondence',label:'Client correspondence saved',priority:'med',hint:'Emails, texts, letters — all communication'},
+    {id:'rk_application',label:'Copy of submitted application retained',priority:'med',hint:'Full application as submitted to lender'},
+    {id:'rk_approval',label:'Approval documents filed',priority:'med',hint:'Conditional, unconditional, loan contracts'},
+    {id:'rk_complaints',label:'Complaints handling procedure documented',priority:'low',hint:'IDR process available and communicated to client'},
+  ]},
+];
+
+let checks={};
+const KEY='oney-compliance-v1';
+
+function load(){try{checks=JSON.parse(localStorage.getItem(KEY))||{};}catch(e){checks={};}}
+function save(){localStorage.setItem(KEY,JSON.stringify(checks));}
+
+function toggle(id){checks[id]=!checks[id];save();render();}
+
+function resetAll(){
+  if(!confirm('Reset all checkboxes?'))return;
+  checks={};save();render();
+}
+
+function render(){
+  const total=SECTIONS.reduce((a,s)=>a+s.items.length,0);
+  const done=SECTIONS.reduce((a,s)=>a+s.items.filter(i=>checks[i.id]).length,0);
+  const pct=total>0?Math.round(done/total*100):0;
+
+  document.getElementById('sDone').textContent=done;
+  document.getElementById('sRemaining').textContent=total-done;
+  document.getElementById('sPct').textContent=pct+'%';
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressText').textContent=`${done} of ${total} items completed`;
+
+  const container=document.getElementById('checklistContainer');
+  container.innerHTML=SECTIONS.map(s=>`
+    <div class="card">
+      <div class="section-title">${s.title}</div>
+      ${s.items.map(item=>{
+        const d=checks[item.id];
+        return `<div class="check-item ${d?'done':''}" onclick="toggle('${item.id}')">
+          <div class="check-box">${d?'✓':''}</div>
+          <div>
+            <div class="check-label">${item.label}<span class="priority priority-${item.priority}">${item.priority}</span></div>
+            <div class="check-hint">${item.hint}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+}
+
+load();render();
+(function(){const t=localStorage.getItem('oney-theme');if(t)document.documentElement.setAttribute('data-theme',t)})();
+window.addEventListener('message',e=>{if(e.data?.type==='THEME_CHANGE')document.documentElement.setAttribute('data-theme',e.data.theme)});
+</script>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>if(new URLSearchParams(location.search).has("embed"))document.write("<style>.header,.disclaimer-footer,[class*=disclaimer],[class*=header-back],nav.top-nav,.sidebar-toggle{display:none!important}body{padding-top:0!important}.main{padding-top:16px!important}</style>")</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Newsletter Template — Oney & Co</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root,[data-theme="dark"]{--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--purple2:#9B59B6;--text:#f0f0f5;--white:#fff}
+[data-theme="light"]{--bg:#f5f5f5;--card:#ffffff;--border:#e0e0e0;--muted:#666;--text:#1a1a1a;--green:#1FAD73;--green2:#2ECC85;--purple:#6B4C9A}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--green)}
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+.header-back{margin-left:auto;color:var(--green);text-decoration:none;font-size:.85rem;font-weight:500}
+.main{flex:1;max-width:1000px;width:100%;margin:0 auto;padding:24px}
+h2{font-size:1.6rem;font-weight:700;margin-bottom:4px}
+.subtitle{color:var(--muted);margin-bottom:24px;font-size:.95rem}
+.grid{display:grid;grid-template-columns:300px 1fr;gap:24px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px}
+.card h3{font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.95rem;font-family:inherit;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--green)}
+.btn{padding:10px 20px;border:none;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;width:100%;margin-bottom:8px}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted);width:100%}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+.preview{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:32px;font-size:.9rem;line-height:1.7}
+.preview h1{font-size:1.3rem;color:var(--green);margin-bottom:16px}
+.preview h2{font-size:1.05rem;color:var(--text);margin:20px 0 8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.preview p{margin-bottom:12px;color:var(--text)}
+.preview .highlight-box{background:var(--card);border-left:3px solid var(--green);padding:12px 16px;border-radius:0 8px 8px 0;margin:16px 0}
+.preview .cta{display:inline-block;background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;padding:10px 24px;border-radius:8px;font-weight:600;text-decoration:none;margin:16px 0}
+.preview .footer-text{font-size:.75rem;color:var(--muted);margin-top:24px;padding-top:16px;border-top:1px solid var(--border)}
+.disclaimer-footer{text-align:center;padding:16px 24px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:auto}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo"><svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/><circle cx="16" cy="16" r="6" fill="#2ECC85"/><text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text><text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text></svg></div>
+  <h1>Newsletter Template</h1>
+  <a href="index.html" class="header-back">← Back to Tools</a>
+</div>
+
+<div class="main">
+  <h2>📰 Client Newsletter Template</h2>
+  <p class="subtitle">Generate monthly market update newsletters for your clients</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>⚙️ Newsletter Setup</h3>
+      <div class="field"><label>Month / Year</label><input type="month" id="nMonth" oninput="gen()"></div>
+      <div class="field"><label>Broker Name</label><input type="text" id="nBroker" value="Oney & Co" oninput="gen()"></div>
+      <div class="field"><label>Current Cash Rate (%)</label><input type="number" id="nRate" value="4.35" step="0.25" oninput="gen()"></div>
+      <div class="field"><label>Rate Direction</label>
+        <select id="nDirection" onchange="gen()"><option value="hold">On Hold</option><option value="cut">Rate Cut</option><option value="rise">Rate Rise</option></select>
+      </div>
+      <div class="field"><label>Market Highlight</label><textarea id="nHighlight" rows="3" placeholder="e.g. Property prices up 2.1% in Sydney this quarter" oninput="gen()"></textarea></div>
+      <div class="field"><label>Tip of the Month</label><textarea id="nTip" rows="3" placeholder="e.g. Consider making extra repayments during tax refund season" oninput="gen()"></textarea></div>
+      <div class="field"><label>Call to Action</label><input type="text" id="nCTA" value="Book a free loan review" oninput="gen()"></div>
+      <div class="field"><label>Phone Number</label><input type="text" id="nPhone" value="" placeholder="04XX XXX XXX" oninput="gen()"></div>
+      <button class="btn btn-green" onclick="gen()">🔄 Generate</button>
+      <button class="btn btn-outline" onclick="copyNewsletter()">📋 Copy HTML</button>
+    </div>
+
+    <div>
+      <div class="preview" id="preview"></div>
+    </div>
+  </div>
+</div>
+
+<div class="disclaimer-footer">⚠️ Review and personalize content before sending to clients.</div>
+
+<script>
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function gen(){
+  const monthVal=document.getElementById('nMonth').value;
+  let monthName='This Month',year=new Date().getFullYear();
+  if(monthVal){const[y,m]=monthVal.split('-');year=y;monthName=MONTHS[parseInt(m)-1]+' '+y;}
+  const broker=document.getElementById('nBroker').value||'Your Broker';
+  const rate=document.getElementById('nRate').value||'4.35';
+  const dir=document.getElementById('nDirection').value;
+  const highlight=document.getElementById('nHighlight').value||'The Australian property market continues to evolve with regional variations in growth and demand.';
+  const tip=document.getElementById('nTip').value||'Review your home loan annually to ensure you\'re still getting a competitive rate.';
+  const cta=document.getElementById('nCTA').value||'Book a free loan review';
+  const phone=document.getElementById('nPhone').value;
+
+  const dirText={hold:'The RBA has kept the cash rate on hold',cut:'The RBA has cut the cash rate',rise:'The RBA has raised the cash rate'}[dir];
+
+  document.getElementById('preview').innerHTML=`
+    <h1>📰 ${monthName} Market Update</h1>
+    <p>Hi there,</p>
+    <p>Welcome to your monthly market update from <strong>${broker}</strong>. Here's what's happening in the home loan and property space.</p>
+
+    <h2>🏛️ Interest Rates</h2>
+    <div class="highlight-box">
+      <strong>Cash Rate: ${rate}%</strong><br>
+      ${dirText} at ${rate}%. ${dir==='hold'?'This means your variable rate should remain unchanged for now.':dir==='cut'?'Contact your lender to ensure the rate cut is passed on to you.':'Check if your lender has passed on the full increase.'}
+    </div>
+
+    <h2>📊 Market Snapshot</h2>
+    <p>${highlight}</p>
+    <p>Whether you're buying, selling, or holding — understanding market conditions helps you make better decisions.</p>
+
+    <h2>💡 Tip of the Month</h2>
+    <div class="highlight-box">${tip}</div>
+
+    <h2>📋 Quick Checklist</h2>
+    <p>✅ Review your current interest rate vs market rates<br>
+    ✅ Check if your fixed rate is expiring in the next 6 months<br>
+    ✅ Consider extra repayments if you have surplus cash<br>
+    ✅ Update your budget if rates have changed</p>
+
+    <a class="cta" href="#">${cta}</a>
+
+    <div class="footer-text">
+      <strong>${broker}</strong>${phone?' | '+phone:''}<br>
+      This newsletter is general information only and does not constitute financial advice. Please contact us to discuss your individual circumstances.<br>
+      Australian Credit Licence holder. All rights reserved.
+    </div>
+  `;
+}
+
+function copyNewsletter(){
+  const html=document.getElementById('preview').innerHTML;
+  navigator.clipboard.writeText(html).then(()=>alert('Newsletter HTML copied to clipboard!'));
+}
+
+document.getElementById('nMonth').value=new Date().toISOString().slice(0,7);
+gen();
+(function(){const t=localStorage.getItem('oney-theme');if(t)document.documentElement.setAttribute('data-theme',t)})();
+window.addEventListener('message',e=>{if(e.data?.type==='THEME_CHANGE')document.documentElement.setAttribute('data-theme',e.data.theme)});
+</script>
+</body>
+</html>

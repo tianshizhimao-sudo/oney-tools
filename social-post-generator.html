@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>if(new URLSearchParams(location.search).has("embed"))document.write("<style>.header,.disclaimer-footer,[class*=disclaimer],[class*=header-back],nav.top-nav,.sidebar-toggle{display:none!important}body{padding-top:0!important}.main{padding-top:16px!important}</style>")</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Post Generator — Oney & Co</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root,[data-theme="dark"]{--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--purple2:#9B59B6;--text:#f0f0f5;--white:#fff}
+[data-theme="light"]{--bg:#f5f5f5;--card:#ffffff;--border:#e0e0e0;--muted:#666;--text:#1a1a1a;--green:#1FAD73;--green2:#2ECC85;--purple:#6B4C9A}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--green)}
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+.header-back{margin-left:auto;color:var(--green);text-decoration:none;font-size:.85rem;font-weight:500}
+.main{flex:1;max-width:900px;width:100%;margin:0 auto;padding:24px}
+h2{font-size:1.6rem;font-weight:700;margin-bottom:4px}
+.subtitle{color:var(--muted);margin-bottom:24px;font-size:.95rem}
+.grid{display:grid;grid-template-columns:360px 1fr;gap:24px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px}
+.card h3{font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.95rem;font-family:inherit;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--green)}
+.toggle-row{display:flex;gap:8px;flex-wrap:wrap}
+.toggle-btn{flex:1;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--muted);font-size:.85rem;font-weight:600;cursor:pointer;text-align:center;transition:all .2s;font-family:inherit}
+.toggle-btn.active{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border-color:var(--green)}
+.btn{padding:10px 20px;border:none;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;width:100%}
+.output-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:16px;position:relative}
+.output-card .platform{font-size:.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.output-card .post-text{font-size:.9rem;line-height:1.6;white-space:pre-wrap}
+.copy-btn{position:absolute;top:12px;right:12px;background:var(--card);border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:6px;font-size:.7rem;cursor:pointer;font-family:inherit}
+.copy-btn:hover{border-color:var(--green);color:var(--green)}
+.char-count{font-size:.7rem;color:var(--muted);text-align:right;margin-top:4px}
+.disclaimer-footer{text-align:center;padding:16px 24px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:auto}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo"><svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/><circle cx="16" cy="16" r="6" fill="#2ECC85"/><text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text><text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text></svg></div>
+  <h1>Social Post Generator</h1>
+  <a href="index.html" class="header-back">← Back to Tools</a>
+</div>
+
+<div class="main">
+  <h2>📱 Social Post Generator</h2>
+  <p class="subtitle">Generate professional social media templates for mortgage brokers</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>✏️ Post Setup</h3>
+      <div class="field"><label>Topic</label>
+        <select id="topic" onchange="generate()">
+          <option value="rate_change">RBA Rate Change</option>
+          <option value="first_home">First Home Buyer Tips</option>
+          <option value="refinance">Refinance Benefits</option>
+          <option value="market_update">Market Update</option>
+          <option value="settlement">Settlement Celebration</option>
+          <option value="tips">Mortgage Tips</option>
+          <option value="investment">Investment Property</option>
+          <option value="custom">Custom Topic</option>
+        </select>
+      </div>
+      <div class="field" id="customField" style="display:none"><label>Custom Topic</label><input type="text" id="customTopic" placeholder="e.g. Spring property market trends" oninput="generate()"></div>
+      <div class="field"><label>Key Message</label><textarea id="keyMessage" rows="3" placeholder="e.g. Rates held steady at 4.35%" oninput="generate()"></textarea></div>
+      <div class="field"><label>Tone</label>
+        <div class="toggle-row">
+          <button class="toggle-btn active" onclick="setTone('professional',this)">Professional</button>
+          <button class="toggle-btn" onclick="setTone('friendly',this)">Friendly</button>
+          <button class="toggle-btn" onclick="setTone('educational',this)">Educational</button>
+        </div>
+      </div>
+      <div class="field"><label>Your Name / Brand</label><input type="text" id="brand" value="Oney & Co" oninput="generate()"></div>
+      <button class="btn btn-green" onclick="generate()">🔄 Generate Posts</button>
+    </div>
+
+    <div class="card">
+      <h3>📋 Generated Posts</h3>
+      <div id="outputs"></div>
+    </div>
+  </div>
+</div>
+
+<div class="disclaimer-footer">⚠️ Generated content is a template — review and personalize before posting.</div>
+
+<script>
+let tone='professional';
+const TEMPLATES={
+  rate_change:{
+    linkedin:{professional:'📊 RBA Rate Decision Update\n\n{message}\n\nWhat does this mean for borrowers?\n\n→ If you\'re on a variable rate, {impact}\n→ Fixed rate borrowers — your rate remains locked in\n→ Considering refinancing? Now could be the right time to review\n\nEvery borrower\'s situation is unique. I\'m here to help you understand what this means for your specific circumstances.\n\n💬 DM me or call to discuss your options.\n\n#MortgageBroker #RBAUpdate #InterestRates #HomeLoans #{brand_tag}',friendly:'Hey everyone! 🏠\n\nRBA just announced their latest rate decision:\n\n{message}\n\nI know rate changes can feel overwhelming, so here\'s the simple version:\n\n✅ Variable rate holders: {impact}\n✅ Fixed rate holders: you\'re locked in, no stress!\n✅ Looking to buy: let\'s chat about your options\n\nDrop me a message if you want to know what this means for YOU 💬\n\n#HomeLoans #RateUpdate #{brand_tag}',educational:'🎓 Understanding Today\'s RBA Rate Decision\n\n{message}\n\nHere\'s what you need to know:\n\n1️⃣ The cash rate directly influences variable home loan rates\n2️⃣ Lenders may take 1-2 weeks to pass on changes\n3️⃣ {impact}\n4️⃣ This is a good time to review your loan structure\n\n📚 Knowledge is power when it comes to your mortgage.\n\nQuestions? I\'m always happy to explain.\n\n#FinancialLiteracy #MortgageTips #{brand_tag}'},
+    twitter:{professional:'📊 RBA Update: {message}\n\nKey takeaways for borrowers:\n→ {impact}\n→ Review your rate vs market\n→ Consider your options\n\nNeed guidance? Let\'s talk.\n\n#RBA #HomeLoans #{brand_tag}',friendly:'RBA just dropped their decision! 🏠\n\n{message}\n\nQuick summary: {impact}\n\nDM me if you want to chat about what this means for you! 💬\n\n#HomeLoans #{brand_tag}',educational:'📚 RBA Rate Decision Explained:\n\n{message}\n\n{impact}\n\nRemember: the cash rate ≠ your home loan rate. Lenders set their own rates.\n\nWant to know where you stand? Let\'s review.\n\n#MortgageTips #{brand_tag}'}
+  },
+  first_home:{
+    linkedin:{professional:'🏡 First Home Buyer? Here\'s What You Need to Know\n\n{message}\n\nNavigating your first home purchase can feel overwhelming. Here are my top tips:\n\n1️⃣ Get pre-approved before you start looking\n2️⃣ Understand ALL costs (stamp duty, legal, inspections)\n3️⃣ Check if you\'re eligible for the First Home Guarantee\n4️⃣ Don\'t just compare rates — look at features & flexibility\n5️⃣ Work with a broker who\'ll shop the market for you\n\nI\'ve helped hundreds of first home buyers find their way. Happy to chat anytime.\n\n#FirstHomeBuyer #PropertyAustralia #{brand_tag}',friendly:'Dreaming of your first home? 🏡✨\n\n{message}\n\nHere are some things I wish every first home buyer knew:\n\n🔑 You might need less deposit than you think\n🔑 Government schemes can seriously help\n🔑 A broker (hi! 👋) shops 30+ lenders for you\n🔑 Pre-approval = confidence at auction\n\nLet\'s grab a coffee and map out your plan! ☕\n\n#FirstHome #DreamHome #{brand_tag}',educational:'📚 First Home Buyer Guide\n\n{message}\n\nKey concepts every FHB should understand:\n\n📖 LVR (Loan-to-Value Ratio) — determines LMI\n📖 Genuine savings — most lenders want 3+ months\n📖 Borrowing capacity — income, expenses & commitments\n📖 Government grants — FHOG, stamp duty concessions\n\nKnowledge first, keys second. Let me help you prepare.\n\n#FinancialEducation #FirstHomeBuyer #{brand_tag}'},
+    twitter:{professional:'🏡 First home buyer tips:\n\n{message}\n\n→ Get pre-approved first\n→ Budget for ALL costs\n→ Check grant eligibility\n→ Compare features, not just rates\n\nLet\'s chat about your plan.\n\n#FirstHomeBuyer #{brand_tag}',friendly:'First home dreaming? 🏡✨\n\n{message}\n\nYou might be closer than you think! Government schemes + the right loan structure = 🔑\n\nDM me to start planning!\n\n#FirstHome #{brand_tag}',educational:'📚 FHB fact: {message}\n\nDid you know?\n→ LMI lets you buy with <20% deposit\n→ First Home Guarantee = no LMI with 5% deposit\n→ Stamp duty exemptions vary by state\n\nKnowledge = confidence.\n\n#PropertyEducation #{brand_tag}'}
+  },
+};
+
+['refinance','market_update','settlement','tips','investment','custom'].forEach(t=>{
+  TEMPLATES[t]={
+    linkedin:{
+      professional:`💼 {topic_title}\n\n{message}\n\nAs a mortgage broker, I see opportunities every day to help clients optimise their home loan.\n\nWhether you\'re looking to:\n→ Reduce your repayments\n→ Access equity\n→ Restructure for better outcomes\n\nThe right advice makes all the difference.\n\n📞 Book a free consultation today.\n\n#MortgageBroker #HomeLoans #{brand_tag}`,
+      friendly:`Hey friends! 👋\n\n{message}\n\nJust wanted to share something that could help you save money on your home loan! 💰\n\nI love helping people find better deals — it\'s literally my job and I enjoy it! 😄\n\nDrop me a message if you want to chat. No pressure, just good advice.\n\n#HomeLoans #MoneySaving #{brand_tag}`,
+      educational:`📚 Did You Know?\n\n{message}\n\nHere\'s the breakdown:\n\n1️⃣ Understanding your options is the first step\n2️⃣ Small changes can lead to big savings over time\n3️⃣ Professional guidance helps navigate complexity\n\nI\'m passionate about financial education. Ask me anything!\n\n#FinancialLiteracy #MortgageTips #{brand_tag}`
+    },
+    twitter:{
+      professional:`{message}\n\n→ Review your options regularly\n→ A broker shops 30+ lenders\n→ Small rate differences = big savings\n\nLet\'s talk.\n\n#HomeLoans #{brand_tag}`,
+      friendly:`{message} 🏠\n\nQuick tip: reviewing your home loan annually could save you thousands! 💰\n\nDM me anytime!\n\n#{brand_tag}`,
+      educational:`📚 {message}\n\nFun fact: the average Australian could save $2,000+/year by reviewing their home loan.\n\nKnowledge is power! 💪\n\n#{brand_tag}`
+    }
+  };
+});
+
+const TOPIC_TITLES={rate_change:'RBA Rate Change',first_home:'First Home Buyer Tips',refinance:'Refinance & Save',market_update:'Market Update',settlement:'Another Happy Settlement! 🎉',tips:'Mortgage Tips',investment:'Investment Property Insights',custom:'Update'};
+
+function setTone(t,el){tone=t;document.querySelectorAll('.toggle-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');generate();}
+
+function generate(){
+  const topic=document.getElementById('topic').value;
+  document.getElementById('customField').style.display=topic==='custom'?'block':'none';
+  const message=document.getElementById('keyMessage').value||'Contact us to learn more about your home loan options.';
+  const brand=document.getElementById('brand').value||'Oney & Co';
+  const brandTag=brand.replace(/[^a-zA-Z0-9]/g,'');
+  const topicTitle=topic==='custom'?(document.getElementById('customTopic').value||'Update'):TOPIC_TITLES[topic];
+
+  const tpl=TEMPLATES[topic]||TEMPLATES.custom;
+  const platforms=[
+    {name:'LinkedIn',key:'linkedin',limit:3000},
+    {name:'Twitter / X',key:'twitter',limit:280},
+  ];
+
+  const outputs=document.getElementById('outputs');
+  outputs.innerHTML=platforms.map((p,i)=>{
+    let text=(tpl[p.key]?.[tone]||tpl[p.key]?.professional||'').replace(/\{message\}/g,message).replace(/\{brand_tag\}/g,brandTag).replace(/\{topic_title\}/g,topicTitle).replace(/\{impact\}/g,'check with your lender for updated rates');
+    return `<div class="output-card">
+      <div class="platform">${p.name}</div>
+      <button class="copy-btn" onclick="copyPost(this,'${i}')">📋 Copy</button>
+      <div class="post-text" id="post-${i}">${text}</div>
+      <div class="char-count">${text.length} / ${p.limit} chars</div>
+    </div>`;
+  }).join('');
+}
+
+function copyPost(btn,id){
+  const text=document.getElementById('post-'+id).textContent;
+  navigator.clipboard.writeText(text).then(()=>{btn.textContent='✅ Copied!';setTimeout(()=>btn.textContent='📋 Copy',2000);});
+}
+
+generate();
+(function(){const t=localStorage.getItem('oney-theme');if(t)document.documentElement.setAttribute('data-theme',t)})();
+window.addEventListener('message',e=>{if(e.data?.type==='THEME_CHANGE')document.documentElement.setAttribute('data-theme',e.data.theme)});
+</script>
+</body>
+</html>

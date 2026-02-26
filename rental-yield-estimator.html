@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>if(new URLSearchParams(location.search).has("embed"))document.write("<style>.header,.disclaimer-footer,[class*=disclaimer],[class*=header-back],nav.top-nav,.sidebar-toggle{display:none!important}body{padding-top:0!important}.main{padding-top:16px!important}</style>")</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rental Yield Estimator — Oney & Co</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root,[data-theme="dark"]{--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--purple2:#9B59B6;--text:#f0f0f5;--white:#fff;--sidebar-bg:#16162a}
+[data-theme="light"]{--bg:#f5f5f5;--card:#ffffff;--border:#e0e0e0;--muted:#666;--text:#1a1a1a;--green:#1FAD73;--green2:#2ECC85;--purple:#6B4C9A;--sidebar-bg:#ffffff}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--green)}
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+.header-back{margin-left:auto;color:var(--green);text-decoration:none;font-size:.85rem;font-weight:500}
+.main{flex:1;max-width:900px;width:100%;margin:0 auto;padding:24px}
+h2{font-size:1.6rem;font-weight:700;margin-bottom:4px}
+.subtitle{color:var(--muted);margin-bottom:24px;font-size:.95rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;transition:box-shadow .2s}
+.card:hover{box-shadow:0 8px 32px rgba(46,204,133,.08)}
+.card h3{font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.field input,.field select{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.95rem;font-family:inherit;transition:border-color .2s}
+.field input:focus,.field select:focus{outline:none;border-color:var(--green)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.stat{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.stat .val{font-size:1.4rem;font-weight:800;color:var(--green)}
+.stat .val.accent{color:var(--purple)}
+.stat .lbl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.stat.full{grid-column:1/-1}
+.disclaimer-footer{text-align:center;padding:16px 24px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:auto}
+.expenses-list{margin-top:12px}
+.expense-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.expense-row label{flex:1;font-size:.85rem;color:var(--muted)}
+.expense-row input{width:120px;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;text-align:right}
+.yield-bar{height:24px;border-radius:8px;overflow:hidden;display:flex;margin:12px 0}
+.yield-bar .gross{background:linear-gradient(90deg,var(--green),var(--green2));display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;transition:width .3s}
+.yield-bar .net{background:linear-gradient(90deg,var(--purple),var(--purple2));display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:#fff;transition:width .3s}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo"><svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/><circle cx="16" cy="16" r="6" fill="#2ECC85"/><text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text><text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text></svg></div>
+  <h1>Rental Yield Estimator</h1>
+  <a href="index.html" class="header-back">← Back to Tools</a>
+</div>
+
+<div class="main">
+  <h2>🏘️ Rental Yield Estimator</h2>
+  <p class="subtitle">Calculate gross and net rental yield for investment properties</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>📊 Property Details</h3>
+      <div class="field"><label>Purchase Price ($)</label><input type="number" id="price" value="650000" oninput="calc()"></div>
+      <div class="field"><label>Weekly Rent ($)</label><input type="number" id="weeklyRent" value="550" oninput="calc()"></div>
+      <div class="field"><label>Vacancy Rate (%)</label><input type="number" id="vacancy" value="3" step="0.5" oninput="calc()"></div>
+
+      <h3 style="margin-top:20px">💸 Annual Expenses</h3>
+      <div class="expenses-list">
+        <div class="expense-row"><label>Council Rates</label><input type="number" id="eRates" value="1800" oninput="calc()"></div>
+        <div class="expense-row"><label>Strata / Body Corp</label><input type="number" id="eStrata" value="0" oninput="calc()"></div>
+        <div class="expense-row"><label>Insurance</label><input type="number" id="eInsurance" value="1500" oninput="calc()"></div>
+        <div class="expense-row"><label>Management Fees</label><input type="number" id="eMgmt" value="0" oninput="calc()"><span style="font-size:.7rem;color:var(--muted);width:30px">or %</span></div>
+        <div class="expense-row"><label>Mgmt Fee %</label><input type="number" id="eMgmtPct" value="7" step="0.5" oninput="calc()"></div>
+        <div class="expense-row"><label>Repairs / Maintenance</label><input type="number" id="eRepairs" value="1500" oninput="calc()"></div>
+        <div class="expense-row"><label>Water Rates</label><input type="number" id="eWater" value="700" oninput="calc()"></div>
+        <div class="expense-row"><label>Other</label><input type="number" id="eOther" value="0" oninput="calc()"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📈 Results</h3>
+      <div class="stat-grid">
+        <div class="stat"><div class="val" id="grossYield">—</div><div class="lbl">Gross Yield</div></div>
+        <div class="stat"><div class="val accent" id="netYield">—</div><div class="lbl">Net Yield</div></div>
+        <div class="stat"><div class="val" id="annualRent">—</div><div class="lbl">Annual Rent</div></div>
+        <div class="stat"><div class="val accent" id="annualExpenses">—</div><div class="lbl">Total Expenses</div></div>
+        <div class="stat full"><div class="val" id="netIncome">—</div><div class="lbl">Net Annual Income</div></div>
+      </div>
+
+      <h3>Yield Comparison</h3>
+      <div class="yield-bar">
+        <div class="gross" id="grossBar">Gross</div>
+        <div class="net" id="netBar">Net</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted)">
+        <span>0%</span><span>10%</span>
+      </div>
+
+      <h3 style="margin-top:24px">📋 Weekly Breakdown</h3>
+      <div id="weeklyBreakdown" style="font-size:.85rem;color:var(--muted)"></div>
+    </div>
+  </div>
+</div>
+
+<div class="disclaimer-footer">⚠️ This tool is for informational purposes only and does not constitute financial advice. Please consult a licensed professional before making financial decisions.</div>
+
+<script>
+function fmt(n){return '$'+Math.round(n).toLocaleString('en-AU')}
+function calc(){
+  const price=+document.getElementById('price').value||0;
+  const weeklyRent=+document.getElementById('weeklyRent').value||0;
+  const vacancy=+document.getElementById('vacancy').value||0;
+  const annualRentGross=weeklyRent*52;
+  const vacancyLoss=annualRentGross*(vacancy/100);
+  const effectiveRent=annualRentGross-vacancyLoss;
+
+  const eMgmt=+document.getElementById('eMgmt').value||0;
+  const eMgmtPct=+document.getElementById('eMgmtPct').value||0;
+  const mgmtFee=eMgmt>0?eMgmt:(effectiveRent*eMgmtPct/100);
+
+  const expenses=[
+    +document.getElementById('eRates').value||0,
+    +document.getElementById('eStrata').value||0,
+    +document.getElementById('eInsurance').value||0,
+    mgmtFee,
+    +document.getElementById('eRepairs').value||0,
+    +document.getElementById('eWater').value||0,
+    +document.getElementById('eOther').value||0,
+  ];
+  const totalExpenses=expenses.reduce((a,b)=>a+b,0);
+  const netIncome=effectiveRent-totalExpenses;
+  const grossYield=price>0?(annualRentGross/price*100):0;
+  const netYield=price>0?(netIncome/price*100):0;
+
+  document.getElementById('grossYield').textContent=grossYield.toFixed(2)+'%';
+  document.getElementById('netYield').textContent=netYield.toFixed(2)+'%';
+  document.getElementById('annualRent').textContent=fmt(effectiveRent);
+  document.getElementById('annualExpenses').textContent=fmt(totalExpenses);
+  document.getElementById('netIncome').textContent=fmt(netIncome);
+
+  const maxPct=10;
+  document.getElementById('grossBar').style.width=Math.min(grossYield/maxPct*100,100)+'%';
+  document.getElementById('grossBar').textContent='Gross '+grossYield.toFixed(1)+'%';
+  document.getElementById('netBar').style.width=Math.max(Math.min(netYield/maxPct*100,100),0)+'%';
+  document.getElementById('netBar').textContent='Net '+netYield.toFixed(1)+'%';
+
+  document.getElementById('weeklyBreakdown').innerHTML=`
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>Gross Rent</span><span>${fmt(weeklyRent)}/wk</span></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>Vacancy (${vacancy}%)</span><span style="color:#e74c3c">-${fmt(vacancyLoss/52)}/wk</span></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span>Expenses</span><span style="color:#e74c3c">-${fmt(totalExpenses/52)}/wk</span></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 0;font-weight:700"><span>Net Income</span><span style="color:var(--green)">${fmt(netIncome/52)}/wk</span></div>
+  `;
+}
+calc();
+(function(){const t=localStorage.getItem('oney-theme');if(t)document.documentElement.setAttribute('data-theme',t)})();
+window.addEventListener('message',e=>{if(e.data?.type==='THEME_CHANGE')document.documentElement.setAttribute('data-theme',e.data.theme)});
+</script>
+</body>
+</html>

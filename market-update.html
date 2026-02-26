@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>if(new URLSearchParams(location.search).has("embed"))document.write("<style>.header,.disclaimer-footer,[class*=disclaimer],[class*=header-back],nav.top-nav,.sidebar-toggle{display:none!important}body{padding-top:0!important}.main{padding-top:16px!important}</style>")</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Update Generator — Oney & Co</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root,[data-theme="dark"]{--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--purple2:#9B59B6;--text:#f0f0f5;--white:#fff}
+[data-theme="light"]{--bg:#f5f5f5;--card:#ffffff;--border:#e0e0e0;--muted:#666;--text:#1a1a1a;--green:#1FAD73;--green2:#2ECC85;--purple:#6B4C9A}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--green)}
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+.header-back{margin-left:auto;color:var(--green);text-decoration:none;font-size:.85rem;font-weight:500}
+.main{flex:1;max-width:1000px;width:100%;margin:0 auto;padding:24px}
+h2{font-size:1.6rem;font-weight:700;margin-bottom:4px}
+.subtitle{color:var(--muted);margin-bottom:24px;font-size:.95rem}
+.grid{display:grid;grid-template-columns:340px 1fr;gap:24px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px}
+.card h3{font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.field input,.field select,.field textarea{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.95rem;font-family:inherit;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--green)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{padding:10px 20px;border:none;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;width:100%;margin-bottom:8px}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted);width:100%}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+.output{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:24px;font-size:.9rem;line-height:1.7;white-space:pre-wrap;position:relative}
+.copy-btn{position:absolute;top:12px;right:12px;background:var(--card);border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:6px;font-size:.75rem;cursor:pointer;font-family:inherit}
+.copy-btn:hover{border-color:var(--green);color:var(--green)}
+.stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.mini-stat{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+.mini-stat .val{font-size:1.2rem;font-weight:800;color:var(--green)}
+.mini-stat .lbl{font-size:.7rem;color:var(--muted);margin-top:2px}
+.disclaimer-footer{text-align:center;padding:16px 24px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:auto}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo"><svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/><circle cx="16" cy="16" r="6" fill="#2ECC85"/><text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text><text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text></svg></div>
+  <h1>Market Update</h1>
+  <a href="index.html" class="header-back">← Back to Tools</a>
+</div>
+
+<div class="main">
+  <h2>📊 Market Update Generator</h2>
+  <p class="subtitle">Create client-ready market updates with current rate and property data</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>📝 Input Data</h3>
+      <div class="field"><label>Date</label><input type="date" id="mDate" oninput="gen()"></div>
+      <div class="row2">
+        <div class="field"><label>Cash Rate (%)</label><input type="number" id="mRate" value="4.35" step="0.25" oninput="gen()"></div>
+        <div class="field"><label>Previous Rate (%)</label><input type="number" id="mPrevRate" value="4.35" step="0.25" oninput="gen()"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Avg Variable Rate (%)</label><input type="number" id="mAvgVar" value="6.20" step="0.01" oninput="gen()"></div>
+        <div class="field"><label>Avg Fixed 2yr (%)</label><input type="number" id="mAvgFixed" value="5.89" step="0.01" oninput="gen()"></div>
+      </div>
+      <div class="field"><label>Median House Price ($)</label><input type="number" id="mMedian" value="1150000" oninput="gen()"></div>
+      <div class="row2">
+        <div class="field"><label>Quarterly Growth (%)</label><input type="number" id="mGrowth" value="1.8" step="0.1" oninput="gen()"></div>
+        <div class="field"><label>Auction Clearance (%)</label><input type="number" id="mAuction" value="68" step="1" oninput="gen()"></div>
+      </div>
+      <div class="field"><label>Key Takeaway</label><textarea id="mTakeaway" rows="3" placeholder="e.g. Market stabilising with steady demand from owner-occupiers" oninput="gen()"></textarea></div>
+      <div class="field"><label>Audience</label>
+        <select id="mAudience" onchange="gen()"><option value="general">General Clients</option><option value="investor">Investors</option><option value="fhb">First Home Buyers</option></select>
+      </div>
+      <button class="btn btn-green" onclick="gen()">🔄 Generate Update</button>
+      <button class="btn btn-outline" onclick="copyUpdate()">📋 Copy Text</button>
+    </div>
+
+    <div>
+      <div class="stat-row">
+        <div class="mini-stat"><div class="val" id="sRate">—</div><div class="lbl">Cash Rate</div></div>
+        <div class="mini-stat"><div class="val" id="sMedian">—</div><div class="lbl">Median Price</div></div>
+        <div class="mini-stat"><div class="val" id="sGrowth">—</div><div class="lbl">Qtr Growth</div></div>
+      </div>
+      <div class="output" id="output">
+        <button class="copy-btn" onclick="copyUpdate()">📋 Copy</button>
+        <div id="outputText"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="disclaimer-footer">⚠️ This tool generates template content. Verify all data before sharing with clients.</div>
+
+<script>
+function fmt(n){return '$'+Math.round(n).toLocaleString('en-AU')}
+function gen(){
+  const date=document.getElementById('mDate').value?new Date(document.getElementById('mDate').value).toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'}):'Today';
+  const rate=document.getElementById('mRate').value;
+  const prevRate=document.getElementById('mPrevRate').value;
+  const avgVar=document.getElementById('mAvgVar').value;
+  const avgFixed=document.getElementById('mAvgFixed').value;
+  const median=+document.getElementById('mMedian').value||0;
+  const growth=document.getElementById('mGrowth').value;
+  const auction=document.getElementById('mAuction').value;
+  const takeaway=document.getElementById('mTakeaway').value||'The market continues to evolve — staying informed is key to making smart property decisions.';
+  const audience=document.getElementById('mAudience').value;
+
+  const rateChange=parseFloat(rate)-parseFloat(prevRate);
+  const rateText=rateChange===0?'held steady at':rateChange>0?'increased to':'decreased to';
+
+  document.getElementById('sRate').textContent=rate+'%';
+  document.getElementById('sMedian').textContent=fmt(median);
+  document.getElementById('sGrowth').textContent=growth+'%';
+
+  const audienceIntro={
+    general:`Whether you're a homeowner, looking to buy, or an investor`,
+    investor:`As a property investor, understanding market movements is crucial for your portfolio`,
+    fhb:`If you're looking to get into the property market for the first time`
+  }[audience];
+
+  const text=`📊 MARKET UPDATE — ${date}
+
+🏛️ INTEREST RATES
+The RBA has ${rateText} ${rate}%${rateChange!==0?' (previously '+prevRate+'%)':''}.
+
+Current average rates:
+• Variable home loan: ${avgVar}%
+• 2-year fixed rate: ${avgFixed}%
+${rateChange<0?'\n💡 If your lender hasn\'t passed on the cut, now is a great time to negotiate or explore refinancing options.':rateChange>0?'\n⚠️ If you\'re feeling the squeeze, let\'s review your loan structure to find ways to manage the increase.':'\n✅ Rates remain stable — a good time to review your position and plan ahead.'}
+
+🏠 PROPERTY MARKET
+• Median house price: ${fmt(median)}
+• Quarterly price growth: ${growth}%
+• Auction clearance rate: ${auction}%
+
+${audienceIntro}, here's what this means: ${takeaway}
+
+📋 ACTION ITEMS
+${audience==='investor'?`1. Review your portfolio's loan-to-value ratios
+2. Check if current yields still stack up at ${avgVar}% variable
+3. Consider fixing a portion if rates suit your strategy
+4. Ensure your interest-only periods haven't expired`
+:audience==='fhb'?`1. Check your borrowing power at current rates
+2. Explore First Home Guarantee (5% deposit, no LMI)
+3. Research stamp duty concessions in your state
+4. Get pre-approved to act quickly when you find the right property`
+:`1. Compare your current rate against ${avgVar}% (avg variable)
+2. Check if your fixed rate is expiring soon
+3. Consider extra repayments if you have surplus cash
+4. Book an annual loan health check`}
+
+💬 Want to discuss what this means for you? Get in touch for a free, no-obligation chat.
+
+—
+This update is general information only and does not constitute financial advice.`;
+
+  document.getElementById('outputText').textContent=text;
+}
+
+function copyUpdate(){
+  const text=document.getElementById('outputText').textContent;
+  navigator.clipboard.writeText(text).then(()=>alert('Market update copied!'));
+}
+
+document.getElementById('mDate').value=new Date().toISOString().slice(0,10);
+gen();
+(function(){const t=localStorage.getItem('oney-theme');if(t)document.documentElement.setAttribute('data-theme',t)})();
+window.addEventListener('message',e=>{if(e.data?.type==='THEME_CHANGE')document.documentElement.setAttribute('data-theme',e.data.theme)});
+</script>
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>if(new URLSearchParams(location.search).has("embed"))document.write("<style>.header,.disclaimer-footer,[class*=disclaimer],[class*=header-back],nav.top-nav,.sidebar-toggle{display:none!important}body{padding-top:0!important}.main{padding-top:16px!important}</style>")</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Onboarding Checklist — Oney & Co</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root,[data-theme="dark"]{--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--purple2:#9B59B6;--text:#f0f0f5;--white:#fff}
+[data-theme="light"]{--bg:#f5f5f5;--card:#ffffff;--border:#e0e0e0;--muted:#666;--text:#1a1a1a;--green:#1FAD73;--green2:#2ECC85;--purple:#6B4C9A}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--green)}
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+.header-back{margin-left:auto;color:var(--green);text-decoration:none;font-size:.85rem;font-weight:500}
+.main{flex:1;max-width:900px;width:100%;margin:0 auto;padding:24px}
+h2{font-size:1.6rem;font-weight:700;margin-bottom:4px}
+.subtitle{color:var(--muted);margin-bottom:24px;font-size:.95rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
+.card h3{font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.field input{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.95rem;font-family:inherit}
+.field input:focus{outline:none;border-color:var(--green)}
+.progress-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--green2));border-radius:4px;transition:width .3s}
+.progress-text{font-size:.8rem;color:var(--muted);margin-bottom:20px}
+.checklist-section{margin-bottom:24px}
+.section-title{font-size:.85rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;margin-bottom:4px;cursor:pointer;transition:background .2s}
+.check-item:hover{background:rgba(255,255,255,.04)}
+.check-item.done{opacity:.6}
+.check-item.done .check-label{text-decoration:line-through}
+.check-box{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:12px;margin-top:1px}
+.check-item.done .check-box{background:var(--green);border-color:var(--green);color:#fff}
+.check-label{font-size:.9rem;flex:1}
+.check-hint{font-size:.75rem;color:var(--muted);margin-top:2px}
+.actions{display:flex;gap:10px;margin-bottom:20px}
+.btn{padding:10px 20px;border:none;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+.disclaimer-footer{text-align:center;padding:16px 24px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:auto}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo"><svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/><circle cx="16" cy="16" r="6" fill="#2ECC85"/><text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text><text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text></svg></div>
+  <h1>Client Onboarding</h1>
+  <a href="index.html" class="header-back">← Back to Tools</a>
+</div>
+
+<div class="main">
+  <h2>📋 Client Onboarding Checklist</h2>
+  <p class="subtitle">Track new client onboarding steps from initial contact to settlement</p>
+
+  <div class="card">
+    <div class="field"><label>Client Name</label><input type="text" id="clientName" placeholder="e.g. John & Jane Smith" oninput="save()"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="field"><label>Loan Purpose</label><input type="text" id="loanPurpose" placeholder="e.g. Owner Occupied Purchase" oninput="save()"></div>
+      <div class="field"><label>Start Date</label><input type="date" id="startDate" oninput="save()"></div>
+    </div>
+  </div>
+
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-text" id="progressText"></div>
+
+  <div class="actions">
+    <button class="btn btn-green" onclick="resetChecklist()">🔄 New Client</button>
+    <button class="btn btn-outline" onclick="window.print()">🖨️ Print</button>
+  </div>
+
+  <div id="checklistContainer"></div>
+</div>
+
+<div class="disclaimer-footer">⚠️ This tool is for informational purposes only and does not constitute financial advice.</div>
+
+<script>
+const SECTIONS=[
+  {title:'Initial Contact',items:[
+    {id:'intro_call',label:'Initial discovery call completed',hint:'Understand client goals, timeline, financial situation'},
+    {id:'credit_guide',label:'Credit Guide provided',hint:'Must be provided before any credit assistance'},
+    {id:'privacy',label:'Privacy consent form signed',hint:'Authority to collect and use personal information'},
+    {id:'bid',label:'Best Interest Duty disclosure',hint:'Document how recommendation serves client\'s best interest'},
+  ]},
+  {title:'Documentation',items:[
+    {id:'id_100',label:'100 points of ID verified',hint:'Drivers licence, passport, Medicare card etc.'},
+    {id:'payslips',label:'Income documents collected',hint:'2 recent payslips, tax returns, NOAs'},
+    {id:'bank_statements',label:'Bank statements (3 months)',hint:'All transaction accounts, savings, credit cards'},
+    {id:'expenses',label:'Living expense declaration',hint:'HEM or declared expenses worksheet'},
+    {id:'existing_loans',label:'Existing loan statements',hint:'Current mortgage, personal loans, car finance, HECS'},
+    {id:'contract',label:'Contract of sale / pre-approval docs',hint:'If purchasing — signed contract; if refinancing — current loan details'},
+  ]},
+  {title:'Assessment & Submission',items:[
+    {id:'serviceability',label:'Serviceability assessment run',hint:'Check borrowing capacity with target lenders'},
+    {id:'product_select',label:'Product recommendation documented',hint:'Why this lender and product suits the client'},
+    {id:'comparison',label:'Loan comparison provided to client',hint:'Show at least 2-3 options with pros/cons'},
+    {id:'client_authority',label:'Client authority to proceed',hint:'Written confirmation to submit application'},
+    {id:'application',label:'Application submitted to lender',hint:'Full application with all supporting docs'},
+  ]},
+  {title:'Approval & Settlement',items:[
+    {id:'conditional',label:'Conditional approval received',hint:'Review conditions and action any outstanding items'},
+    {id:'valuation',label:'Valuation ordered / completed',hint:'Lender valuation or existing valuation accepted'},
+    {id:'unconditional',label:'Unconditional approval received',hint:'All conditions met — formal approval issued'},
+    {id:'loan_docs',label:'Loan documents signed',hint:'Client has signed and returned loan documents'},
+    {id:'settlement',label:'Settlement booked & completed',hint:'Confirm settlement date with all parties'},
+  ]},
+  {title:'Post-Settlement',items:[
+    {id:'welcome',label:'Welcome / thank you sent',hint:'Personal touch — card, email, or gift'},
+    {id:'review_date',label:'12-month review date set',hint:'Diary note for annual loan health check'},
+    {id:'referral_ask',label:'Referral request made',hint:'Ask for referrals while experience is fresh'},
+  ]},
+];
+
+let state={};
+const STORAGE_KEY='oney-onboarding-v1';
+
+function load(){
+  try{state=JSON.parse(localStorage.getItem(STORAGE_KEY))||{};}catch(e){state={};}
+  if(!state.checks)state.checks={};
+  document.getElementById('clientName').value=state.clientName||'';
+  document.getElementById('loanPurpose').value=state.loanPurpose||'';
+  document.getElementById('startDate').value=state.startDate||new Date().toISOString().slice(0,10);
+  renderChecklist();
+}
+
+function save(){
+  state.clientName=document.getElementById('clientName').value;
+  state.loanPurpose=document.getElementById('loanPurpose').value;
+  state.startDate=document.getElementById('startDate').value;
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+  updateProgress();
+}
+
+function toggleCheck(id){
+  state.checks[id]=!state.checks[id];
+  save();
+  renderChecklist();
+}
+
+function renderChecklist(){
+  const container=document.getElementById('checklistContainer');
+  container.innerHTML=SECTIONS.map(s=>`
+    <div class="checklist-section">
+      <div class="section-title">${s.title}</div>
+      ${s.items.map(item=>{
+        const done=state.checks[item.id];
+        return `<div class="check-item ${done?'done':''}" onclick="toggleCheck('${item.id}')">
+          <div class="check-box">${done?'✓':''}</div>
+          <div><div class="check-label">${item.label}</div><div class="check-hint">${item.hint}</div></div>
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+  updateProgress();
+}
+
+function updateProgress(){
+  const total=SECTIONS.reduce((a,s)=>a+s.items.length,0);
+  const done=SECTIONS.reduce((a,s)=>a+s.items.filter(i=>state.checks[i.id]).length,0);
+  const pct=total>0?(done/total*100):0;
+  document.getElementById('progressFill').style.width=pct+'%';
+  document.getElementById('progressText').textContent=`${done} of ${total} steps completed (${Math.round(pct)}%)`;
+}
+
+function resetChecklist(){
+  if(!confirm('Start fresh for a new client? Current progress will be cleared.'))return;
+  state={checks:{}};
+  document.getElementById('clientName').value='';
+  document.getElementById('loanPurpose').value='';
+  document.getElementById('startDate').value=new Date().toISOString().slice(0,10);
+  save();
+  renderChecklist();
+}
+
+load();
+(function(){const t=localStorage.getItem('oney-theme');if(t)document.documentElement.setAttribute('data-theme',t)})();
+window.addEventListener('message',e=>{if(e.data?.type==='THEME_CHANGE')document.documentElement.setAttribute('data-theme',e.data.theme)});
+</script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>if(new URLSearchParams(location.search).has("embed"))document.write("<style>.header,.disclaimer-footer,[class*=disclaimer],[class*=header-back],nav.top-nav,.sidebar-toggle{display:none!important}body{padding-top:0!important}.main{padding-top:16px!important}</style>")</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Review Scheduler — Oney & Co</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root,[data-theme="dark"]{--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--purple2:#9B59B6;--text:#f0f0f5;--white:#fff}
+[data-theme="light"]{--bg:#f5f5f5;--card:#ffffff;--border:#e0e0e0;--muted:#666;--text:#1a1a1a;--green:#1FAD73;--green2:#2ECC85;--purple:#6B4C9A}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--green)}
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+.header-back{margin-left:auto;color:var(--green);text-decoration:none;font-size:.85rem;font-weight:500}
+.main{flex:1;max-width:1000px;width:100%;margin:0 auto;padding:24px}
+h2{font-size:1.6rem;font-weight:700;margin-bottom:4px}
+.subtitle{color:var(--muted);margin-bottom:24px;font-size:.95rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
+.card h3{font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.field input,.field select{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.95rem;font-family:inherit}
+.field input:focus,.field select:focus{outline:none;border-color:var(--green)}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:600px){.row3,.row2{grid-template-columns:1fr}}
+.btn{padding:10px 20px;border:none;border-radius:8px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+.btn-red{background:transparent;border:1px solid #e74c3c;color:#e74c3c;font-size:.75rem;padding:6px 12px}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+@media(max-width:600px){.stat-grid{grid-template-columns:1fr 1fr}}
+.stat{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.stat .val{font-size:1.4rem;font-weight:800;color:var(--green)}
+.stat .val.accent{color:var(--purple)}
+.stat .val.warn{color:#e67e22}
+.stat .val.red{color:#e74c3c}
+.stat .lbl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{text-align:left;padding:10px 8px;color:var(--muted);font-weight:600;font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--border)}
+td{padding:8px;border-bottom:1px solid rgba(61,61,92,.3)}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.7rem;font-weight:700}
+.badge-overdue{background:rgba(231,76,60,.2);color:#e74c3c}
+.badge-due{background:rgba(230,126,34,.2);color:#e67e22}
+.badge-upcoming{background:rgba(46,204,133,.2);color:var(--green)}
+.badge-done{background:rgba(163,163,184,.2);color:var(--muted)}
+.filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.8rem;cursor:pointer;font-family:inherit}
+.filter-btn.active{background:var(--green);color:#fff;border-color:var(--green)}
+.disclaimer-footer{text-align:center;padding:16px 24px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:auto}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo"><svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/><circle cx="16" cy="16" r="6" fill="#2ECC85"/><text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text><text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text></svg></div>
+  <h1>Review Scheduler</h1>
+  <a href="index.html" class="header-back">← Back to Tools</a>
+</div>
+
+<div class="main">
+  <h2>📅 Client Review Scheduler</h2>
+  <p class="subtitle">Track annual loan review dates and never miss a client check-in</p>
+
+  <div class="stat-grid">
+    <div class="stat"><div class="val red" id="sOverdue">0</div><div class="lbl">Overdue</div></div>
+    <div class="stat"><div class="val warn" id="sDue">0</div><div class="lbl">Due This Month</div></div>
+    <div class="stat"><div class="val" id="sUpcoming">0</div><div class="lbl">Next 3 Months</div></div>
+    <div class="stat"><div class="val accent" id="sTotal">0</div><div class="lbl">Total Clients</div></div>
+  </div>
+
+  <div class="card">
+    <h3>➕ Add Review</h3>
+    <div class="row3">
+      <div class="field"><label>Client Name</label><input type="text" id="addName" placeholder="e.g. John Smith"></div>
+      <div class="field"><label>Review Date</label><input type="date" id="addDate"></div>
+      <div class="field"><label>Notes</label><input type="text" id="addNotes" placeholder="e.g. Fixed rate expiring"></div>
+    </div>
+    <button class="btn btn-green" onclick="addReview()">Add Review</button>
+  </div>
+
+  <div class="card">
+    <h3>📋 Review Schedule</h3>
+    <div class="filter-row">
+      <button class="filter-btn active" data-f="all" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn" data-f="overdue" onclick="setFilter('overdue',this)">🔴 Overdue</button>
+      <button class="filter-btn" data-f="due" onclick="setFilter('due',this)">🟠 Due</button>
+      <button class="filter-btn" data-f="upcoming" onclick="setFilter('upcoming',this)">🟢 Upcoming</button>
+      <button class="filter-btn" data-f="done" onclick="setFilter('done',this)">✅ Completed</button>
+    </div>
+    <div style="overflow-x:auto"><table><thead><tr><th>Client</th><th>Review Date</th><th>Status</th><th>Notes</th><th></th></tr></thead><tbody id="reviewBody"></tbody></table></div>
+  </div>
+</div>
+
+<div class="disclaimer-footer">⚠️ This tool is for informational purposes only and does not constitute financial advice.</div>
+
+<script>
+const KEY='oney-review-scheduler-v1';
+let reviews=[];
+let filter='all';
+
+function load(){try{reviews=JSON.parse(localStorage.getItem(KEY))||[];}catch(e){reviews=[];}}
+function save(){localStorage.setItem(KEY,JSON.stringify(reviews));}
+
+function getStatus(r){
+  if(r.completed)return'done';
+  const today=new Date();today.setHours(0,0,0,0);
+  const d=new Date(r.date);d.setHours(0,0,0,0);
+  const diff=(d-today)/(1000*60*60*24);
+  if(diff<0)return'overdue';
+  if(diff<=30)return'due';
+  return'upcoming';
+}
+
+function addReview(){
+  const name=document.getElementById('addName').value.trim();
+  const date=document.getElementById('addDate').value;
+  const notes=document.getElementById('addNotes').value.trim();
+  if(!name||!date){alert('Please enter client name and review date');return;}
+  reviews.push({id:Date.now(),name,date,notes,completed:false});
+  save();render();
+  document.getElementById('addName').value='';
+  document.getElementById('addDate').value='';
+  document.getElementById('addNotes').value='';
+}
+
+function toggleComplete(id){
+  const r=reviews.find(x=>x.id===id);
+  if(r){r.completed=!r.completed;if(r.completed){const d=new Date(r.date);d.setFullYear(d.getFullYear()+1);r.nextDate=d.toISOString().slice(0,10);}save();render();}
+}
+
+function deleteReview(id){
+  if(!confirm('Delete this review?'))return;
+  reviews=reviews.filter(x=>x.id!==id);save();render();
+}
+
+function setFilter(f,el){
+  filter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  render();
+}
+
+function render(){
+  const body=document.getElementById('reviewBody');
+  const sorted=[...reviews].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const filtered=filter==='all'?sorted:sorted.filter(r=>getStatus(r)===filter);
+
+  let overdue=0,due=0,upcoming=0;
+  reviews.forEach(r=>{const s=getStatus(r);if(s==='overdue')overdue++;if(s==='due')due++;if(s==='upcoming')upcoming++;});
+  document.getElementById('sOverdue').textContent=overdue;
+  document.getElementById('sDue').textContent=due;
+  document.getElementById('sUpcoming').textContent=upcoming;
+  document.getElementById('sTotal').textContent=reviews.length;
+
+  const badges={overdue:'badge badge-overdue',due:'badge badge-due',upcoming:'badge badge-upcoming',done:'badge badge-done'};
+  const labels={overdue:'Overdue',due:'Due Soon',upcoming:'Upcoming',done:'Completed'};
+
+  body.innerHTML=filtered.map(r=>{
+    const s=getStatus(r);
+    return `<tr>
+      <td style="font-weight:600">${r.name}</td>
+      <td>${new Date(r.date).toLocaleDateString('en-AU')}</td>
+      <td><span class="${badges[s]}">${labels[s]}</span></td>
+      <td style="color:var(--muted);font-size:.8rem">${r.notes||'—'}</td>
+      <td style="white-space:nowrap">
+        <button class="btn-outline btn" style="font-size:.7rem;padding:4px 8px;margin-right:4px" onclick="toggleComplete(${r.id})">${r.completed?'Undo':'✓ Done'}</button>
+        <button class="btn-red btn" onclick="deleteReview(${r.id})">×</button>
+      </td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">No reviews found</td></tr>';
+}
+
+load();
+if(!reviews.length){
+  const today=new Date();
+  const m1=new Date(today);m1.setDate(m1.getDate()-15);
+  const m2=new Date(today);m2.setDate(m2.getDate()+10);
+  const m3=new Date(today);m3.setMonth(m3.getMonth()+2);
+  reviews=[
+    {id:1,name:'Sarah Chen',date:m1.toISOString().slice(0,10),notes:'Fixed rate expiring, review refinance options',completed:false},
+    {id:2,name:'Mark Williams',date:m2.toISOString().slice(0,10),notes:'Annual health check',completed:false},
+    {id:3,name:'Priya Patel',date:m3.toISOString().slice(0,10),notes:'Investment portfolio review',completed:false},
+  ];
+  save();
+}
+render();
+(function(){const t=localStorage.getItem('oney-theme');if(t)document.documentElement.setAttribute('data-theme',t)})();
+window.addEventListener('message',e=>{if(e.data?.type==='THEME_CHANGE')document.documentElement.setAttribute('data-theme',e.data.theme)});
+</script>
+</body>
+</html>

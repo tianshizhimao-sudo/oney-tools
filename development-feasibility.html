@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>if(new URLSearchParams(location.search).has("embed"))document.write("<style>.header,.disclaimer-footer,[class*=disclaimer],[class*=header-back],nav.top-nav,.sidebar-toggle{display:none!important}body{padding-top:0!important}.main{padding-top:16px!important}</style>")</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Development Feasibility — Oney & Co</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root,[data-theme="dark"]{--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--purple2:#9B59B6;--text:#f0f0f5;--white:#fff}
+[data-theme="light"]{--bg:#f5f5f5;--card:#ffffff;--border:#e0e0e0;--muted:#666;--text:#1a1a1a;--green:#1FAD73;--green2:#2ECC85;--purple:#6B4C9A}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+a{color:var(--green)}
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+.header-back{margin-left:auto;color:var(--green);text-decoration:none;font-size:.85rem;font-weight:500}
+.main{flex:1;max-width:900px;width:100%;margin:0 auto;padding:24px}
+h2{font-size:1.6rem;font-weight:700;margin-bottom:4px}
+.subtitle{color:var(--muted);margin-bottom:24px;font-size:.95rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px}
+.card h3{font-size:1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.field input{width:100%;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.95rem;font-family:inherit}
+.field input:focus{outline:none;border-color:var(--green)}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.stat{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.stat .val{font-size:1.4rem;font-weight:800;color:var(--green)}
+.stat .val.accent{color:var(--purple)}
+.stat .val.red{color:#e74c3c}
+.stat .lbl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.stat.full{grid-column:1/-1}
+.bar-stack{margin:16px 0}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.bar-label{font-size:.75rem;color:var(--muted);width:80px;text-align:right;flex-shrink:0}
+.bar-track{flex:1;height:20px;background:var(--border);border-radius:6px;overflow:hidden}
+.bar-fill{height:100%;border-radius:6px;transition:width .4s;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:#fff}
+.verdict{text-align:center;padding:16px;border-radius:10px;margin-top:16px;font-weight:700;font-size:1rem}
+.verdict.go{background:rgba(46,204,133,.15);color:var(--green);border:1px solid var(--green)}
+.verdict.caution{background:rgba(241,196,15,.15);color:#f1c40f;border:1px solid #f1c40f}
+.verdict.stop{background:rgba(231,76,60,.15);color:#e74c3c;border:1px solid #e74c3c}
+.disclaimer-footer{text-align:center;padding:16px 24px;font-size:11px;color:var(--muted);border-top:1px solid var(--border);margin-top:auto}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo"><svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/><circle cx="16" cy="16" r="6" fill="#2ECC85"/><text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text><text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text></svg></div>
+  <h1>Development Feasibility</h1>
+  <a href="index.html" class="header-back">← Back to Tools</a>
+</div>
+
+<div class="main">
+  <h2>🏗️ Development Feasibility</h2>
+  <p class="subtitle">Quick feasibility check for property development projects</p>
+
+  <div class="grid">
+    <div class="card">
+      <h3>📊 Project Costs</h3>
+      <div class="field"><label>Land / Acquisition Cost ($)</label><input type="number" id="landCost" value="800000" oninput="calc()"></div>
+      <div class="field"><label>Stamp Duty & Legal ($)</label><input type="number" id="stampDuty" value="32000" oninput="calc()"></div>
+      <div class="field"><label>Construction Cost ($)</label><input type="number" id="buildCost" value="600000" oninput="calc()"></div>
+      <div class="field"><label>Professional Fees ($)</label><input type="number" id="profFees" value="45000" oninput="calc()"></div>
+      <div class="field"><label>Council / DA Fees ($)</label><input type="number" id="councilFees" value="25000" oninput="calc()"></div>
+      <div class="field"><label>Finance Costs ($)</label><input type="number" id="financeCosts" value="60000" oninput="calc()"></div>
+      <div class="field"><label>Contingency % of Build</label><input type="number" id="contingency" value="10" step="1" oninput="calc()"></div>
+
+      <h3 style="margin-top:20px">💰 Expected Revenue</h3>
+      <div class="field"><label>Gross Realisation / End Value ($)</label><input type="number" id="endValue" value="2000000" oninput="calc()"></div>
+      <div class="field"><label>Selling Costs % (agent etc)</label><input type="number" id="sellingPct" value="2.5" step="0.1" oninput="calc()"></div>
+    </div>
+
+    <div class="card">
+      <h3>📈 Results</h3>
+      <div class="stat-grid">
+        <div class="stat"><div class="val" id="totalCost">—</div><div class="lbl">Total Dev Cost</div></div>
+        <div class="stat"><div class="val" id="netRevenue">—</div><div class="lbl">Net Revenue</div></div>
+        <div class="stat"><div class="val" id="profit">—</div><div class="lbl">Development Profit</div></div>
+        <div class="stat"><div class="val accent" id="margin">—</div><div class="lbl">Profit Margin</div></div>
+        <div class="stat"><div class="val" id="roi">—</div><div class="lbl">ROI on Total Cost</div></div>
+        <div class="stat"><div class="val accent" id="roiEquity">—</div><div class="lbl">ROI on Equity (20%)</div></div>
+      </div>
+
+      <h3>Cost Breakdown</h3>
+      <div class="bar-stack" id="barStack"></div>
+
+      <div id="verdict"></div>
+    </div>
+  </div>
+</div>
+
+<div class="disclaimer-footer">⚠️ This tool is for informational purposes only and does not constitute financial advice. Please consult a licensed professional before making financial decisions.</div>
+
+<script>
+function fmt(n){return '$'+Math.round(n).toLocaleString('en-AU')}
+function calc(){
+  const land=+document.getElementById('landCost').value||0;
+  const stamp=+document.getElementById('stampDuty').value||0;
+  const build=+document.getElementById('buildCost').value||0;
+  const prof=+document.getElementById('profFees').value||0;
+  const council=+document.getElementById('councilFees').value||0;
+  const finance=+document.getElementById('financeCosts').value||0;
+  const contPct=+document.getElementById('contingency').value||0;
+  const contingency=build*(contPct/100);
+  const endValue=+document.getElementById('endValue').value||0;
+  const sellPct=+document.getElementById('sellingPct').value||0;
+  const sellingCosts=endValue*(sellPct/100);
+
+  const totalCost=land+stamp+build+prof+council+finance+contingency;
+  const netRevenue=endValue-sellingCosts;
+  const profit=netRevenue-totalCost;
+  const margin=netRevenue>0?(profit/netRevenue*100):0;
+  const roi=totalCost>0?(profit/totalCost*100):0;
+  const equity=totalCost*0.2;
+  const roiEquity=equity>0?(profit/equity*100):0;
+
+  document.getElementById('totalCost').textContent=fmt(totalCost);
+  document.getElementById('netRevenue').textContent=fmt(netRevenue);
+  document.getElementById('profit').textContent=fmt(profit);
+  document.getElementById('profit').className='val'+(profit>=0?' ':' red');
+  document.getElementById('margin').textContent=margin.toFixed(1)+'%';
+  document.getElementById('roi').textContent=roi.toFixed(1)+'%';
+  document.getElementById('roiEquity').textContent=roiEquity.toFixed(1)+'%';
+
+  const costs=[
+    {label:'Land',val:land,color:'var(--green)'},
+    {label:'Build',val:build,color:'var(--purple)'},
+    {label:'Stamp',val:stamp,color:'#3498db'},
+    {label:'Prof',val:prof,color:'#e67e22'},
+    {label:'Council',val:council,color:'#9b59b6'},
+    {label:'Finance',val:finance,color:'#e74c3c'},
+    {label:'Conting.',val:contingency,color:'#f1c40f'},
+  ];
+  const maxVal=Math.max(...costs.map(c=>c.val),1);
+  document.getElementById('barStack').innerHTML=costs.map(c=>`
+    <div class="bar-row">
+      <div class="bar-label">${c.label}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${c.val/maxVal*100}%;background:${c.color}">${fmt(c.val)}</div></div>
+    </div>`).join('');
+
+  const v=document.getElementById('verdict');
+  if(margin>=20){v.className='verdict go';v.textContent='✅ Strong feasibility — '+margin.toFixed(1)+'% margin';}
+  else if(margin>=10){v.className='verdict caution';v.textContent='⚠️ Marginal — '+margin.toFixed(1)+'% margin. Review costs carefully';}
+  else{v.className='verdict stop';v.textContent='❌ Not feasible — '+margin.toFixed(1)+'% margin. Insufficient profit buffer';}
+}
+calc();
+(function(){const t=localStorage.getItem('oney-theme');if(t)document.documentElement.setAttribute('data-theme',t)})();
+window.addEventListener('message',e=>{if(e.data?.type==='THEME_CHANGE')document.documentElement.setAttribute('data-theme',e.data.theme)});
+</script>
+</body>
+</html>
