@@ -1025,6 +1025,30 @@ select.locked-field { pointer-events: none; opacity: 0.55; cursor: not-allowed; 
 </style>
 </head>
 <body>
+<!-- Password Gate (skip in embed mode) -->
+<div id="oney-gate" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#1A1A2E;font-family:Inter,system-ui,sans-serif">
+  <div style="text-align:center;padding:40px;border-radius:12px;background:#252540;border:1px solid #3D3D5C;max-width:340px;width:90%">
+    <h2 style="color:#6B4C9A;margin:0 0 8px;font-size:20px">🔒 Oney Security</h2>
+    <p style="color:#a3a3b8;font-size:13px;margin:0 0 20px">Pro access required</p>
+    <input type="password" id="oney-pw" placeholder="Enter password" autofocus style="width:100%;padding:10px 14px;border-radius:6px;border:1px solid #3D3D5C;background:#1A1A2E;color:#e0e0e0;font-size:14px;outline:none;box-sizing:border-box">
+    <button onclick="oneyGateCheck()" style="margin-top:12px;width:100%;padding:10px;border:none;border-radius:6px;background:linear-gradient(135deg,#6B4C9A,#9B59B6);color:#fff;font-weight:600;font-size:14px;cursor:pointer">Unlock →</button>
+    <div id="gate-err" style="color:#e74c3c;font-size:12px;margin-top:8px;display:none">Incorrect password</div>
+  </div>
+</div>
+<script>
+(function(){
+  // Skip gate in embed mode
+  if(new URLSearchParams(location.search).has('embed')){document.getElementById('oney-gate')?.remove();return}
+  if(sessionStorage.getItem('oney-auth')==='1'){document.getElementById('oney-gate')?.remove();return}
+  document.getElementById('oney-pw')?.addEventListener('keydown',e=>{if(e.key==='Enter')oneyGateCheck()});
+})();
+async function oneyGateCheck(){
+  const p=document.getElementById('oney-pw').value;
+  const h=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p)))).map(x=>x.toString(16).padStart(2,'0')).join('');
+  if(h==='593d6f478211fa2ca31f3c8cef009f7f2342db24d1bf3ba1c1bd27c8edb9fedb'){document.getElementById('oney-gate').remove();sessionStorage.setItem('oney-auth','1')}
+  else{document.getElementById('gate-err').style.display='block';document.getElementById('oney-pw').value=''}
+}
+</script>
 <!-- Print header -->
 <div class="print-header">
   <h1>Oney Security — Assessment Report</h1>
