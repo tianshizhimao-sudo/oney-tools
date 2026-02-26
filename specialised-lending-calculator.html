@@ -11,6 +11,12 @@
   <title>Oney Analyse v2.0 — Specialised Lending</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+.header-back{margin-left:auto;color:#2ECC85;text-decoration:none;font-size:.85rem;font-weight:500;white-space:nowrap}
+.header-back:hover{text-decoration:underline}
+
     :root {
       --bg: #1A1A2E;
       --card: #252540;
@@ -89,8 +95,8 @@
     .error-banner { background: rgba(248,113,113,0.15); border: 1px solid var(--danger); border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: center; }
     .industry-desc { font-size: 12px; color: var(--text-muted); margin-top: 4px; padding: 8px 12px; background: var(--primary-glow); border-radius: 8px; }
     body, .card, input, select, .metric, .footer, .final-box { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
-  .header-back{color:var(--green,#2ECC85);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
-.header-back:hover{opacity:0.8}
+  .header-back:hover{opacity:0.8}
+
 </style>
   <style>
     .related-tools { padding: 40px 24px; border-top: 1px solid #3D3D5C; }
@@ -408,7 +414,17 @@ th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #eee;font-size:1
 .header-back:hover{opacity:0.8}
 </style></head><body>
 <div class="header">
-  <div><div class="logo">📋 Oney Analyse</div><div class="logo-sub">Specialised Lending — MLL Assessment & Multi-Lender Comparison</div></div>
+  <div class="logo">
+    <svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/>
+      <circle cx="16" cy="16" r="6" fill="#2ECC85"/>
+      <text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text>
+      <text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text>
+    </svg>
+  </div>
+  <h1>Specialised Lending Calculator</h1>
+  <a href="index.html" class="header-back">← Back to Tools</a>
+</div><div class="logo-sub">Specialised Lending — MLL Assessment & Multi-Lender Comparison</div></div>
   <div class="date">Report Date: ${today}<br>Reference: ${refId}</div>
 </div>
 

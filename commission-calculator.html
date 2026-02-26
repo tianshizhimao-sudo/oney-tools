@@ -8,14 +8,11 @@
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--white:#f0f0f5}
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;padding:20px}
-.header{display:flex;flex-direction:column;text-align:center;margin-bottom:30px;position:relative}
-.header-inner{display:flex;justify-content:space-between;align-items:flex-start}
-.header-title{flex:1}
-.header h1{font-size:1.6rem;color:var(--green)}
-.header p{color:var(--muted);font-size:.85rem;margin-top:4px}
-.header-back{color:var(--green);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
-.header-back:hover{opacity:0.8}
-.logo{width:32px;height:32px;vertical-align:middle;margin-right:8px}
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+.header-back{margin-left:auto;color:#2ECC85;text-decoration:none;font-size:.85rem;font-weight:500;white-space:nowrap}
+.header-back:hover{text-decoration:underline}
 .container{max-width:900px;margin:0 auto}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 @media(max-width:700px){.grid{grid-template-columns:1fr}}
@@ -54,15 +51,21 @@ input:focus,select:focus{border-color:var(--green)}
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <div style="margin-bottom:16px">
-      <h1><svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs><g transform="translate(50,50)"><path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#g)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/><path d="M0 -45 L0 -52" stroke="url(#g)" stroke-width="6" stroke-linecap="round"/></g></svg>Commission Calculator</h1>
-      <p>Estimate upfront & trail commissions per deal</p>
-    </div>
-    <a href="tools.html" class="header-back" style="position:absolute;top:0;right:0">← Back to Tools</a>
-  </div>
 
+<div class="header">
+  <div class="logo">
+    <svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/>
+      <circle cx="16" cy="16" r="6" fill="#2ECC85"/>
+      <text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text>
+      <text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text>
+    </svg>
+  </div>
+  <h1>Commission Calculator</h1>
+  <a href="index.html" class="header-back">← Back to Tools</a>
+</div>
+
+<div class="container">
   <div class="grid">
     <div class="card">
       <h2>💰 Deal Details</h2>

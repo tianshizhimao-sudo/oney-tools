@@ -86,6 +86,12 @@
     window.currentTier = detectTier();
   </script>
   <style>
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+.header-back{margin-left:auto;color:#2ECC85;text-decoration:none;font-size:.85rem;font-weight:500;white-space:nowrap}
+.header-back:hover{text-decoration:underline}
+
     :root {
       --gold: #2ECC85; --gold-dark: #1FAD73; --gold-light: rgba(31, 173, 115, 0.15);
       --navy: #e2e8f0; --navy-light: #cbd5e1;
@@ -378,8 +384,8 @@
       .sidebar { max-height: none; }
       .upgrade-tiers { grid-template-columns: 1fr; }
     }
-  .header-back{color:var(--green,#2ECC85);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
-.header-back:hover{opacity:0.8}
+  .header-back:hover{opacity:0.8}
+
 </style>
   <meta name="description" content="Free credit assessment tool for quick borrowing power estimates.">
   <meta property="og:title" content="CreditSheet — Free Credit Assessment Tool — Oney & Co">
@@ -411,6 +417,19 @@
 </style>
 </head>
 <body>
+
+<div class="header">
+  <div class="logo">
+    <svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/>
+      <circle cx="16" cy="16" r="6" fill="#2ECC85"/>
+      <text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text>
+      <text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text>
+    </svg>
+  </div>
+  <h1>Creditsheet</h1>
+  <a href="index.html" class="header-back">← Back to Tools</a>
+</div>
 
 <!-- Tier Banner -->
 <div class="tier-banner" id="tierBanner">

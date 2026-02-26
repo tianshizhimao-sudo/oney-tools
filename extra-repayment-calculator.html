@@ -6,6 +6,12 @@
 <title>Extra Repayment Calculator — Oney & Co</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+.header-back{margin-left:auto;color:#2ECC85;text-decoration:none;font-size:.85rem;font-weight:500;white-space:nowrap}
+.header-back:hover{text-decoration:underline}
+
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;
@@ -16,8 +22,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 a{color:var(--green)}
 
 /* Header */
-.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border);justify-content:space-between}
-.header-back{color:var(--green);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
 .header-back:hover{opacity:0.8}
 .logo svg{height:32px;width:auto}
 .header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
@@ -84,19 +88,23 @@ canvas{width:100%!important}
 .tabs{display:flex;gap:8px;margin-bottom:16px}
 .tab{padding:8px 16px;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:inherit;transition:all .2s}
 .tab.active{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border-color:transparent}
+
 </style>
 </head>
 <body>
 
 <div class="header">
   <div class="logo">
-    <svg viewBox="0 0 200 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="20" cy="20" r="16" fill="#2ECC85"/>
-      <text x="12" y="26" font-family="Inter" font-weight="800" font-size="18" fill="#1A1A2E">O</text>
-      <text x="44" y="27" font-family="Inter" font-weight="700" font-size="18" fill="#f0f0f5">Oney</text>
-      <text x="96" y="27" font-family="Inter" font-weight="300" font-size="18" fill="#a3a3b8">&amp; Co</text>
+    <svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/>
+      <circle cx="16" cy="16" r="6" fill="#2ECC85"/>
+      <text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text>
+      <text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text>
     </svg>
   </div>
+  <h1>Extra Repayment Calculator</h1>
+  <a href="index.html" class="header-back">← Back to Tools</a>
+</div>
   <h1>Extra Repayment Calculator</h1>
   <a href="index.html" class="header-back">← Back to Tools</a>
 </div>

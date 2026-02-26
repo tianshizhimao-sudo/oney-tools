@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Investment Yield Calculator — Oney & Co</title>
 <style>
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+.header-back{margin-left:auto;color:#2ECC85;text-decoration:none;font-size:.85rem;font-weight:500;white-space:nowrap}
+.header-back:hover{text-decoration:underline}
+
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--red:#e74c3c;--orange:#f39c12}
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:#e8e8f0;min-height:100vh;padding:20px}
@@ -53,21 +59,23 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:#e8e8f0
 .neg-gear h3{color:#9B59B6;font-size:.9rem;margin-bottom:8px}
 .neg-gear .row-info{display:flex;justify-content:space-between;padding:4px 0;font-size:.85rem}
 .footer{text-align:center;margin-top:30px;color:var(--muted);font-size:.75rem}
-.header-back{color:var(--green,#2ECC85);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
 .header-back:hover{opacity:0.8}
+
 </style>
 </head>
 <body>
 
 <div class="header">
-<div class="logo">
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 90">
-<defs><linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs>
-<g transform="translate(38,45)"><path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#greenGrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/><path d="M0 -38 L0 -44" stroke="url(#greenGrad)" stroke-width="5" stroke-linecap="round"/></g>
-<text x="32" y="50" font-family="Inter,Arial,sans-serif" font-size="26" font-weight="600" fill="#e8e8f0">ney</text>
-<text x="77" y="50" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="400" fill="url(#greenGrad)">&amp;</text>
-<text x="94" y="50" font-family="Inter,Arial,sans-serif" font-size="26" font-weight="600" fill="#e8e8f0">co</text>
-</svg>
+  <div class="logo">
+    <svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/>
+      <circle cx="16" cy="16" r="6" fill="#2ECC85"/>
+      <text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text>
+      <text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text>
+    </svg>
+  </div>
+  <h1>Investment Yield Calculator</h1>
+  <a href="index.html" class="header-back">← Back to Tools</a>
 </div>
 <h1>🏠 Investment Yield Calculator</h1>
 <p>Gross & net yield, cash flow analysis, and negative gearing estimate</p>

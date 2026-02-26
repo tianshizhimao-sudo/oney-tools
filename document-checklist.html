@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document Checklist Generator | Oney & Co</title>
     <style>
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+.header-back{margin-left:auto;color:#2ECC85;text-decoration:none;font-size:.85rem;font-weight:500;white-space:nowrap}
+.header-back:hover{text-decoration:underline}
+
         * {
             margin: 0;
             padding: 0;
@@ -314,11 +320,24 @@
             color: #999;
             font-size: 0.85em;
         }
-    .header-back{color:var(--green,#2ECC85);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
-.header-back:hover{opacity:0.8}
+    .header-back:hover{opacity:0.8}
+
 </style>
 </head>
 <body>
+
+<div class="header">
+  <div class="logo">
+    <svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/>
+      <circle cx="16" cy="16" r="6" fill="#2ECC85"/>
+      <text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text>
+      <text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text>
+    </svg>
+  </div>
+  <h1>Document Checklist</h1>
+  <a href="index.html" class="header-back">← Back to Tools</a>
+</div>
     <div class="container">
         <header>
             <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">

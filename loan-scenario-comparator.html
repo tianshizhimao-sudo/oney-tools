@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Loan Scenario Comparator — Oney & Co</title>
 <style>
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+.header-back{margin-left:auto;color:#2ECC85;text-decoration:none;font-size:.85rem;font-weight:500;white-space:nowrap}
+.header-back:hover{text-decoration:underline}
+
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--text:#f0f0f0}
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px}
@@ -66,16 +72,23 @@ body{background:#fff;color:#000;padding:10px}
 .print-section{display:block;text-align:center;margin-bottom:10px;font-size:.75rem;color:#999}
 .header h1{-webkit-text-fill-color:#1FAD73}
 }
-.header-back{color:var(--green,#2ECC85);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
 .header-back:hover{opacity:0.8}
+
 </style>
 </head>
 <body>
 <div class="print-section">Oney & Co — Loan Scenario Comparison — Generated <span id="printDate"></span></div>
 <div class="header">
-<h1>📊 Loan Scenario Comparator</h1>
-<p>Compare up to 4 loan options side by side</p>
-<div class="logo">Oney & Co<a href="index.html" class="header-back">← Back to Tools</a>
+  <div class="logo">
+    <svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/>
+      <circle cx="16" cy="16" r="6" fill="#2ECC85"/>
+      <text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text>
+      <text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text>
+    </svg>
+  </div>
+  <h1>Loan Scenario Comparator</h1>
+  <a href="index.html" class="header-back">← Back to Tools</a>
 </div>
 </div>
 

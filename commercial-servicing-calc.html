@@ -10,6 +10,12 @@
   <title>Oney Serve V4.2 — Oney & Co</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+.header-back{margin-left:auto;color:#2ECC85;text-decoration:none;font-size:.85rem;font-weight:500;white-space:nowrap}
+.header-back:hover{text-decoration:underline}
+
     /* ============================================
        CSS Variables & Base Styles
        V4: Dark/Light mode via CSS custom properties
@@ -1801,7 +1807,8 @@
       .row, .row-3 { grid-template-columns: 1fr; }
       .metrics-grid { grid-template-columns: 1fr; }
     }
-  </style>
+  
+</style>
 
 <style>
   .back-to-tools { display: inline-block; padding: 10px 0; color: #2ECC85; text-decoration: none; font-size: 14px; font-weight: 500; margin: 16px 24px; }
@@ -1836,48 +1843,18 @@
     </div>
 
     <!-- Header -->
-    <header class="header" style="justify-content:space-between">
-      <div class="logo-section">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 90" class="logo-icon" style="width:120px;height:auto">
-          <defs>
-            <linearGradient id="fillGrad" x1="0%" y1="100%" x2="0%" y2="0%">
-              <stop offset="0%" style="stop-color:#1FAD73"/>
-              <stop offset="55%" style="stop-color:#2ECC85"/>
-              <stop offset="55%" style="stop-color:transparent"/>
-              <stop offset="100%" style="stop-color:transparent"/>
-            </linearGradient>
-            <linearGradient id="strokeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:#2ECC85"/>
-              <stop offset="100%" style="stop-color:#1FAD73"/>
-            </linearGradient>
-          </defs>
-          <g transform="translate(40, 45)">
-            <circle cx="0" cy="0" r="32" fill="none" stroke="url(#strokeGrad)" stroke-width="7"/>
-            <circle cx="0" cy="0" r="24" fill="url(#fillGrad)"/>
-          </g>
-          <text x="82" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#1a1a1a" letter-spacing="-0.5">ney</text>
-          <text x="129" y="52" font-family="Inter, system-ui, sans-serif" font-size="21" font-weight="500" fill="url(#strokeGrad)">&amp;</text>
-          <text x="148" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#1a1a1a" letter-spacing="-0.5">co</text>
-          <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
-        </svg>
-        <div class="logo-text">
-          <h1>Oney Serve</h1>
-          <span class="tagline">Commercial Investment Servicing Calculator</span>
-        </div>
-      </div>
-      <a href="tools.html" class="header-back" style="color:#2ECC85;text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s;align-self:center">← Back to Tools</a>
-      <div class="header-right">
-        <span class="version-badge">V4.2 — Lease Doc</span> <span class="version-badge" id="dataBadge" style="background:rgba(46,204,133,0.2);color:#2ECC85">Loading…</span>
-        <!-- V4: Save Button -->
-        <button class="btn-save" onclick="App.manualSave()" title="Save current data">💾 Save</button>
-        <!-- V4.1: Clear / Re-input Button -->
-        <button class="btn-clear" onclick="App.clearAll()" title="Clear all data and start fresh">🗑 Clear</button>
-        <button class="theme-toggle" id="themeToggle" onclick="App.toggleTheme()" title="Toggle dark/light mode" aria-label="Toggle theme">
-          <span class="icon-sun">☀️</span>
-          <span class="icon-moon">🌙</span>
-        </button>
-      </div>
-    </header>
+    <div class="header">
+  <div class="logo">
+    <svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/>
+      <circle cx="16" cy="16" r="6" fill="#2ECC85"/>
+      <text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text>
+      <text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text>
+    </svg>
+  </div>
+  <h1>Commercial Servicing Calc</h1>
+  <a href="index.html" class="header-back">← Back to Tools</a>
+</div>
     
     <!-- Mode Selector: Single Property vs Portfolio -->
     <div class="mode-selector">
