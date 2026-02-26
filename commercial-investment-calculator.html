@@ -750,5 +750,6 @@ window.addEventListener('message',function(e){if(e.data&&e.data.type==='THEME_CH
 <div style="text-align:center;padding:16px 24px;font-size:11px;color:#666;border-top:1px solid var(--border,#3D3D5C);margin-top:auto">
   ⚠️ This tool is for informational purposes only and does not constitute financial advice. Please consult a licensed professional before making financial decisions.
 </div>
+<script>window.addEventListener('message',function(e){if(e.data&&e.data.type==='theme-change'){document.documentElement.setAttribute('data-theme',e.data.theme)}});</script>
 </body>
 </html>
