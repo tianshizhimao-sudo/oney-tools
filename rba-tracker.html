@@ -532,94 +532,93 @@
 </div>
       <div class="lang-switcher">
         <button class="lang-btn active" data-lang="en">EN</button>
-        <button class="lang-btn" data-lang="zh">中文</button>
       </div>
     </div>
     
     <!-- Current Rates -->
     <div class="rate-cards">
       <div class="rate-card rba">
-        <h3>🏦 <span data-en="RBA Cash Rate" data-zh="RBA 现金利率">RBA Cash Rate</span></h3>
+        <h3>🏦 <span data-en="RBA Cash Rate">RBA Cash Rate</span></h3>
         <div class="rate-value">3.85%</div>
         <span class="rate-change up">▲ +0.25%</span>
-        <p class="rate-date" data-en="Effective: 4 Feb 2026" data-zh="生效日期: 2026年2月4日">Effective: 4 Feb 2026</p>
+        <p class="rate-date" data-en="Effective: 4 Feb 2026">Effective: 4 Feb 2026</p>
       </div>
       <div class="rate-card cpi">
-        <h3>📊 <span data-en="CPI Inflation" data-zh="CPI 通胀率">CPI Inflation</span></h3>
+        <h3>📊 <span data-en="CPI Inflation">CPI Inflation</span></h3>
         <div class="rate-value">3.3%</div>
-        <span class="rate-change down">▼ <span data-en="-0.2% from peak" data-zh="较峰值 -0.2%">-0.2% from peak</span></span>
-        <p class="rate-date" data-en="Data: December 2025" data-zh="数据截至: 2025年12月">Data: December 2025</p>
+        <span class="rate-change down">▼ <span data-en="-0.2% from peak">-0.2% from peak</span></span>
+        <p class="rate-date" data-en="Data: December 2025">Data: December 2025</p>
       </div>
     </div>
     
     <!-- Impact Calculator -->
     <div class="section">
-      <h2 class="section-title">💰 <span data-en="Impact on Your Mortgage" data-zh="对你贷款的影响">Impact on Your Mortgage</span></h2>
-      <p class="section-desc" data-en="Enter your loan details to see how rate changes affect you" data-zh="输入你的贷款信息，看看利率变化对你的实际影响">Enter your loan details to see how rate changes affect you</p>
+      <h2 class="section-title">💰 <span data-en="Impact on Your Mortgage">Impact on Your Mortgage</span></h2>
+      <p class="section-desc" data-en="Enter your loan details to see how rate changes affect you">Enter your loan details to see how rate changes affect you</p>
       
       <div class="input-row">
         <div class="input-field">
-          <label data-en="Loan Amount" data-zh="贷款金额">Loan Amount</label>
+          <label data-en="Loan Amount">Loan Amount</label>
           <input type="number" id="loanAmount" value="500000" placeholder="500000">
-          <span data-en="Australian Dollars" data-zh="澳元">Australian Dollars</span>
+          <span data-en="Australian Dollars">Australian Dollars</span>
         </div>
         <div class="input-field">
-          <label data-en="Loan Term" data-zh="贷款期限">Loan Term</label>
+          <label data-en="Loan Term">Loan Term</label>
           <input type="number" id="loanTerm" value="30" placeholder="30">
-          <span data-en="Years" data-zh="年">Years</span>
+          <span data-en="Years">Years</span>
         </div>
       </div>
       
       <div class="impact-results">
         <div class="impact-item">
-          <div class="label" data-en="Current Monthly Payment" data-zh="当前月供估算">Current Monthly Payment</div>
+          <div class="label" data-en="Current Monthly Payment">Current Monthly Payment</div>
           <div class="value" id="currentPayment">$2,347</div>
-          <div class="sub" data-en="Based on 3.85%" data-zh="基于 3.85% 利率">Based on 3.85%</div>
+          <div class="sub" data-en="Based on 3.85%">Based on 3.85%</div>
         </div>
         <div class="impact-item">
-          <div class="label" data-en="This Rate Rise" data-zh="本次加息影响">This Rate Rise</div>
+          <div class="label" data-en="This Rate Rise">This Rate Rise</div>
           <div class="value negative" id="rateImpact">+$76/mo</div>
-          <div class="sub" data-en="vs. before rise" data-zh="相比加息前">vs. before rise</div>
+          <div class="sub" data-en="vs. before rise">vs. before rise</div>
         </div>
         <div class="impact-item">
-          <div class="label" data-en="Yearly Extra" data-zh="年度额外支出">Yearly Extra</div>
+          <div class="label" data-en="Yearly Extra">Yearly Extra</div>
           <div class="value negative" id="yearlyImpact">+$912/yr</div>
-          <div class="sub" data-en="Budget impact" data-zh="家庭预算影响">Budget impact</div>
+          <div class="sub" data-en="Budget impact">Budget impact</div>
         </div>
         <div class="impact-item">
-          <div class="label" data-en="Since 2022 Low" data-zh="较2022年低点">Since 2022 Low</div>
+          <div class="label" data-en="Since 2022 Low">Since 2022 Low</div>
           <div class="value negative" id="fromLow">+$1,156/mo</div>
-          <div class="sub" data-en="From 0.10% to now" data-zh="从 0.10% 到现在">From 0.10% to now</div>
+          <div class="sub" data-en="From 0.10% to now">From 0.10% to now</div>
         </div>
       </div>
     </div>
     
     <!-- Knowledge Section -->
     <div class="section">
-      <h2 class="section-title">📚 <span data-en="What You Should Know" data-zh="你应该知道的">What You Should Know</span></h2>
+      <h2 class="section-title">📚 <span data-en="What You Should Know">What You Should Know</span></h2>
       <div class="awareness-grid">
         <div class="awareness-item">
-          <h4>🎯 <span data-en="RBA's Goal" data-zh="RBA 的目标">RBA's Goal</span></h4>
-          <p data-en="RBA targets inflation at 2-3%. When CPI exceeds this range, RBA may raise rates to 'cool' the economy." data-zh="RBA 的目标是将通胀控制在 2-3% 区间。当 CPI 超过这个范围，RBA 可能会加息来"冷却"经济。">RBA targets inflation at 2-3%. When CPI exceeds this range, RBA may raise rates to 'cool' the economy.</p>
+          <h4>🎯 <span data-en="RBA's Goal">RBA's Goal</span></h4>
+          <p data-en="RBA targets inflation at 2-3%. When CPI exceeds this range, RBA may raise rates to 'cool' the economy.">RBA targets inflation at 2-3%. When CPI exceeds this range, RBA may raise rates to 'cool' the economy.</p>
         </div>
         <div class="awareness-item">
-          <h4>⏰ <span data-en="Rate Pass-through" data-zh="利率传导">Rate Pass-through</span></h4>
-          <p data-en="After RBA changes rates, banks typically adjust mortgage rates within 1-2 weeks. Variable rates are directly affected." data-zh="RBA 调整利率后，银行通常会在 1-2 周内调整房贷利率。浮动利率贷款会直接受影响。">After RBA changes rates, banks typically adjust mortgage rates within 1-2 weeks. Variable rates are directly affected.</p>
+          <h4>⏰ <span data-en="Rate Pass-through">Rate Pass-through</span></h4>
+          <p data-en="After RBA changes rates, banks typically adjust mortgage rates within 1-2 weeks. Variable rates are directly affected.">After RBA changes rates, banks typically adjust mortgage rates within 1-2 weeks. Variable rates are directly affected.</p>
         </div>
         <div class="awareness-item">
-          <h4>💡 <span data-en="3% Buffer Rule" data-zh="3% Buffer 规则">3% Buffer Rule</span></h4>
-          <p data-en="Banks add 3% buffer to current rates when assessing borrowing capacity. This ensures you can handle future rate rises." data-zh="银行在评估你的借款能力时，会在当前利率上加 3% 作为缓冲。这是为了确保你能承受未来加息。">Banks add 3% buffer to current rates when assessing borrowing capacity. This ensures you can handle future rate rises.</p>
+          <h4>💡 <span data-en="3% Buffer Rule">3% Buffer Rule</span></h4>
+          <p data-en="Banks add 3% buffer to current rates when assessing borrowing capacity. This ensures you can handle future rate rises.">Banks add 3% buffer to current rates when assessing borrowing capacity. This ensures you can handle future rate rises.</p>
         </div>
         <div class="awareness-item">
-          <h4>🔄 <span data-en="Fixed vs Variable" data-zh="固定 vs 浮动">Fixed vs Variable</span></h4>
-          <p data-en="Fixed rates stay constant during the term but are usually higher. Your choice depends on rate expectations and risk tolerance." data-zh="固定利率在期限内不变，但通常比浮动高。选择哪种取决于你对利率走势的预期和风险偏好。">Fixed rates stay constant during the term but are usually higher. Your choice depends on rate expectations and risk tolerance.</p>
+          <h4>🔄 <span data-en="Fixed vs Variable">Fixed vs Variable</span></h4>
+          <p data-en="Fixed rates stay constant during the term but are usually higher. Your choice depends on rate expectations and risk tolerance.">Fixed rates stay constant during the term but are usually higher. Your choice depends on rate expectations and risk tolerance.</p>
         </div>
       </div>
     </div>
     
     <!-- Timeline -->
     <div class="section">
-      <h2 class="section-title">📅 <span data-en="Recent Rate Changes" data-zh="近期利率变动">Recent Rate Changes</span></h2>
+      <h2 class="section-title">📅 <span data-en="Recent Rate Changes">Recent Rate Changes</span></h2>
       <div class="timeline">
         <div class="timeline-item up">
           <div class="timeline-date">4 Feb 2026</div>
@@ -632,7 +631,7 @@
           <div class="timeline-date">10 Dec 2025</div>
           <div class="timeline-content">
             <span class="timeline-rate">3.60%</span>
-            <span class="timeline-change hold" data-en="Hold" data-zh="维持">Hold</span>
+            <span class="timeline-change hold" data-en="Hold">Hold</span>
           </div>
         </div>
         <div class="timeline-item down">
@@ -661,16 +660,16 @@
     
     <!-- CTA -->
     <div class="cta-section">
-      <h2 data-en="Want to Learn More?" data-zh="想了解更多？">Want to Learn More?</h2>
-      <p data-en="Interest rate environment is complex. Let professionals help you find the best loan strategy." data-zh="利率环境复杂多变，让专业人士帮你分析最适合的贷款方案">Interest rate environment is complex. Let professionals help you find the best loan strategy.</p>
-      <a href="https://oneyco.com.au" class="cta-btn" data-en="Contact Oney & Co →" data-zh="联系 Oney & Co →">Contact Oney & Co →</a>
+      <h2 data-en="Want to Learn More?">Want to Learn More?</h2>
+      <p data-en="Interest rate environment is complex. Let professionals help you find the best loan strategy.">Interest rate environment is complex. Let professionals help you find the best loan strategy.</p>
+      <a href="https://oneyco.com.au" class="cta-btn" data-en="Contact Oney & Co →">Contact Oney & Co →</a>
     </div>
     
     <button class="clear-data-btn" onclick="clearSavedData()">Clear Saved Data</button>
     <footer>
-      <p data-en="Data sources:" data-zh="数据来源:">Data sources:</p>
+      <p data-en="Data sources:">Data sources:</p>
       <p><a href="https://www.rba.gov.au" target="_blank">Reserve Bank of Australia</a> | <a href="https://www.abs.gov.au" target="_blank">Australian Bureau of Statistics</a></p>
-      <p style="margin-top: 16px;" data-en="© 2026 Oney & Co. For reference only, not financial advice." data-zh="© 2026 Oney & Co. 仅供参考，不构成财务建议。">© 2026 Oney & Co. For reference only, not financial advice.</p>
+      <p style="margin-top: 16px;" data-en="© 2026 Oney & Co. For reference only, not financial advice.">© 2026 Oney & Co. For reference only, not financial advice.</p>
     </footer>
   </div>
   
@@ -723,8 +722,8 @@
       const yearlyDiff = monthlyDiff * 12;
       const fromLowDiff = currentPayment - lowPayment;
       
-      const moSuffix = currentLang === 'zh' ? '/月' : '/mo';
-      const yrSuffix = currentLang === 'zh' ? '/年' : '/yr';
+      const moSuffix = '/mo';
+      const yrSuffix = '/yr';
       
       document.getElementById('currentPayment').textContent = formatCurrency(currentPayment);
       document.getElementById('rateImpact').textContent = (monthlyDiff >= 0 ? '+' : '') + formatCurrency(monthlyDiff) + moSuffix;
