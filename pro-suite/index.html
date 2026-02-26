@@ -5,7 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/pro-suite/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Oney Pro Suite</title>
-    <script type="module" crossorigin src="/pro-suite/assets/index-4DKq7aZW.js"></script>
+    <script type="module" crossorigin src="/pro-suite/assets/index-CSstIa57.js"></script>
     <link rel="stylesheet" crossorigin href="/pro-suite/assets/index-DsewmpJZ.css">
     <style id="gate-style">
       #password-gate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#1A1A2E;font-family:Inter,system-ui,sans-serif}
@@ -35,10 +35,7 @@
       const HASH='593d6f478211fa2ca31f3c8cef009f7f2342db24d1bf3ba1c1bd27c8edb9fedb';
       function checkPw(){
         const v=document.getElementById('gate-pw').value;
-        sha256(v).then(h=>{
-          if(h===HASH){sessionStorage.setItem('ps-auth','1');unlock()}
-          else{document.getElementById('gate-err').style.display='block'}
-        });
+        sha256(v).then(h=>{if(h===HASH){sessionStorage.setItem('ps-auth','1');unlock()}else{document.getElementById('gate-err').style.display='block'}});
       }
       document.getElementById('gate-pw').addEventListener('keydown',e=>{if(e.key==='Enter')checkPw()});
       function unlock(){document.getElementById('password-gate').remove();document.getElementById('gate-style').remove();document.getElementById('root').style.display=''}

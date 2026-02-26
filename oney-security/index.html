@@ -13,6 +13,22 @@
 <title>Oney Security — Security Certainty for Complex Lending</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script>
+// Embed mode: hide sidebar, compact header, reduce padding when loaded in iframe
+if (new URLSearchParams(location.search).has('embed')) {
+  document.write(`<style>
+    .sidebar, .sidebar-toggle, .sidebar-overlay, .sidebar-footer { display:none!important }
+    .app-main { margin-left:0!important }
+    .app-header { padding:8px 16px!important }
+    .header-inner { padding:0!important }
+    .header-left .header-icon { display:none!important }
+    .tab-content { padding:16px!important }
+    .property-card { padding:12px 16px!important; margin-bottom:12px!important }
+    .section-card { padding:12px 16px!important; margin-bottom:12px!important }
+    .tab-nav { padding:0 16px!important }
+  </style>`);
+}
+</script>
+<script>
 // Google Places API — load without callback, init after DOM ready
 document.addEventListener('DOMContentLoaded', function() {
   const script = document.createElement('script');
