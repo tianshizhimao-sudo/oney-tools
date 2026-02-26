@@ -413,7 +413,9 @@
       padding: 10px 18px; border-radius: 10px; font-size: 13px;
       opacity: 0; transition: opacity 0.3s; z-index: 1000; pointer-events: none;
     }
-  </style>
+  .header-back{color:var(--green,#2ECC85);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
+.header-back:hover{opacity:0.8}
+</style>
   <meta property="og:title" content="Credit Paper Lite — Oney & Co Tools">
   <meta property="og:description" content="Free Credit Paper Lite for Australian mortgage brokers — by Oney & Co">
   <meta property="og:image" content="https://tools.oneyco.com.au/assets/og-image.png">
@@ -423,7 +425,7 @@
 </head>
 <body>
   <nav class="top-nav">
-    <a href="index.html" class="nav-back">← Oney Tools</a>
+    <a href="tools.html" class="nav-back">← Back to Tools</a>
     <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
   </nav>
   <div id="autoSaveToast"></div>
@@ -729,5 +731,9 @@ Credit Paper Lite | oneyco.com.au
       };
     })();
   </script>
+
+<div style="text-align:center;padding:16px 24px;font-size:11px;color:#666;border-top:1px solid var(--border,#3D3D5C);margin-top:auto">
+  ⚠️ This tool is for informational purposes only and does not constitute financial advice. Please consult a licensed professional before making financial decisions.
+</div>
 </body>
 </html>

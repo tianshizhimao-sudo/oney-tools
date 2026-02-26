@@ -56,6 +56,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:#fff;mi
 .modal-btns{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
 .empty{text-align:center;padding:60px 20px;color:var(--muted)}
 .empty span{font-size:2.5rem;display:block;margin-bottom:12px}
+.header-back{color:var(--green,#2ECC85);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
+.header-back:hover{opacity:0.8}
 </style>
 </head>
 <body>
@@ -63,6 +65,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:#fff;mi
 <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs><g transform="translate(50,50)"><path d="M 0 -38 A 38 38 0 1 0 0 -37.99" fill="none" stroke="url(#g)" stroke-width="8" stroke-linecap="round" stroke-dasharray="227 12"/><path d="M0 -45 L0 -52" stroke="url(#g)" stroke-width="6" stroke-linecap="round"/></g></svg>
 <h1>Client Follow-up Scheduler</h1>
 <p>Never miss a follow-up — stay on top of every client</p>
+  <a href="tools.html" class="header-back">← Back to Tools</a>
 </div>
 
 <div class="stats">
@@ -236,5 +239,9 @@ document.getElementById('filterType').addEventListener('change',render);
 document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal()});
 render();
 </script>
+
+<div style="text-align:center;padding:16px 24px;font-size:11px;color:#666;border-top:1px solid var(--border,#3D3D5C);margin-top:auto">
+  ⚠️ This tool is for informational purposes only and does not constitute financial advice. Please consult a licensed professional before making financial decisions.
+</div>
 </body>
 </html>

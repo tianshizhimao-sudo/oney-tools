@@ -9,7 +9,9 @@
   <script>
     // Embed mode: hide logo + pro banner when loaded in iframe
     if (new URLSearchParams(location.search).has('embed')) {
-      document.write('<style>.logo-container,.pro-banner,.upgrade-modal-overlay{display:none!important}.sidebar{padding-top:8px!important}</style>');
+      document.write('<style>.logo-container,.pro-banner,.upgrade-modal-overlay{display:none!important}.sidebar{padding-top:8px!important}.header-back{color:var(--green,#2ECC85);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
+.header-back:hover{opacity:0.8}
+</style>');
     }
   </script>
   <script>
@@ -383,7 +385,9 @@
       .app { grid-template-columns: 1fr; }
       .sidebar { position: relative; height: auto; max-height: 60vh; }
     }
-  </style>
+  .header-back{color:var(--green,#2ECC85);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
+.header-back:hover{opacity:0.8}
+</style>
   <meta name="description" content="Generate professional credit papers with automated property data and lender-ready formatting.">
   <meta property="og:title" content="Credit Paper Pro — Oney & Co Tools">
   <meta property="og:description" content="Generate professional credit papers with automated property data and lender-ready formatting.">
@@ -409,6 +413,8 @@
   .related-card:hover { border-color: #2ECC85; transform: translateY(-2px); }
   .related-name { color: #fff; font-weight: 600; font-size: 15px; margin-bottom: 6px; }
   .related-desc { color: #a3a3b8; font-size: 13px; line-height: 1.4; }
+.header-back{color:var(--green,#2ECC85);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
+.header-back:hover{opacity:0.8}
 </style>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"WebApplication","name":"Credit Paper Pro","url":"https://tools.oneyco.com.au/credit-paper-pro.html","description":"Professional credit assessment tool for mortgage brokers.","applicationCategory":"FinanceApplication","operatingSystem":"Web"}
@@ -417,12 +423,15 @@
 <body>
 
 <!-- Tier Banner -->
-<div class="tier-banner" id="tierBanner">
+<div class="tier-banner" id="tierBanner" style="justify-content:space-between">
   <div style="display: flex; align-items: center; gap: 12px;">
     <span class="tier-badge" id="tierBadge">LITE</span>
     <span id="tierMessage">Free version - Limited features</span>
   </div>
-  <button class="tier-upgrade-btn" onclick="showUpgradeModal()" id="upgradeBtn">⚡ Upgrade</button>
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <button class="tier-upgrade-btn" onclick="showUpgradeModal()" id="upgradeBtn">⚡ Upgrade</button>
+    <a href="tools.html" class="header-back" style="margin:0">← Back to Tools</a>
+  </div>
 </div>
 
 <!-- Upgrade Modal -->
@@ -1634,5 +1643,9 @@ document.addEventListener('DOMContentLoaded', initTierSystem);
       </div>
     </div>
   </section>
+
+<div style="text-align:center;padding:16px 24px;font-size:11px;color:#666;border-top:1px solid var(--border,#3D3D5C);margin-top:auto">
+  ⚠️ This tool is for informational purposes only and does not constitute financial advice. Please consult a licensed professional before making financial decisions.
+</div>
 </body>
 </html>

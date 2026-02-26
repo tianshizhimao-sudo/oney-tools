@@ -53,6 +53,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:#e8e8f0
 .neg-gear h3{color:#9B59B6;font-size:.9rem;margin-bottom:8px}
 .neg-gear .row-info{display:flex;justify-content:space-between;padding:4px 0;font-size:.85rem}
 .footer{text-align:center;margin-top:30px;color:var(--muted);font-size:.75rem}
+.header-back{color:var(--green,#2ECC85);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
+.header-back:hover{opacity:0.8}
 </style>
 </head>
 <body>
@@ -69,6 +71,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:#e8e8f0
 </div>
 <h1>🏠 Investment Yield Calculator</h1>
 <p>Gross & net yield, cash flow analysis, and negative gearing estimate</p>
+  <a href="tools.html" class="header-back">← Back to Tools</a>
 </div>
 
 <div class="grid">
@@ -281,5 +284,9 @@ function delScenario(i){
 renderSaved();
 calculate();
 </script>
+
+<div style="text-align:center;padding:16px 24px;font-size:11px;color:#666;border-top:1px solid var(--border,#3D3D5C);margin-top:auto">
+  ⚠️ This tool is for informational purposes only and does not constitute financial advice. Please consult a licensed professional before making financial decisions.
+</div>
 </body>
 </html>

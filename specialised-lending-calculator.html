@@ -89,7 +89,9 @@
     .error-banner { background: rgba(248,113,113,0.15); border: 1px solid var(--danger); border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: center; }
     .industry-desc { font-size: 12px; color: var(--text-muted); margin-top: 4px; padding: 8px 12px; background: var(--primary-glow); border-radius: 8px; }
     body, .card, input, select, .metric, .footer, .final-box { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
-  </style>
+  .header-back{color:var(--green,#2ECC85);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
+.header-back:hover{opacity:0.8}
+</style>
   <style>
     .related-tools { padding: 40px 24px; border-top: 1px solid #3D3D5C; }
     .related-inner { max-width: 960px; margin: 0 auto; }
@@ -99,7 +101,9 @@
     .related-card:hover { border-color: #2ECC85; transform: translateY(-2px); }
     .related-name { color: #fff; font-weight: 600; font-size: 15px; margin-bottom: 6px; }
     .related-desc { color: #a3a3b8; font-size: 13px; line-height: 1.4; }
-  </style>
+  .header-back{color:var(--green,#2ECC85);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
+.header-back:hover{opacity:0.8}
+</style>
   <meta property="og:title" content="Oney Analyse — Specialised Lending | Oney & Co">
   <meta property="og:description" content="MLL calculator with multi-lender comparison for professional services — by Oney & Co">
   <meta property="og:url" content="https://tools.oneyco.com.au/specialised-lending-calculator.html">
@@ -110,6 +114,7 @@
   <div id="loadingOverlay" class="loading-overlay hidden"><div class="loading-spinner"></div></div>
   <div id="errorBanner" class="error-banner hidden">
     <p>⚠️ Failed to load data. <button class="btn-secondary" onclick="loadData()" style="width:auto;padding:8px 16px;margin-top:8px">Retry</button></p>
+  <a href="tools.html" class="header-back">← Back to Tools</a>
   </div>
 
   <nav class="top-nav">
@@ -135,7 +140,8 @@
       </div>
       <div class="logo-text">Oney Analyse</div>
       <div class="tagline">Specialised Lending & Multi-Lender MLL <span class="version-badge">v2.0</span> <span class="data-badge" id="dataBadge">Loading…</span></div>
-    </header>
+    <a href="tools.html" class="header-back">← Back to Tools</a>
+</header>
 
     <div id="step1">
       <div class="card">
@@ -398,6 +404,8 @@ th,td{padding:10px 12px;text-align:left;border-bottom:1px solid #eee;font-size:1
 .test-box .lbl{font-size:12px;color:#888;margin-top:4px}
 .footer{margin-top:40px;padding-top:20px;border-top:2px solid #e0e0e0;color:#888;font-size:11px;text-align:center}
 @media print{body{padding:20px}}
+.header-back{color:var(--green,#2ECC85);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
+.header-back:hover{opacity:0.8}
 </style></head><body>
 <div class="header">
   <div><div class="logo">📋 Oney Analyse</div><div class="logo-sub">Specialised Lending — MLL Assessment & Multi-Lender Comparison</div></div>
@@ -437,6 +445,10 @@ ${lenderRows}
 <p>This assessment is for reference only. Final lending decisions are subject to full credit assessment and lender approval.<br>
 Data effective: ${DATA.lastUpdated || 'N/A'} | Report generated: ${new Date().toISOString()}</p>
 </div>
+
+<div style="text-align:center;padding:16px 24px;font-size:11px;color:#666;border-top:1px solid var(--border,#3D3D5C);margin-top:auto">
+  ⚠️ This tool is for informational purposes only and does not constitute financial advice. Please consult a licensed professional before making financial decisions.
+</div>
 </body></html>`);
       pw.document.close();
       setTimeout(() => pw.print(), 500);
@@ -466,5 +478,9 @@ Data effective: ${DATA.lastUpdated || 'N/A'} | Report generated: ${new Date().to
 
     loadData().then(() => { if (window._restoreSaved) window._restoreSaved(); });
   </script>
+
+<div style="text-align:center;padding:16px 24px;font-size:11px;color:#666;border-top:1px solid var(--border,#3D3D5C);margin-top:auto">
+  ⚠️ This tool is for informational purposes only and does not constitute financial advice. Please consult a licensed professional before making financial decisions.
+</div>
 </body>
 </html>

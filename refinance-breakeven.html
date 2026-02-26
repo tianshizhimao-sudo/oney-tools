@@ -55,6 +55,8 @@ tr.breakeven-row{background:rgba(46,204,133,.15);font-weight:600}
 .saved-item .months{color:var(--green);font-weight:700}
 .del-btn{background:none;border:none;color:var(--red);cursor:pointer;font-size:1rem}
 @media(max-width:600px){.grid2,.grid3{grid-template-columns:1fr}.big-number{font-size:2rem}}
+.header-back{color:var(--green,#2ECC85);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
+.header-back:hover{opacity:0.8}
 </style>
 </head>
 <body>
@@ -63,6 +65,7 @@ tr.breakeven-row{background:rgba(46,204,133,.15);font-weight:600}
 <div class="logo"><svg viewBox="0 0 190 90" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs><g transform="translate(38,45)"><path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#g)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/><path d="M0 -38 L0 -44" stroke="url(#g)" stroke-width="5" stroke-linecap="round"/></g><text x="32" y="50" font-family="Inter,Arial,sans-serif" font-size="26" font-weight="600" fill="#fff">ney</text><text x="77" y="50" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="400" fill="url(#g)">&amp;</text><text x="94" y="50" font-family="Inter,Arial,sans-serif" font-size="26" font-weight="600" fill="#fff">co</text></svg></div>
 <h1>Refinance Break-Even Calculator</h1>
 <p>Find out exactly when switching lenders starts saving you money</p>
+<a href="tools.html" class="header-back">← Back to Tools</a>
 </header>
 
 <div class="card">
@@ -320,5 +323,9 @@ function delScenario(i){scenarios.splice(i,1);localStorage.setItem('oney_refi_sc
 window.addEventListener('load',()=>{calculate();renderSaved()});
 document.querySelectorAll('input,select').forEach(el=>el.addEventListener('change',calculate));
 </script>
+
+<div style="text-align:center;padding:16px 24px;font-size:11px;color:#666;border-top:1px solid var(--border,#3D3D5C);margin-top:auto">
+  ⚠️ This tool is for informational purposes only and does not constitute financial advice. Please consult a licensed professional before making financial decisions.
+</div>
 </body>
 </html>

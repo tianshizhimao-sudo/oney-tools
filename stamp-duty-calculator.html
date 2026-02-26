@@ -15,7 +15,9 @@
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
 a{color:var(--green)}
 
-.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border);justify-content:space-between}
+.header-back{color:var(--green);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
+.header-back:hover{opacity:0.8}
 .logo svg{height:32px;width:auto}
 .header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
 
@@ -104,6 +106,7 @@ tr.current td{color:var(--green);font-weight:600}
     </svg>
   </div>
   <h1>Stamp Duty Calculator</h1>
+  <a href="tools.html" class="header-back">← Back to Tools</a>
 </div>
 
 <div class="main">
@@ -457,5 +460,9 @@ function calculate() {
 // Auto-calculate on load
 calculate();
 </script>
+
+<div style="text-align:center;padding:16px 24px;font-size:11px;color:#666;border-top:1px solid var(--border,#3D3D5C);margin-top:auto">
+  ⚠️ This tool is for informational purposes only and does not constitute financial advice. Please consult a licensed professional before making financial decisions.
+</div>
 </body>
 </html>
