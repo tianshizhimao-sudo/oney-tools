@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-<script>if(new URLSearchParams(location.search).has("embed"))document.write("<style>.header,.disclaimer-footer,[class*=disclaimer],[class*=header-back],nav.top-nav,.sidebar-toggle{display:none!important}body{padding-top:0!important}.main{padding-top:16px!important}</style>")</script>
+<script>if(new URLSearchParams(location.search).has("embed"))document.documentElement.classList.add("embed-mode")</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#1A1A2E">
@@ -11,7 +11,9 @@
   <title>EF Tool — Equipment Finance Calculator</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='fg' x1='0%25' y1='100%25' x2='0%25' y2='0%25'><stop offset='0%25' stop-color='%231FAD73'/><stop offset='60%25' stop-color='%232ECC85'/><stop offset='60%25' stop-color='transparent'/><stop offset='100%25' stop-color='transparent'/></linearGradient><linearGradient id='sg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><circle r='38' fill='none' stroke='url(%23sg)' stroke-width='10' stroke-linecap='round'/><circle r='28' fill='url(%23fg)'/></g></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <style>
+  <style>/* embed-mode-css */
+.embed-mode .header,.embed-mode header,.embed-mode .disclaimer-footer,.embed-mode [class*="disclaimer"],.embed-mode [class*="header-back"],.embed-mode nav.top-nav,.embed-mode .sidebar-toggle,.embed-mode .footer,.embed-mode .hero-section{display:none!important}.embed-mode body,.embed-mode .main,.embed-mode .container{padding-top:8px!important}
+
 /* Embed mode */
 
 .header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
@@ -611,7 +613,9 @@
 
 </style>
 
-<style>
+<style>/* embed-mode-css */
+.embed-mode .header,.embed-mode header,.embed-mode .disclaimer-footer,.embed-mode [class*="disclaimer"],.embed-mode [class*="header-back"],.embed-mode nav.top-nav,.embed-mode .sidebar-toggle,.embed-mode .footer,.embed-mode .hero-section{display:none!important}.embed-mode body,.embed-mode .main,.embed-mode .container{padding-top:8px!important}
+
 /* Embed mode */
 
   .back-to-tools { display: inline-block; padding: 10px 0; color: #2ECC85; text-decoration: none; font-size: 14px; font-weight: 500; margin: 16px 24px; }

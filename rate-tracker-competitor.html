@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
-<script>if(new URLSearchParams(location.search).has("embed"))document.write("<style>.header,.disclaimer-footer,[class*=disclaimer],[class*=header-back],nav.top-nav,.sidebar-toggle{display:none!important}body{padding-top:0!important}.main{padding-top:16px!important}</style>")</script>
+<script>if(new URLSearchParams(location.search).has("embed"))document.documentElement.classList.add("embed-mode")</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#1A1A2E">
 <title>Competitor Rate Tracker — Oney & Co</title>
-<style>
+<style>/* embed-mode-css */
+.embed-mode .header,.embed-mode header,.embed-mode .disclaimer-footer,.embed-mode [class*="disclaimer"],.embed-mode [class*="header-back"],.embed-mode nav.top-nav,.embed-mode .sidebar-toggle,.embed-mode .footer,.embed-mode .hero-section{display:none!important}.embed-mode body,.embed-mode .main,.embed-mode .container{padding-top:8px!important}
+
 /* Embed mode */
 
 .header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
@@ -1119,7 +1121,9 @@
 
 </style>
 
-<style>
+<style>/* embed-mode-css */
+.embed-mode .header,.embed-mode header,.embed-mode .disclaimer-footer,.embed-mode [class*="disclaimer"],.embed-mode [class*="header-back"],.embed-mode nav.top-nav,.embed-mode .sidebar-toggle,.embed-mode .footer,.embed-mode .hero-section{display:none!important}.embed-mode body,.embed-mode .main,.embed-mode .container{padding-top:8px!important}
+
 /* Embed mode */
 
   .back-to-tools { display: inline-block; padding: 10px 0; color: #2ECC85; text-decoration: none; font-size: 14px; font-weight: 500; margin: 16px 24px; }

@@ -2,7 +2,7 @@
 <html lang="en" data-theme="dark">
 <script>if(localStorage.getItem('oney_theme')==='light')document.documentElement.classList.add('light')</script>
 <head>
-<script>if(new URLSearchParams(location.search).has("embed"))document.write("<style>.header,.disclaimer-footer,[class*=disclaimer],[class*=header-back],nav.top-nav,.sidebar-toggle{display:none!important}body{padding-top:0!important}.main{padding-top:16px!important}</style>")</script>
+<script>if(new URLSearchParams(location.search).has("embed"))document.documentElement.classList.add("embed-mode")</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#1a1a2e">
@@ -11,7 +11,9 @@
   <meta name="description" content="Oney Analyse — MLL Calculator with multi-lender comparison for professional services lending">
   <title>Oney Analyse v2.0 — Specialised Lending</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <style>
+  <style>/* embed-mode-css */
+.embed-mode .header,.embed-mode header,.embed-mode .disclaimer-footer,.embed-mode [class*="disclaimer"],.embed-mode [class*="header-back"],.embed-mode nav.top-nav,.embed-mode .sidebar-toggle,.embed-mode .footer,.embed-mode .hero-section{display:none!important}.embed-mode body,.embed-mode .main,.embed-mode .container{padding-top:8px!important}
+
 /* Embed mode */
 
 .header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
@@ -101,7 +103,9 @@
   .header-back:hover{opacity:0.8}
 
 </style>
-  <style>
+  <style>/* embed-mode-css */
+.embed-mode .header,.embed-mode header,.embed-mode .disclaimer-footer,.embed-mode [class*="disclaimer"],.embed-mode [class*="header-back"],.embed-mode nav.top-nav,.embed-mode .sidebar-toggle,.embed-mode .footer,.embed-mode .hero-section{display:none!important}.embed-mode body,.embed-mode .main,.embed-mode .container{padding-top:8px!important}
+
 /* Embed mode */
 
     .related-tools { padding: 40px 24px; border-top: 1px solid #3D3D5C; }
@@ -391,8 +395,10 @@ oneyco.com.au`;
       }).join('');
 
       pw.document.write(`<!DOCTYPE html><html><head><title>Oney Analyse Report — ${refId}</title>
-<script>if(new URLSearchParams(location.search).has("embed"))document.write("<style>.header,.disclaimer-footer,[class*=disclaimer],[class*=header-back],nav.top-nav,.sidebar-toggle{display:none!important}body{padding-top:0!important}.main{padding-top:16px!important}</style>")</script>
-<style>
+<script>if(new URLSearchParams(location.search).has("embed"))document.documentElement.classList.add("embed-mode")</script>
+<style>/* embed-mode-css */
+.embed-mode .header,.embed-mode header,.embed-mode .disclaimer-footer,.embed-mode [class*="disclaimer"],.embed-mode [class*="header-back"],.embed-mode nav.top-nav,.embed-mode .sidebar-toggle,.embed-mode .footer,.embed-mode .hero-section{display:none!important}.embed-mode body,.embed-mode .main,.embed-mode .container{padding-top:8px!important}
+
 /* Embed mode */
 
 body{font-family:'Segoe UI',Arial,sans-serif;padding:40px 50px;color:#333;max-width:900px;margin:0 auto;line-height:1.5}
