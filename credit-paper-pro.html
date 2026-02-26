@@ -7,6 +7,12 @@
   <title>Credit Paper Pro V3 — Oney & Co</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script>
+    // Embed mode: hide logo + pro banner when loaded in iframe
+    if (new URLSearchParams(location.search).has('embed')) {
+      document.write('<style>.logo-container,.pro-banner,.upgrade-modal-overlay{display:none!important}.sidebar{padding-top:8px!important}</style>');
+    }
+  </script>
+  <script>
     const GOOGLE_PLACES_API_KEY = 'AIzaSyBHTgzeidz9hvA2vDg-oD2GiIHSb6J_nwQ';
     if (GOOGLE_PLACES_API_KEY) {
       const script = document.createElement('script');
