@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/pro-suite/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Oney Pro Suite</title>
+    <script type="module" crossorigin src="/pro-suite/assets/index-GiKIjpM_.js"></script>
+    <link rel="stylesheet" crossorigin href="/pro-suite/assets/index-DsewmpJZ.css">
+    <style id="gate-style">
+      #password-gate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#1A1A2E;font-family:Inter,system-ui,sans-serif}
+      #password-gate .box{text-align:center;padding:40px;border-radius:12px;background:#252540;border:1px solid #3D3D5C;max-width:340px;width:90%}
+      #password-gate h2{color:#2ECC85;margin:0 0 8px;font-size:20px}
+      #password-gate p{color:#a3a3b8;font-size:13px;margin:0 0 20px}
+      #password-gate input{width:100%;padding:10px 14px;border-radius:6px;border:1px solid #3D3D5C;background:#1A1A2E;color:#e0e0e0;font-size:14px;outline:none;box-sizing:border-box}
+      #password-gate input:focus{border-color:#2ECC85}
+      #password-gate button{margin-top:12px;width:100%;padding:10px;border:none;border-radius:6px;background:linear-gradient(135deg,#2ECC85,#1FAD73);color:#fff;font-weight:600;font-size:14px;cursor:pointer}
+      #password-gate .err{color:#e74c3c;font-size:12px;margin-top:8px;display:none}
+      #root{display:none}
+    </style>
+  </head>
+  <body>
+    <div id="password-gate">
+      <div class="box">
+        <h2>🔒 Oney Pro Suite</h2>
+        <p>Testing access only</p>
+        <input type="password" id="gate-pw" placeholder="Enter password" autofocus />
+        <button onclick="checkPw()">Enter</button>
+        <div class="err" id="gate-err">Incorrect password</div>
+      </div>
+    </div>
+    <div id="root"></div>
+    <script>
+      // Simple client-side gate for testing — not security-critical
+      const H='d1fd0c9f6b tried';
+      function sha256(s){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)).then(b=>Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join(''))}
+      const HASH='593d6f478211fa2ca31f3c8cef009f7f2342db24d1bf3ba1c1bd27c8edb9fedb';
+      function checkPw(){
+        const v=document.getElementById('gate-pw').value;
+        sha256(v).then(h=>{
+          if(h===HASH){
+            sessionStorage.setItem('ps-auth','1');
+            unlock();
+          } else {
+            document.getElementById('gate-err').style.display='block';
+          }
+        });
+      }
+      document.getElementById('gate-pw').addEventListener('keydown',e=>{if(e.key==='Enter')checkPw()});
+      function unlock(){
+        document.getElementById('password-gate').remove();
+        document.getElementById('gate-style').remove();
+        document.getElementById('root').style.display='';
+      }
+      if(sessionStorage.getItem('ps-auth')==='1')unlock();
+    </script>
+  </body>
+</html>
