@@ -6,6 +6,7 @@
     <title>Oney Pro | Complete Credit Assessment Platform</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBHTgzeidz9hvA2vDg-oD2GiIHSb6J_nwQ&libraries=places" async defer></script>
     <style>
         :root {
             --primary: #2ECC85;
@@ -744,6 +745,28 @@
                 margin-left: 0;
             }
         }
+
+        /* Google Places Autocomplete dark theme */
+        .pac-container {
+            background: #252540;
+            border: 1px solid #3D3D5C;
+            border-radius: 8px;
+            margin-top: 4px;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        .pac-item {
+            padding: 10px 14px;
+            color: #e0e0e0;
+            border-top: 1px solid #3D3D5C;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .pac-item:first-child { border-top: none; }
+        .pac-item:hover, .pac-item-selected { background: rgba(46,204,133,0.1); }
+        .pac-item-query { color: #fff; font-weight: 600; }
+        .pac-icon { display: none; }
+        .pac-matched { color: #2ECC85; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -1040,22 +1063,16 @@
             <div class="card">
                 <h3 class="card-title">🏠 Primary Security</h3>
                 <div class="form-grid">
-                    <div class="form-group">
+                    <div class="form-group" style="grid-column: 1 / -1">
                         <label class="form-label">Property Address</label>
-                        <input type="text" class="form-input shared-input" data-key="propertyAddress" placeholder="Full address">
+                        <input type="text" class="form-input shared-input" id="address-autocomplete" data-key="propertyAddress" placeholder="Start typing an address..." autocomplete="off">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Property Type</label>
+                        <label class="form-label">Property Category</label>
                         <select class="form-select shared-input" data-key="propertyType">
                             <option value="">Select...</option>
-                            <option value="residential-house">Residential House</option>
-                            <option value="residential-unit">Residential Unit/Apartment</option>
-                            <option value="commercial-retail">Commercial - Retail</option>
-                            <option value="commercial-office">Commercial - Office</option>
-                            <option value="commercial-industrial">Commercial - Industrial</option>
-                            <option value="mixed-use">Mixed Use</option>
-                            <option value="land">Vacant Land</option>
-                            <option value="rural">Rural/Farming</option>
+                            <option value="residential">🏠 Residential</option>
+                            <option value="commercial">🏢 Commercial</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -1358,104 +1375,21 @@
         <!-- Security Assessment Module -->
         <div class="module-container" id="module-security-assessment">
             <div class="module-header">
-                <h2 class="module-title">🏢 Security Assessment</h2>
-                <p class="module-description">Evaluate the security property including type, zoning, and LVR calculations.</p>
+                <h2 class="module-title">🔒 Security Assessment</h2>
+                <p class="module-description">Full property security analysis powered by Oney Security — zoning, LVR, environmental risk, lender matrix.</p>
             </div>
 
-            <div class="shared-data-panel">
-                <div class="shared-data-title">📎 Imported from Shared Inputs</div>
-                <div class="shared-data-grid">
-                    <div class="shared-data-item">
-                        <span class="shared-data-label">Property Address</span>
-                        <span class="shared-data-value" data-display="propertyAddress">Not set</span>
-                    </div>
-                    <div class="shared-data-item">
-                        <span class="shared-data-label">Property Type</span>
-                        <span class="shared-data-value" data-display="propertyType">Not set</span>
-                    </div>
-                    <div class="shared-data-item">
-                        <span class="shared-data-label">Value</span>
-                        <span class="shared-data-value" data-display="propertyValue" data-format="currency">Not set</span>
-                    </div>
-                    <div class="shared-data-item">
-                        <span class="shared-data-label">Loan Amount</span>
-                        <span class="shared-data-value" data-display="loanAmount" data-format="currency">Not set</span>
-                    </div>
-                </div>
+            <div style="position:relative;width:100%;height:calc(100vh - 200px);min-height:600px;border-radius:8px;overflow:hidden;background:#1A1A2E;">
+                <iframe
+                    id="security-iframe"
+                    src="../oney-security/index.html?embed=1"
+                    style="width:100%;height:100%;border:none;"
+                    sandbox="allow-scripts allow-same-origin allow-forms"
+                    title="Oney Security Assessment"
+                ></iframe>
             </div>
 
-            <div class="card">
-                <h3 class="card-title">📊 LVR Calculation</h3>
-                <div id="lvr-result" style="font-size: 2rem; font-weight: 700; text-align: center; padding: 20px;">
-                    --
-                </div>
-            </div>
-
-            <div class="card">
-                <h3 class="card-title">🏗️ Property Details</h3>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Zoning</label>
-                        <select class="form-select module-input" data-module="security" data-key="zoning">
-                            <option value="">Select...</option>
-                            <option value="residential">Residential</option>
-                            <option value="commercial">Commercial</option>
-                            <option value="industrial">Industrial</option>
-                            <option value="mixed">Mixed Use</option>
-                            <option value="rural">Rural</option>
-                            <option value="special">Special Purpose</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Land Size (sqm)</label>
-                        <input type="number" class="form-input module-input" data-module="security" data-key="landSize" placeholder="e.g., 650">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Building Age (years)</label>
-                        <input type="number" class="form-input module-input" data-module="security" data-key="buildingAge" placeholder="e.g., 15">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Tenancy Status</label>
-                        <select class="form-select module-input" data-module="security" data-key="tenancy">
-                            <option value="">Select...</option>
-                            <option value="owner-occupied">Owner Occupied</option>
-                            <option value="leased">Leased</option>
-                            <option value="vacant">Vacant</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3 class="card-title">⚠️ Security Risks</h3>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Security Risk Rating</label>
-                        <select class="form-select module-input" data-module="security" data-key="securityRisk">
-                            <option value="">Assess...</option>
-                            <option value="low">🟢 Low Risk</option>
-                            <option value="medium">🟡 Medium Risk</option>
-                            <option value="high">🔴 High Risk</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Valuation Method</label>
-                        <select class="form-select module-input" data-module="security" data-key="valuationMethod">
-                            <option value="">Select...</option>
-                            <option value="full">Full Valuation</option>
-                            <option value="desktop">Desktop Valuation</option>
-                            <option value="avm">AVM</option>
-                            <option value="contract">Contract Price</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group" style="margin-top: 16px;">
-                    <label class="form-label">Security Notes</label>
-                    <textarea class="form-textarea module-input" data-module="security" data-key="notes" placeholder="Any concerns or observations about the security..."></textarea>
-                </div>
-            </div>
-
-            <div class="nav-buttons">
+            <div class="nav-buttons" style="margin-top:16px">
                 <button class="btn btn-secondary" onclick="navigateToModule('loan-purpose')">← Back</button>
                 <button class="btn btn-success" onclick="markComplete('security-assessment')">✓ Mark Complete</button>
                 <button class="btn btn-primary" onclick="navigateToModule('servicing')">Next: Servicing →</button>
@@ -2140,6 +2074,45 @@ Generated by Oney Pro | ${new Date().toLocaleDateString()}
         a.href = url;
         a.download = `credit-assessment-${Date.now()}.doc`;
         a.click();
+    }
+
+    // Google Places Autocomplete for Shared Inputs address field
+    function initAddressAutocomplete() {
+        const input = document.getElementById('address-autocomplete');
+        if (!input || !window.google?.maps?.places) return;
+
+        const autocomplete = new google.maps.places.Autocomplete(input, {
+            types: ['address'],
+            componentRestrictions: { country: 'au' },
+            fields: ['formatted_address', 'geometry', 'address_components']
+        });
+
+        autocomplete.addListener('place_changed', () => {
+            const place = autocomplete.getPlace();
+            if (place.formatted_address) {
+                input.value = place.formatted_address;
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+                // Store lat/lng for Security iframe
+                if (place.geometry?.location) {
+                    window._selectedPropertyLocation = {
+                        lat: place.geometry.location.lat(),
+                        lng: place.geometry.location.lng(),
+                        address: place.formatted_address
+                    };
+                }
+            }
+        });
+    }
+
+    // Init autocomplete when Google Maps loads
+    if (window.google?.maps?.places) {
+        initAddressAutocomplete();
+    } else {
+        window.addEventListener('load', () => {
+            // Retry after a short delay for async script
+            setTimeout(initAddressAutocomplete, 500);
+            setTimeout(initAddressAutocomplete, 2000);
+        });
     }
 </script>
 </body>
