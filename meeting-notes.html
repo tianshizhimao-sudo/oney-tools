@@ -740,6 +740,7 @@ function showToast(msg) {
 <script>
 (function(){var t=localStorage.getItem('oney-theme');if(t)document.documentElement.setAttribute('data-theme',t)})();
 window.addEventListener('message',function(e){if(e.data&&e.data.type==='THEME_CHANGE')document.documentElement.setAttribute('data-theme',e.data.theme)});
+window.addEventListener('message',function(e){if(e.data&&e.data.type==='theme-change'){document.documentElement.setAttribute('data-theme',e.data.theme)}});
 </script>
 </body>
 </html>
