@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>if(new URLSearchParams(location.search).has("embed"))document.write("<style>.header,.disclaimer-footer,[class*=disclaimer]{display:none!important}body{padding-top:0!important}</style>")</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#1a1a2e">
@@ -14,6 +15,8 @@
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBHTgzeidz9hvA2vDg-oD2GiIHSb6J_nwQ&libraries=places&callback=initGoogleAutocomplete"></script>
   
   <style>
+/* Embed mode */
+
 .header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
 .logo svg{height:32px;width:auto}
 .header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
@@ -1102,7 +1105,10 @@
       }).join('');
 
       pw.document.write(`<!DOCTYPE html><html><head><title>Oney Secure Report — ${r.subtype}</title>
+<script>if(new URLSearchParams(location.search).has("embed"))document.write("<style>.header,.disclaimer-footer,[class*=disclaimer]{display:none!important}body{padding-top:0!important}</style>")</script>
 <style>
+/* Embed mode */
+
 body{font-family:'Segoe UI',Arial,sans-serif;padding:40px 50px;color:#333;max-width:900px;margin:0 auto;line-height:1.5}
 .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2ECC85}
 .logo{font-size:28px;font-weight:bold;color:#2ECC85}

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loan Calculators — Oney & Co</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--text:#f0f0f5;--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--sidebar-w:240px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex}
+.sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:#16162a;border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;overflow-y:auto}
+.sidebar-header{padding:20px;border-bottom:1px solid var(--border)}
+.sidebar-logo{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.sidebar-logo svg{height:28px;width:auto;flex-shrink:0}
+.sidebar-logo h1{font-size:15px;font-weight:700;color:#fff}
+.sidebar-logo h1 span{color:var(--green)}
+.sidebar-subtitle{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+.sidebar-nav{flex:1;padding:12px 0}
+.nav-section-title{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding:16px 20px 8px;opacity:0.7}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;font-weight:500;color:#8888AA;cursor:pointer;border-left:3px solid transparent;transition:all 0.2s;text-decoration:none}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,0.04)}
+.nav-item.active{color:var(--green);border-left-color:var(--green);background:rgba(46,204,133,0.08)}
+.nav-icon{font-size:14px;width:20px;text-align:center}
+.sidebar-footer{padding:12px 20px;border-top:1px solid var(--border)}
+.sidebar-footer a{color:var(--green);text-decoration:none;font-size:12px;font-weight:500}
+.sidebar-footer a:hover{text-decoration:underline}
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:12px 24px;border-bottom:1px solid var(--border);background:rgba(22,22,42,0.95);flex-shrink:0}
+.breadcrumb{font-size:13px;color:var(--muted)}.breadcrumb .current{color:var(--text);font-weight:600}
+.content{flex:1;overflow:hidden}.content iframe{width:100%;height:100%;border:none}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:200;width:40px;height:40px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);cursor:pointer;font-size:20px;align-items:center;justify-content:center}
+.sidebar-overlay{display:none;position:fixed;inset:0;z-index:140;background:rgba(0,0,0,0.5)}
+@media(max-width:767px){.sidebar{position:fixed;top:0;left:0;bottom:0;z-index:150;transform:translateX(-100%);transition:transform .3s}.sidebar.open{transform:translateX(0)}.sidebar-toggle{display:flex}.sidebar-overlay.open{display:block}}
+</style>
+</head>
+<body>
+<button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open');document.querySelector('.sidebar-overlay').classList.toggle('open')">☰</button>
+<div class="sidebar-overlay" onclick="document.querySelector('.sidebar').classList.remove('open');this.classList.remove('open')"></div>
+
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">
+      <svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/><circle cx="16" cy="16" r="6" fill="#2ECC85"/><text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text><text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text></svg>
+      <h1>Loan Calcs</h1>
+    </div>
+    <div class="sidebar-subtitle">Loan Calculator Suite</div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-title">Borrowing</div>
+    <div class="nav-item" data-src="../borrowing-power-estimator.html?embed" data-label="Borrowing Power"><span class="nav-icon">💪</span>Borrowing Power</div>
+    <div class="nav-item" data-src="../quick-quote-calculator.html?embed" data-label="Quick Quote"><span class="nav-icon">⚡</span>Quick Quote</div>
+    <div class="nav-item" data-src="../loan-comparison.html?embed" data-label="Loan Comparison"><span class="nav-icon">⚖️</span>Loan Comparison</div>
+    <div class="nav-item" data-src="../loan-scenario-comparator.html?embed" data-label="Scenario Compare"><span class="nav-icon">🔀</span>Scenario Compare</div>
+    <div class="nav-section-title">Repayments</div>
+    <div class="nav-item" data-src="../extra-repayment-calculator.html?embed" data-label="Extra Repayments"><span class="nav-icon">💰</span>Extra Repayments</div>
+    <div class="nav-item" data-src="../offset-calculator.html?embed" data-label="Offset Calculator"><span class="nav-icon">🏦</span>Offset Account</div>
+    <div class="nav-item" data-src="../split-loan-optimizer.html?embed" data-label="Split Loan"><span class="nav-icon">⚖️</span>Split Loan</div>
+    <div class="nav-section-title">Costs & Fees</div>
+    <div class="nav-item" data-src="../lmi-calculator.html?embed" data-label="LMI Calculator"><span class="nav-icon">🛡️</span>LMI Calculator</div>
+    <div class="nav-item" data-src="../stamp-duty-calculator.html?embed" data-label="Stamp Duty"><span class="nav-icon">📋</span>Stamp Duty</div>
+    <div class="nav-item" data-src="../refinance-breakeven.html?embed" data-label="Refinance Breakeven"><span class="nav-icon">📊</span>Refinance Breakeven</div>
+  </nav>
+  <div class="sidebar-footer"><a href="../index.html">← Back to Tools</a></div>
+</aside>
+
+<main class="main">
+  <div class="top-bar"><div class="breadcrumb">Loan Calculators › <span class="current" id="current-page">Loading...</span></div></div>
+  <div class="content"><iframe id="tool-frame" src="" title="Tool"></iframe></div>
+</main>
+
+<script>
+const navItems=document.querySelectorAll('.nav-item'),frame=document.getElementById('tool-frame'),cp=document.getElementById('current-page');
+function nav(el){navItems.forEach(n=>n.classList.remove('active'));el.classList.add('active');frame.src=el.dataset.src;cp.textContent=el.dataset.label;document.querySelector('.sidebar')?.classList.remove('open');document.querySelector('.sidebar-overlay')?.classList.remove('open')}
+navItems.forEach(i=>i.addEventListener('click',()=>nav(i)));
+nav(document.querySelector('.nav-item'));
+</script>
+</body>
+</html>

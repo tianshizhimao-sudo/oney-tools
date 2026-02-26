@@ -2,6 +2,7 @@
 <html lang="en">
 <script>if(localStorage.getItem('oney_theme')==='light')document.documentElement.classList.add('light')</script>
 <head>
+<script>if(new URLSearchParams(location.search).has("embed"))document.write("<style>.header,.disclaimer-footer,[class*=disclaimer]{display:none!important}body{padding-top:0!important}</style>")</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#1a1a2e">
@@ -11,6 +12,8 @@
   <title>Oney Analyse v2.0 — Specialised Lending</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+/* Embed mode */
+
 .header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
 .logo svg{height:32px;width:auto}
 .header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
@@ -98,6 +101,8 @@
 
 </style>
   <style>
+/* Embed mode */
+
     .related-tools { padding: 40px 24px; border-top: 1px solid #3D3D5C; }
     .related-inner { max-width: 960px; margin: 0 auto; }
     .related-tools h3 { color: #fff; font-size: 18px; margin-bottom: 16px; font-weight: 600; }
@@ -385,7 +390,10 @@ oneyco.com.au`;
       }).join('');
 
       pw.document.write(`<!DOCTYPE html><html><head><title>Oney Analyse Report — ${refId}</title>
+<script>if(new URLSearchParams(location.search).has("embed"))document.write("<style>.header,.disclaimer-footer,[class*=disclaimer]{display:none!important}body{padding-top:0!important}</style>")</script>
 <style>
+/* Embed mode */
+
 body{font-family:'Segoe UI',Arial,sans-serif;padding:40px 50px;color:#333;max-width:900px;margin:0 auto;line-height:1.5}
 .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:30px;padding-bottom:20px;border-bottom:3px solid #2ECC85}
 .logo{font-size:28px;font-weight:bold;color:#2ECC85}
