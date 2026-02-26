@@ -237,18 +237,7 @@
     .btn-accent:hover { transform: translateY(-2px); box-shadow: 0 10px 30px var(--accent-glow); }
     .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); margin-top: 12px; }
     .hidden { display: none; }
-
-    .top-nav {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 8px 16px; background: rgba(26, 26, 46, 0.85);
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border); font-size: 13px;
-      position: sticky; top: 0; z-index: 100;
-    }
-    html.light .top-nav { background: rgba(245, 245, 245, 0.85); }
-    .top-nav a { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
-    .top-nav a:hover { color: var(--primary); }
-    .top-nav-right { display: flex; align-items: center; gap: 8px; }
+    html.light
     .theme-toggle {
       background: none; border: 1px solid var(--border); color: var(--text);
       cursor: pointer; font-size: 16px; padding: 4px 10px; border-radius: 8px; transition: all 0.2s;
@@ -389,13 +378,6 @@
     <div class="loading-spinner"></div>
     <div style="color: var(--text-muted); font-size: 13px;">Loading data…</div>
   </div>
-
-  <nav class="top-nav">
-    <a href="index.html">← Oney Tools</a>
-    <div class="top-nav-right">
-      <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌙</button>
-    </div>
-  </nav>
 
   <div class="container">
     <header>

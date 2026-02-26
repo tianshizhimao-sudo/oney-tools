@@ -169,13 +169,7 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* Top Nav */
-    .top-nav {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 8px 16px; background: rgba(26,26,46,0.8);
-      backdrop-filter: blur(10px); border-bottom: 1px solid var(--border);
-      font-size: 13px; position: sticky; top: 0; z-index: 100;
-    }
-    html.light .top-nav { background: rgba(245,245,245,0.8); }
+    html.light
     .nav-back { color: var(--text-muted); text-decoration: none; }
     .nav-back:hover { color: var(--primary); }
     .theme-toggle {
@@ -233,11 +227,6 @@
     <p>⚠️ Failed to load data. <button class="btn-secondary" onclick="loadData()" style="width:auto;padding:8px 16px;margin-top:8px">Retry</button></p>
   <a href="index.html" class="header-back">← Back to Tools</a>
   </div>
-
-  <nav class="top-nav">
-    <a href="index.html" class="nav-back">← Oney Tools</a>
-    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
-  </nav>
   <div id="autoSaveToast"></div>
 
   <div class="container">

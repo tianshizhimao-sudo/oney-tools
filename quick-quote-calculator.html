@@ -5,12 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quick Quote Calculator | Oney & Co</title>
     <style>
-.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
-.logo svg{height:32px;width:auto}
-.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
-.header-back{margin-left:auto;color:#2ECC85;text-decoration:none;font-size:.85rem;font-weight:500;white-space:nowrap}
-.header-back:hover{text-decoration:underline}
-
         * {
             margin: 0;
             padding: 0;
@@ -18,6 +12,7 @@
         }
 
         :root {
+            --muted: #666;
             --primary: #2ECC85;
             --primary-dark: #1FAD73;
             --text-dark: #0a0a0a;
@@ -127,279 +122,7 @@
         }
 
         .input-prefix::before {
-            content: '
-</head>
-<body>
-
-<div class="header">
-  <div class="logo">
-    <svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/>
-      <circle cx="16" cy="16" r="6" fill="#2ECC85"/>
-      <text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text>
-      <text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text>
-    </svg>
-  </div>
-  <h1>Quick Quote Calculator</h1>
-  <a href="index.html" class="header-back">← Back to Tools</a>
-</div>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 90" width="140">
-                    <defs>
-                        <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#2ECC85"/>
-                            <stop offset="100%" style="stop-color:#1FAD73"/>
-                        </linearGradient>
-                    </defs>
-                    <g transform="translate(38, 45)">
-                        <path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#greenGrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/>
-                        <path d="M0 -38 L0 -44" stroke="url(#greenGrad)" stroke-width="5" stroke-linecap="round"/>
-                    </g>
-                    <text x="32" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#0a0a0a">ney</text>
-                    <text x="77" y="50" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="400" fill="url(#greenGrad)">&amp;</text>
-                    <text x="94" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#0a0a0a">co</text>
-                </svg>
-            </div>
-            <h1>Quick Quote Calculator</h1>
-            <p class="subtitle">快速估算贷款还款额</p>
-        <a href="index.html" class="header-back">← Back to Tools</a>
-</header>
-
-        <div class="main-grid">
-            <div class="card">
-                <h2 class="card-title"><span>📝</span> Loan Details</h2>
-                
-                <div class="form-group">
-                    <label>Loan Amount 贷款金额</label>
-                    <div class="input-prefix">
-                        <input type="number" id="loanAmount" value="500000" min="10000" max="10000000" step="10000">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Interest Rate 利率 (p.a.)</label>
-                    <div class="input-suffix" data-suffix="% p.a.">
-                        <input type="number" id="interestRate" value="6.5" min="0.1" max="20" step="0.05">
-                    </div>
-                    <div class="quick-rates">
-                        <span class="quick-rate" onclick="setRate(5.99)">5.99%</span>
-                        <span class="quick-rate" onclick="setRate(6.29)">6.29%</span>
-                        <span class="quick-rate" onclick="setRate(6.49)">6.49%</span>
-                        <span class="quick-rate" onclick="setRate(6.79)">6.79%</span>
-                        <span class="quick-rate" onclick="setRate(7.19)">7.19%</span>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Loan Term 贷款期限</label>
-                    <div class="term-buttons">
-                        <button class="term-btn" onclick="setTerm(20)">20 yrs</button>
-                        <button class="term-btn" onclick="setTerm(25)">25 yrs</button>
-                        <button class="term-btn active" onclick="setTerm(30)">30 yrs</button>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Repayment Type 还款方式</label>
-                    <select id="repaymentType">
-                        <option value="pi">Principal & Interest 本息同还</option>
-                        <option value="io">Interest Only 只还利息</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="card results-card">
-                <h2 class="card-title"><span>💰</span> Your Quote</h2>
-                
-                <div class="result-main">
-                    <div class="result-label">Monthly Repayment 月供</div>
-                    <div class="result-amount" id="monthlyPayment">$3,160</div>
-                    <div class="result-period">per month</div>
-                </div>
-
-                <div class="result-details">
-                    <div class="detail-item">
-                        <div class="detail-label">Total Interest 总利息</div>
-                        <div class="detail-value" id="totalInterest">$637,612</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Total Repayment 总还款</div>
-                        <div class="detail-value" id="totalRepayment">$1,137,612</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Weekly 每周</div>
-                        <div class="detail-value" id="weeklyPayment">$729</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="detail-label">Fortnightly 双周</div>
-                        <div class="detail-value" id="fortnightlyPayment">$1,458</div>
-                    </div>
-                </div>
-
-                <button class="copy-btn" onclick="copyQuote()">
-                    <span>📋</span> Copy Quote 复制报价
-                </button>
-            </div>
-        </div>
-
-        <div class="card comparison-section">
-            <h3 class="comparison-title"><span>📊</span> Rate Comparison 利率对比</h3>
-            <div class="comparison-grid" id="comparisonGrid">
-                <!-- Populated by JS -->
-            </div>
-        </div>
-
-        <div class="disclaimer">
-            <strong>⚠️ Disclaimer 免责声明:</strong> This calculator provides estimates only and does not constitute financial advice. Actual repayments may vary based on fees, charges, and lender policies. Always consult with a qualified mortgage broker for accurate quotes.<br><br>
-            此计算器仅提供估算，不构成财务建议。实际还款可能因费用和贷方政策而异。请咨询专业贷款经纪人获取准确报价。
-        </div>
-
-        <footer>
-            <p>Built with 💚 by Oney & Co</p>
-        </footer>
-    </div>
-
-    <script>
-        let loanTerm = 30;
-
-        function setRate(rate) {
-            document.getElementById('interestRate').value = rate;
-            calculate();
-        }
-
-        function setTerm(years) {
-            loanTerm = years;
-            document.querySelectorAll('.term-btn').forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.textContent.includes(years)) {
-                    btn.classList.add('active');
-                }
-            });
-            calculate();
-        }
-
-        function formatCurrency(amount) {
-            return '$' + Math.round(amount).toLocaleString('en-AU');
-        }
-
-        function calculateMonthlyPayment(principal, annualRate, years, interestOnly = false) {
-            const monthlyRate = annualRate / 100 / 12;
-            const numPayments = years * 12;
-
-            if (interestOnly) {
-                return principal * monthlyRate;
-            }
-
-            if (monthlyRate === 0) {
-                return principal / numPayments;
-            }
-
-            return principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
-                   (Math.pow(1 + monthlyRate, numPayments) - 1);
-        }
-
-        function calculate() {
-            const principal = parseFloat(document.getElementById('loanAmount').value) || 500000;
-            const rate = parseFloat(document.getElementById('interestRate').value) || 6.5;
-            const isInterestOnly = document.getElementById('repaymentType').value === 'io';
-
-            const monthlyPayment = calculateMonthlyPayment(principal, rate, loanTerm, isInterestOnly);
-            const totalPayment = monthlyPayment * loanTerm * 12;
-            const totalInterest = isInterestOnly ? monthlyPayment * loanTerm * 12 : totalPayment - principal;
-
-            document.getElementById('monthlyPayment').textContent = formatCurrency(monthlyPayment);
-            document.getElementById('totalInterest').textContent = formatCurrency(totalInterest);
-            document.getElementById('totalRepayment').textContent = formatCurrency(totalPayment);
-            document.getElementById('weeklyPayment').textContent = formatCurrency(monthlyPayment * 12 / 52);
-            document.getElementById('fortnightlyPayment').textContent = formatCurrency(monthlyPayment * 12 / 26);
-
-            // Update comparison
-            updateComparison(principal, rate, loanTerm, isInterestOnly);
-        }
-
-        function updateComparison(principal, currentRate, years, isInterestOnly) {
-            const rates = [currentRate - 0.5, currentRate, currentRate + 0.5];
-            const currentMonthly = calculateMonthlyPayment(principal, currentRate, years, isInterestOnly);
-            
-            const grid = document.getElementById('comparisonGrid');
-            grid.innerHTML = rates.map((rate, index) => {
-                const monthly = calculateMonthlyPayment(principal, rate, years, isInterestOnly);
-                const diff = monthly - currentMonthly;
-                const isHighlight = index === 1;
-                
-                let diffHtml = '';
-                if (diff < 0) {
-                    diffHtml = `<div class="comp-diff savings">Save ${formatCurrency(Math.abs(diff))}/mo</div>`;
-                } else if (diff > 0) {
-                    diffHtml = `<div class="comp-diff extra">+${formatCurrency(diff)}/mo</div>`;
-                } else {
-                    diffHtml = `<div class="comp-diff" style="background:#e5e5e5;color:#666;">Current</div>`;
-                }
-
-                return `
-                    <div class="comparison-item ${isHighlight ? 'highlight' : ''}">
-                        <div class="comp-rate">${rate.toFixed(2)}% p.a.</div>
-                        <div class="comp-amount">${formatCurrency(monthly)}</div>
-                        ${diffHtml}
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function copyQuote() {
-            const principal = parseFloat(document.getElementById('loanAmount').value) || 500000;
-            const rate = parseFloat(document.getElementById('interestRate').value) || 6.5;
-            const monthly = document.getElementById('monthlyPayment').textContent;
-            const weekly = document.getElementById('weeklyPayment').textContent;
-            const fortnightly = document.getElementById('fortnightlyPayment').textContent;
-            const totalInterest = document.getElementById('totalInterest').textContent;
-            const repType = document.getElementById('repaymentType').value === 'io' ? 'Interest Only' : 'Principal & Interest';
-
-            const quote = `📊 Loan Quote from Oney & Co
-
-Loan Amount: $${principal.toLocaleString('en-AU')}
-Interest Rate: ${rate}% p.a.
-Loan Term: ${loanTerm} years
-Repayment Type: ${repType}
-
-💰 Estimated Repayments:
-• Monthly: ${monthly}
-• Fortnightly: ${fortnightly}
-• Weekly: ${weekly}
-
-Total Interest: ${totalInterest}
-
-⚠️ This is an estimate only. Contact us for a personalised quote.
-🌐 Oney & Co | Your lending partner`;
-
-            navigator.clipboard.writeText(quote).then(() => {
-                const btn = document.querySelector('.copy-btn');
-                btn.innerHTML = '<span>✅</span> Copied!';
-                btn.classList.add('copied');
-                setTimeout(() => {
-                    btn.innerHTML = '<span>📋</span> Copy Quote 复制报价';
-                    btn.classList.remove('copied');
-                }, 2000);
-            });
-        }
-
-        // Event listeners
-        document.getElementById('loanAmount').addEventListener('input', calculate);
-        document.getElementById('interestRate').addEventListener('input', calculate);
-        document.getElementById('repaymentType').addEventListener('change', calculate);
-
-        // Initial calculation
-        calculate();
-    </script>
-
-<div style="text-align:center;padding:16px 24px;font-size:11px;color:#666;border-top:1px solid var(--border,#3D3D5C);margin-top:auto">
-  ⚠️ This tool is for informational purposes only and does not constitute financial advice. Please consult a licensed professional before making financial decisions.
-</div>
-</body>
-</html>
-;
+            content: '$';
             position: absolute;
             left: 16px;
             top: 50%;
@@ -649,12 +372,15 @@ Total Interest: ${totalInterest}
             color: var(--text-muted);
             font-size: 0.85rem;
         }
-    .header-back:hover{opacity:0.8}
-
+    
+.header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
+.logo svg{height:32px;width:auto}
+.header h1{font-size:1.1rem;font-weight:600;color:var(--muted)}
+.header-back{margin-left:auto;color:#2ECC85;text-decoration:none;font-size:.85rem;font-weight:500;white-space:nowrap}
+.header-back:hover{text-decoration:underline}
 </style>
 </head>
 <body>
-
 <div class="header">
   <div class="logo">
     <svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -668,28 +394,6 @@ Total Interest: ${totalInterest}
   <a href="index.html" class="header-back">← Back to Tools</a>
 </div>
     <div class="container">
-        <header>
-            <div class="logo">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 90" width="140">
-                    <defs>
-                        <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#2ECC85"/>
-                            <stop offset="100%" style="stop-color:#1FAD73"/>
-                        </linearGradient>
-                    </defs>
-                    <g transform="translate(38, 45)">
-                        <path d="M 0 -32 A 32 32 0 1 0 0 -31.99" fill="none" stroke="url(#greenGrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="191 10"/>
-                        <path d="M0 -38 L0 -44" stroke="url(#greenGrad)" stroke-width="5" stroke-linecap="round"/>
-                    </g>
-                    <text x="32" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#0a0a0a">ney</text>
-                    <text x="77" y="50" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="400" fill="url(#greenGrad)">&amp;</text>
-                    <text x="94" y="50" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="600" fill="#0a0a0a">co</text>
-                </svg>
-            </div>
-            <h1>Quick Quote Calculator</h1>
-            <p class="subtitle">快速估算贷款还款额</p>
-        <a href="index.html" class="header-back">← Back to Tools</a>
-</header>
 
         <div class="main-grid">
             <div class="card">
@@ -917,9 +621,5 @@ Total Interest: ${totalInterest}
         // Initial calculation
         calculate();
     </script>
-
-<div style="text-align:center;padding:16px 24px;font-size:11px;color:#666;border-top:1px solid var(--border,#3D3D5C);margin-top:auto">
-  ⚠️ This tool is for informational purposes only and does not constitute financial advice. Please consult a licensed professional before making financial decisions.
-</div>
 </body>
 </html>

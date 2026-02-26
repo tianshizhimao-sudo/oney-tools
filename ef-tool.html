@@ -540,27 +540,7 @@
     .modal-footer .btn { flex: 1; }
     
     /* Top Nav Bar */
-    .top-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 16px;
-      background: rgba(10, 10, 10, 0.8);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border-bottom: 1px solid var(--border);
-      font-size: 13px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    html.light .top-nav { background: rgba(245, 245, 245, 0.85); }
-    .top-nav a {
-      color: var(--text-muted);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .top-nav a:hover { color: var(--primary-light); }
+    html.light
     .theme-toggle {
       background: none;
       border: 1px solid var(--border);
@@ -666,10 +646,6 @@
   <a href="index.html" class="header-back">← Back to Tools</a>
 </div>
   <!-- Top Navigation -->
-  <nav class="top-nav">
-    <a href="index.html">← Oney Tools</a>
-    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">🌙</button>
-  </nav>
 
   <!-- Watermark -->
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 195 80" style="height:44px;width:auto;">
