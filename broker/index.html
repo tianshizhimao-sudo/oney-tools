@@ -7,7 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root,[data-theme="dark"]{--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--text:#f0f0f5;--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--sidebar-w:240px;--sidebar-bg:#16162a;--topbar-bg:rgba(22,22,42,0.95)}
-[data-theme="light"]{--bg:#f5f5f5;--card:#ffffff;--border:#e0e0e0;--muted:#666;--text:#1a1a1a;--green:#1FAD73;--green2:#2ECC85;--purple:#6B4C9A;--sidebar-bg:#ffffff;--topbar-bg:rgba(255,255,255,0.95)}
+[data-theme="light"]{--bg:#f5f5f5;--card:#ffffff;--border:#e0e0e0;--muted:#666;--text:#1a1a1a;--green:#1FAD73;--green2:#2ECC85;--purple:#6B4C9A;--sidebar-bg:#16162a;--topbar-bg:rgba(255,255,255,0.95)}
+[data-theme="light"] .sidebar{color:#f0f0f5;border-right-color:#3D3D5C}[data-theme="light"] .sidebar .sidebar-logo h1{color:#f0f0f5}[data-theme="light"] .sidebar .sidebar-subtitle{color:#a3a3b8}[data-theme="light"] .sidebar-nav a{color:#a3a3b8}[data-theme="light"] .sidebar-nav a:hover,[data-theme="light"] .sidebar-nav a.active{color:#f0f0f5}[data-theme="light"] .sidebar-footer{border-top-color:#3D3D5C}[data-theme="light"] .sidebar-footer a{color:#2ECC85}
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex}
 .sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--sidebar-bg);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;overflow-y:auto}
@@ -42,7 +43,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);heigh
 <aside class="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-logo">
-      <svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="14" stroke="#2ECC85" stroke-width="2.5" fill="none"/><circle cx="16" cy="16" r="6" fill="#2ECC85"/><text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text><text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text></svg>
+      <svg viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sidebarFillGrad" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" style="stop-color:#1FAD73"/><stop offset="60%" style="stop-color:#2ECC85"/><stop offset="60%" style="stop-color:transparent"/><stop offset="100%" style="stop-color:transparent"/></linearGradient><linearGradient id="sidebarStrokeGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient></defs><circle cx="16" cy="16" r="12" fill="none" stroke="url(#sidebarStrokeGrad)" stroke-width="3.2"/><circle cx="16" cy="16" r="9" fill="url(#sidebarFillGrad)"/><text x="34" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text><text x="76" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">\&amp; co</text></svg>
       <h1>Broker Tools</h1>
     </div>
     <div class="sidebar-subtitle">Broker Toolkit</div>
