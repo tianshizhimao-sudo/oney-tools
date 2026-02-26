@@ -17,18 +17,18 @@
         }
         
         :root {
-            --primary: #2ECC85;
-            --primary-dark: #1FAD73;
-            --bg: #f8faf9;
-            --card: #ffffff;
-            --text: #0a0a0a;
-            --text-muted: #666;
-            --muted: #666;
-            --border: #e0e0e0;
+            --bg: #1A1A2E;
+            --card: #252540;
+            --border: #3D3D5C;
+            --muted: #a3a3b8;
+            --text: #f0f0f5;
+            --green: #2ECC85;
+            --green2: #1FAD73;
+            --purple: #6B4C9A;
             --red: #e74c3c;
             --yellow: #f39c12;
         }
-[data-theme="light"]{--bg:#f5f5f5;--card:#ffffff;--border:#e0e0e0;--muted:#666;--text:#1a1a1a;--green:#1FAD73;--green2:#2ECC85;--purple:#6B4C9A}
+[data-theme="light"]{--bg:#f5f5f5;--card:#ffffff;--border:#e0e0e0;--muted:#666;--text:#1a1a1a;--green:#1FAD73;--green2:#2ECC85;--purple:#6B4C9A;--red:#e74c3c;--yellow:#f39c12}
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -59,7 +59,7 @@
         
         .header-back {
             margin-left: auto;
-            color: #2ECC85;
+            color: var(--green);
             text-decoration: none;
             font-size: 0.85rem;
             font-weight: 500;
@@ -90,15 +90,16 @@
         
         .card {
             background: var(--card);
+            border: 1px solid var(--border);
             border-radius: 12px;
             padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.2);
         }
         
         .card h2 {
             font-size: 1.1rem;
             margin-bottom: 1.25rem;
-            color: var(--primary-dark);
+            color: var(--text);
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -118,6 +119,8 @@
         .form-group input, .form-group select {
             width: 100%;
             padding: 0.75rem;
+            background: var(--bg);
+            color: var(--text);
             border: 1px solid var(--border);
             border-radius: 8px;
             font-size: 1rem;
@@ -126,7 +129,7 @@
         
         .form-group input:focus, .form-group select:focus {
             outline: none;
-            border-color: var(--primary);
+            border-color: var(--green);
         }
         
         .form-row {
@@ -178,13 +181,13 @@
             width: 20px;
             left: 3px;
             bottom: 3px;
-            background: white;
+            background: var(--card);
             border-radius: 50%;
             transition: 0.3s;
         }
         
         .toggle input:checked + .slider {
-            background: var(--primary);
+            background: var(--green);
         }
         
         .toggle input:checked + .slider:before {
@@ -192,10 +195,11 @@
         }
         
         .result-card {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: linear-gradient(135deg, var(--green), var(--green2));
             color: white;
             text-align: center;
             padding: 2rem;
+            border: 1px solid var(--border);
         }
         
         .result-card h2 {
@@ -251,7 +255,7 @@
         .monthly-item {
             text-align: center;
             padding: 1rem;
-            background: var(--bg);
+            background: var(--border);
             border-radius: 8px;
         }
         
@@ -264,17 +268,17 @@
         .monthly-item .amount {
             font-size: 1.2rem;
             font-weight: 600;
-            color: var(--primary-dark);
+            color: var(--green);
         }
         
         .note {
-            background: #fff9e6;
+            background: rgba(243, 156, 18, 0.1);
             border-left: 3px solid var(--yellow);
             padding: 1rem;
             margin-top: 1.5rem;
             border-radius: 0 8px 8px 0;
             font-size: 0.85rem;
-            color: #7a6a00;
+            color: var(--text);
         }
         
         .dsr-indicator {
@@ -307,6 +311,7 @@
             font-size: 1.1rem;
             font-weight: 600;
             margin-top: 0.5rem;
+            color: var(--text);
         }
         
         .watermark {
@@ -342,7 +347,8 @@
             padding: 0.6rem;
             border: 2px solid var(--border);
             border-radius: 8px;
-            background: white;
+            background: var(--border);
+            color: var(--text);
             cursor: pointer;
             text-align: center;
             font-size: 0.9rem;
@@ -350,13 +356,13 @@
         }
         
         .applicant-tab:hover {
-            border-color: var(--primary);
+            border-color: var(--green);
         }
         
         .applicant-tab.active {
-            border-color: var(--primary);
-            background: rgba(46, 204, 133, 0.1);
-            color: var(--primary-dark);
+            border-color: var(--green);
+            background: rgba(46, 204, 133, 0.15);
+            color: var(--green);
             font-weight: 600;
         }
 </style>
@@ -649,12 +655,13 @@
             document.getElementById('dsrValue').textContent = dsr.toFixed(1) + '%';
             const dsrFill = document.getElementById('dsrFill');
             dsrFill.style.width = Math.min(dsr, 100) + '%';
+            const root = getComputedStyle(document.documentElement);
             if (dsr < 35) {
-                dsrFill.style.background = '#2ECC85';
+                dsrFill.style.background = root.getPropertyValue('--green').trim();
             } else if (dsr < 50) {
-                dsrFill.style.background = '#f39c12';
+                dsrFill.style.background = root.getPropertyValue('--yellow').trim();
             } else {
-                dsrFill.style.background = '#e74c3c';
+                dsrFill.style.background = root.getPropertyValue('--red').trim();
             }
             
             // Monthly repayments
