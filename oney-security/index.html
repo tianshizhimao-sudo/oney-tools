@@ -2459,7 +2459,13 @@ function initGooglePlaces() {
         fetchVICZoning(window._addrState.coords.lat, window._addrState.coords.lng);
         fetchVICOverlays(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 1: VIC overlays
         showSmartLinks(place.formatted_address || input.value);
-      } else if (detectedState && !['NSW','VIC'].includes(detectedState)) {
+      } else if (detectedState === 'QLD' && window._addrState.coords.lat) {
+        // Phase 3: QLD state branch — zoning, flood, bushfire
+        fetchQLDZoning(window._addrState.coords.lat, window._addrState.coords.lng);
+        fetchQLDFloodData(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 3: QLD flood
+        fetchQLDBushfireData(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 3: QLD bushfire
+        showSmartLinks(place.formatted_address || input.value);
+      } else if (detectedState && !['NSW','VIC','QLD'].includes(detectedState)) {
         showAddrToast('Auto-fill coming soon for ' + detectedState + ' — please enter zoning manually', 'warning');
         // Show smart links even for unsupported states
         showSmartLinks(place.formatted_address || input.value);
@@ -3045,7 +3051,147 @@ async function fetchNSWCoastalErosion(lat, lng) {
   }
 }
 // ===== END PHASE 2: NSW Coastal Erosion =====
+// ===== PHASE 3: QLD Government Data Integration =====
+// CORS verification results:
+//   spatial-gis.information.qld.gov.au → ✅ CORS OK (reflects Origin header)
+//   gisext.qfes.qld.gov.au            → ✅ CORS OK (reflects Origin header)
+//
+// Phase 3: QLD Zoning — uses PlanningCadastre/LandUse MapServer (QLUMP land use categories)
+// Note: QLD has no single state-wide planning zones REST service equivalent to NSW/VIC.
+// QLUMP ALUM codes are the best available state-wide land use classification.
+async function fetchQLDZoning(lat, lng) {
+  const loadingEl = document.getElementById('z-zoning-loading');
+  if (loadingEl) { loadingEl.textContent = '🔍 Looking up land use from QLD Spatial…'; loadingEl.classList.remove('hidden'); }
+  try {
+    const url = 'https://spatial-gis.information.qld.gov.au/arcgis/rest/services/PlanningCadastre/LandUse/MapServer/0/query'
+      + '?geometry=' + lng + ',' + lat
+      + '&geometryType=esriGeometryPoint&inSR=4326'
+      + '&spatialRel=esriSpatialRelIntersects'
+      + '&outFields=primary_,secondary,tertiary,alum_code,qlump_code'
+      + '&returnGeometry=false&f=json';
+    const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    const data = await res.json();
+    if (data.features && data.features.length > 0) {
+      const attrs = data.features[0].attributes;
+      const primary = attrs['primary_'] || '';
+      const secondary = attrs.secondary || '';
+      const tertiary = attrs.tertiary || '';
+      const alumCode = attrs.alum_code || '';
 
+      // Phase 3: Map QLD ALUM land use codes to our zoning dropdown
+      // ALUM: 5.x=Intensive uses (residential/commercial/industrial), 1.x=Conservation,
+      // 2.x/3.x/4.x=Agriculture, 6.x=Water
+      const qldToZoneMap = {
+        '5.1': 'R1',  '5.2': 'R5',  '5.3': 'IN1', '5.4': 'B1',
+        '5.5': 'B1',  '5.6': 'SP1', '5.7': 'SP1', '5.8': 'SP1', '5.9': 'SP2',
+        '1.1': 'E1',  '1.2': 'E1',  '1.3': 'E2',
+        '2.1': 'RU1', '2.2': 'RU2', '3.1': 'RU1', '3.2': 'RU1',
+        '3.3': 'RU1', '4.1': 'RU1', '4.2': 'RU1',
+        '6.1': 'W1',  '6.2': 'W1',  '6.3': 'W1',
+      };
+
+      const code3 = alumCode.substring(0, 3);
+      const mappedCode = qldToZoneMap[code3] || null;
+
+      const select = document.getElementById('z-zoning');
+      if (select && mappedCode) {
+        let matched = false;
+        for (const opt of select.options) {
+          if (opt.value === mappedCode) { select.value = opt.value; matched = true; break; }
+        }
+        if (matched) {
+          window._addrState.zoningAutoFilled = true;
+          const badge = document.getElementById('z-autofill-badge');
+          if (badge) {
+            badge.classList.remove('hidden');
+            const info = 'ALUM ' + alumCode + ': ' + (tertiary || secondary || primary) + ' → mapped to ' + mappedCode;
+            badge.querySelector('span').textContent = '✓ Auto-filled from QLD Land Use: ' + info;
+          }
+        }
+      }
+
+      const desc = tertiary || secondary || primary || 'Unknown';
+      showAddrToast('🗺️ QLD Land Use: ' + desc + ' (ALUM ' + alumCode + ')', 'success');
+      console.log('Phase 3: QLD zoning result:', attrs);
+      autoSave(); recalcAll();
+    } else {
+      showAddrToast('QLD land use not found — please enter zoning manually', 'warning');
+    }
+  } catch(e) {
+    console.warn('Phase 3: QLD Zoning fetch error:', e);
+    showAddrToast('Could not auto-fill QLD zoning — please enter manually', 'warning');
+  } finally {
+    if (loadingEl) loadingEl.classList.add('hidden');
+  }
+}
+
+// Phase 3: QLD Flood — FloodCheck/ComprehensiveStudies
+// Indicates if a flood study covers the area. No single state-wide flood extent layer available.
+// CORS: ✅ spatial-gis.information.qld.gov.au
+async function fetchQLDFloodData(lat, lng) {
+  try {
+    const url = 'https://spatial-gis.information.qld.gov.au/arcgis/rest/services/FloodCheck/ComprehensiveStudies/MapServer/0/query'
+      + '?geometry=' + lng + ',' + lat
+      + '&geometryType=esriGeometryPoint&inSR=4326'
+      + '&spatialRel=esriSpatialRelIntersects'
+      + '&outFields=studyname,studyarea,lga'
+      + '&returnGeometry=false&f=json';
+    const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    const data = await res.json();
+    if (data.features && data.features.length > 0) {
+      const study = data.features[0].attributes;
+      CrossTab.riskFlags.flood = 'yes';
+      const pills = document.querySelectorAll('#z-flag-flood .pill');
+      pills.forEach(p => { p.classList.remove('active'); if (p.dataset.val === 'yes') p.classList.add('active'); });
+      showAddrToast('🌊 QLD Flood Study Area: ' + (study.studyname || study.studyarea || 'Flood covered area'), 'warning');
+      updateEnvironmentalSections();
+      autoSave(); recalcAll();
+      console.log('Phase 3: QLD flood study found:', study);
+    } else {
+      console.log('Phase 3: No QLD flood studies at this location');
+    }
+  } catch(e) {
+    console.warn('Phase 3: QLD Flood fetch error:', e);
+  }
+}
+
+// Phase 3: QLD Bushfire — QFES Vegetation Hazard Class (VHC) layer 2
+// Pronetype=1 means bushfire prone. Source: QFES gisext server.
+// CORS: ✅ gisext.qfes.qld.gov.au
+async function fetchQLDBushfireData(lat, lng) {
+  try {
+    const url = 'https://gisext.qfes.qld.gov.au/arcgis/rest/services/Redi/VHC/MapServer/2/query'
+      + '?geometry=' + lng + ',' + lat
+      + '&geometryType=esriGeometryPoint&inSR=4326'
+      + '&spatialRel=esriSpatialRelIntersects'
+      + '&outFields=VHC_Short_Desc,Pronetype,VHC,FL_WeightedVHC'
+      + '&returnGeometry=false&f=json';
+    const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    const data = await res.json();
+    if (data.features && data.features.length > 0) {
+      const attrs = data.features[0].attributes;
+      if (attrs.Pronetype === 1) {
+        CrossTab.riskFlags.bushfire = 'yes';
+        const pills = document.querySelectorAll('#z-flag-bushfire .pill');
+        pills.forEach(p => { p.classList.remove('active'); if (p.dataset.val === 'yes') p.classList.add('active'); });
+        showAddrToast('🔥 QLD Bushfire Prone Area: ' + (attrs.VHC_Short_Desc || 'Vegetation Hazard'), 'warning');
+        window._addrState.bushfireData = { status: 'found', category: 'QLD Bushfire Prone (VHC ' + (attrs.VHC || '') + ')', guideline: attrs.VHC_Short_Desc || '' };
+      } else {
+        showAddrToast('✅ Not in QLD Bushfire Prone Area', 'success');
+        window._addrState.bushfireData = { status: 'clear' };
+      }
+      updateEnvironmentalSections();
+      autoSave(); recalcAll();
+      console.log('Phase 3: QLD bushfire result:', attrs);
+    } else {
+      window._addrState.bushfireData = { status: 'clear' };
+      console.log('Phase 3: No QLD bushfire data at this location');
+    }
+  } catch(e) {
+    console.warn('Phase 3: QLD Bushfire fetch error:', e);
+  }
+}
+// ===== END PHASE 3: QLD Government Data Integration =====
 
 // T8b: Show smart links card for property research (state-aware)
 function showSmartLinks(address) {
@@ -3092,6 +3238,17 @@ function showSmartLinks(address) {
     links.push({
       href: 'https://mapshare.vic.gov.au/vicplan/?search=' + encoded,
       icon: '🗺️', label: 'VicPlan'
+    });
+  }
+  // Phase 3: QLD smart links
+  if (state === 'QLD') {
+    links.push({
+      href: 'https://qldglobe.information.qld.gov.au/?query=' + encoded,
+      icon: '🗺️', label: 'QLD Globe'
+    });
+    links.push({
+      href: 'https://www.floodcheck.qld.gov.au/',
+      icon: '🌊', label: 'FloodCheck QLD'
     });
   }
 
@@ -3295,7 +3452,13 @@ function initGeoscapeAutocomplete() {
         fetchVICZoning(window._addrState.coords.lat, window._addrState.coords.lng);
         fetchVICOverlays(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 1: VIC overlays
         showSmartLinks(item.address);
-      } else if (detectedState && !['NSW','VIC'].includes(detectedState)) {
+      } else if (detectedState === 'QLD' && window._addrState.coords.lat) {
+        // Phase 3: QLD state branch — zoning, flood, bushfire
+        fetchQLDZoning(window._addrState.coords.lat, window._addrState.coords.lng);
+        fetchQLDFloodData(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 3: QLD flood
+        fetchQLDBushfireData(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 3: QLD bushfire
+        showSmartLinks(item.address);
+      } else if (detectedState && !['NSW','VIC','QLD'].includes(detectedState)) {
         showAddrToast('Auto-fill coming soon for ' + detectedState + ' — please enter zoning manually', 'warning');
         showSmartLinks(item.address);
       }
