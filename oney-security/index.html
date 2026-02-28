@@ -2453,6 +2453,8 @@ function initGooglePlaces() {
         fetchNSWZoning(window._addrState.coords.lat, window._addrState.coords.lng);
         fetchBushfireData(window._addrState.coords.lat, window._addrState.coords.lng);
         fetchNSWFloodData(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 1: NSW flood
+        fetchNSWBiodiversity(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 2: NSW biodiversity
+        fetchNSWCoastalErosion(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 2: NSW coastal erosion
       } else if (detectedState === 'VIC' && window._addrState.coords.lat) {
         fetchVICZoning(window._addrState.coords.lat, window._addrState.coords.lng);
         fetchVICOverlays(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 1: VIC overlays
@@ -2938,6 +2940,113 @@ async function fetchNSWFloodData(lat, lng) {
 }
 // ===== END PHASE 1: NSW Flood =====
 
+// ===== PHASE 2: NSW Biodiversity from EPI Protection Layers =====
+// Queries Terrestrial Biodiversity (layer 10) and Wetlands (layer 11)
+async function fetchNSWBiodiversity(lat, lng) {
+  try {
+    const delta = 0.005;
+    const geom = JSON.stringify({ xmin: lng - delta, ymin: lat - delta, xmax: lng + delta, ymax: lat + delta });
+    const layers = [10, 11]; // 10=Terrestrial Biodiversity, 11=Wetlands
+    const results = [];
+    for (const layerId of layers) {
+      const params = new URLSearchParams({
+        geometry: geom,
+        geometryType: 'esriGeometryEnvelope',
+        spatialRel: 'esriSpatialRelIntersects',
+        outFields: 'EPI_NAME,LGA_NAME,LAY_CLASS',
+        f: 'json',
+        inSR: '4326',
+        resultRecordCount: '5'
+      });
+      const res = await fetch('https://mapprod3.environment.nsw.gov.au/arcgis/rest/services/Planning/Protection/MapServer/' + layerId + '/query?' + params, { signal: AbortSignal.timeout(10000) });
+      const data = await res.json();
+      console.log('Phase 2: NSW Protection layer ' + layerId + ' response:', data.features?.length || 0, 'features');
+      if (data.features && data.features.length > 0) {
+        for (const f of data.features) {
+          results.push({ layerId, layerName: layerId === 10 ? 'Terrestrial Biodiversity' : 'Wetlands', attrs: f.attributes });
+        }
+      }
+    }
+    if (results.length > 0) {
+      window._addrState.nswBiodiversityData = { status: 'found', layers: results };
+      CrossTab.riskFlags.biodiversity = 'yes';
+      const pills = document.querySelectorAll('#z-flag-biodiversity .pill');
+      pills.forEach(p => { p.classList.remove('active'); if (p.dataset.val === 'yes') p.classList.add('active'); });
+      const layClass = results[0].attrs.LAY_CLASS || [...new Set(results.map(r => r.layerName))].join(', ');
+      showAddrToast('🦎 NSW Biodiversity: ' + layClass, 'warning');
+      updateEnvironmentalSections();
+      autoSave(); recalcAll();
+    } else {
+      window._addrState.nswBiodiversityData = { status: 'clear' };
+      console.log('Phase 2: No NSW biodiversity overlays at this location');
+    }
+  } catch(e) {
+    console.warn('Phase 2: NSW Biodiversity fetch error:', e);
+    window._addrState.nswBiodiversityData = { status: 'error', message: e.message };
+  }
+}
+// ===== END PHASE 2: NSW Biodiversity =====
+
+// ===== PHASE 2: NSW Coastal Erosion from SEPP Resilience & Hazards 2021 =====
+// Queries Coastal Wetlands (layer 3), Littoral Rainforest (layer 4),
+// Coastal Environment Area (layer 6), Coastal Use Area (layer 7)
+async function fetchNSWCoastalErosion(lat, lng) {
+  try {
+    const delta = 0.005;
+    const geom = JSON.stringify({ xmin: lng - delta, ymin: lat - delta, xmax: lng + delta, ymax: lat + delta });
+    const layers = [
+      { id: 3, name: 'Coastal Wetlands' },
+      { id: 4, name: 'Littoral Rainforest' },
+      { id: 6, name: 'Coastal Environment Area' },
+      { id: 7, name: 'Coastal Use Area' }
+    ];
+    const results = [];
+    for (const layer of layers) {
+      const params = new URLSearchParams({
+        geometry: geom,
+        geometryType: 'esriGeometryEnvelope',
+        spatialRel: 'esriSpatialRelIntersects',
+        outFields: 'EPI_NAME,LABEL,MAP_NAME',
+        f: 'json',
+        inSR: '4326',
+        resultRecordCount: '3'
+      });
+      const res = await fetch('https://mapprod3.environment.nsw.gov.au/arcgis/rest/services/Planning/SEPP_Resilience_and_Hazards_2021/MapServer/' + layer.id + '/query?' + params, { signal: AbortSignal.timeout(10000) });
+      const data = await res.json();
+      console.log('Phase 2: NSW Coastal layer ' + layer.id + ' (' + layer.name + ') response:', data.features?.length || 0, 'features');
+      if (data.features && data.features.length > 0) {
+        for (const f of data.features) {
+          results.push({ layerId: layer.id, layerName: layer.name, attrs: f.attributes });
+        }
+      }
+    }
+    if (results.length > 0) {
+      window._addrState.nswCoastalData = { status: 'found', layers: results };
+      CrossTab.riskFlags.erosion = 'yes';
+      const pills = document.querySelectorAll('#z-flag-erosion .pill');
+      pills.forEach(p => { p.classList.remove('active'); if (p.dataset.val === 'yes') p.classList.add('active'); });
+      const layerNames = [...new Set(results.map(r => r.layerName))].join(', ');
+      showAddrToast('🏖️ NSW Coastal Risk: ' + layerNames, 'warning');
+      // Phase 2: Also set biodiversity if coastal wetlands or littoral rainforest found
+      if (results.some(r => r.layerId === 3 || r.layerId === 4)) {
+        CrossTab.riskFlags.biodiversity = 'yes';
+        const bioPills = document.querySelectorAll('#z-flag-biodiversity .pill');
+        bioPills.forEach(p => { p.classList.remove('active'); if (p.dataset.val === 'yes') p.classList.add('active'); });
+      }
+      updateEnvironmentalSections();
+      autoSave(); recalcAll();
+    } else {
+      window._addrState.nswCoastalData = { status: 'clear' };
+      console.log('Phase 2: No NSW coastal risk layers at this location');
+    }
+  } catch(e) {
+    console.warn('Phase 2: NSW Coastal erosion fetch error:', e);
+    window._addrState.nswCoastalData = { status: 'error', message: e.message };
+  }
+}
+// ===== END PHASE 2: NSW Coastal Erosion =====
+
+
 // T8b: Show smart links card for property research (state-aware)
 function showSmartLinks(address) {
   // Remove existing card if any
@@ -3180,6 +3289,8 @@ function initGeoscapeAutocomplete() {
         fetchNSWZoning(window._addrState.coords.lat, window._addrState.coords.lng);
         fetchBushfireData(window._addrState.coords.lat, window._addrState.coords.lng);
         fetchNSWFloodData(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 1: NSW flood
+        fetchNSWBiodiversity(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 2: NSW biodiversity
+        fetchNSWCoastalErosion(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 2: NSW coastal erosion
       } else if (detectedState === 'VIC' && window._addrState.coords.lat) {
         fetchVICZoning(window._addrState.coords.lat, window._addrState.coords.lng);
         fetchVICOverlays(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 1: VIC overlays
