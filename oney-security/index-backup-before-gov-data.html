@@ -2452,10 +2452,8 @@ function initGooglePlaces() {
       if (detectedState === 'NSW' && window._addrState.coords.lat) {
         fetchNSWZoning(window._addrState.coords.lat, window._addrState.coords.lng);
         fetchBushfireData(window._addrState.coords.lat, window._addrState.coords.lng);
-        fetchNSWFloodData(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 1: NSW flood
       } else if (detectedState === 'VIC' && window._addrState.coords.lat) {
         fetchVICZoning(window._addrState.coords.lat, window._addrState.coords.lng);
-        fetchVICOverlays(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 1: VIC overlays
         showSmartLinks(place.formatted_address || input.value);
       } else if (detectedState && !['NSW','VIC'].includes(detectedState)) {
         showAddrToast('Auto-fill coming soon for ' + detectedState + ' — please enter zoning manually', 'warning');
@@ -2542,11 +2540,6 @@ function applyNSWZoningResult(data, propId) {
     if (ln.includes('acid sulfate') && results.length > 0) {
       acidSulfate = results[0].title || 'Yes';
     }
-    // Phase 1: Check if e-Planning returns flood planning data
-    if ((ln.includes('flood') || ln.includes('inundation')) && results.length > 0) {
-      window._addrState.ePlanFlood = results[0].title || 'Yes';
-      if (CrossTab.riskFlags) CrossTab.riskFlags.flood = 'yes';
-    }
   }
 
   // Apply zoning to dropdown
@@ -2600,16 +2593,6 @@ function applyNSWZoningResult(data, propId) {
       if (p.dataset.val === 'yes') p.classList.add('active');
     });
     if (CrossTab.riskFlags) CrossTab.riskFlags['acid-sulfate'] = 'yes';
-  }
-
-  // Phase 1: Apply flood risk flag from e-Planning (if returned)
-  if (window._addrState.ePlanFlood) {
-    const floodPills = document.querySelectorAll('#z-flag-flood .pill');
-    floodPills.forEach(p => {
-      p.classList.remove('active');
-      if (p.dataset.val === 'yes') p.classList.add('active');
-    });
-    updateEnvironmentalSections();
   }
 
   // Show autofill badge with details
@@ -2729,102 +2712,6 @@ function applyVICZoningResult(data) {
   autoSave(); recalcAll();
 }
 
-// ===== PHASE 1 GOV DATA: VIC Planning Scheme Overlays =====
-// Fetches ALL VIC risk overlays in ONE call: flood (LSIO/SBO/FO), bushfire (BMO/WMO),
-// heritage (HO), contamination (EAO), biodiversity (ESO/VPO), erosion (EMO)
-async function fetchVICOverlays(lat, lng) {
-  try {
-    const b = 0.001;
-    const url = 'https://plan-gis.mapshare.vic.gov.au/arcgis/rest/services/Planning/Vicplan_PlanningSchemeOverlays/MapServer/identify'
-      + '?geometry=' + lng + ',' + lat + '&geometryType=esriGeometryPoint&sr=4326'
-      + '&layers=all&tolerance=5'
-      + '&mapExtent=' + (lng-b) + ',' + (lat-b) + ',' + (lng+b) + ',' + (lat+b)
-      + '&imageDisplay=800,600,96&returnGeometry=false&f=json';
-    const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
-    const data = await res.json();
-    if (!data || !data.results || data.results.length === 0) {
-      console.log('VIC Overlays: no overlays found at this location');
-      return;
-    }
-    applyVICOverlayResult(data);
-  } catch(e) {
-    console.warn('VIC Overlays fetch error:', e);
-    // Graceful degradation — manual entry remains available
-  }
-}
-
-// Parse VIC overlay results and auto-set risk flags
-function applyVICOverlayResult(data) {
-  const overlays = [];
-  for (const r of data.results) {
-    const attrs = r.attributes || {};
-    // VicPlan uses ZONE_CODE for overlay codes (e.g. "LSIO3", "HO123", "BMO1")
-    // CODE_PARENT is the base code without schedule number (e.g. "LSIO", "HO", "BMO")
-    const code = attrs.CODE_PARENT || attrs.ZONE_CODE || attrs.OVERLAY_CODE || '';
-    const fullCode = attrs.ZONE_CODE || code;
-    const desc = attrs.ZONE_DESCRIPTION || '';
-    if (code) overlays.push({ code: code.toUpperCase(), fullCode: fullCode.toUpperCase(), desc });
-  }
-  if (overlays.length === 0) return;
-
-  // Store raw overlay data for reporting
-  window._addrState.vicOverlays = overlays;
-  const flagsSet = [];
-
-  for (const ov of overlays) {
-    const c = ov.code;
-    // Flood: LSIO (Land Subject to Inundation), SBO (Special Building), FO (Floodway)
-    if (/^(LSIO|SBO|FO)\d*$/i.test(c)) {
-      CrossTab.riskFlags.flood = 'yes';
-      flagsSet.push('🌊 Flood (' + c + ')');
-    }
-    // Bushfire: BMO (Bushfire Management), WMO (Wildfire Management — legacy)
-    if (/^(BMO|WMO)\d*$/i.test(c)) {
-      CrossTab.riskFlags.bushfire = 'yes';
-      flagsSet.push('🔥 Bushfire (' + c + ')');
-    }
-    // Heritage: HO (Heritage Overlay)
-    if (/^HO\d*$/i.test(c)) {
-      CrossTab.riskFlags.heritage = 'yes';
-      flagsSet.push('🏛️ Heritage (' + c + ')');
-    }
-    // Contamination: EAO (Environmental Audit Overlay)
-    if (/^EAO\d*$/i.test(c)) {
-      CrossTab.riskFlags.contaminated = 'yes';
-      flagsSet.push('☢️ Contamination (' + c + ')');
-    }
-    // Biodiversity: ESO (Environmental Significance), VPO (Vegetation Protection)
-    if (/^(ESO|VPO)\d*$/i.test(c)) {
-      CrossTab.riskFlags.biodiversity = 'yes';
-      flagsSet.push('🦎 Biodiversity (' + c + ')');
-    }
-    // Erosion: EMO (Erosion Management Overlay)
-    if (/^EMO\d*$/i.test(c)) {
-      CrossTab.riskFlags.erosion = 'yes';
-      flagsSet.push('🏖️ Erosion (' + c + ')');
-    }
-  }
-
-  // Update risk flag pills UI
-  if (flagsSet.length > 0) {
-    for (const f of RISK_FLAGS) {
-      if (CrossTab.riskFlags[f.key] === 'yes') {
-        const pills = document.querySelectorAll('#z-flag-' + f.key + ' .pill');
-        pills.forEach(p => {
-          p.classList.remove('active');
-          if (p.dataset.val === 'yes') p.classList.add('active');
-        });
-      }
-    }
-    showAddrToast('VIC Overlays: ' + flagsSet.join(', '), flagsSet.length > 2 ? 'error' : 'warning');
-    updateEnvironmentalSections();
-    autoSave(); recalcAll();
-  } else {
-    showAddrToast('✅ No VIC risk overlays found', 'success');
-  }
-}
-// ===== END PHASE 1: VIC Overlays =====
-
 // T8a: Fetch lot area from NSW SIX Maps ArcGIS
 async function fetchSIXMapsLotArea(propId) {
   try {
@@ -2899,44 +2786,6 @@ async function fetchBushfireData(lat, lng) {
   if (typeof buildRiskFlags === 'function') buildRiskFlags();
   recalcAll();
 }
-
-// ===== PHASE 1 GOV DATA: NSW Flood from EPI Protection Layers =====
-// Uses same ArcGIS REST pattern as bushfire query
-async function fetchNSWFloodData(lat, lng) {
-  try {
-    // NSW Hazard MapServer — Layer 1 = Flood Planning
-    const delta = 0.005;
-    const geom = JSON.stringify({ xmin: lng - delta, ymin: lat - delta, xmax: lng + delta, ymax: lat + delta });
-    const params = new URLSearchParams({
-      geometry: geom,
-      geometryType: 'esriGeometryEnvelope',
-      spatialRel: 'esriSpatialRelIntersects',
-      outFields: 'EPI_NAME,LGA_NAME,LAY_CLASS,COMMENT',
-      f: 'json',
-      inSR: '4326',
-      resultRecordCount: '5'
-    });
-    const res = await fetch('https://mapprod3.environment.nsw.gov.au/arcgis/rest/services/Planning/Hazard/MapServer/1/query?' + params, { signal: AbortSignal.timeout(10000) });
-    const data = await res.json();
-    if (data.features && data.features.length > 0) {
-      const epiName = data.features[0].attributes.EPI_NAME || 'Flood Planning';
-      window._addrState.nswFloodData = { status: 'found', layers: [epiName] };
-      CrossTab.riskFlags.flood = 'yes';
-      const pills = document.querySelectorAll('#z-flag-flood .pill');
-      pills.forEach(p => { p.classList.remove('active'); if (p.dataset.val === 'yes') p.classList.add('active'); });
-      showAddrToast('🌊 NSW Flood Planning: ' + epiName, 'warning');
-      updateEnvironmentalSections();
-      autoSave(); recalcAll();
-    } else {
-      window._addrState.nswFloodData = { status: 'clear' };
-      console.log('NSW Hazard: no flood planning layer at this location');
-    }
-  } catch(e) {
-    console.warn('NSW Flood data fetch error:', e);
-    window._addrState.nswFloodData = { status: 'error', message: e.message };
-  }
-}
-// ===== END PHASE 1: NSW Flood =====
 
 // T8b: Show smart links card for property research (state-aware)
 function showSmartLinks(address) {
@@ -3179,10 +3028,8 @@ function initGeoscapeAutocomplete() {
       if (detectedState === 'NSW' && window._addrState.coords.lat) {
         fetchNSWZoning(window._addrState.coords.lat, window._addrState.coords.lng);
         fetchBushfireData(window._addrState.coords.lat, window._addrState.coords.lng);
-        fetchNSWFloodData(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 1: NSW flood
       } else if (detectedState === 'VIC' && window._addrState.coords.lat) {
         fetchVICZoning(window._addrState.coords.lat, window._addrState.coords.lng);
-        fetchVICOverlays(window._addrState.coords.lat, window._addrState.coords.lng); // Phase 1: VIC overlays
         showSmartLinks(item.address);
       } else if (detectedState && !['NSW','VIC'].includes(detectedState)) {
         showAddrToast('Auto-fill coming soon for ' + detectedState + ' — please enter zoning manually', 'warning');
@@ -3211,9 +3058,7 @@ const RISK_FLAGS = [
   {key:'contaminated', icon:'☢️', label:'Contaminated Land'},
   {key:'flood', icon:'🌊', label:'Flood Zone'},
   {key:'bushfire', icon:'🔥', label:'Bushfire Prone'},
-  {key:'acid-sulfate', icon:'⚗️', label:'Acid Sulfate Soils'},
-  {key:'biodiversity', icon:'🦎', label:'Biodiversity / Vegetation'},
-  {key:'erosion', icon:'🏖️', label:'Erosion / Coastal Risk'}
+  {key:'acid-sulfate', icon:'⚗️', label:'Acid Sulfate Soils'}
 ];
 
 function buildRiskFlags() {
@@ -3259,9 +3104,6 @@ function updateEnvironmentalSections() {
   // Heritage
   if (flags.heritage === 'yes') { $('#e-heritageSection').classList.remove('hidden'); anyFlag = true; }
   else $('#e-heritageSection').classList.add('hidden');
-  // Phase 1: Biodiversity and Erosion flags don't have dedicated sections yet,
-  // but they affect scoring and risk display
-  if (flags.biodiversity === 'yes' || flags.erosion === 'yes') anyFlag = true;
 
   $('#e-noFlags').classList.toggle('hidden', anyFlag);
 }

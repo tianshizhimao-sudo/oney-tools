@@ -33,24 +33,13 @@
     };
     
     function detectTier() {
-      const params = new URLSearchParams(window.location.search);
-      const urlTier = params.get('tier');
-      const storedLicense = localStorage.getItem('cpp_license');
-      
-      // Check URL parameter first
+      const urlTier = new URLSearchParams(location.search).get('tier');
       if (urlTier && TIERS[urlTier]) return urlTier;
-      
-      // Check stored license
-      if (storedLicense) {
-        try {
-          const license = JSON.parse(storedLicense);
-          if (license.tier && TIERS[license.tier] && license.expires > Date.now()) {
-            return license.tier;
-          }
-        } catch (e) {}
-      }
-      
-      return 'lite'; // Default to free
+      try {
+        const lic = JSON.parse(localStorage.getItem('cpp_license'))||{};
+        if (lic.tier && TIERS[lic.tier] && lic.expires > Date.now()) return lic.tier;
+      } catch (e) {}
+      return 'lite';
     }
     
     function hasFeature(feature) {
@@ -93,7 +82,7 @@
         alert('✅ License activated! Enjoy Credit Paper ' + selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1) + '!');
         location.reload();
       } else {
-        alert('❌ Invalid license key format.\n\nPlease enter your Gumroad license key in this format:\nXXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX');
+        alert('Invalid license key.\n\nFormat: XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX');
       }
     }
     
@@ -413,8 +402,6 @@
   .related-card:hover { border-color: #2ECC85; transform: translateY(-2px); }
   .related-name { color: #fff; font-weight: 600; font-size: 15px; margin-bottom: 6px; }
   .related-desc { color: #a3a3b8; font-size: 13px; line-height: 1.4; }
-.header-back{color:var(--green,#2ECC85);text-decoration:none;font-size:0.95rem;font-weight:500;transition:opacity 0.2s}
-.header-back:hover{opacity:0.8}
 </style>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"WebApplication","name":"Credit Paper Pro","url":"https://tools.oneyco.com.au/credit-paper-pro.html","description":"Professional credit assessment tool for mortgage brokers.","applicationCategory":"FinanceApplication","operatingSystem":"Web"}
@@ -1080,7 +1067,7 @@ function updateFacility(groupId, facilityId, key, value) {
   const g = state.facilityGroups.find(x => x.id === groupId);
   if (g) {
     const f = g.facilities.find(x => x.id === facilityId);
-    if (f) f[key] = ['amount','rate','term','ioTerm','sharePercent'].includes(key) ? parseFloat(value)||'' : value;
+    if (f) f[key] = ['amount','rate','term','ioTerm','sharePercent'].includes(key) ? (isNaN(parseFloat(value)) ? '' : parseFloat(value)) : value;
   }
   if (key === 'repayment') renderFacilityGroups();
   updatePreview();
@@ -1146,17 +1133,14 @@ function renderSecurities() {
 }
 
 function initSecurityAddressAutocomplete() {
-  if (!window.googlePlacesReady) return;
+  if (!window.googlePlacesReady || window.creditPaperAutoCompleteInit) return;
   state.securities.forEach(s => {
     const input = document.getElementById('securityAddress_' + s.id);
     if (input && !input.dataset.autocomplete) {
-      const autocomplete = new google.maps.places.Autocomplete(input, {
-        types: ['address'],
-        componentRestrictions: { country: 'au' }
-      });
+      const autocomplete = new google.maps.places.Autocomplete(input, { types: ['address'], componentRestrictions: { country: 'au' } });
       autocomplete.addListener('place_changed', () => {
         const place = autocomplete.getPlace();
-        if (place.formatted_address) {
+        if (place && place.formatted_address) {
           input.value = place.formatted_address;
           updateSecurity(s.id, 'address', place.formatted_address);
         }
@@ -1164,10 +1148,11 @@ function initSecurityAddressAutocomplete() {
       input.dataset.autocomplete = 'true';
     }
   });
+  window.creditPaperAutoCompleteInit = true;
 }
 function updateSecurity(id, key, value) {
   const s = state.securities.find(x => x.id === id);
-  if (s) s[key] = key === 'value' ? parseFloat(value)||'' : value;
+  if (s) s[key] = key === 'value' ? (isNaN(parseFloat(value)) ? '' : parseFloat(value)) : value;
   renderSecurities();
   updatePreview();
 }
@@ -1194,7 +1179,7 @@ function renderServicingEntities() {
 }
 function updateServicing(id, key, value) {
   const e = state.servicingEntities.find(x => x.id === id);
-  if (e) e[key] = ['ebit','depreciation','amortisation'].includes(key) ? parseFloat(value)||'' : value;
+  if (e) e[key] = ['ebit','depreciation','amortisation'].includes(key) ? (isNaN(parseFloat(value)) ? '' : parseFloat(value)) : value;
   renderServicingEntities();
   updatePreview();
 }
@@ -1308,8 +1293,9 @@ function updatePreview() {
   const totalSecValue = state.securities.filter(s => s.type !== 'gsa').reduce((sum, s) => sum + (parseFloat(s.value) || 0), 0);
   const lvr = totalSecValue > 0 ? (totalFacility / totalSecValue) * 100 : 0;
   let minMaxLVR = 100;
+  const lenderPolicy = lvrPolicy[lender] || {};
   state.securities.filter(s => s.type !== 'gsa').forEach(s => {
-    const max = lvrPolicy[lender]?.[s.type] || 65;
+    const max = lenderPolicy[s.type] || 65;
     if (max > 0 && max < minMaxLVR) minMaxLVR = max;
   });
   if (minMaxLVR === 100) minMaxLVR = 65;
@@ -1475,11 +1461,14 @@ function updatePreview() {
   document.getElementById('footerContact').textContent = [presenterPhone, presenterEmail].filter(Boolean).join(' | ');
 
   // ===== v3.1 postMessage to parent (Pro Suite integration) =====
-  try {
-    if (window.parent !== window) {
-      const totalFacilities = state.facilityGroups.reduce((sum, g) => sum + g.facilities.reduce((s, f) => s + (parseFloat(f.amount) || 0), 0), 0);
-      const totalSecurityValue = state.securities.reduce((sum, s) => sum + (parseFloat(s.value) || 0), 0);
-      const resultPayload = {
+  // Throttle postMessage to avoid performance issues
+  clearTimeout(window.creditPaperPostMessageTimeout);
+  window.creditPaperPostMessageTimeout = setTimeout(() => {
+    try {
+      if (window.parent !== window) {
+        const totalFacilities = state.facilityGroups.reduce((sum, g) => sum + g.facilities.reduce((s, f) => s + (parseFloat(f.amount) || 0), 0), 0);
+        const totalSecurityValue = state.securities.reduce((sum, s) => sum + (parseFloat(s.value) || 0), 0);
+        const resultPayload = {
         type: 'ONEY_CREDIT_PAPER_RESULT',
         data: {
           txnType: state.txnType,
@@ -1506,11 +1495,12 @@ function updatePreview() {
           timestamp: new Date().toISOString()
         }
       };
-      window.parent.postMessage(resultPayload, '*');
+        window.parent.postMessage(resultPayload, '*');
+      }
+    } catch (err) {
+      console.warn('Credit Paper postMessage failed:', err);
     }
-  } catch (err) {
-    console.warn('Credit Paper postMessage failed:', err);
-  }
+  }, 500); // Throttle to 500ms
 }
 
 // ===== v3.1 Listen for requests from Pro Suite =====
