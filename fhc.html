@@ -328,34 +328,74 @@
     }
     
     .insight-list { list-style: none; }
-    
-    .insight-item {
-      display: flex;
-      gap: 14px;
-      padding: 14px 0;
-      border-bottom: 1px solid var(--border);
+
+    /* === New Results: Score + Expandable Cards === */
+    .score-section { text-align: center; margin-bottom: 32px; }
+    .score-label { font-size: 14px; color: var(--text-muted); margin-bottom: 4px; }
+    .score-value { font-size: 48px; font-weight: 800; color: var(--text); }
+    .score-value span { font-size: 24px; font-weight: 500; color: var(--text-muted); }
+
+    .score-bar-wrap { position: relative; height: 14px; border-radius: 7px; overflow: visible; margin: 20px 0 8px; }
+    .score-bar-bg {
+      width: 100%; height: 100%; border-radius: 7px;
+      background: linear-gradient(90deg, #ef4444 0%, #f59e0b 30%, #eab308 45%, #22c55e 70%, #0ea5e9 100%);
     }
-    .insight-item:last-child { border-bottom: none; }
-    
-    .insight-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      flex-shrink: 0;
+    .score-bar-marker {
+      position: absolute; top: 50%; width: 22px; height: 22px;
+      border-radius: 50%; background: #fff; border: 3px solid var(--accent);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2); transform: translate(-50%, -50%);
+      transition: left 0.8s cubic-bezier(0.4,0,0.2,1); left: 0%;
     }
-    
-    .insight-icon.green { background: rgba(34, 197, 94, 0.15); color: var(--success); }
-    .insight-icon.yellow { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
-    .insight-icon.red { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
-    
-    .insight-text {
-      font-size: 14px;
-      line-height: 1.6;
-      color: var(--text-muted);
+    .score-bar-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); }
+
+    .results-section-title {
+      font-size: 15px; font-weight: 600; color: var(--text-muted);
+      margin: 28px 0 12px; padding-left: 4px;
+    }
+
+    .insight-card {
+      background: var(--card); border-radius: 14px; margin-bottom: 10px;
+      border: 1px solid var(--border); overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.15s; cursor: pointer;
+    }
+    .insight-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); transform: translateY(-1px); }
+
+    .insight-card-header {
+      display: flex; align-items: center; gap: 14px; padding: 16px 18px;
+      position: relative;
+    }
+    .insight-card-accent {
+      position: absolute; left: 0; top: 8px; bottom: 8px; width: 5px; border-radius: 0 3px 3px 0;
+    }
+    .insight-card-accent.green { background: var(--success); }
+    .insight-card-accent.yellow { background: var(--warning); }
+    .insight-card-accent.red { background: var(--danger); }
+
+    .insight-card-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .insight-card-icon.green { background: rgba(34,197,94,0.12); }
+    .insight-card-icon.yellow { background: rgba(245,158,11,0.12); }
+    .insight-card-icon.red { background: rgba(239,68,68,0.12); }
+
+    .insight-card-title { flex: 1; font-size: 15px; font-weight: 500; color: var(--text); }
+
+    .insight-card-arrow {
+      font-size: 14px; color: var(--text-muted); transition: transform 0.3s ease; flex-shrink: 0;
+    }
+    .insight-card.expanded .insight-card-arrow { transform: rotate(90deg); }
+
+    .insight-card-body {
+      max-height: 0; overflow: hidden; transition: max-height 0.35s ease, padding 0.35s ease;
+      padding: 0 18px 0 68px;
+    }
+    .insight-card.expanded .insight-card-body {
+      max-height: 200px; padding: 0 18px 16px 68px;
+    }
+    .insight-card-body p {
+      font-size: 14px; line-height: 1.65; color: var(--text-muted);
     }
     
     /* Email Section */
@@ -732,47 +772,24 @@
         <p class="step-desc">Based on your inputs, here's your assessment</p>
       </div>
 
-      <div class="result-card">
-        <div class="result-header">
-          <span class="result-title">Overall Health Score</span>
-          <span class="result-badge" id="overallBadge">Calculating...</span>
+      <!-- Overall Score -->
+      <div class="score-section">
+        <p class="score-label">Your overall score is</p>
+        <div class="score-value"><span id="scoreNum">--</span><span>/100</span></div>
+        <div class="score-bar-wrap">
+          <div class="score-bar-bg"></div>
+          <div class="score-bar-marker" id="scoreMarker"></div>
         </div>
-        <div class="metric-grid">
-          <div class="metric-item">
-            <div class="metric-value" id="metricLVR">--%</div>
-            <div class="metric-label">Loan-to-Value Ratio</div>
-          </div>
-          <div class="metric-item">
-            <div class="metric-value" id="metricDSCR">--x</div>
-            <div class="metric-label">Debt Service Coverage</div>
-          </div>
-          <div class="metric-item">
-            <div class="metric-value" id="metricBuffer">-- mo</div>
-            <div class="metric-label">Cash Buffer (months)</div>
-          </div>
-          <div class="metric-item">
-            <div class="metric-value" id="metricExposure">$--</div>
-            <div class="metric-label">Total Loan Exposure</div>
-          </div>
-        </div>
+        <div class="score-bar-labels"><span>Needs attention</span><span>Looking good</span><span>Excellent</span></div>
+        <p id="scoreSummary" style="font-size:14px;color:var(--text-muted);margin-top:16px;"></p>
       </div>
 
-      <div class="result-card">
-        <div class="result-header">
-          <span class="result-title">Key Insights</span>
-        </div>
-        <ul class="insight-list" id="insightList"></ul>
-      </div>
-
-      <div class="result-card">
-        <div class="result-header">
-          <span class="result-title">Rate Check</span>
-        </div>
-        <div id="rateInsights"></div>
-      </div>
+      <!-- Insight cards injected by JS -->
+      <div id="attentionSection"></div>
+      <div id="goodSection"></div>
 
       <!-- Related Tool: RBA Tracker -->
-      <div class="result-card" style="background: linear-gradient(135deg, rgba(31,173,115,0.1), transparent); border-color: var(--accent);">
+      <div class="result-card" style="background: linear-gradient(135deg, rgba(31,173,115,0.1), transparent); border-color: var(--accent); margin-top: 28px;">
         <div class="result-header">
           <span class="result-title">📊 Related Tool</span>
         </div>
@@ -788,13 +805,6 @@
       <div class="email-section">
         <h3>📧 Get Your Full Report</h3>
         <p>Receive a detailed PDF report and share it with your banker or broker for a professional review.</p>
-        
-        <div class="report-preview">
-          <h4>Report Preview</h4>
-          <div class="report-bar"></div>
-          <h3>Financial Health Assessment</h3>
-          <p style="font-size: 14px; color: #666;">Prepared for: <span id="previewName">Your Business</span></p>
-        </div>
 
         <div class="form-group">
           <label class="form-label">Your Name</label>
@@ -928,68 +938,98 @@
       const loans = collectLoanData();
       const totalDebt = loans.reduce((sum, l) => sum + l.balance, 0);
       const avgRate = loans.length > 0 ? loans.reduce((sum, l) => sum + l.rate, 0) / loans.length : 0;
-      
+
       const monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value) || 0;
       const monthlyExpenses = parseFloat(document.getElementById('monthlyExpenses').value) || 0;
       const monthlyRepayments = parseFloat(document.getElementById('monthlyRepayments').value) || 0;
       const cashBuffer = parseFloat(document.getElementById('cashBuffer').value) || 0;
       const totalPropertyValue = parseFloat(document.getElementById('totalPropertyValue').value) || 0;
-      
+
       const lvr = totalPropertyValue > 0 ? (totalDebt / totalPropertyValue) * 100 : 0;
       const netCashFlow = monthlyIncome - monthlyExpenses;
       const dscr = monthlyRepayments > 0 ? netCashFlow / monthlyRepayments : 0;
       const bufferMonths = monthlyRepayments > 0 ? cashBuffer / monthlyRepayments : 0;
-      
+
       reportData = { loans, totalDebt, avgRate, monthlyIncome, monthlyExpenses, monthlyRepayments, cashBuffer, totalPropertyValue, lvr, dscr, bufferMonths };
-      
-      document.getElementById('metricLVR').textContent = lvr.toFixed(1) + '%';
-      document.getElementById('metricDSCR').textContent = dscr.toFixed(2) + 'x';
-      document.getElementById('metricBuffer').textContent = bufferMonths.toFixed(1) + ' mo';
-      document.getElementById('metricExposure').textContent = '$' + (totalDebt / 1000000).toFixed(2) + 'M';
-      
-      const badge = document.getElementById('overallBadge');
-      let score = 'Good', badgeClass = 'badge-green';
-      
-      if (lvr > 80 || dscr < 1.2 || bufferMonths < 3) { score = 'Needs Attention'; badgeClass = 'badge-red'; }
-      else if (lvr > 70 || dscr < 1.5 || bufferMonths < 6) { score = 'Moderate'; badgeClass = 'badge-yellow'; }
-      
-      badge.textContent = score;
-      badge.className = 'result-badge ' + badgeClass;
-      
+
+      // Calculate 0-100 score
+      let lvrScore = lvr <= 50 ? 100 : lvr <= 60 ? 85 : lvr <= 70 ? 70 : lvr <= 80 ? 50 : Math.max(0, 100 - lvr);
+      let dscrScore = dscr >= 2 ? 100 : dscr >= 1.5 ? 85 : dscr >= 1.2 ? 60 : dscr >= 1 ? 40 : Math.max(0, dscr * 40);
+      let bufferScore = bufferMonths >= 12 ? 100 : bufferMonths >= 6 ? 85 : bufferMonths >= 3 ? 55 : Math.max(0, bufferMonths * 18);
+      let rateScore = avgRate <= 5.5 ? 100 : avgRate <= 6.5 ? 80 : avgRate <= 7.5 ? 55 : Math.max(0, 100 - (avgRate - 5) * 10);
+      const overallScore = Math.round(lvrScore * 0.3 + dscrScore * 0.3 + bufferScore * 0.25 + rateScore * 0.15);
+
+      // Animate score
+      document.getElementById('scoreNum').textContent = overallScore;
+      const marker = document.getElementById('scoreMarker');
+      setTimeout(() => { marker.style.left = overallScore + '%'; }, 50);
+
+      // Summary text
+      let summaryText = '';
+      if (overallScore >= 75) summaryText = 'Your financial position looks strong. Keep up the good work and consider optimising where possible.';
+      else if (overallScore >= 50) summaryText = 'Your finances are in reasonable shape, but there are areas that could benefit from a review.';
+      else summaryText = 'There are several areas that need attention. We recommend speaking with a professional for a thorough review.';
+      document.getElementById('scoreSummary').textContent = summaryText;
+
+      // Build insight cards
       const insights = [];
-      
-      if (lvr <= 60) insights.push({ type: 'green', text: `Strong equity position with ${lvr.toFixed(1)}% LVR. Good capacity for future borrowing.` });
-      else if (lvr <= 70) insights.push({ type: 'green', text: `Healthy LVR at ${lvr.toFixed(1)}%. Consider paying down to unlock better rates below 70%.` });
-      else if (lvr <= 80) insights.push({ type: 'yellow', text: `LVR at ${lvr.toFixed(1)}% approaching 80% threshold. Monitor property values.` });
-      else insights.push({ type: 'red', text: `LVR above 80% (${lvr.toFixed(1)}%) increases risk. Prioritize debt reduction.` });
-      
-      if (dscr >= 1.5) insights.push({ type: 'green', text: `Excellent debt serviceability at ${dscr.toFixed(2)}x coverage.` });
-      else if (dscr >= 1.2) insights.push({ type: 'yellow', text: `DSCR of ${dscr.toFixed(2)}x is adequate but leaves limited buffer.` });
-      else insights.push({ type: 'red', text: `DSCR below 1.2x (${dscr.toFixed(2)}x) signals tight cash flow.` });
-      
-      if (bufferMonths >= 6) insights.push({ type: 'green', text: `Strong cash buffer of ${bufferMonths.toFixed(1)} months provides excellent security.` });
-      else if (bufferMonths >= 3) insights.push({ type: 'yellow', text: `Cash buffer of ${bufferMonths.toFixed(1)} months is minimum. Build to 6+ months.` });
-      else insights.push({ type: 'red', text: `Cash buffer under 3 months (${bufferMonths.toFixed(1)} mo) is risky.` });
-      
-      if (avgRate > 7) insights.push({ type: 'yellow', text: `Average rate of ${avgRate.toFixed(2)}% may be above market. Review recommended.` });
-      
-      document.getElementById('insightList').innerHTML = insights.map(i => `
-        <li class="insight-item">
-          <span class="insight-icon ${i.type}">${i.type === 'green' ? '✓' : i.type === 'yellow' ? '!' : '✗'}</span>
-          <span class="insight-text">${i.text}</span>
-        </li>
-      `).join('');
-      
-      document.getElementById('rateInsights').innerHTML = `
-        <p style="margin-bottom: 12px; font-size: 14px; color: var(--text-muted);">
-          Your weighted average rate: <strong style="color: var(--accent-light)">${avgRate.toFixed(2)}%</strong>
-        </p>
-        <p style="font-size: 14px; color: var(--text-muted);">
-          Current market benchmark: <strong>~6.30-6.80%</strong> (varies by LVR and loan type)
-        </p>
-        ${avgRate > 7 ? '<p style="margin-top: 12px; font-size: 14px; color: var(--warning);">⚠️ Consider a rate review - potential savings available.</p>' : ''}
-      `;
-      
+
+      // LVR
+      if (lvr <= 60) insights.push({ type: 'green', icon: '🏠', title: 'Equity Position', text: `Strong equity position with ${lvr.toFixed(1)}% LVR. Good capacity for future borrowing.` });
+      else if (lvr <= 70) insights.push({ type: 'green', icon: '🏠', title: 'Equity Position', text: `Healthy LVR at ${lvr.toFixed(1)}%. Consider paying down to unlock better rates below 70%.` });
+      else if (lvr <= 80) insights.push({ type: 'yellow', icon: '🏠', title: 'Equity Position', text: `LVR at ${lvr.toFixed(1)}% approaching the 80% threshold. Monitor property values and consider additional repayments.` });
+      else insights.push({ type: 'red', icon: '🏠', title: 'Equity Position', text: `LVR above 80% (${lvr.toFixed(1)}%) increases risk exposure. Prioritise debt reduction or consider revaluation of assets.` });
+
+      // DSCR
+      if (dscr >= 1.5) insights.push({ type: 'green', icon: '💰', title: 'Debt Serviceability', text: `Excellent debt serviceability at ${dscr.toFixed(2)}x coverage. Your income comfortably covers your repayments.` });
+      else if (dscr >= 1.2) insights.push({ type: 'yellow', icon: '💰', title: 'Debt Serviceability', text: `DSCR of ${dscr.toFixed(2)}x is adequate but leaves limited buffer. Aim for 1.5x+ for more breathing room.` });
+      else insights.push({ type: 'red', icon: '💰', title: 'Debt Serviceability', text: `DSCR below 1.2x (${dscr.toFixed(2)}x) signals tight cash flow. Review your income streams or reduce debt obligations.` });
+
+      // Buffer
+      if (bufferMonths >= 6) insights.push({ type: 'green', icon: '🛡️', title: 'Cash Buffer', text: `Strong cash buffer of ${bufferMonths.toFixed(1)} months provides excellent security against unexpected events.` });
+      else if (bufferMonths >= 3) insights.push({ type: 'yellow', icon: '🛡️', title: 'Cash Buffer', text: `Cash buffer of ${bufferMonths.toFixed(1)} months is adequate. Building to 6+ months is recommended.` });
+      else insights.push({ type: 'red', icon: '🛡️', title: 'Cash Buffer', text: `Cash buffer under 3 months (${bufferMonths.toFixed(1)} mo) is a risk. Prioritise building your reserves.` });
+
+      // Rates
+      if (avgRate > 7) insights.push({ type: 'yellow', icon: '📊', title: 'Interest Rates', text: `Average rate of ${avgRate.toFixed(2)}% appears above the current market range (~6.30-6.80%). A rate review could unlock savings.` });
+      else if (avgRate > 0) insights.push({ type: 'green', icon: '📊', title: 'Interest Rates', text: `Average rate of ${avgRate.toFixed(2)}% is within market range. Worth a periodic check to stay competitive.` });
+
+      // Exposure
+      if (totalDebt > 0) {
+        const exposureType = totalDebt > 5000000 ? 'yellow' : 'green';
+        insights.push({ type: exposureType, icon: '📋', title: 'Total Exposure', text: `Total loan exposure of $${(totalDebt/1000000).toFixed(2)}M across ${loans.length} facilit${loans.length === 1 ? 'y' : 'ies'}.${totalDebt > 5000000 ? ' Consider portfolio diversification.' : ''}` });
+      }
+
+      // Separate into attention vs good
+      const attention = insights.filter(i => i.type === 'red' || i.type === 'yellow');
+      const good = insights.filter(i => i.type === 'green');
+
+      function renderCards(items) {
+        return items.map(i => `
+          <div class="insight-card" onclick="this.classList.toggle('expanded')">
+            <div class="insight-card-header">
+              <div class="insight-card-accent ${i.type}"></div>
+              <div class="insight-card-icon ${i.type}">${i.icon}</div>
+              <div class="insight-card-title">${i.title}</div>
+              <div class="insight-card-arrow">›</div>
+            </div>
+            <div class="insight-card-body"><p>${i.text}</p></div>
+          </div>
+        `).join('');
+      }
+
+      let attentionHTML = '';
+      if (attention.length > 0) {
+        attentionHTML = `<div class="results-section-title">Areas needing attention</div>${renderCards(attention)}`;
+      }
+      let goodHTML = '';
+      if (good.length > 0) {
+        goodHTML = `<div class="results-section-title">Here's feedback on ${good.length} area${good.length === 1 ? '' : 's'} you're looking good in</div>${renderCards(good)}`;
+      }
+
+      document.getElementById('attentionSection').innerHTML = attentionHTML;
+      document.getElementById('goodSection').innerHTML = goodHTML;
+
       nextStep(4);
     }
 

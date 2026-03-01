@@ -944,24 +944,31 @@
         <p class="step-desc">Ready to share with your banking professional</p>
       </div>
 
-      <div class="result-card">
-        <div class="result-header">
-          <span class="result-title">Recommendation</span>
-          <span class="result-badge badge-blue" id="reviewBadge">Review Suggested</span>
+      <!-- Overall Score -->
+      <div class="score-section">
+        <p class="score-label">Your review readiness score</p>
+        <div class="score-value"><span id="scoreNum">--</span><span>/100</span></div>
+        <div class="score-bar-wrap">
+          <div class="score-bar-bg"></div>
+          <div class="score-bar-marker" id="scoreMarker"></div>
         </div>
-        <div id="summaryContent"></div>
+        <div class="score-bar-labels"><span>Just getting started</span><span>Good timing</span><span>Well prepared</span></div>
+        <p id="scoreSummary" style="font-size:14px;color:var(--text-muted);margin-top:16px;"></p>
       </div>
 
-      <div id="alertsSection" class="hidden"></div>
+      <!-- Insight cards -->
+      <div id="attentionSection"></div>
+      <div id="goodSection"></div>
 
-      <div class="result-card">
+      <!-- Email draft section -->
+      <div class="result-card" style="margin-top: 28px;">
         <div class="result-header">
           <span class="result-title">📧 Draft Email</span>
         </div>
         <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 16px;">
           We've drafted a professional email you can send to request a review. Edit as needed.
         </p>
-        
+
         <div class="email-preview" id="emailPreview">
           <div class="email-preview-header">
             <p><strong>To:</strong> <span id="emailTo">Your Banker/Broker</span></p>
@@ -970,7 +977,7 @@
           <div class="email-preview-body" id="emailBody"></div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" style="margin-top: 20px;">
           <label class="form-label">Your Name (optional, for the PDF report)</label>
           <div class="form-row">
             <input type="text" class="form-input" id="firstName" placeholder="First name">
@@ -1355,17 +1362,17 @@
 
     // ==================== STEP 5: REPORT ====================
     function generateReport() {
-      const industry = document.getElementById('industry').value === 'other' 
-        ? document.getElementById('otherIndustry').value 
+      const industry = document.getElementById('industry').value === 'other'
+        ? document.getElementById('otherIndustry').value
         : document.getElementById('industry').value;
       const yearsInBusiness = document.getElementById('yearsInBusiness').value;
-      
+
       // Get review areas
       const reviewAreas = [];
       document.querySelectorAll('#reviewAreas .checkbox-item.selected').forEach(item => {
         reviewAreas.push(item.dataset.value);
       });
-      
+
       // Determine who to contact
       let contactType = 'banker';
       if (selectedLoanOption === 'quick') {
@@ -1373,31 +1380,142 @@
       } else {
         contactType = document.getElementById('detailedBankingContact').value || 'banker';
       }
-      
+
       // Collect total exposure for report
       let totalExposure = '';
+      let totalExposureNum = 0;
       if (selectedLoanOption === 'quick') {
         const household = document.getElementById('householdDebt').value;
         const business = document.getElementById('businessDebt').value;
         if (household && household !== 'rather-not-say') totalExposure += `Household: ${household}. `;
         if (business && business !== 'rather-not-say') totalExposure += `Business: ${business}.`;
       } else {
-        let total = 0;
         document.querySelectorAll('.loan-balance').forEach(input => {
           const val = input.value.replace(/[^0-9]/g, '');
-          if (val) total += parseInt(val);
+          if (val) totalExposureNum += parseInt(val);
         });
-        if (total > 0) {
-          totalExposure = `Total facilities: $${total.toLocaleString()}`;
-        }
+        if (totalExposureNum > 0) totalExposure = `Total facilities: $${totalExposureNum.toLocaleString()}`;
       }
-      
+
       reportData = { industry, yearsInBusiness, reviewAreas, contactType, totalExposure };
-      
-      generateSummary(reviewAreas, contactType, totalExposure);
-      generateAlerts();
+
+      // === Calculate readiness score ===
+      let score = 50; // base
+
+      // More review areas = better prepared
+      score += Math.min(reviewAreas.length * 8, 25);
+
+      // Time since last review
+      let lastContact = '';
+      if (selectedLoanOption === 'quick') lastContact = document.getElementById('lastContact').value;
+      if (lastContact === '24m+') score -= 10;
+      else if (lastContact === '12-24m') score += 5;
+      else if (lastContact === '6-12m' || lastContact === '<6m') score += 15;
+
+      // If detailed loan entry provided - more data = better prepared
+      if (selectedLoanOption === 'detailed') score += 15;
+
+      // Cash flow shared
+      if (selectedCashFlowOption === 'share') score += 10;
+
+      // Years in business (established = better)
+      const yrs = parseInt(yearsInBusiness) || 0;
+      if (yrs >= 5) score += 10;
+      else if (yrs >= 2) score += 5;
+
+      // Fixed rates expiring = urgent (lower score = needs attention)
+      const today = new Date();
+      const threeMonthsLater = new Date(); threeMonthsLater.setMonth(today.getMonth() + 3);
+      let hasExpiringFixed = false;
+      document.querySelectorAll('.loan-expiry').forEach(input => {
+        if (input.value) {
+          const expiry = new Date(input.value + '-01');
+          if (expiry <= threeMonthsLater) hasExpiringFixed = true;
+        }
+      });
+      if (hasExpiringFixed) score -= 15;
+
+      // Clamp
+      score = Math.max(10, Math.min(score, 100));
+
+      document.getElementById('scoreNum').textContent = score;
+      const marker = document.getElementById('scoreMarker');
+      setTimeout(() => { marker.style.left = score + '%'; }, 50);
+
+      let summaryText = '';
+      if (score >= 70) summaryText = 'You\'re well prepared for a banking review. Your banker or broker will have everything they need to help you.';
+      else if (score >= 45) summaryText = 'Good start! A review is well timed. Sharing more details with your banker can unlock better outcomes.';
+      else summaryText = 'Now\'s a great time to act. Getting a review underway will put you in a stronger position.';
+      document.getElementById('scoreSummary').textContent = summaryText;
+
+      // === Build insight cards ===
+      const insights = [];
+      const areaLabels = {
+        'business-lending': 'Business Lending', 'property': 'Property Loans',
+        'rates': 'Interest Rates', 'structure': 'Loan Structure', 'general': 'General Check-In'
+      };
+
+      if (hasExpiringFixed) {
+        insights.push({ type: 'red', icon: '⏰', title: 'Fixed Rate Expiring Soon', text: 'You have a fixed rate expiring within 3 months. Act now to compare options before reverting to a higher variable rate.' });
+      }
+
+      if (lastContact === '24m+') {
+        insights.push({ type: 'red', icon: '📅', title: 'Overdue for a Review', text: 'It\'s been over 2 years since your last banking review. Markets and products change — you may be missing better rates or structures.' });
+      } else if (lastContact === '12-24m') {
+        insights.push({ type: 'yellow', icon: '📅', title: 'Review Timing', text: 'You\'re approaching the recommended review window. Now is a good time to check in with your banker or broker.' });
+      }
+
+      if (document.getElementById('bankingSplit') && document.getElementById('bankingSplit').value === 'split') {
+        insights.push({ type: 'yellow', icon: '🏦', title: 'Split Banking', text: 'Banking across multiple institutions may mean you\'re missing relationship pricing. Consolidation could unlock better package deals.' });
+      }
+
+      let hasUnsureRate = false;
+      document.querySelectorAll('.loan-rate').forEach(s => { if (s.value === 'not-sure') hasUnsureRate = true; });
+      if (hasUnsureRate) {
+        insights.push({ type: 'yellow', icon: '❓', title: 'Rate Unknown', text: 'You\'re unsure about one or more interest rates. Knowing your rate is the first step to knowing if you\'re competitive.' });
+      }
+
+      // Review areas as green cards
+      reviewAreas.forEach(area => {
+        const areaText = {
+          'business-lending': 'Your business lending facilities will be reviewed. We\'ll look at structure, rate and flexibility.',
+          'property': 'Property loans will be assessed for rate competitiveness and LVR optimisation.',
+          'rates': 'We\'ll benchmark your current rates against market to identify savings opportunities.',
+          'structure': 'Loan structure will be assessed to ensure it still suits your current circumstances.',
+          'general': 'A general health check across all your banking arrangements.'
+        };
+        insights.push({ type: 'green', icon: '✅', title: areaLabels[area] || area, text: areaText[area] || 'This area will be included in your review.' });
+      });
+
+      if (insights.length === 0) {
+        insights.push({ type: 'blue', icon: '💡', title: 'General Review', text: 'A periodic review is always worthwhile — even if nothing seems urgent, there may be opportunities to improve your position.' });
+      }
+
+      const attention = insights.filter(i => i.type === 'red' || i.type === 'yellow');
+      const good = insights.filter(i => i.type === 'green' || i.type === 'blue');
+
+      function renderCards(items) {
+        return items.map(i => `
+          <div class="insight-card" onclick="this.classList.toggle('expanded')">
+            <div class="insight-card-header">
+              <div class="insight-card-accent ${i.type}"></div>
+              <div class="insight-card-icon ${i.type}">${i.icon}</div>
+              <div class="insight-card-title">${i.title}</div>
+              <div class="insight-card-arrow">›</div>
+            </div>
+            <div class="insight-card-body"><p>${i.text}</p></div>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById('attentionSection').innerHTML = attention.length > 0
+        ? `<div class="results-section-title">Areas needing attention</div>${renderCards(attention)}` : '';
+      document.getElementById('goodSection').innerHTML = good.length > 0
+        ? `<div class="results-section-title">What we'll cover in your review</div>${renderCards(good)}` : '';
+
+      // Keep email draft and alerts for PDF
       generateEmailDraft(reviewAreas, contactType);
-      
+
       nextStep(5);
     }
 
