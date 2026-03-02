@@ -562,10 +562,34 @@ async function oneyGateCheck(){
       <div class="section">
         <div class="section-title">Target Lender</div>
         <select id="targetLender" onchange="updatePreview()">
-          <option value="major">Major Bank (NAB, CBA, WBC, ANZ)</option>
-          <option value="second">Second Tier (Macquarie, BOQ, Suncorp)</option>
-          <option value="non-bank">Non-Bank (La Trobe, Thinktank, Liberty)</option>
-          <option value="private">Private / Financer</option>
+          <optgroup label="Major Banks">
+            <option value="major-nab">NAB</option>
+            <option value="major-cba">CBA (CommBank)</option>
+            <option value="major-wbc">Westpac</option>
+            <option value="major-anz">ANZ</option>
+          </optgroup>
+          <optgroup label="Second Tier">
+            <option value="second-macquarie">Macquarie Bank</option>
+            <option value="second-boq">Bank of Queensland (BOQ)</option>
+            <option value="second-suncorp">Suncorp</option>
+            <option value="second-bendigo">Bendigo Bank</option>
+            <option value="second-bankwest">Bankwest</option>
+            <option value="second-amps">AMP Bank</option>
+          </optgroup>
+          <optgroup label="Non-Bank Lenders">
+            <option value="nb-thinktank">Thinktank</option>
+            <option value="nb-latrobe">La Trobe Financial</option>
+            <option value="nb-liberty">Liberty Financial</option>
+            <option value="nb-pepper">Pepper Money</option>
+            <option value="nb-resimac">Resimac</option>
+            <option value="nb-firstmac">Firstmac</option>
+            <option value="nb-mls">MLS / Mortgage House</option>
+          </optgroup>
+          <optgroup label="Private / Specialised">
+            <option value="private-mezzanine">Private Mezzanine</option>
+            <option value="private-bridging">Bridging Finance</option>
+            <option value="private-family">Family / Private Office</option>
+          </optgroup>
         </select>
       </div>
     </div>
@@ -644,10 +668,9 @@ async function oneyGateCheck(){
         </div>
         <div class="form-group" style="margin-top: 8px;">
           <label>Guarantees Offered</label>
-          <div class="row">
-            <input type="text" id="guaranteeIndividual" placeholder="Individual guarantors">
-            <input type="text" id="guaranteeCorporate" placeholder="Corporate guarantors">
-          </div>
+          <div class="hint-box" style="margin-bottom:6px;">Select from entities already entered above. Or type manually below.</div>
+          <div id="guaranteeCheckboxes" style="margin-bottom:8px;"></div>
+          <input type="text" id="guaranteeManual" placeholder="Additional guarantors (manual entry)" oninput="updatePreview()">
         </div>
       </div>
     </div>
@@ -669,6 +692,38 @@ async function oneyGateCheck(){
         <div class="section-title">Character / Management Risk</div>
         <div class="form-group">
           <label>Business Background</label>
+          <div class="row" style="margin-bottom:8px;">
+            <div class="form-group">
+              <label>Industry / Business Type</label>
+              <select id="industryType" onchange="prefillBusinessBackground()">
+                <option value="">— Select Industry —</option>
+                <option value="retail">Retail Trade</option>
+                <option value="hospitality">Hospitality / Food & Beverage</option>
+                <option value="professional">Professional Services (Accounting, Legal, Consulting)</option>
+                <option value="healthcare">Healthcare / Medical / Allied Health</option>
+                <option value="construction">Construction / Trades</option>
+                <option value="industrial">Industrial / Manufacturing / Warehousing</option>
+                <option value="childcare">Childcare / Education</option>
+                <option value="agriculture">Agriculture / Primary Production</option>
+                <option value="transport">Transport & Logistics</option>
+                <option value="development">Property Development</option>
+                <option value="office">Office / Business Park</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Years Trading</label>
+              <select id="yearstrading" onchange="prefillBusinessBackground()">
+                <option value="">— Select —</option>
+                <option value="lt1">Less than 1 year</option>
+                <option value="1to2">1–2 years</option>
+                <option value="2to5">2–5 years</option>
+                <option value="5to10">5–10 years</option>
+                <option value="10plus">10+ years</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn btn-ghost btn-sm" style="margin-bottom:8px;" onclick="prefillBusinessBackground(true)">✨ Generate Draft Narrative</button>
           <textarea id="businessBackground" rows="5"></textarea>
           <div class="hint-box">
             <strong>Consider including:</strong><br>
@@ -683,8 +738,13 @@ async function oneyGateCheck(){
         <div class="chips" id="characterChips">
           <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">Clean credit history</span>
           <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">Experienced management</span>
+          <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">Trading > 5 years</span>
+          <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">Industry specialist / owner-operator</span>
           <span class="chip" data-risk="medium" onclick="toggleRiskChip(this)">First-time borrower</span>
+          <span class="chip" data-risk="medium" onclick="toggleRiskChip(this)">New-to-bank relationship</span>
+          <span class="chip" data-risk="medium" onclick="toggleRiskChip(this)">Change of ownership / restructure</span>
           <span class="chip warning" data-risk="high" onclick="toggleRiskChip(this)">Minor credit issues</span>
+          <span class="chip warning" data-risk="high" onclick="toggleRiskChip(this)">Key person dependency</span>
           <span class="chip danger" data-risk="critical" onclick="toggleRiskChip(this)">Defaults / Bankruptcy</span>
         </div>
       </div>
@@ -700,6 +760,11 @@ async function oneyGateCheck(){
           <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">DSCR ≥1.25x</span>
           <span class="chip" data-risk="medium" onclick="toggleRiskChip(this)">DSCR 1.0x-1.25x</span>
           <span class="chip danger" data-risk="critical" onclick="toggleRiskChip(this)">DSCR &lt;1.0x</span>
+          <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">Rental income (lease in place)</span>
+          <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">Stable trading history (3yrs+)</span>
+          <span class="chip" data-risk="medium" onclick="toggleRiskChip(this)">Mixed/variable income</span>
+          <span class="chip warning" data-risk="high" onclick="toggleRiskChip(this)">Projection-based income</span>
+          <span class="chip warning" data-risk="high" onclick="toggleRiskChip(this)">Single income stream</span>
         </div>
       </div>
       
@@ -712,9 +777,15 @@ async function oneyGateCheck(){
           <span class="chip warning" data-risk="high" onclick="toggleRiskChip(this)">LVR 70-80%</span>
           <span class="chip danger" data-risk="critical" onclick="toggleRiskChip(this)">LVR &gt;80%</span>
           <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">Prime metro location</span>
+          <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">Owner-occupied (low volatility)</span>
+          <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">Multiple securities offered</span>
+          <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">WALE > 3 years</span>
           <span class="chip warning" data-risk="high" onclick="toggleRiskChip(this)">Regional / Secondary</span>
           <span class="chip" data-risk="low" onclick="toggleRiskChip(this)">Strong tenant covenant</span>
+          <span class="chip warning" data-risk="high" onclick="toggleRiskChip(this)">WALE &lt; 1 year</span>
+          <span class="chip warning" data-risk="high" onclick="toggleRiskChip(this)">Specialised use asset</span>
           <span class="chip danger" data-risk="critical" onclick="toggleRiskChip(this)">Vacant property</span>
+          <span class="chip danger" data-risk="critical" onclick="toggleRiskChip(this)">Contamination risk</span>
         </div>
       </div>
       
@@ -864,6 +935,78 @@ const lvrPolicy = {
   private: { retail: 80, office: 80, industrial: 80, residential: 85, mixed: 80, specialised: 70, land: 70, gsa: 0 }
 };
 
+// Resolve lender select value (e.g. "major-nab") to policy category
+function getLenderCategory(val) {
+  if (!val) return 'major';
+  const prefix = val.split('-')[0];
+  if (prefix === 'nb') return 'non-bank';
+  if (['major','second','private'].includes(prefix)) return prefix;
+  // fallback for legacy values
+  if (lvrPolicy[val]) return val;
+  return 'major';
+}
+
+// Industry narrative templates
+const industryTemplates = {
+  retail: "The borrower operates a retail trade business with [YEARS] of trading history. The business is [location-based / online / multi-site] with [owner-operator / management team] structure. Key products include [describe product categories]. Revenue is driven by [foot traffic / online sales / wholesale contracts].",
+  hospitality: "The borrower operates a hospitality / food & beverage business with [YEARS] of trading history. The venue is located at [location] with seating capacity of [X]. The business operates [days per week] and generates revenue from [dine-in / takeaway / catering / events]. Liquor licence is [in place / not applicable].",
+  professional: "The borrower operates a professional services firm with [YEARS] of trading history, providing [accounting / legal / consulting / engineering] services. The firm has [X] principals and [X] staff. Revenue is fee-based with [recurring / project-based] client engagements.",
+  healthcare: "The borrower operates a healthcare / medical practice with [YEARS] of trading history. The practice is [GP / specialist / allied health / dental] providing services to [local community / referred patients]. The practice has [X] practitioners and is [Medicare bulk-billing / private billing / mixed].",
+  construction: "The borrower operates a construction / trades business with [YEARS] of trading history. The business holds [relevant licences] and specialises in [residential / commercial / civil] construction. Current pipeline includes [describe active projects]. Revenue is project-based with typical contract values of $[X].",
+  industrial: "The borrower operates an industrial / manufacturing / warehousing business with [YEARS] of trading history. The operation is based at [location] with [X] sqm of floor space. Key activities include [manufacturing / distribution / storage]. Major customers include [describe client base].",
+  childcare: "The borrower operates a childcare / education centre with [YEARS] of trading history. The centre is licensed for [X] places and currently operates at [X]% occupancy. The centre holds [CCS approval / relevant accreditation] and employs [X] qualified educators.",
+  agriculture: "The borrower operates an agricultural / primary production business with [YEARS] of trading history. The property comprises [X] hectares used for [cropping / livestock / horticulture / mixed farming]. Annual production includes [describe output]. Water entitlements are [describe if applicable].",
+  transport: "The borrower operates a transport & logistics business with [YEARS] of trading history. The fleet comprises [X] vehicles / trucks. Key services include [freight / courier / warehousing / last-mile delivery]. Major contracts include [describe client base].",
+  development: "The borrower is a property developer with [YEARS] of development experience. The proposed development involves [residential / commercial / mixed-use] at [location]. The project comprises [X] lots/units with an estimated GRV of $[X]. DA status: [approved / lodged / pending].",
+  office: "The borrower owns/operates an office / business park property with [YEARS] of ownership history. The property comprises [X] sqm of lettable area with [X] tenants. Current occupancy is [X]% with a WALE of [X] years.",
+  other: "The borrower operates a [describe business] with [YEARS] of trading history. [Provide additional context about the business operations, structure, and key revenue drivers]."
+};
+
+const yearsTradingLabels = {
+  lt1: 'less than 1 year',
+  '1to2': '1–2 years',
+  '2to5': '2–5 years',
+  '5to10': '5–10 years',
+  '10plus': '10+ years'
+};
+
+function prefillBusinessBackground(force) {
+  const industry = document.getElementById('industryType').value;
+  const years = document.getElementById('yearstrading').value;
+  const textarea = document.getElementById('businessBackground');
+  if (!industry) return;
+  if (!force && textarea.value.trim() !== '') return;
+  const template = industryTemplates[industry] || industryTemplates.other;
+  const yearsText = years ? yearsTradingLabels[years] : '[X]';
+  textarea.value = template.replace(/\[YEARS\]/g, yearsText);
+  updatePreview();
+}
+
+// Guarantee checkboxes from entities
+function renderGuaranteeCheckboxes() {
+  const container = document.getElementById('guaranteeCheckboxes');
+  if (!container) return;
+  if (!state.entities.length) { container.innerHTML = '<span style="font-size:10px;color:var(--muted);">No entities yet.</span>'; return; }
+  container.innerHTML = state.entities.filter(e => e.name).map(e => {
+    const isGuarantor = e.role === 'guarantor-individual' || e.role === 'guarantor-corporate';
+    return `<label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text);margin-bottom:4px;cursor:pointer;">
+      <input type="checkbox" class="guarantee-entity-cb" data-entity-id="${e.id}" ${isGuarantor ? 'checked' : ''} onchange="updatePreview()"> ${e.name}
+      <span style="font-size:9px;color:var(--muted);">(${e.role === 'borrower' ? 'Borrower' : e.role === 'guarantor-individual' ? 'Individual G.' : 'Corporate G.'})</span>
+    </label>`;
+  }).join('');
+}
+
+function getGuaranteeNames() {
+  const checked = [];
+  document.querySelectorAll('.guarantee-entity-cb:checked').forEach(cb => {
+    const ent = state.entities.find(e => e.id === parseInt(cb.dataset.entityId));
+    if (ent) checked.push(ent.name);
+  });
+  const manual = (document.getElementById('guaranteeManual')?.value || '').trim();
+  if (manual) checked.push(manual);
+  return checked;
+}
+
 const txnLabels = {
   'acquisition': 'Commercial Property Acquisition',
   'refinance': 'Commercial Refinance',
@@ -882,6 +1025,7 @@ document.addEventListener('DOMContentLoaded', () => {
   addEntity();
   addSecurity();
   addServicingEntity();
+  renderGuaranteeCheckboxes();
   updatePreview();
 });
 
@@ -943,8 +1087,9 @@ function toggleHousehold(show) {
 function addEntity() {
   state.entities.push({ id: Date.now(), name: '', type: 'company', role: 'borrower', abn: '' });
   renderEntities();
+  renderGuaranteeCheckboxes();
 }
-function removeEntity(id) { state.entities = state.entities.filter(e => e.id !== id); renderEntities(); renderFacilityGroups(); updatePreview(); }
+function removeEntity(id) { state.entities = state.entities.filter(e => e.id !== id); renderEntities(); renderFacilityGroups(); renderGuaranteeCheckboxes(); updatePreview(); }
 function renderEntities() {
   document.getElementById('entitiesContainer').innerHTML = state.entities.map((e, i) => `
     <div class="item-card">
@@ -979,6 +1124,7 @@ function updateEntity(id, key, value) {
   if (e) e[key] = value;
   renderEntities();
   renderFacilityGroups();
+  renderGuaranteeCheckboxes();
   updatePreview();
 }
 
@@ -1238,7 +1384,8 @@ function updateRiskAssessment() {
 
 // UPDATE PREVIEW
 function updatePreview() {
-  const lender = document.getElementById('targetLender').value;
+  const lenderRaw = document.getElementById('targetLender').value;
+  const lender = getLenderCategory(lenderRaw);
   let txnLabel = txnLabels[state.txnType] || 'Commercial Finance';
   if (state.txnType === 'refinance' && state.txnSubType) txnLabel = txnLabels['refinance-' + state.txnSubType] || txnLabel;
   if (state.txnType === 'working-capital' && state.txnSubType) txnLabel = txnLabels['working-capital-' + state.txnSubType] || txnLabel;
@@ -1247,9 +1394,9 @@ function updatePreview() {
   
   // Parties
   const borrowers = state.entities.filter(e => e.role === 'borrower' && e.name);
-  const guarantors = state.entities.filter(e => e.role !== 'borrower' && e.name);
   document.getElementById('sumBorrower').textContent = borrowers.map(b => b.name).join(', ') || '—';
-  document.getElementById('sumGuarantor').textContent = guarantors.map(g => g.name).join(', ') || '—';
+  const guaranteeNames = getGuaranteeNames();
+  document.getElementById('sumGuarantor').textContent = guaranteeNames.length ? guaranteeNames.join(', ') : '—';
   
   const partiesBody = document.getElementById('partiesTableBody');
   if (state.entities.some(e => e.name)) {
@@ -1388,7 +1535,8 @@ function updatePreview() {
   document.getElementById('sumRisk').innerHTML = `<span class="risk-badge risk-${overallRisk}">${riskLabels[overallRisk]}</span>`;
   
   // Risk narratives
-  const charRisks = state.riskFactors.filter(r => ['Clean credit history','Experienced management','First-time borrower','Minor credit issues','Defaults / Bankruptcy'].includes(r.text));
+  const charRiskTexts = ['Clean credit history','Experienced management','Trading > 5 years','Industry specialist / owner-operator','First-time borrower','New-to-bank relationship','Change of ownership / restructure','Minor credit issues','Key person dependency','Defaults / Bankruptcy'];
+  const charRisks = state.riskFactors.filter(r => charRiskTexts.includes(r.text));
   const charLevel = charRisks.some(r => r.risk === 'critical') ? 'critical' : charRisks.some(r => r.risk === 'high') ? 'high' : charRisks.some(r => r.risk === 'medium') ? 'medium' : 'low';
   document.getElementById('riskCharBadge').className = `risk-badge risk-${charLevel}`;
   document.getElementById('riskCharBadge').textContent = riskLabels[charLevel];
@@ -1398,7 +1546,8 @@ function updatePreview() {
     ? `<p>${bgText.replace(/\n/g, '</p><p>')}</p>` + (charRisks.length ? `<p><em>Assessment: ${charRisks.map(r => r.text).join(', ')}</em></p>` : '')
     : '<p>—</p>';
   
-  const capRisks = state.riskFactors.filter(r => r.text.includes('ICR') || r.text.includes('DSCR'));
+  const capRiskTexts = ['Rental income (lease in place)','Stable trading history (3yrs+)','Mixed/variable income','Projection-based income','Single income stream'];
+  const capRisks = state.riskFactors.filter(r => r.text.includes('ICR') || r.text.includes('DSCR') || capRiskTexts.includes(r.text));
   const capLevel = capRisks.some(r => r.risk === 'critical') ? 'critical' : capRisks.some(r => r.risk === 'high') ? 'high' : capRisks.some(r => r.risk === 'medium') ? 'medium' : 'low';
   document.getElementById('riskCapBadge').className = `risk-badge risk-${capLevel}`;
   document.getElementById('riskCapBadge').textContent = riskLabels[capLevel];
@@ -1414,7 +1563,8 @@ function updatePreview() {
   capNarr += '</ul>';
   document.getElementById('narrativeCapacity').innerHTML = capNarr !== '<ul></ul>' ? capNarr : '<p>—</p>';
   
-  const colRisks = state.riskFactors.filter(r => r.text.includes('LVR') || ['Prime metro location','Regional / Secondary','Strong tenant covenant','Vacant property'].includes(r.text));
+  const colRiskTexts = ['Prime metro location','Owner-occupied (low volatility)','Multiple securities offered','WALE > 3 years','Regional / Secondary','Strong tenant covenant','WALE < 1 year','Specialised use asset','Vacant property','Contamination risk'];
+  const colRisks = state.riskFactors.filter(r => r.text.includes('LVR') || colRiskTexts.includes(r.text));
   const colLevel = lvr > minMaxLVR ? 'critical' : colRisks.some(r => r.risk === 'critical') ? 'critical' : colRisks.some(r => r.risk === 'high') ? 'high' : colRisks.some(r => r.risk === 'medium') ? 'medium' : 'low';
   document.getElementById('riskColBadge').className = `risk-badge risk-${colLevel}`;
   document.getElementById('riskColBadge').textContent = riskLabels[colLevel];
@@ -1429,18 +1579,19 @@ function updatePreview() {
   });
   const secStruct = Array.from(document.querySelectorAll('#secStructureChips .chip.active')).map(c => c.textContent);
   if (secStruct.length) colNarr += `<li>Structure: ${secStruct.join(', ')}</li>`;
-  const guaInd = document.getElementById('guaranteeIndividual').value;
-  const guaCorp = document.getElementById('guaranteeCorporate').value;
-  if (guaInd) colNarr += `<li>Individual guarantees: ${guaInd}</li>`;
-  if (guaCorp) colNarr += `<li>Corporate guarantees: ${guaCorp}</li>`;
+  const guaNames = getGuaranteeNames();
+  if (guaNames.length) colNarr += `<li>Guarantees: ${guaNames.join(', ')}</li>`;
   colNarr += '</ul>';
   document.getElementById('narrativeCollateral').innerHTML = colNarr !== '<ul></ul>' ? colNarr : '<p>—</p>';
   
   // Recommendation
   const lenderLabels = { major: 'Major Bank', second: 'Second Tier Lender', 'non-bank': 'Non-Bank Lender', private: 'Private Lender' };
+  // Use the specific lender name from the dropdown if available
+  const lenderSelect = document.getElementById('targetLender');
+  const specificLenderName = lenderSelect.selectedOptions[0]?.textContent || lenderLabels[lender];
   let recList = [];
   if (overallRisk === 'low' || overallRisk === 'medium') {
-    recList.push(`Transaction suitable for submission to <strong>${lenderLabels[lender]}</strong>`);
+    recList.push(`Transaction suitable for submission to <strong>${specificLenderName}</strong>`);
   } else if (overallRisk === 'high') {
     recList.push(`Elevated risk factors identified — consider <strong>Non-Bank</strong> or negotiate mitigants`);
   } else {
@@ -1474,7 +1625,8 @@ function updatePreview() {
           txnType: state.txnType,
           txnSubType: state.txnSubType,
           txnLabel: txnLabels[state.txnSubType || state.txnType] || state.txnType,
-          targetLender: document.getElementById('targetLender').value,
+          targetLender: lenderRaw,
+          targetLenderCategory: lender,
           entities: state.entities.map(e => ({ name: e.name, role: e.role, entityType: e.entityType })),
           facilityGroups: state.facilityGroups.map(g => ({
             lender: g.lender,
@@ -1526,8 +1678,10 @@ function saveDraft() {
     householdPosition: document.getElementById('householdPosition')?.value || '',
     securityLinkageProposal: document.getElementById('securityLinkageProposal')?.value || '',
     businessBackground: document.getElementById('businessBackground').value,
-    guaranteeIndividual: document.getElementById('guaranteeIndividual').value,
-    guaranteeCorporate: document.getElementById('guaranteeCorporate').value,
+    industryType: document.getElementById('industryType').value,
+    yearstrading: document.getElementById('yearstrading').value,
+    guaranteeManual: document.getElementById('guaranteeManual')?.value || '',
+    guaranteeCheckedIds: Array.from(document.querySelectorAll('.guarantee-entity-cb:checked')).map(cb => parseInt(cb.dataset.entityId)),
     presenterName: document.getElementById('presenterName').value,
     presenterCompany: document.getElementById('presenterCompany').value,
     presenterPhone: document.getElementById('presenterPhone').value,
@@ -1542,15 +1696,16 @@ function loadDraft() {
   if (!data) { alert('No draft found.'); return; }
   Object.assign(state, { txnType: data.txnType, txnSubType: data.txnSubType, entities: data.entities || [], facilityGroups: data.facilityGroups || [], securities: data.securities || [], tenants: data.tenants || [], servicingEntities: data.servicingEntities || [], riskFactors: data.riskFactors || [], dealBreakers: data.dealBreakers || [], showHousehold: data.showHousehold || false });
   
-  document.getElementById('targetLender').value = data.targetLender || 'major';
+  document.getElementById('targetLender').value = data.targetLender || 'major-nab';
   document.getElementById('overallSurplus').value = data.overallSurplus || '';
   document.getElementById('overallICR').value = data.overallICR || '';
   document.getElementById('overallDSCR').value = data.overallDSCR || '';
   if (document.getElementById('householdPosition')) document.getElementById('householdPosition').value = data.householdPosition || '';
   if (document.getElementById('securityLinkageProposal')) document.getElementById('securityLinkageProposal').value = data.securityLinkageProposal || '';
   document.getElementById('businessBackground').value = data.businessBackground || '';
-  document.getElementById('guaranteeIndividual').value = data.guaranteeIndividual || '';
-  document.getElementById('guaranteeCorporate').value = data.guaranteeCorporate || '';
+  if (data.industryType) document.getElementById('industryType').value = data.industryType;
+  if (data.yearstrading) document.getElementById('yearstrading').value = data.yearstrading;
+  document.getElementById('guaranteeManual').value = data.guaranteeManual || '';
   document.getElementById('presenterName').value = data.presenterName || '';
   document.getElementById('presenterCompany').value = data.presenterCompany || '';
   document.getElementById('presenterPhone').value = data.presenterPhone || '';
@@ -1564,6 +1719,13 @@ function loadDraft() {
   renderSecurities();
   renderServicingEntities();
   renderTenants();
+  renderGuaranteeCheckboxes();
+  // Restore guarantee checkbox state from saved data
+  if (data.guaranteeCheckedIds) {
+    document.querySelectorAll('.guarantee-entity-cb').forEach(cb => {
+      cb.checked = data.guaranteeCheckedIds.includes(parseInt(cb.dataset.entityId));
+    });
+  }
   updatePreview();
   alert('✅ Draft loaded!');
 }
