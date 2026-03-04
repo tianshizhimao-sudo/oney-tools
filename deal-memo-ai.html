@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deal Memo AI — Oney & Co</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1A1A2E;
+    --card: #252540;
+    --border: #3D3D5C;
+    --green: #2ECC85;
+    --green2: #1FAD73;
+    --purple: #6B4C9A;
+    --purple2: #9B59B6;
+    --muted: #a3a3b8;
+    --text: #e8e8f0;
+    --danger: #e74c3c;
+    --warning: #f39c12;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo svg { height: 38px; width: auto; }
+
+  header h1 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-left: 16px;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 12px; }
+
+  .gear-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.2s;
+  }
+  .gear-btn:hover { border-color: var(--green); color: var(--green); }
+
+  /* MAIN */
+  main { max-width: 900px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  /* SETTINGS PANEL */
+  #settings-panel {
+    display: none;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  #settings-panel.open { display: block; }
+  #settings-panel h3 { font-size: 14px; font-weight: 600; margin-bottom: 16px; color: var(--green); }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--green);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* FORM GRID */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-grid.full { grid-template-columns: 1fr; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.span2 { grid-column: span 2; }
+  .field.span3 { grid-column: span 3; }
+
+  label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  input, select, textarea {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    padding: 10px 14px;
+    font-family: inherit;
+    font-size: 14px;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--green);
+  }
+  input[type="password"] { letter-spacing: 0.1em; }
+  textarea { resize: vertical; min-height: 80px; }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a3a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+
+  /* AUTO-CALC FIELDS */
+  .calc-field {
+    background: rgba(46, 204, 133, 0.08);
+    border: 1px solid rgba(46, 204, 133, 0.3);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--green);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+  }
+  .calc-field .pass { color: var(--green); }
+  .calc-field .fail { color: var(--danger); }
+  .calc-field .warn { color: var(--warning); }
+
+  /* BUTTONS */
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--green), var(--green2));
+    color: #0a1a12;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 32px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 24px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--muted); color: var(--text); }
+
+  .btn-icon {
+    background: var(--card);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-icon:hover { border-color: var(--green); color: var(--green); }
+
+  /* LOADING */
+  #loading {
+    display: none;
+    text-align: center;
+    padding: 40px;
+    color: var(--muted);
+  }
+  #loading.show { display: block; }
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ERROR */
+  .error-box {
+    background: rgba(231, 76, 60, 0.1);
+    border: 1px solid rgba(231, 76, 60, 0.4);
+    border-radius: 8px;
+    padding: 16px;
+    color: #ff6b6b;
+    margin-top: 16px;
+    display: none;
+  }
+
+  /* OUTPUT */
+  #output-section { display: none; }
+  #output-section.show { display: block; }
+
+  .output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .ref-badge {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: monospace;
+  }
+
+  /* MEMO RENDERED OUTPUT */
+  #memo-content {
+    background: #ffffff;
+    color: #1a1a2e;
+    border-radius: 10px;
+    padding: 40px;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.7;
+  }
+
+  #memo-content h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; color: #1a1a2e; }
+  #memo-content .memo-meta { font-size: 12px; color: #666; margin-bottom: 24px; border-bottom: 2px solid #2ECC85; padding-bottom: 16px; }
+  #memo-content h2 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #2ECC85; margin: 24px 0 10px; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; }
+  #memo-content p { margin-bottom: 10px; color: #333; font-size: 14px; }
+  #memo-content ul { padding-left: 20px; margin-bottom: 10px; }
+  #memo-content li { color: #333; font-size: 14px; margin-bottom: 4px; }
+  #memo-content strong { color: #1a1a2e; }
+  #memo-content .watermark { font-size: 11px; color: #aaa; text-align: center; margin-top: 32px; border-top: 1px solid #e0e0e0; padding-top: 12px; }
+
+  /* PRINT */
+  @media print {
+    header, #settings-panel, #form-section, .output-header .btn-row, .btn-row, .gear-btn { display: none !important; }
+    body { background: white; color: black; }
+    main { max-width: 100%; padding: 0; margin: 0; }
+    #output-section { display: block !important; }
+    #memo-content { box-shadow: none; border: none; padding: 20px; }
+    .print-header { display: block !important; }
+  }
+
+  .print-header {
+    display: none;
+    font-size: 11px;
+    color: #666;
+    text-align: right;
+    margin-bottom: 8px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 90">
+        <defs>
+          <linearGradient id="fg" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" style="stop-color:#1FAD73"/>
+            <stop offset="55%" style="stop-color:#2ECC85"/>
+            <stop offset="55%" style="stop-color:transparent"/>
+            <stop offset="100%" style="stop-color:transparent"/>
+          </linearGradient>
+          <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#2ECC85"/>
+            <stop offset="100%" style="stop-color:#1FAD73"/>
+          </linearGradient>
+        </defs>
+        <g transform="translate(40,45)">
+          <circle cx="0" cy="0" r="32" fill="none" stroke="url(#sg)" stroke-width="7"/>
+          <circle cx="0" cy="0" r="24" fill="url(#fg)"/>
+        </g>
+        <text x="82" y="52" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">ney</text>
+        <text x="129" y="52" font-family="Inter,system-ui,sans-serif" font-size="21" font-weight="500" fill="url(#sg)">&amp;</text>
+        <text x="148" y="52" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">co</text>
+        <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
+      </svg>
+    </div>
+    <h1>Deal Memo AI</h1>
+  </div>
+  <button class="gear-btn" onclick="toggleSettings()" title="Settings">⚙️ Settings</button>
+</header>
+
+<main>
+
+  <!-- SETTINGS -->
+  <div id="settings-panel">
+    <h3>⚙️ Settings</h3>
+    <div class="form-grid three">
+      <div class="field">
+        <label>AI Provider</label>
+        <select id="ai-provider" onchange="saveSettings();updateProviderUI()">
+          <option value="anthropic">Anthropic (Claude)</option>
+          <option value="openai">OpenAI (GPT)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Model</label>
+        <select id="ai-model" onchange="saveSettings()">
+          <option value="claude-sonnet-4-5">Claude Sonnet 4.5</option>
+          <option value="claude-opus-4-6">Claude Opus 4.6</option>
+          <option value="gpt-4o">GPT-4o</option>
+          <option value="gpt-4o-mini">GPT-4o mini (fast)</option>
+          <option value="o3">o3</option>
+        </select>
+      </div>
+      <div class="field" style="display:flex;align-items:flex-end;">
+        <button class="btn-icon" onclick="testApiKey()">🔌 Test Connection</button>
+      </div>
+      <div class="field span3">
+        <label id="key-label">API Key</label>
+        <input type="password" id="api-key" placeholder="sk-ant-... or sk-..." oninput="saveSettings()">
+      </div>
+      <div class="field">
+        <label>Memo Style</label>
+        <select id="memo-style" onchange="saveSettings()">
+          <option value="standard">Standard Bank Format</option>
+          <option value="concise">Concise Summary</option>
+          <option value="detailed">Detailed Analysis</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tone</label>
+        <select id="tone" onchange="saveSettings()">
+          <option value="professional">Professional</option>
+          <option value="conservative">Conservative</option>
+          <option value="assertive">Assertive</option>
+        </select>
+      </div>
+    </div>
+    <div id="api-status" style="margin-top:12px;font-size:13px;color:var(--muted);"></div>
+  </div>
+
+  <!-- FORM -->
+  <div id="form-section">
+
+    <!-- Section 1: Borrower -->
+    <div class="card">
+      <div class="card-title">👤 Section 1 — Borrower Details</div>
+      <div class="form-grid">
+        <div class="field span2">
+          <label>Entity Name *</label>
+          <input type="text" id="entity-name" placeholder="e.g. Acme Pty Ltd">
+        </div>
+        <div class="field">
+          <label>Entity Type *</label>
+          <select id="entity-type">
+            <option value="">Select...</option>
+            <option>Individual</option>
+            <option>Company</option>
+            <option>Trust</option>
+            <option>Partnership</option>
+            <option>SMSF</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>ABN / ACN</label>
+          <input type="text" id="abn" placeholder="12 345 678 901">
+        </div>
+        <div class="field">
+          <label>Industry</label>
+          <input type="text" id="industry" placeholder="e.g. Retail, Construction, Healthcare">
+        </div>
+        <div class="field">
+          <label>Years in Business</label>
+          <input type="number" id="years-biz" placeholder="e.g. 8" min="0">
+        </div>
+        <div class="field span2">
+          <label>Primary Contact</label>
+          <input type="text" id="contact" placeholder="Full name / Director name">
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Loan -->
+    <div class="card">
+      <div class="card-title">💰 Section 2 — Loan Request</div>
+      <div class="form-grid three">
+        <div class="field">
+          <label>Loan Purpose *</label>
+          <select id="loan-purpose">
+            <option value="">Select...</option>
+            <option>Purchase</option>
+            <option>Refinance</option>
+            <option>Construction</option>
+            <option>Working Capital</option>
+            <option>Asset Finance</option>
+            <option>Debt Consolidation</option>
+            <option>Equity Release</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Loan Amount ($) *</label>
+          <input type="number" id="loan-amount" placeholder="e.g. 850000" oninput="calcAll()">
+        </div>
+        <div class="field">
+          <label>Loan Term (years)</label>
+          <input type="number" id="loan-term" placeholder="e.g. 25" min="1" max="40" oninput="calcAll()">
+        </div>
+        <div class="field">
+          <label>Loan Type</label>
+          <select id="loan-type">
+            <option>P&amp;I</option>
+            <option>Interest Only</option>
+            <option>Line of Credit</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Proposed Rate (%)</label>
+          <input type="number" id="rate" placeholder="e.g. 5.89" step="0.01" min="0" max="30" oninput="calcAll()">
+        </div>
+        <div class="field">
+          <label>Lender (optional)</label>
+          <input type="text" id="lender" placeholder="e.g. NAB, CBA, Westpac">
+        </div>
+      </div>
+      <div class="form-grid three" style="margin-top:16px;">
+        <div class="field">
+          <label>⚡ Monthly Repayment</label>
+          <div class="calc-field" id="calc-repayment">—</div>
+        </div>
+        <div class="field span2">
+          <label>Annual Debt Service</label>
+          <div class="calc-field" id="calc-annual-debt">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Security -->
+    <div class="card">
+      <div class="card-title">🏠 Section 3 — Security</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Security Type *</label>
+          <select id="security-type">
+            <option value="">Select...</option>
+            <option>Residential</option>
+            <option>Commercial</option>
+            <option>Industrial</option>
+            <option>Rural</option>
+            <option>Vacant Land</option>
+            <option>Unsecured</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Estimated Value ($)</label>
+          <input type="number" id="security-value" placeholder="e.g. 1200000" oninput="calcAll()">
+        </div>
+        <div class="field span2">
+          <label>Security Address</label>
+          <input type="text" id="security-address" placeholder="123 Example St, Suburb, NSW 2000">
+        </div>
+        <div class="field">
+          <label>Existing Mortgage ($)</label>
+          <input type="number" id="existing-mortgage" placeholder="0" oninput="calcAll()">
+        </div>
+        <div class="field">
+          <label>⚡ LVR</label>
+          <div class="calc-field" id="calc-lvr">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: Financials -->
+    <div class="card">
+      <div class="card-title">📊 Section 4 — Financials</div>
+      <div class="form-grid">
+        <div class="field">
+          <label>Annual Revenue ($) *</label>
+          <input type="number" id="revenue" placeholder="e.g. 2500000" oninput="calcAll()">
+        </div>
+        <div class="field">
+          <label>Net Profit / EBITDA ($) *</label>
+          <input type="number" id="ebitda" placeholder="e.g. 420000" oninput="calcAll()">
+        </div>
+        <div class="field">
+          <label>Total Existing Debt ($)</label>
+          <input type="number" id="existing-debt" placeholder="0" oninput="calcAll()">
+        </div>
+        <div class="field">
+          <label>⚡ DSC Ratio (EBITDA ÷ Annual Debt Service)</label>
+          <div class="calc-field" id="calc-dsc">—</div>
+        </div>
+        <div class="field span2">
+          <label>Additional Notes</label>
+          <textarea id="notes" placeholder="e.g. Client has strong cash reserves of $350k, Loan reduces existing rate by 1.2%, Owner-occupied premises..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="btn-row">
+      <button class="btn-primary" id="generate-btn" onclick="generateMemo()">
+        ✨ Generate Credit Memo
+      </button>
+      <button class="btn-secondary" onclick="clearForm()">🗑 Clear Form</button>
+      <button class="btn-secondary" onclick="loadSample()">📋 Load Sample Deal</button>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>Generating credit memo...</p>
+      <p style="font-size:12px;margin-top:8px;color:var(--muted)">Claude is writing your submission memo. Usually takes 15–30 seconds.</p>
+    </div>
+
+    <div class="error-box" id="error-box"></div>
+
+  </div><!-- /form-section -->
+
+  <!-- OUTPUT -->
+  <div id="output-section">
+    <div class="output-header">
+      <div>
+        <div style="font-size:16px;font-weight:600;margin-bottom:4px;">✅ Credit Memo Generated</div>
+        <div class="ref-badge" id="ref-display"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-icon" onclick="copyMemo()">📋 Copy Text</button>
+        <button class="btn-icon" onclick="window.print()">🖨 Print / PDF</button>
+        <button class="btn-icon" onclick="resetToForm()">← New Memo</button>
+      </div>
+    </div>
+
+    <div class="print-header" id="print-header"></div>
+
+    <div id="memo-content"></div>
+  </div>
+
+</main>
+
+<script>
+// ─── SETTINGS ──────────────────────────────────────────────────────────
+function toggleSettings() {
+  document.getElementById('settings-panel').classList.toggle('open');
+}
+function saveSettings() {
+  localStorage.setItem('dealmemo_apikey', document.getElementById('api-key').value);
+  localStorage.setItem('dealmemo_style', document.getElementById('memo-style').value);
+  localStorage.setItem('dealmemo_tone', document.getElementById('tone').value);
+  localStorage.setItem('dealmemo_provider', document.getElementById('ai-provider').value);
+  localStorage.setItem('dealmemo_model', document.getElementById('ai-model').value);
+}
+function loadSettings() {
+  document.getElementById('api-key').value = localStorage.getItem('dealmemo_apikey') || '';
+  document.getElementById('memo-style').value = localStorage.getItem('dealmemo_style') || 'standard';
+  document.getElementById('tone').value = localStorage.getItem('dealmemo_tone') || 'professional';
+  document.getElementById('ai-provider').value = localStorage.getItem('dealmemo_provider') || 'anthropic';
+  document.getElementById('ai-model').value = localStorage.getItem('dealmemo_model') || 'claude-sonnet-4-5';
+  updateProviderUI();
+}
+function updateProviderUI() {
+  const provider = document.getElementById('ai-provider').value;
+  const modelEl = document.getElementById('ai-model');
+  const keyLabel = document.getElementById('key-label');
+  const keyInput = document.getElementById('api-key');
+  if (provider === 'openai') {
+    keyLabel.textContent = 'OpenAI API Key';
+    keyInput.placeholder = 'sk-...';
+    // Only show OpenAI models
+    [...modelEl.options].forEach(o => {
+      o.hidden = !['gpt-4o','gpt-4o-mini','o3'].includes(o.value);
+    });
+    if (!['gpt-4o','gpt-4o-mini','o3'].includes(modelEl.value)) modelEl.value = 'gpt-4o';
+  } else {
+    keyLabel.textContent = 'Anthropic API Key';
+    keyInput.placeholder = 'sk-ant-...';
+    [...modelEl.options].forEach(o => {
+      o.hidden = !['claude-sonnet-4-5','claude-opus-4-6'].includes(o.value);
+    });
+    if (!['claude-sonnet-4-5','claude-opus-4-6'].includes(modelEl.value)) modelEl.value = 'claude-sonnet-4-5';
+  }
+}
+
+// ─── UNIFIED AI CALL ───────────────────────────────────────────────────
+async function callAI(systemPrompt, userMessage) {
+  const key = localStorage.getItem('dealmemo_apikey') || document.getElementById('api-key').value;
+  const provider = localStorage.getItem('dealmemo_provider') || 'anthropic';
+  const model = localStorage.getItem('dealmemo_model') || 'claude-sonnet-4-5';
+  if (!key) throw new Error('No API key. Open ⚙️ Settings and enter your key.');
+
+  if (provider === 'openai') {
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, max_tokens: 2048, messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMessage }] })
+    });
+    if (!r.ok) { const e = await r.json(); throw new Error(e.error?.message || r.status); }
+    const d = await r.json();
+    return d.choices[0].message.content;
+  } else {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model, max_tokens: 2048, system: systemPrompt, messages: [{ role: 'user', content: userMessage }] })
+    });
+    if (!r.ok) { const e = await r.json(); throw new Error(e.error?.message || r.status); }
+    const d = await r.json();
+    return d.content[0].text;
+  }
+}
+
+async function testApiKey() {
+  const key = document.getElementById('api-key').value.trim();
+  const provider = document.getElementById('ai-provider').value;
+  const status = document.getElementById('api-status');
+  if (!key) { status.innerHTML = '⚠️ Enter an API key first'; return; }
+  status.innerHTML = '⏳ Testing...';
+  try {
+    let r;
+    if (provider === 'openai') {
+      r = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST', headers: { 'Authorization': `Bearer ${key}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'gpt-4o-mini', max_tokens: 5, messages: [{ role: 'user', content: 'Hi' }] })
+      });
+    } else {
+      r = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST', headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+        body: JSON.stringify({ model: 'claude-haiku-4-5', max_tokens: 5, messages: [{ role: 'user', content: 'Hi' }] })
+      });
+    }
+    if (r.ok) status.innerHTML = `✅ ${provider === 'openai' ? 'OpenAI' : 'Claude'} connected!`;
+    else { const e = await r.json(); status.innerHTML = `❌ ${e.error?.message || r.status}`; }
+  } catch(e) { status.innerHTML = `❌ ${e.message}`; }
+}
+
+// ─── AUTO CALC ─────────────────────────────────────────────────────────
+function fmtCurrency(n) {
+  if (!n || isNaN(n)) return null;
+  return '$' + Number(n).toLocaleString('en-AU', { maximumFractionDigits: 0 });
+}
+function calcAll() {
+  const loanAmt = parseFloat(document.getElementById('loan-amount').value) || 0;
+  const rate = parseFloat(document.getElementById('rate').value) || 0;
+  const termYrs = parseFloat(document.getElementById('loan-term').value) || 0;
+  const secVal = parseFloat(document.getElementById('security-value').value) || 0;
+  const existMort = parseFloat(document.getElementById('existing-mortgage').value) || 0;
+  const ebitda = parseFloat(document.getElementById('ebitda').value) || 0;
+  const loanType = document.getElementById('loan-type').value;
+
+  // Monthly repayment
+  let monthly = 0;
+  if (loanAmt > 0 && rate > 0 && termYrs > 0) {
+    if (loanType === 'Interest Only' || loanType === 'Line of Credit') {
+      monthly = loanAmt * (rate / 100 / 12);
+    } else {
+      const r = rate / 100 / 12;
+      const n = termYrs * 12;
+      monthly = loanAmt * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    }
+  }
+  const annualDebt = monthly * 12;
+
+  const repEl = document.getElementById('calc-repayment');
+  repEl.textContent = monthly > 0 ? (fmtCurrency(monthly) + '/mo') : '—';
+
+  const annEl = document.getElementById('calc-annual-debt');
+  annEl.textContent = annualDebt > 0 ? (fmtCurrency(annualDebt) + '/yr') : '—';
+
+  // LVR
+  const lvrEl = document.getElementById('calc-lvr');
+  if (secVal > 0 && loanAmt > 0) {
+    const lvr = ((loanAmt + existMort) / secVal * 100).toFixed(1);
+    lvrEl.innerHTML = `<span class="${lvr <= 70 ? 'pass' : lvr <= 80 ? 'warn' : 'fail'}">${lvr}%</span>`;
+  } else { lvrEl.textContent = '—'; }
+
+  // DSC
+  const dscEl = document.getElementById('calc-dsc');
+  if (ebitda > 0 && annualDebt > 0) {
+    const dsc = (ebitda / annualDebt).toFixed(2);
+    const cls = dsc >= 1.5 ? 'pass' : dsc >= 1.2 ? 'warn' : 'fail';
+    const label = dsc >= 1.5 ? '✅ PASS' : dsc >= 1.2 ? '⚠️ MARGINAL' : '❌ FAIL';
+    dscEl.innerHTML = `<span class="${cls}">${dsc}x ${label}</span>`;
+  } else { dscEl.textContent = '—'; }
+}
+
+// ─── GENERATE ──────────────────────────────────────────────────────────
+function getVal(id) { return document.getElementById(id)?.value?.trim() || ''; }
+function getNum(id) { const v = parseFloat(document.getElementById(id)?.value); return isNaN(v) ? 0 : v; }
+
+function buildUserMessage() {
+  const loanAmt = getNum('loan-amount');
+  const rate = getNum('rate');
+  const termYrs = getNum('loan-term');
+  const secVal = getNum('security-value');
+  const existMort = getNum('existing-mortgage');
+  const ebitda = getNum('ebitda');
+  const revenue = getNum('revenue');
+  const loanType = getVal('loan-type');
+
+  let monthly = 0;
+  if (loanAmt > 0 && rate > 0 && termYrs > 0) {
+    if (loanType === 'Interest Only' || loanType === 'Line of Credit') {
+      monthly = loanAmt * (rate / 100 / 12);
+    } else {
+      const r = rate / 100 / 12, n = termYrs * 12;
+      monthly = loanAmt * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+    }
+  }
+  const annualDebt = monthly * 12;
+  const lvr = secVal > 0 ? ((loanAmt + existMort) / secVal * 100).toFixed(1) : null;
+  const dsc = ebitda > 0 && annualDebt > 0 ? (ebitda / annualDebt).toFixed(2) : null;
+
+  return `DEAL DETAILS FOR CREDIT MEMO:
+
+BORROWER
+- Entity Name: ${getVal('entity-name') || 'Not provided'}
+- Entity Type: ${getVal('entity-type') || 'Not specified'}
+- ABN/ACN: ${getVal('abn') || 'Not provided'}
+- Industry: ${getVal('industry') || 'Not specified'}
+- Years in Business: ${getNum('years-biz') || 'Not specified'}
+- Primary Contact/Director: ${getVal('contact') || 'Not specified'}
+
+LOAN REQUEST
+- Purpose: ${getVal('loan-purpose') || 'Not specified'}
+- Amount: ${loanAmt ? '$' + loanAmt.toLocaleString('en-AU') : 'Not specified'}
+- Term: ${termYrs ? termYrs + ' years' : 'Not specified'}
+- Structure: ${loanType}
+- Proposed Rate: ${rate ? rate + '% p.a.' : 'Not specified'}
+- Target Lender: ${getVal('lender') || 'TBC'}
+
+SECURITY
+- Type: ${getVal('security-type') || 'Not specified'}
+- Address: ${getVal('security-address') || 'Not provided'}
+- Estimated Value: ${secVal ? '$' + secVal.toLocaleString('en-AU') : 'Not specified'}
+- Existing Mortgage: ${existMort ? '$' + existMort.toLocaleString('en-AU') : 'Nil'}
+- LVR: ${lvr ? lvr + '%' : 'Not calculated'}
+
+FINANCIALS
+- Annual Revenue: ${revenue ? '$' + revenue.toLocaleString('en-AU') : 'Not specified'}
+- Net Profit / EBITDA: ${ebitda ? '$' + ebitda.toLocaleString('en-AU') : 'Not specified'}
+- Monthly Repayment: ${monthly > 0 ? '$' + Math.round(monthly).toLocaleString('en-AU') : 'N/A'}
+- Annual Debt Service: ${annualDebt > 0 ? '$' + Math.round(annualDebt).toLocaleString('en-AU') : 'N/A'}
+- DSC Ratio: ${dsc ? dsc + 'x' : 'N/A'}
+- Existing Debt: ${getNum('existing-debt') ? '$' + getNum('existing-debt').toLocaleString('en-AU') : 'Nil'}
+
+ADDITIONAL NOTES
+${getVal('notes') || 'None provided'}`;
+}
+
+function buildSystemPrompt() {
+  const style = localStorage.getItem('dealmemo_style') || 'standard';
+  const tone = localStorage.getItem('dealmemo_tone') || 'professional';
+
+  const styleNote = style === 'concise' ? 'Write a concise summary memo (aim for ~400 words).' :
+                    style === 'detailed' ? 'Write a detailed analysis (aim for ~1000+ words, include thorough commentary).' :
+                    'Write a standard bank credit memo (aim for ~600-800 words).';
+  const toneNote = tone === 'conservative' ? 'Take a conservative, cautious tone — highlight risks prominently.' :
+                   tone === 'assertive' ? 'Take an assertive, deal-forward tone — lead with strengths and make a clear recommendation.' :
+                   'Use a professional, balanced tone.';
+
+  return `You are a senior credit analyst at a major Australian bank with 10+ years experience in SME and commercial lending. Write a professional credit submission memo in the format used by Australian major banks (ANZ, NAB, Westpac, CBA).
+
+${styleNote} ${toneNote}
+
+Structure the memo with these sections (use ## for section headers):
+## EXECUTIVE SUMMARY
+2-3 sentences. Lead with your recommendation (Approve / Conditional Approve / Decline). Include loan amount and key rationale.
+
+## BORROWER PROFILE
+Entity details, industry context, operating history, management quality assessment.
+
+## LOAN DETAILS
+Purpose, amount, term, structure, proposed rate, target lender commentary.
+
+## SECURITY ANALYSIS
+Property type, location, estimated value, LVR commentary, valuation risk, marketability.
+
+## FINANCIAL ANALYSIS
+Revenue, profitability, DSC ratio analysis, serviceability assessment, cash flow commentary.
+
+## RISK ASSESSMENT
+Identify 3-4 key risks (e.g. market, concentration, security, serviceability, borrower) and their mitigants.
+
+## CONDITIONS OF APPROVAL
+List 4-6 standard conditions appropriate to this deal type and risk profile.
+
+## RECOMMENDATION
+Clear Approve / Conditional Approve / Decline with 2-3 sentence rationale.
+
+Rules: Australian English. Write in third person. Be specific with numbers. Do not add a preamble or say "here is the memo". Start directly with the Executive Summary section. The analyst has 8 years Big 4 bank experience in Business Banking and knows what a good credit looks like.`;
+}
+
+async function generateMemo() {
+  if (!getVal('entity-name') || !getVal('loan-purpose') || !getNum('loan-amount')) {
+    showError('Please fill in at least: Entity Name, Loan Purpose, and Loan Amount.');
+    return;
+  }
+
+  document.getElementById('loading').classList.add('show');
+  document.getElementById('generate-btn').disabled = true;
+  document.getElementById('error-box').style.display = 'none';
+
+  try {
+    const memoText = await callAI(buildSystemPrompt(), buildUserMessage());
+    renderMemo(memoText);
+  } catch(e) {
+    showError(`Generation failed: ${e.message}`);
+    if (e.message.includes('API key')) document.getElementById('settings-panel').classList.add('open');
+  } finally {
+    document.getElementById('loading').classList.remove('show');
+    document.getElementById('generate-btn').disabled = false;
+  }
+}
+
+function renderMemo(markdown) {
+  const ref = 'DM-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
+  const now = new Date().toLocaleString('en-AU', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Australia/Sydney' });
+
+  // Simple markdown → HTML
+  let html = markdown
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/gs, m => '<ul>' + m + '</ul>')
+    .split('\n\n').map(p => {
+      if (p.trim().startsWith('<h2>') || p.trim().startsWith('<ul>')) return p;
+      if (!p.trim()) return '';
+      return `<p>${p.trim()}</p>`;
+    }).join('\n');
+
+  const entityName = getVal('entity-name') || 'Borrower';
+  const loanAmt = getNum('loan-amount');
+  const lender = getVal('lender') || 'TBC';
+
+  document.getElementById('memo-content').innerHTML = `
+    <h1>Credit Submission Memo</h1>
+    <div class="memo-meta">
+      <strong>Ref:</strong> ${ref} &nbsp;|&nbsp;
+      <strong>Prepared:</strong> ${now} &nbsp;|&nbsp;
+      <strong>Borrower:</strong> ${entityName} &nbsp;|&nbsp;
+      <strong>Amount:</strong> ${loanAmt ? '$' + loanAmt.toLocaleString('en-AU') : 'N/A'} &nbsp;|&nbsp;
+      <strong>Lender:</strong> ${lender}
+    </div>
+    ${html}
+    <div class="watermark">Generated by Deal Memo AI — Oney & Co &nbsp;|&nbsp; For professional use only &nbsp;|&nbsp; ${ref}</div>
+  `;
+
+  document.getElementById('ref-display').textContent = `Ref: ${ref} · ${now}`;
+  document.getElementById('print-header').textContent = `Oney & Co — Credit Submission Memo · Ref: ${ref} · ${now}`;
+
+  document.getElementById('output-section').classList.add('show');
+  document.getElementById('output-section').scrollIntoView({ behavior: 'smooth' });
+
+  // Save to localStorage
+  const saved = JSON.parse(localStorage.getItem('dealmemo_history') || '[]');
+  saved.unshift({ ref, date: now, entity: entityName, amount: loanAmt, memo: markdown });
+  if (saved.length > 20) saved.pop();
+  localStorage.setItem('dealmemo_history', JSON.stringify(saved));
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-box');
+  el.textContent = '⚠️ ' + msg;
+  el.style.display = 'block';
+}
+
+function resetToForm() {
+  document.getElementById('output-section').classList.remove('show');
+  document.getElementById('form-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function clearForm() {
+  if (!confirm('Clear all form fields?')) return;
+  ['entity-name','entity-type','abn','industry','years-biz','contact',
+   'loan-purpose','loan-amount','loan-term','rate','lender',
+   'security-type','security-address','security-value','existing-mortgage',
+   'revenue','ebitda','existing-debt','notes'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  calcAll();
+}
+
+function copyMemo() {
+  const text = document.getElementById('memo-content').innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✅ Copied!';
+    setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+
+function loadSample() {
+  document.getElementById('entity-name').value = 'Greenfield Constructions Pty Ltd';
+  document.getElementById('entity-type').value = 'Company';
+  document.getElementById('abn').value = '45 678 901 234';
+  document.getElementById('industry').value = 'Residential Construction';
+  document.getElementById('years-biz').value = '7';
+  document.getElementById('contact').value = 'James Nguyen (Director)';
+  document.getElementById('loan-purpose').value = 'Purchase';
+  document.getElementById('loan-amount').value = '920000';
+  document.getElementById('loan-term').value = '25';
+  document.getElementById('loan-type').value = 'P&I';
+  document.getElementById('rate').value = '5.89';
+  document.getElementById('lender').value = 'NAB';
+  document.getElementById('security-type').value = 'Commercial';
+  document.getElementById('security-address').value = '14 Industrial Drive, Prestons NSW 2170';
+  document.getElementById('security-value').value = '1350000';
+  document.getElementById('existing-mortgage').value = '0';
+  document.getElementById('revenue').value = '3200000';
+  document.getElementById('ebitda').value = '580000';
+  document.getElementById('existing-debt').value = '240000';
+  document.getElementById('notes').value = 'Client has strong cash reserves of $420k in business account. Loan to consolidate workshop lease costs into owned premises. Director personal guarantee available. 7 year track record with consistent revenue growth.';
+  calcAll();
+}
+
+// ─── INIT ───────────────────────────────────────────────────────────────
+loadSettings();
+calcAll();
+</script>
+</body>
+</html>

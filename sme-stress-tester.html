@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SME Cash Flow Stress Tester — Oney & Co</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1A1A2E; --card: #252540; --border: #3D3D5C;
+    --green: #2ECC85; --green2: #1FAD73; --purple: #6B4C9A;
+    --muted: #a3a3b8; --text: #e8e8f0;
+    --danger: #e74c3c; --warning: #f39c12; --info: #3498db;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 14px; line-height: 1.6; }
+
+  header { background: var(--card); border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .logo svg { height: 36px; }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  header h1 { font-size: 15px; font-weight: 600; }
+  .gear-btn { background: none; border: 1px solid var(--border); color: var(--muted); padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 15px; transition: all 0.2s; }
+  .gear-btn:hover { border-color: var(--green); color: var(--green); }
+
+  main { max-width: 960px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  #settings-panel { display: none; background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+  #settings-panel.open { display: block; }
+  #settings-panel h3 { font-size: 13px; font-weight: 600; color: var(--green); margin-bottom: 16px; }
+
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+  .card-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--green); margin-bottom: 20px; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field.span2 { grid-column: span 2; }
+  .field.span3 { grid-column: span 3; }
+
+  label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  input, select, textarea { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 9px 12px; font-family: inherit; font-size: 14px; transition: border-color 0.2s; width: 100%; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--green); }
+  select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a3a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
+
+  /* SCENARIO TOGGLES */
+  .scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 8px; }
+  .scenario-card { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 14px; cursor: pointer; transition: all 0.2s; text-align: center; }
+  .scenario-card:hover { border-color: var(--green); }
+  .scenario-card.active { border-color: var(--green); background: rgba(46, 204, 133, 0.08); }
+  .scenario-card.active-warn { border-color: var(--warning); background: rgba(243, 156, 18, 0.08); }
+  .scenario-card.active-danger { border-color: var(--danger); background: rgba(231, 76, 60, 0.08); }
+  .scenario-name { font-size: 12px; font-weight: 700; margin-bottom: 4px; }
+  .scenario-desc { font-size: 11px; color: var(--muted); }
+
+  /* RESULTS TABLE */
+  .results-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .results-table th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  .results-table td { padding: 10px 12px; border-bottom: 1px solid rgba(61,61,92,0.5); font-size: 13px; }
+  .results-table tr:last-child td { border-bottom: none; }
+  .results-table td.label { font-weight: 500; color: var(--muted); }
+  .pass { color: var(--green); font-weight: 600; }
+  .warn { color: var(--warning); font-weight: 600; }
+  .fail { color: var(--danger); font-weight: 600; }
+  .base { color: var(--text); }
+  .col-base { background: rgba(46,204,133,0.05); }
+
+  /* BUTTONS */
+  .btn-row { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
+  .btn-primary { background: linear-gradient(135deg, var(--green), var(--green2)); color: #0a1a12; border: none; border-radius: 10px; padding: 13px 28px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: opacity 0.2s; display: flex; align-items: center; gap: 8px; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-secondary { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 10px; padding: 12px 20px; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .btn-secondary:hover { border-color: var(--muted); color: var(--text); }
+  .btn-icon { background: var(--card); color: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 6px; }
+  .btn-icon:hover { border-color: var(--green); color: var(--green); }
+
+  /* LOADING */
+  #loading { display: none; text-align: center; padding: 32px; color: var(--muted); }
+  #loading.show { display: block; }
+  .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-box { background: rgba(231,76,60,0.1); border: 1px solid rgba(231,76,60,0.4); border-radius: 8px; padding: 14px; color: #ff6b6b; margin-top: 16px; display: none; }
+
+  /* OUTPUT */
+  #output-section { display: none; }
+  #output-section.show { display: block; }
+  .output-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 12px; }
+  #report-content { background: #fff; color: #1a1a2e; border-radius: 10px; padding: 40px; line-height: 1.75; }
+  #report-content h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+  #report-content .meta { font-size: 12px; color: #666; margin-bottom: 24px; border-bottom: 2px solid #2ECC85; padding-bottom: 14px; }
+  #report-content h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #2ECC85; margin: 24px 0 10px; border-bottom: 1px solid #e8e8e8; padding-bottom: 6px; }
+  #report-content p { margin-bottom: 10px; color: #333; font-size: 14px; }
+  #report-content ul { padding-left: 18px; margin-bottom: 10px; }
+  #report-content li { color: #333; font-size: 14px; margin-bottom: 4px; }
+  #report-content strong { color: #1a1a2e; }
+  #report-content table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  #report-content table th { background: #f5f5f5; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 12px; text-align: left; border: 1px solid #e0e0e0; }
+  #report-content table td { padding: 8px 12px; border: 1px solid #e0e0e0; font-size: 13px; }
+  #report-content .watermark { font-size: 11px; color: #aaa; text-align: center; margin-top: 28px; border-top: 1px solid #e0e0e0; padding-top: 10px; }
+
+  @media print {
+    header, #settings-panel, #form-section, .btn-row, .output-header .btn-row { display: none !important; }
+    body { background: white; }
+    main { max-width: 100%; padding: 0; }
+    #output-section { display: block !important; }
+    #report-content { box-shadow: none; }
+  }
+
+  /* INLINE RESULT BARS */
+  .bar-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .bar-label { font-size: 12px; color: var(--muted); width: 120px; flex-shrink: 0; }
+  .bar-bg { flex: 1; background: var(--border); border-radius: 4px; height: 8px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+  .bar-val { font-size: 12px; font-weight: 600; width: 60px; text-align: right; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 90">
+        <defs>
+          <linearGradient id="fg" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" style="stop-color:#1FAD73"/><stop offset="55%" style="stop-color:#2ECC85"/>
+            <stop offset="55%" style="stop-color:transparent"/><stop offset="100%" style="stop-color:transparent"/>
+          </linearGradient>
+          <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/>
+          </linearGradient>
+        </defs>
+        <g transform="translate(40,45)"><circle cx="0" cy="0" r="32" fill="none" stroke="url(#sg)" stroke-width="7"/><circle cx="0" cy="0" r="24" fill="url(#fg)"/></g>
+        <text x="82" y="52" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="600" fill="#fff" letter-spacing="-0.5">ney</text>
+        <text x="129" y="52" font-family="Inter,system-ui,sans-serif" font-size="21" font-weight="500" fill="url(#sg)">&amp;</text>
+        <text x="148" y="52" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="600" fill="#fff" letter-spacing="-0.5">co</text>
+        <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
+      </svg>
+    </div>
+    <h1>SME Cash Flow Stress Tester</h1>
+  </div>
+  <button class="gear-btn" onclick="toggleSettings()">⚙️ Settings</button>
+</header>
+
+<main>
+
+  <div id="settings-panel">
+    <h3>⚙️ Settings</h3>
+    <div class="form-grid three">
+      <div class="field">
+        <label>AI Provider</label>
+        <select id="ai-provider" onchange="saveSettings();updateProviderUI()">
+          <option value="anthropic">Anthropic (Claude)</option>
+          <option value="openai">OpenAI (GPT)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Model</label>
+        <select id="ai-model" onchange="saveSettings()">
+          <option value="claude-sonnet-4-5">Claude Sonnet 4.5</option>
+          <option value="claude-opus-4-6">Claude Opus 4.6</option>
+          <option value="gpt-4o">GPT-4o</option>
+          <option value="gpt-4o-mini">GPT-4o mini</option>
+        </select>
+      </div>
+      <div class="field" style="display:flex;align-items:flex-end;">
+        <button class="btn-icon" onclick="testKey()">🔌 Test</button>
+      </div>
+      <div class="field span3">
+        <label id="key-label">API Key</label>
+        <input type="password" id="api-key" placeholder="sk-ant-... or sk-..." oninput="saveSettings()">
+      </div>
+      <div class="field span3">
+        <label>Report Tone</label>
+        <select id="report-tone" onchange="saveSettings()">
+          <option value="professional">Professional (Balanced)</option>
+          <option value="conservative">Conservative (Risk-focused)</option>
+          <option value="client">Client-Friendly (Plain English)</option>
+        </select>
+      </div>
+    </div>
+    <div id="key-status" style="margin-top:10px;font-size:13px;color:var(--muted);"></div>
+  </div>
+
+  <div id="form-section">
+
+    <!-- Business Basics -->
+    <div class="card">
+      <div class="card-title">🏢 Business Profile</div>
+      <div class="form-grid three">
+        <div class="field span2">
+          <label>Business Name</label>
+          <input type="text" id="biz-name" placeholder="e.g. Greenfield Pty Ltd">
+        </div>
+        <div class="field">
+          <label>Industry</label>
+          <input type="text" id="biz-industry" placeholder="e.g. Retail, Construction">
+        </div>
+        <div class="field">
+          <label>Current Interest Rate (%)</label>
+          <input type="number" id="current-rate" placeholder="5.89" step="0.01" oninput="calcLive()">
+        </div>
+        <div class="field">
+          <label>Total Loan Balance ($)</label>
+          <input type="number" id="loan-balance" placeholder="e.g. 850000" oninput="calcLive()">
+        </div>
+        <div class="field">
+          <label>Loan Term Remaining (yrs)</label>
+          <input type="number" id="loan-remaining" placeholder="e.g. 22" min="1" oninput="calcLive()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Financials -->
+    <div class="card">
+      <div class="card-title">📊 Current Year Financials (Annual)</div>
+      <div class="form-grid three">
+        <div class="field">
+          <label>Revenue ($)</label>
+          <input type="number" id="revenue" placeholder="e.g. 2800000" oninput="calcLive()">
+        </div>
+        <div class="field">
+          <label>COGS / Direct Costs ($)</label>
+          <input type="number" id="cogs" placeholder="e.g. 1680000" oninput="calcLive()">
+        </div>
+        <div class="field">
+          <label>Gross Profit</label>
+          <div class="calc-field" id="calc-gp" style="background:rgba(46,204,133,0.08);border:1px solid rgba(46,204,133,0.3);border-radius:8px;padding:9px 12px;color:var(--green);font-weight:600;">—</div>
+        </div>
+        <div class="field">
+          <label>Operating Expenses ($)</label>
+          <input type="number" id="opex" placeholder="e.g. 520000" oninput="calcLive()">
+        </div>
+        <div class="field">
+          <label>EBITDA</label>
+          <div class="calc-field" id="calc-ebitda" style="background:rgba(46,204,133,0.08);border:1px solid rgba(46,204,133,0.3);border-radius:8px;padding:9px 12px;color:var(--green);font-weight:600;">—</div>
+        </div>
+        <div class="field">
+          <label>Current Monthly Repayment ($)</label>
+          <div class="calc-field" id="calc-repay" style="background:rgba(46,204,133,0.08);border:1px solid rgba(46,204,133,0.3);border-radius:8px;padding:9px 12px;color:var(--green);font-weight:600;">—</div>
+        </div>
+        <div class="field">
+          <label>Base DSC Ratio</label>
+          <div class="calc-field" id="calc-dsc" style="background:rgba(46,204,133,0.08);border:1px solid rgba(46,204,133,0.3);border-radius:8px;padding:9px 12px;font-weight:600;">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stress Scenarios -->
+    <div class="card">
+      <div class="card-title">⚡ Stress Scenarios — Select All That Apply</div>
+
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;">Click scenarios to include in the report. Multiple selections allowed.</div>
+
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">📈 Interest Rate Shock</div>
+        <div class="scenario-grid">
+          <div class="scenario-card" data-type="rate" data-val="1" onclick="toggleScenario(this)">
+            <div class="scenario-name">Rate +1%</div>
+            <div class="scenario-desc">Mild tightening</div>
+          </div>
+          <div class="scenario-card" data-type="rate" data-val="2" onclick="toggleScenario(this)">
+            <div class="scenario-name">Rate +2%</div>
+            <div class="scenario-desc">Moderate shock</div>
+          </div>
+          <div class="scenario-card" data-type="rate" data-val="3" onclick="toggleScenario(this)">
+            <div class="scenario-name">Rate +3%</div>
+            <div class="scenario-desc">Severe scenario</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:18px;">
+        <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">📉 Revenue Decline</div>
+        <div class="scenario-grid">
+          <div class="scenario-card" data-type="rev" data-val="10" onclick="toggleScenario(this)">
+            <div class="scenario-name">Revenue -10%</div>
+            <div class="scenario-desc">Minor downturn</div>
+          </div>
+          <div class="scenario-card" data-type="rev" data-val="20" onclick="toggleScenario(this)">
+            <div class="scenario-name">Revenue -20%</div>
+            <div class="scenario-desc">Significant drop</div>
+          </div>
+          <div class="scenario-card" data-type="rev" data-val="30" onclick="toggleScenario(this)">
+            <div class="scenario-name">Revenue -30%</div>
+            <div class="scenario-desc">Severe contraction</div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;">🔥 Combined Scenarios</div>
+        <div class="scenario-grid">
+          <div class="scenario-card" data-type="combined" data-rate="1" data-rev="10" onclick="toggleScenario(this)">
+            <div class="scenario-name">Rate +1% & Rev -10%</div>
+            <div class="scenario-desc">Mild combined</div>
+          </div>
+          <div class="scenario-card" data-type="combined" data-rate="2" data-rev="20" onclick="toggleScenario(this)">
+            <div class="scenario-name">Rate +2% & Rev -20%</div>
+            <div class="scenario-desc">Moderate combined</div>
+          </div>
+          <div class="scenario-card" data-type="combined" data-rate="3" data-rev="30" onclick="toggleScenario(this)">
+            <div class="scenario-name">Rate +3% & Rev -30%</div>
+            <div class="scenario-desc">Worst case</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Results Preview -->
+    <div class="card" id="live-results" style="display:none;">
+      <div class="card-title">📊 Live Scenario Preview</div>
+      <div style="overflow-x:auto;">
+        <table class="results-table" id="results-table"></table>
+      </div>
+    </div>
+
+    <!-- Additional Context -->
+    <div class="card">
+      <div class="card-title">📝 Additional Context (for AI Report)</div>
+      <div class="form-grid full">
+        <div class="field">
+          <label>Business Strengths / Mitigants</label>
+          <textarea id="strengths" placeholder="e.g. Strong cash reserves of $300k, owner-occupied premises, long-term supply contracts in place..."></textarea>
+        </div>
+        <div class="field" style="margin-top:8px;">
+          <label>Known Risks / Vulnerabilities</label>
+          <textarea id="risks" placeholder="e.g. Revenue concentrated in 2 major clients, seasonal business, upcoming lease renewal..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn-primary" id="gen-btn" onclick="generateReport()">📄 Generate Stress Test Report</button>
+      <button class="btn-secondary" onclick="loadSample()">📋 Load Sample</button>
+      <button class="btn-secondary" onclick="clearAll()">🗑 Clear</button>
+    </div>
+
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>Generating stress test report...</p>
+      <p style="font-size:12px;margin-top:8px;color:var(--muted)">Usually 20–40 seconds</p>
+    </div>
+    <div class="error-box" id="error-box"></div>
+
+  </div>
+
+  <!-- OUTPUT -->
+  <div id="output-section">
+    <div class="output-header">
+      <div>
+        <div style="font-size:15px;font-weight:600;margin-bottom:4px;">✅ Stress Test Report Generated</div>
+        <div style="font-size:12px;color:var(--muted);" id="ref-display"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-icon" onclick="copyReport()">📋 Copy</button>
+        <button class="btn-icon" onclick="window.print()">🖨 Print / PDF</button>
+        <button class="btn-icon" onclick="backToForm()">← New Test</button>
+      </div>
+    </div>
+    <div id="report-content"></div>
+  </div>
+
+</main>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────
+const selectedScenarios = new Set();
+
+function toggleSettings() { document.getElementById('settings-panel').classList.toggle('open'); }
+function saveSettings() {
+  localStorage.setItem('stress_apikey', document.getElementById('api-key').value);
+  localStorage.setItem('stress_tone', document.getElementById('report-tone').value);
+  localStorage.setItem('stress_provider', document.getElementById('ai-provider').value);
+  localStorage.setItem('stress_model', document.getElementById('ai-model').value);
+}
+function loadSettings() {
+  document.getElementById('api-key').value = localStorage.getItem('stress_apikey') || '';
+  document.getElementById('report-tone').value = localStorage.getItem('stress_tone') || 'professional';
+  document.getElementById('ai-provider').value = localStorage.getItem('stress_provider') || 'anthropic';
+  document.getElementById('ai-model').value = localStorage.getItem('stress_model') || 'claude-sonnet-4-5';
+  updateProviderUI();
+}
+function updateProviderUI() {
+  const p = document.getElementById('ai-provider').value;
+  const m = document.getElementById('ai-model');
+  document.getElementById('key-label').textContent = p === 'openai' ? 'OpenAI API Key' : 'Anthropic API Key';
+  document.getElementById('api-key').placeholder = p === 'openai' ? 'sk-...' : 'sk-ant-...';
+  [...m.options].forEach(o => { o.hidden = p === 'openai' ? !['gpt-4o','gpt-4o-mini'].includes(o.value) : !['claude-sonnet-4-5','claude-opus-4-6'].includes(o.value); });
+  if (p === 'openai' && !['gpt-4o','gpt-4o-mini'].includes(m.value)) m.value = 'gpt-4o';
+  if (p === 'anthropic' && !['claude-sonnet-4-5','claude-opus-4-6'].includes(m.value)) m.value = 'claude-sonnet-4-5';
+}
+
+async function callAI(system, user) {
+  const key = localStorage.getItem('stress_apikey') || document.getElementById('api-key').value;
+  const provider = localStorage.getItem('stress_provider') || 'anthropic';
+  const model = localStorage.getItem('stress_model') || 'claude-sonnet-4-5';
+  if (!key) throw new Error('No API key. Open ⚙️ Settings.');
+  if (provider === 'openai') {
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method:'POST', headers:{'Authorization':`Bearer ${key}`,'Content-Type':'application/json'},
+      body: JSON.stringify({model, max_tokens:2048, messages:[{role:'system',content:system},{role:'user',content:user}]})
+    });
+    if (!r.ok) { const e=await r.json(); throw new Error(e.error?.message||r.status); }
+    return (await r.json()).choices[0].message.content;
+  } else {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'x-api-key':key,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({model, max_tokens:2048, system, messages:[{role:'user',content:user}]})
+    });
+    if (!r.ok) { const e=await r.json(); throw new Error(e.error?.message||r.status); }
+    return (await r.json()).content[0].text;
+  }
+}
+
+async function testKey() {
+  const key = document.getElementById('api-key').value;
+  const provider = document.getElementById('ai-provider').value;
+  const st = document.getElementById('key-status');
+  if (!key) { st.textContent = '⚠️ Enter API key'; return; }
+  st.textContent = '⏳ Testing...';
+  try {
+    let r;
+    if (provider === 'openai') {
+      r = await fetch('https://api.openai.com/v1/chat/completions', { method:'POST', headers:{'Authorization':`Bearer ${key}`,'Content-Type':'application/json'}, body:JSON.stringify({model:'gpt-4o-mini',max_tokens:5,messages:[{role:'user',content:'Hi'}]}) });
+    } else {
+      r = await fetch('https://api.anthropic.com/v1/messages', { method:'POST', headers:{'x-api-key':key,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'}, body:JSON.stringify({model:'claude-haiku-4-5',max_tokens:5,messages:[{role:'user',content:'Hi'}]}) });
+    }
+    st.textContent = r.ok ? `✅ ${provider==='openai'?'OpenAI':'Claude'} connected!` : '❌ ' + (await r.json()).error?.message;
+  } catch(e) { st.textContent = '❌ ' + e.message; }
+}
+
+// ─── CALC ─────────────────────────────────────────────────────
+function getN(id) { const v = parseFloat(document.getElementById(id)?.value); return isNaN(v) ? 0 : v; }
+function fmt(n) { return n > 0 ? '$' + Math.round(n).toLocaleString('en-AU') : '—'; }
+function fmtPct(n) { return n > 0 ? n.toFixed(1) + '%' : '—'; }
+
+function calcMonthly(balance, rate, termYrs) {
+  if (!balance || !rate || !termYrs) return 0;
+  const r = rate / 100 / 12, n = termYrs * 12;
+  return balance * (r * Math.pow(1+r,n)) / (Math.pow(1+r,n)-1);
+}
+
+function calcLive() {
+  const rev = getN('revenue'), cogs = getN('cogs'), opex = getN('opex');
+  const gp = rev - cogs;
+  const ebitda = gp - opex;
+  const rate = getN('current-rate'), bal = getN('loan-balance'), term = getN('loan-remaining');
+  const monthly = calcMonthly(bal, rate, term);
+  const annualDebt = monthly * 12;
+  const dsc = ebitda > 0 && annualDebt > 0 ? ebitda / annualDebt : 0;
+
+  document.getElementById('calc-gp').textContent = gp > 0 ? fmt(gp) : '—';
+  document.getElementById('calc-ebitda').textContent = ebitda > 0 ? fmt(ebitda) : '—';
+  document.getElementById('calc-repay').textContent = monthly > 0 ? fmt(monthly) + '/mo' : '—';
+
+  const dscEl = document.getElementById('calc-dsc');
+  if (dsc > 0) {
+    const cls = dsc >= 1.5 ? '#2ECC85' : dsc >= 1.2 ? '#f39c12' : '#e74c3c';
+    const label = dsc >= 1.5 ? '✅ PASS' : dsc >= 1.2 ? '⚠️ MARGINAL' : '❌ FAIL';
+    dscEl.innerHTML = `<span style="color:${cls}">${dsc.toFixed(2)}x ${label}</span>`;
+  } else { dscEl.textContent = '—'; }
+
+  updateResultsTable();
+}
+
+function calcScenarioDSC(rateAdj, revAdj) {
+  const rev = getN('revenue') * (1 - revAdj/100);
+  const cogs = getN('cogs');
+  const opex = getN('opex');
+  const ebitda = rev - cogs - opex;
+  const rate = getN('current-rate') + rateAdj;
+  const bal = getN('loan-balance'), term = getN('loan-remaining');
+  const monthly = calcMonthly(bal, rate, term);
+  const annualDebt = monthly * 12;
+  const dsc = ebitda > 0 && annualDebt > 0 ? ebitda / annualDebt : 0;
+  return { ebitda, monthly, annualDebt, dsc, revenue: rev };
+}
+
+function toggleScenario(el) {
+  const key = el.dataset.type + '_' + (el.dataset.val || el.dataset.rate + '_' + el.dataset.rev);
+  if (selectedScenarios.has(key)) {
+    selectedScenarios.delete(key);
+    el.classList.remove('active', 'active-warn', 'active-danger');
+  } else {
+    selectedScenarios.add(key);
+    // Determine color based on severity
+    const rateAdj = parseFloat(el.dataset.rate || el.dataset.val || 0);
+    const revAdj = parseFloat(el.dataset.rev || 0);
+    if ((rateAdj + revAdj) <= 10) el.classList.add('active');
+    else if ((rateAdj + revAdj) <= 20) el.classList.add('active-warn');
+    else el.classList.add('active-danger');
+  }
+  updateResultsTable();
+}
+
+function getActiveScenarios() {
+  const scenarios = [];
+  document.querySelectorAll('.scenario-card').forEach(el => {
+    const key = el.dataset.type + '_' + (el.dataset.val || el.dataset.rate + '_' + el.dataset.rev);
+    if (selectedScenarios.has(key)) {
+      const type = el.dataset.type;
+      const rateAdj = type === 'rate' ? parseFloat(el.dataset.val) : (type === 'combined' ? parseFloat(el.dataset.rate) : 0);
+      const revAdj = type === 'rev' ? parseFloat(el.dataset.val) : (type === 'combined' ? parseFloat(el.dataset.rev) : 0);
+      scenarios.push({ name: el.querySelector('.scenario-name').textContent, rateAdj, revAdj });
+    }
+  });
+  return scenarios;
+}
+
+function updateResultsTable() {
+  const scenarios = getActiveScenarios();
+  const liveSection = document.getElementById('live-results');
+  const table = document.getElementById('results-table');
+  if (scenarios.length === 0) { liveSection.style.display = 'none'; return; }
+  liveSection.style.display = 'block';
+
+  const baseRate = getN('current-rate');
+  const baseEbitda = getN('revenue') - getN('cogs') - getN('opex');
+  const baseMo = calcMonthly(getN('loan-balance'), baseRate, getN('loan-remaining'));
+  const baseAnnual = baseMo * 12;
+  const baseDSC = baseEbitda > 0 && baseAnnual > 0 ? (baseEbitda/baseAnnual).toFixed(2) : '—';
+
+  const colHeaders = ['<th>Metric</th>', '<th class="col-base">Base Case</th>', ...scenarios.map(s=>`<th>${s.name}</th>`)].join('');
+  const rows = [
+    { label: 'Revenue', base: fmt(getN('revenue')), vals: scenarios.map(s=>fmt(calcScenarioDSC(s.rateAdj,s.revAdj).revenue)) },
+    { label: 'EBITDA', base: fmt(baseEbitda), vals: scenarios.map(s=>fmt(calcScenarioDSC(s.rateAdj,s.revAdj).ebitda)) },
+    { label: 'Rate', base: fmtPct(baseRate), vals: scenarios.map(s=>fmtPct(baseRate+s.rateAdj)) },
+    { label: 'Monthly Repayment', base: fmt(baseMo)+'/mo', vals: scenarios.map(s=>fmt(calcScenarioDSC(s.rateAdj,s.revAdj).monthly)+'/mo') },
+    { label: 'Annual Debt Service', base: fmt(baseAnnual), vals: scenarios.map(s=>fmt(calcScenarioDSC(s.rateAdj,s.revAdj).annualDebt)) },
+    { label: 'DSC Ratio', base: baseDSC, vals: scenarios.map(s=>{
+      const r = calcScenarioDSC(s.rateAdj,s.revAdj);
+      if (!r.dsc) return '—';
+      const cls = r.dsc >= 1.5 ? 'pass' : r.dsc >= 1.2 ? 'warn' : 'fail';
+      return `<span class="${cls}">${r.dsc.toFixed(2)}x</span>`;
+    })},
+  ];
+
+  table.innerHTML = `<thead><tr>${colHeaders}</tr></thead><tbody>${rows.map(r=>`<tr><td class="label">${r.label}</td><td class="col-base">${r.base}</td>${r.vals.map(v=>`<td>${v}</td>`).join('')}</tr>`).join('')}</tbody>`;
+}
+
+// ─── REPORT GENERATION ───────────────────────────────────────
+function buildPrompt() {
+  const scenarios = getActiveScenarios();
+  const bizName = document.getElementById('biz-name').value || 'The Subject Entity';
+  const industry = document.getElementById('biz-industry').value || 'Not specified';
+  const rev = getN('revenue'), cogs = getN('cogs'), opex = getN('opex');
+  const ebitda = rev - cogs - opex;
+  const baseRate = getN('current-rate'), bal = getN('loan-balance'), term = getN('loan-remaining');
+  const baseMo = calcMonthly(bal, baseRate, term);
+  const baseAnnual = baseMo * 12;
+  const baseDSC = baseEbitda > 0 && baseAnnual > 0 ? (ebitda/baseAnnual).toFixed(2) : 'N/A';
+  function baseEbitda() { return ebitda; }
+
+  let scenarioData = scenarios.map(s => {
+    const r = calcScenarioDSC(s.rateAdj, s.revAdj);
+    return `- ${s.name}: Revenue ${fmt(r.revenue)}, EBITDA ${fmt(r.ebitda)}, Monthly Repayment ${fmt(r.monthly)}, DSC ${r.dsc ? r.dsc.toFixed(2)+'x' : 'Negative'}`;
+  }).join('\n');
+
+  const tone = localStorage.getItem('stress_tone') || 'professional';
+  const toneNote = tone === 'conservative' ? 'Take a risk-focused, conservative tone. Emphasise vulnerabilities.' :
+                   tone === 'client' ? 'Write in plain English suitable for a business owner to read directly. Avoid jargon.' :
+                   'Write in professional analyst tone suitable for a credit committee or lender submission.';
+
+  return {
+    system: `You are a senior credit analyst at a major Australian bank specialising in SME stress testing and cash flow analysis. Write a professional stress test report. ${toneNote}
+
+Structure the report with these sections (use ## for headers):
+## EXECUTIVE SUMMARY
+Overall verdict on resilience. 2-3 sentences. Rate the business as: Resilient / Moderately Resilient / Vulnerable / Highly Vulnerable.
+
+## BASE CASE ANALYSIS
+Current financial position, EBITDA margin, DSC ratio, serviceability assessment.
+
+## STRESS TEST RESULTS
+Narrative analysis of each scenario tested. Be specific about which scenarios the business can absorb vs. which would cause distress. Include DSC ratio under each scenario.
+
+## SENSITIVITY SUMMARY
+A brief table showing how DSC ratio moves across scenarios (describe in text if needed).
+
+## KEY VULNERABILITIES
+2-4 specific vulnerabilities identified from the stress test.
+
+## MITIGATING FACTORS
+2-4 factors that support resilience (from provided context).
+
+## CONCLUSION & RECOMMENDATIONS
+Overall resilience verdict. 3-4 specific recommendations for the business owner or lender (e.g. "Maintain cash buffer of at least X months operating expenses", "Review fixed/variable rate split", "Diversify revenue base").
+
+Australian English. Third person. Specific with numbers. Do not add preamble — start directly with the Executive Summary header.`,
+
+    user: `STRESS TEST INPUT DATA:
+
+Business: ${bizName} | Industry: ${industry}
+
+BASE CASE FINANCIALS (Annual):
+- Revenue: ${fmt(rev)}
+- COGS: ${fmt(cogs)}
+- Gross Profit: ${fmt(rev-cogs)}
+- Operating Expenses: ${fmt(opex)}
+- EBITDA: ${fmt(ebitda)}
+- EBITDA Margin: ${rev > 0 ? ((ebitda/rev)*100).toFixed(1) : 'N/A'}%
+- Loan Balance: ${fmt(bal)}
+- Current Rate: ${baseRate}% p.a.
+- Term Remaining: ${term} years
+- Monthly Repayment: ${fmt(baseMo)}
+- Annual Debt Service: ${fmt(baseAnnual)}
+- Base DSC Ratio: ${baseDSC}x
+
+STRESS SCENARIOS TESTED:
+${scenarioData}
+
+BUSINESS CONTEXT:
+Strengths/Mitigants: ${document.getElementById('strengths').value || 'Not provided'}
+Risks/Vulnerabilities: ${document.getElementById('risks').value || 'Not provided'}`
+  };
+}
+
+async function generateReport() {
+  const scenarios = getActiveScenarios();
+  if (scenarios.length === 0) { showErr('Select at least one stress scenario.'); return; }
+  if (!getN('revenue') || !getN('loan-balance')) { showErr('Enter Revenue and Loan Balance at minimum.'); return; }
+
+  document.getElementById('loading').classList.add('show');
+  document.getElementById('gen-btn').disabled = true;
+  document.getElementById('error-box').style.display = 'none';
+
+  try {
+    const { system, user } = buildPrompt();
+    const text = await callAI(system, user);
+    renderReport(text);
+  } catch(e) {
+    showErr('Generation failed: ' + e.message);
+    if (e.message.includes('API key')) document.getElementById('settings-panel').classList.add('open');
+  } finally {
+    document.getElementById('loading').classList.remove('show');
+    document.getElementById('gen-btn').disabled = false;
+  }
+}
+
+function renderReport(markdown) {
+  const ref = 'ST-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.random().toString(36).slice(2,6).toUpperCase();
+  const now = new Date().toLocaleString('en-AU', { dateStyle: 'long', timeStyle: 'short', timeZone: 'Australia/Sydney' });
+  const bizName = document.getElementById('biz-name').value || 'Subject Entity';
+
+  let html = markdown
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*?<\/li>\n?)+/gs, m => '<ul>' + m + '</ul>')
+    .split('\n\n').map(p => {
+      if (p.trim().match(/^<(h2|ul|table)/)) return p;
+      if (!p.trim()) return '';
+      return `<p>${p.trim()}</p>`;
+    }).join('\n');
+
+  document.getElementById('report-content').innerHTML = `
+    <h1>SME Cash Flow Stress Test Report</h1>
+    <div class="meta"><strong>Ref:</strong> ${ref} &nbsp;|&nbsp; <strong>Date:</strong> ${now} &nbsp;|&nbsp; <strong>Entity:</strong> ${bizName}</div>
+    ${html}
+    <div class="watermark">Generated by SME Stress Tester — Oney & Co &nbsp;|&nbsp; ${ref} &nbsp;|&nbsp; For professional use only</div>
+  `;
+
+  document.getElementById('ref-display').textContent = `Ref: ${ref} · ${now}`;
+  document.getElementById('output-section').classList.add('show');
+  document.getElementById('output-section').scrollIntoView({ behavior: 'smooth' });
+}
+
+function showErr(msg) {
+  const el = document.getElementById('error-box');
+  el.textContent = '⚠️ ' + msg;
+  el.style.display = 'block';
+}
+function backToForm() { document.getElementById('output-section').classList.remove('show'); window.scrollTo(0,0); }
+function copyReport() {
+  navigator.clipboard.writeText(document.getElementById('report-content').innerText).then(() => {
+    const btn = event.target; const orig = btn.textContent;
+    btn.textContent = '✅ Copied!'; setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+function clearAll() {
+  if (!confirm('Clear form?')) return;
+  ['biz-name','biz-industry','current-rate','loan-balance','loan-remaining','revenue','cogs','opex','strengths','risks'].forEach(id => { const el=document.getElementById(id); if(el) el.value=''; });
+  selectedScenarios.clear();
+  document.querySelectorAll('.scenario-card').forEach(el => el.classList.remove('active','active-warn','active-danger'));
+  calcLive();
+}
+function loadSample() {
+  document.getElementById('biz-name').value = 'Greenfield Constructions Pty Ltd';
+  document.getElementById('biz-industry').value = 'Residential Construction';
+  document.getElementById('current-rate').value = '5.89';
+  document.getElementById('loan-balance').value = '920000';
+  document.getElementById('loan-remaining').value = '22';
+  document.getElementById('revenue').value = '3200000';
+  document.getElementById('cogs').value = '2000000';
+  document.getElementById('opex').value = '620000';
+  document.getElementById('strengths').value = 'Strong cash reserves of $420k, long-term government contracts, owner-occupied premises, 7-year operating history';
+  document.getElementById('risks').value = 'Revenue concentrated across 3 key clients, seasonal cash flow Q1/Q2, labour cost inflation';
+  calcLive();
+}
+
+loadSettings(); calcLive();
+</script>
+</body>
+</html>

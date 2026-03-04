@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lender Rate Radar — Weekly SME Rate Intelligence</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1A1A2E; --card: #252540; --border: #3D3D5C;
+    --green: #2ECC85; --green2: #1FAD73; --purple: #6B4C9A;
+    --muted: #a3a3b8; --text: #e8e8f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+
+  /* ── LANDING PAGE ─────────────────────────────── */
+  #landing { display: block; }
+  #composer { display: none; }
+
+  nav { background: var(--card); border-bottom: 1px solid var(--border); padding: 14px 40px; display: flex; align-items: center; justify-content: space-between; }
+  .nav-logo { display: flex; align-items: center; gap: 10px; }
+  .nav-logo svg { height: 34px; }
+  .nav-logo span { font-size: 15px; font-weight: 700; }
+  .nav-badge { background: rgba(46,204,133,0.15); color: var(--green); font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 100px; border: 1px solid rgba(46,204,133,0.3); }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .btn-outline { background: transparent; color: var(--green); border: 1px solid var(--green); border-radius: 8px; padding: 8px 18px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-outline:hover { background: rgba(46,204,133,0.1); }
+
+  /* HERO */
+  .hero { max-width: 800px; margin: 0 auto; padding: 80px 24px 60px; text-align: center; }
+  .hero-tag { display: inline-flex; align-items: center; gap: 6px; background: rgba(46,204,133,0.1); border: 1px solid rgba(46,204,133,0.25); border-radius: 100px; padding: 6px 16px; font-size: 12px; font-weight: 600; color: var(--green); margin-bottom: 24px; }
+  .hero h1 { font-size: clamp(36px, 6vw, 56px); font-weight: 800; line-height: 1.1; margin-bottom: 20px; }
+  .hero h1 span { background: linear-gradient(135deg, var(--green), var(--green2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero p { font-size: 18px; color: var(--muted); line-height: 1.7; max-width: 560px; margin: 0 auto 36px; }
+  .hero-cta { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+  .btn-big { background: linear-gradient(135deg, var(--green), var(--green2)); color: #0a1a12; border: none; border-radius: 12px; padding: 16px 36px; font-family: inherit; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity 0.2s, transform 0.1s; }
+  .btn-big:hover { opacity: 0.92; }
+  .btn-big:active { transform: scale(0.98); }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 15px 28px; font-family: inherit; font-size: 15px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+  .btn-ghost:hover { border-color: var(--muted); color: var(--text); }
+
+  .social-proof { margin-top: 20px; font-size: 12px; color: var(--muted); }
+  .social-proof strong { color: var(--text); }
+
+  /* SUBSCRIBE FORM */
+  .subscribe-box { max-width: 480px; margin: 0 auto; display: flex; gap: 8px; }
+  .subscribe-box input { flex: 1; background: var(--card); border: 1px solid var(--border); border-radius: 10px; color: var(--text); padding: 14px 16px; font-family: inherit; font-size: 14px; }
+  .subscribe-box input:focus { outline: none; border-color: var(--green); }
+  .subscribe-box button { background: linear-gradient(135deg, var(--green), var(--green2)); color: #0a1a12; border: none; border-radius: 10px; padding: 14px 24px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+  #sub-thanks { display: none; color: var(--green); font-weight: 600; font-size: 14px; margin-top: 12px; }
+
+  /* WHAT YOU GET */
+  .section { max-width: 880px; margin: 0 auto; padding: 60px 24px; }
+  .section-tag { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--green); margin-bottom: 12px; }
+  .section h2 { font-size: 32px; font-weight: 800; margin-bottom: 16px; }
+  .section p.lead { font-size: 16px; color: var(--muted); max-width: 600px; margin-bottom: 40px; line-height: 1.7; }
+
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .feature-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+  .feature-icon { font-size: 28px; margin-bottom: 12px; }
+  .feature-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; }
+  .feature-card p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* SAMPLE ISSUE */
+  .sample-issue { background: var(--card); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; margin-top: 40px; }
+  .sample-header { background: linear-gradient(135deg, var(--green), var(--green2)); padding: 20px 28px; }
+  .sample-header h3 { color: #0a1a12; font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .sample-header p { color: rgba(10,26,18,0.7); font-size: 12px; }
+  .sample-body { padding: 28px; }
+  .rate-table { width: 100%; border-collapse: collapse; margin-bottom: 24px; }
+  .rate-table th { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+  .rate-table td { padding: 10px 12px; border-bottom: 1px solid rgba(61,61,92,0.4); font-size: 13px; }
+  .rate-table tr:last-child td { border-bottom: none; }
+  .change-up { color: #e74c3c; font-weight: 600; }
+  .change-dn { color: var(--green); font-weight: 600; }
+  .change-flat { color: var(--muted); }
+  .insight-block { background: rgba(46,204,133,0.06); border: 1px solid rgba(46,204,133,0.2); border-radius: 10px; padding: 16px 20px; margin-top: 16px; }
+  .insight-block .label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--green); margin-bottom: 8px; }
+  .insight-block p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* PRICING */
+  .pricing { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 600px; margin: 0 auto; }
+  .price-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 32px; text-align: center; position: relative; }
+  .price-card.featured { border-color: var(--green); }
+  .featured-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, var(--green), var(--green2)); color: #0a1a12; font-size: 11px; font-weight: 700; padding: 4px 14px; border-radius: 100px; white-space: nowrap; }
+  .price-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .price { font-size: 40px; font-weight: 800; margin: 12px 0; }
+  .price span { font-size: 16px; font-weight: 400; color: var(--muted); }
+  .price-card ul { list-style: none; text-align: left; margin: 20px 0; }
+  .price-card li { font-size: 13px; color: var(--muted); padding: 5px 0; padding-left: 20px; position: relative; }
+  .price-card li::before { content: '✓'; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+  .price-card button { width: 100%; margin-top: 8px; }
+
+  /* ABOUT */
+  .about-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 40px; display: flex; gap: 32px; align-items: flex-start; }
+  .about-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--purple), var(--green)); display: flex; align-items: center; justify-content: center; font-size: 32px; flex-shrink: 0; }
+  .about-text h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+  .about-text p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+  .about-text .creds { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+  .cred { background: rgba(46,204,133,0.1); border: 1px solid rgba(46,204,133,0.25); border-radius: 6px; padding: 4px 12px; font-size: 12px; font-weight: 600; color: var(--green); }
+
+  footer { border-top: 1px solid var(--border); padding: 32px 40px; text-align: center; color: var(--muted); font-size: 12px; }
+  footer a { color: var(--green); text-decoration: none; }
+
+  /* ── COMPOSER ─────────────────────────────────── */
+  #composer { background: var(--bg); min-height: 100vh; }
+  .composer-header { background: var(--card); border-bottom: 1px solid var(--border); padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+  .composer-header h2 { font-size: 15px; font-weight: 600; }
+  .composer-main { max-width: 920px; margin: 0 auto; padding: 28px 20px 80px; }
+
+  .composer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .comp-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .comp-card h3 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--green); margin-bottom: 16px; }
+  .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+  label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  input, select, textarea { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 9px 12px; font-family: inherit; font-size: 13px; width: 100%; }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--green); }
+  textarea { resize: vertical; min-height: 70px; }
+
+  .rate-input-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; align-items: end; }
+  .rate-row { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .rate-row-header { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 6px; }
+  .rate-row-header span { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); }
+  .rate-row span { font-size: 13px; font-weight: 600; }
+  .rate-row input { padding: 7px 10px; font-size: 13px; }
+  .change-indicator { font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: 6px; text-align: center; }
+  .change-indicator.up { background: rgba(231,76,60,0.15); color: #e74c3c; }
+  .change-indicator.dn { background: rgba(46,204,133,0.15); color: var(--green); }
+  .change-indicator.flat { background: rgba(163,163,184,0.1); color: var(--muted); }
+
+  .gen-settings { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+
+  .preview-section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-top: 16px; display: none; }
+  .preview-section.show { display: block; }
+  .preview-inner { background: #fff; color: #1a1a2e; border-radius: 10px; padding: 32px; font-size: 14px; line-height: 1.7; }
+  .preview-inner h1 { font-size: 22px; font-weight: 800; color: #1a1a2e; margin-bottom: 4px; }
+  .preview-inner .issue-meta { font-size: 11px; color: #888; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 2px solid #2ECC85; }
+  .preview-inner h2 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #2ECC85; margin: 20px 0 10px; }
+  .preview-inner p { margin-bottom: 10px; color: #333; }
+  .preview-inner table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+  .preview-inner table th { background: #f5f5f5; font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 7px 10px; border: 1px solid #e0e0e0; text-align: left; }
+  .preview-inner table td { padding: 8px 10px; border: 1px solid #e0e0e0; font-size: 13px; }
+  .preview-inner ul { padding-left: 18px; margin-bottom: 10px; }
+  .preview-inner li { color: #333; margin-bottom: 3px; }
+  .preview-inner strong { color: #1a1a2e; }
+  .preview-inner .footer-note { font-size: 11px; color: #aaa; text-align: center; margin-top: 24px; border-top: 1px solid #e0e0e0; padding-top: 10px; }
+
+  .spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
+  .spinner.show { display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .btn-primary { background: linear-gradient(135deg, var(--green), var(--green2)); color: #0a1a12; border: none; border-radius: 10px; padding: 12px 28px; font-family: inherit; font-size: 14px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-secondary { background: transparent; color: var(--muted); border: 1px solid var(--border); border-radius: 10px; padding: 11px 20px; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; }
+  .btn-secondary:hover { border-color: var(--muted); color: var(--text); }
+  .btn-icon { background: var(--card); color: var(--muted); border: 1px solid var(--border); border-radius: 8px; padding: 7px 14px; font-family: inherit; font-size: 12px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+  .btn-icon:hover { border-color: var(--green); color: var(--green); }
+  .btn-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+  @media print {
+    #landing, .composer-header, .comp-card, #input-col, .btn-row, .gen-settings { display: none !important; }
+    .preview-section { display: block !important; border: none; padding: 0; }
+    .preview-inner { box-shadow: none; }
+    body { background: white; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== LANDING PAGE ===== -->
+<div id="landing">
+  <nav>
+    <div class="nav-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 90">
+        <defs>
+          <linearGradient id="fg" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" style="stop-color:#1FAD73"/><stop offset="55%" style="stop-color:#2ECC85"/><stop offset="55%" style="stop-color:transparent"/><stop offset="100%" style="stop-color:transparent"/></linearGradient>
+          <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/></linearGradient>
+        </defs>
+        <g transform="translate(40,45)"><circle cx="0" cy="0" r="32" fill="none" stroke="url(#sg)" stroke-width="7"/><circle cx="0" cy="0" r="24" fill="url(#fg)"/></g>
+        <text x="82" y="52" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="600" fill="#fff" letter-spacing="-0.5">ney</text>
+        <text x="129" y="52" font-family="Inter,system-ui,sans-serif" font-size="21" font-weight="500" fill="url(#sg)">&amp;</text>
+        <text x="148" y="52" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="600" fill="#fff" letter-spacing="-0.5">co</text>
+        <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
+      </svg>
+      <span>Rate Radar</span>
+      <div class="nav-badge">Weekly</div>
+    </div>
+    <div class="nav-right">
+      <button class="btn-outline" onclick="switchToComposer()">✍️ Composer (Internal)</button>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-tag">📡 SME & Commercial Lending Intelligence</div>
+    <h1>Australia's sharpest<br><span>lender rate briefing</span><br>for finance professionals</h1>
+    <p>Every week: Big 4 rates, non-bank movers, RBA implications, and one expert insight — from an 8-year Big Four banker who's read thousands of credit files.</p>
+
+    <div style="max-width:500px;margin:0 auto 16px;">
+      <div class="subscribe-box">
+        <input type="email" id="sub-email" placeholder="your@email.com">
+        <button onclick="subscribe()">Subscribe Free →</button>
+      </div>
+      <div id="sub-thanks">✅ You're in! First issue lands next Monday.</div>
+    </div>
+    <div class="social-proof">Join <strong>Accountants · Mortgage Brokers · Buyers Agents · Finance Advisors</strong></div>
+  </div>
+
+  <!-- WHAT YOU GET -->
+  <div class="section">
+    <div class="section-tag">What's inside every issue</div>
+    <h2>Rate intel your clients are asking about</h2>
+    <p class="lead">No fluff. No generic news summaries. Just the rate movements and policy shifts that matter to you and your clients this week.</p>
+
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">🏦</div>
+        <h3>Big 4 Rate Tracker</h3>
+        <p>Weekly table of CBA, NAB, ANZ, Westpac residential and commercial rates — with week-on-week changes highlighted.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🏃</div>
+        <h3>Non-Bank Movers</h3>
+        <p>Macquarie, Pepper, La Trobe, Liberty and others. Who's getting aggressive, who's pulling back, and why.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <h3>Expert Insight</h3>
+        <p>One 200-word insight each week from a former Big 4 credit analyst on what these rate moves mean in practice.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>RBA Tracker</h3>
+        <p>Cash rate, next meeting date, market probability of change, and implications for variable vs fixed strategy.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Policy Alerts</h3>
+        <p>LVR changes, credit policy tightening, lender appetite shifts. Know before your clients ask.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📌</div>
+        <h3>Quick Wins</h3>
+        <p>2-3 actionable tips: which lender to approach this week, what to say to refinance prospects, timing windows.</p>
+      </div>
+    </div>
+
+    <!-- Sample Issue -->
+    <div class="sample-issue">
+      <div class="sample-header">
+        <h3>📡 Lender Rate Radar — Issue #3 · Week of 3 March 2026</h3>
+        <p>Sample preview — subscribe for the full weekly briefing</p>
+      </div>
+      <div class="sample-body">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:20px;">🔴 <strong style="color:var(--text)">This week's headline:</strong> RBA March meeting risk is real. 3 of 4 major banks now pricing in a May hike. Time to have the conversation with variable rate clients — before they see it on the news.</p>
+
+        <table class="rate-table">
+          <thead><tr><th>Lender</th><th>Variable (Home)</th><th>Wk Change</th><th>3yr Fixed</th><th>Commercial (Std)</th></tr></thead>
+          <tbody>
+            <tr><td>CBA</td><td>5.59%</td><td class="change-flat">—</td><td>5.29%</td><td>6.15%</td></tr>
+            <tr><td>NAB</td><td>5.94%</td><td class="change-up">▲ 0.05%</td><td>5.49%</td><td>6.40%</td></tr>
+            <tr><td>ANZ</td><td>5.89%</td><td class="change-flat">—</td><td>5.39%</td><td>6.35%</td></tr>
+            <tr><td>Westpac</td><td>5.94%</td><td class="change-flat">—</td><td>5.45%</td><td>6.40%</td></tr>
+            <tr><td>Macquarie</td><td>5.49%</td><td class="change-dn">▼ 0.10%</td><td>5.19%</td><td>—</td></tr>
+            <tr><td>Pepper Money</td><td>6.29%</td><td class="change-flat">—</td><td>—</td><td>7.10%</td></tr>
+          </tbody>
+        </table>
+
+        <div class="insight-block">
+          <div class="label">💡 This Week's Expert Insight</div>
+          <p>Macquarie's 10bps cut on variable looks small, but it's a signal. When a non-bank cuts while majors hold or raise, they're buying volume. If you have a clean borrower who banks with CBA at 5.94% with no loyalty, Macquarie at 5.49% is a 45bps conversation worth having. On a $700k loan that's <strong>$262/month</strong>. That's a conversation your client will remember you for.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRICING -->
+  <div class="section" style="text-align:center;">
+    <div class="section-tag">Pricing</div>
+    <h2>Simple. No lock-in.</h2>
+    <p class="lead" style="margin: 0 auto 40px;">Start free, upgrade when it's delivering value for your clients.</p>
+    <div class="pricing">
+      <div class="price-card">
+        <h3>Free</h3>
+        <div class="price">$0<span>/mo</span></div>
+        <ul>
+          <li>Weekly rate table (Big 4 only)</li>
+          <li>RBA cash rate update</li>
+          <li>1 quick insight per issue</li>
+          <li>Email delivery every Monday</li>
+        </ul>
+        <button class="btn-ghost" onclick="document.getElementById('sub-email').focus();window.scrollTo(0,0)">Get Started Free</button>
+      </div>
+      <div class="price-card featured">
+        <div class="featured-badge">Most Popular</div>
+        <h3>Pro</h3>
+        <div class="price">$19<span>/mo</span></div>
+        <ul>
+          <li>All free features</li>
+          <li>Non-bank tracker (10+ lenders)</li>
+          <li>Policy change alerts</li>
+          <li>Full 200-word expert insight</li>
+          <li>Weekly quick wins</li>
+          <li>Searchable issue archive</li>
+        </ul>
+        <button class="btn-big" onclick="document.getElementById('sub-email').focus();window.scrollTo(0,0)">Start Pro →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="section">
+    <div class="about-card">
+      <div class="about-avatar">🏦</div>
+      <div class="about-text">
+        <h3>Written by a former Big 4 credit analyst</h3>
+        <p>8 years inside Westpac, NAB, and St George — approving SME loans, reading credit files, and watching borrowers pay too much because their banker didn't tell them the whole picture. Rate Radar is what I wish had existed for my clients' accountants and advisors. Straight talk, no bank loyalty.</p>
+        <div class="creds">
+          <div class="cred">Westpac Business Banking</div>
+          <div class="cred">NAB Commercial</div>
+          <div class="cred">St George SME</div>
+          <div class="cred">500+ deals settled</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2026 Oney & Co Pty Ltd · ACN 688 704 912 · <a href="https://oneyco.com.au">oneyco.com.au</a> · Not financial advice. For professional use.</p>
+  </footer>
+</div>
+
+<!-- ===== COMPOSER (INTERNAL TOOL) ===== -->
+<div id="composer">
+  <div class="composer-header">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button class="btn-icon" onclick="switchToLanding()">← Landing Page</button>
+      <h2>✍️ Rate Radar Composer — Internal Tool</h2>
+    </div>
+    <div class="btn-row">
+      <div class="spinner" id="gen-spinner"></div>
+      <button class="btn-icon" onclick="loadComposerSample()">📋 Load Sample Data</button>
+      <div class="field" style="margin:0;display:flex;gap:8px;align-items:center;">
+        <select id="comp-provider" style="width:140px;padding:8px 10px;font-size:13px;" onchange="localStorage.setItem('radar_provider',this.value);updateRadarProvider()">
+          <option value="anthropic">Claude</option>
+          <option value="openai">OpenAI</option>
+        </select>
+        <input type="password" id="comp-apikey" placeholder="API Key (sk-ant-... or sk-...)" style="width:220px;" oninput="localStorage.setItem('radar_apikey',this.value)">
+      </div>
+    </div>
+  </div>
+
+  <div class="composer-main">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+      <div id="input-col">
+        <!-- Issue metadata -->
+        <div class="comp-card">
+          <h3>📋 Issue Details</h3>
+          <div class="field"><label>Issue Number</label><input type="number" id="issue-num" placeholder="e.g. 4" min="1"></div>
+          <div class="field"><label>Week Of</label><input type="date" id="issue-week"></div>
+          <div class="field"><label>Headline Theme</label><input type="text" id="headline" placeholder="e.g. RBA May hike risk; Macquarie going aggressive"></div>
+        </div>
+
+        <!-- Big 4 Rates -->
+        <div class="comp-card">
+          <h3>🏦 Big 4 Rates</h3>
+          <div class="rate-row-header"><span>Lender</span><span>Variable</span><span>3yr Fixed</span><span>Wk Δ</span></div>
+          <div id="big4-rates">
+            <div class="rate-row"><span>CBA</span><input type="number" step="0.01" placeholder="5.59" id="cba-var"><input type="number" step="0.01" placeholder="5.29" id="cba-fix"><input type="number" step="0.01" placeholder="0.00" id="cba-chg" oninput="updateChange('cba-chg-disp',this.value)"><span class="change-indicator flat" id="cba-chg-disp">—</span></div>
+            <div class="rate-row"><span>NAB</span><input type="number" step="0.01" placeholder="5.94" id="nab-var"><input type="number" step="0.01" placeholder="5.49" id="nab-fix"><input type="number" step="0.01" placeholder="0.00" id="nab-chg" oninput="updateChange('nab-chg-disp',this.value)"><span class="change-indicator flat" id="nab-chg-disp">—</span></div>
+            <div class="rate-row"><span>ANZ</span><input type="number" step="0.01" placeholder="5.89" id="anz-var"><input type="number" step="0.01" placeholder="5.39" id="anz-fix"><input type="number" step="0.01" placeholder="0.00" id="anz-chg" oninput="updateChange('anz-chg-disp',this.value)"><span class="change-indicator flat" id="anz-chg-disp">—</span></div>
+            <div class="rate-row"><span>Westpac</span><input type="number" step="0.01" placeholder="5.94" id="wbc-var"><input type="number" step="0.01" placeholder="5.45" id="wbc-fix"><input type="number" step="0.01" placeholder="0.00" id="wbc-chg" oninput="updateChange('wbc-chg-disp',this.value)"><span class="change-indicator flat" id="wbc-chg-disp">—</span></div>
+          </div>
+        </div>
+
+        <!-- Non-bank -->
+        <div class="comp-card">
+          <h3>🏃 Non-Bank Movers</h3>
+          <div class="rate-row-header"><span>Lender</span><span>Variable</span><span>Specialty</span><span>Wk Δ</span></div>
+          <div class="rate-row"><span>Macquarie</span><input type="number" step="0.01" placeholder="5.49" id="mac-var"><input type="text" placeholder="—" id="mac-spec" style="font-size:12px;"><input type="number" step="0.01" placeholder="-0.10" id="mac-chg" oninput="updateChange('mac-chg-disp',this.value)"><span class="change-indicator flat" id="mac-chg-disp">—</span></div>
+          <div class="rate-row"><span>Pepper</span><input type="number" step="0.01" placeholder="6.29" id="pep-var"><input type="text" placeholder="Alt doc" id="pep-spec" style="font-size:12px;"><input type="number" step="0.01" placeholder="0.00" id="pep-chg" oninput="updateChange('pep-chg-disp',this.value)"><span class="change-indicator flat" id="pep-chg-disp">—</span></div>
+          <div class="rate-row"><span>La Trobe</span><input type="number" step="0.01" placeholder="6.85" id="lat-var"><input type="text" placeholder="Near-prime" id="lat-spec" style="font-size:12px;"><input type="number" step="0.01" placeholder="0.00" id="lat-chg" oninput="updateChange('lat-chg-disp',this.value)"><span class="change-indicator flat" id="lat-chg-disp">—</span></div>
+          <div class="rate-row"><span>Liberty</span><input type="number" step="0.01" placeholder="6.49" id="lib-var"><input type="text" placeholder="Self-emp" id="lib-spec" style="font-size:12px;"><input type="number" step="0.01" placeholder="0.00" id="lib-chg" oninput="updateChange('lib-chg-disp',this.value)"><span class="change-indicator flat" id="lib-chg-disp">—</span></div>
+        </div>
+
+        <!-- Context -->
+        <div class="comp-card">
+          <h3>🧠 Your Notes → AI Insight</h3>
+          <div class="field"><label>RBA Status</label><input type="text" id="rba-status" placeholder="e.g. Hold at 3.85%, May hike 60% probability"></div>
+          <div class="field"><label>Key Market Observation This Week</label><textarea id="market-obs" placeholder="e.g. Macquarie dropped 10bps — likely volume play. NAB bumped 5bps on investor loans quietly..."></textarea></div>
+          <div class="field"><label>Policy / Appetite Changes</label><textarea id="policy-notes" placeholder="e.g. ANZ tightened commercial LVR from 70% to 65% for industrial..."></textarea></div>
+          <div class="field"><label>Quick Wins for Readers This Week</label><textarea id="quick-wins" placeholder="e.g. Pitch refinance to CBA variable clients — Macquarie 45bps cheaper on clean deals..."></textarea></div>
+        </div>
+
+        <div class="btn-row" style="margin-top:8px;">
+          <button class="btn-primary" id="gen-btn" onclick="generateIssue()">✨ Generate Issue Draft</button>
+          <button class="btn-secondary" onclick="clearComposer()">🗑 Clear</button>
+        </div>
+        <div class="error-box" id="comp-error" style="background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.4);border-radius:8px;padding:12px;color:#ff6b6b;margin-top:12px;display:none;"></div>
+      </div>
+
+      <!-- PREVIEW -->
+      <div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--muted);">Preview — updates after generation</div>
+        <div class="preview-section show" id="preview-panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div style="font-size:13px;color:var(--muted);">Generated issue will appear here</div>
+            <div class="btn-row">
+              <button class="btn-icon" onclick="copyIssue()">📋 Copy</button>
+              <button class="btn-icon" onclick="window.print()">🖨 Print</button>
+            </div>
+          </div>
+          <div class="preview-inner" id="issue-preview">
+            <p style="color:#aaa;font-style:italic;">Fill in the rates and click Generate to create your weekly issue draft.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function switchToComposer() {
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('composer').style.display = 'block';
+  document.getElementById('comp-apikey').value = localStorage.getItem('radar_apikey') || '';
+  setDefaultDate();
+}
+function switchToLanding() {
+  document.getElementById('landing').style.display = 'block';
+  document.getElementById('composer').style.display = 'none';
+}
+
+function subscribe() {
+  const email = document.getElementById('sub-email').value;
+  if (!email || !email.includes('@')) { alert('Enter a valid email address'); return; }
+  // TODO: Connect to Beehiiv/Mailchimp API
+  document.querySelector('.subscribe-box').style.display = 'none';
+  document.getElementById('sub-thanks').style.display = 'block';
+  localStorage.setItem('radar_sub', email);
+}
+
+function setDefaultDate() {
+  const today = new Date();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - today.getDay() + 1);
+  document.getElementById('issue-week').value = monday.toISOString().split('T')[0];
+}
+
+function updateChange(dispId, val) {
+  const n = parseFloat(val);
+  const el = document.getElementById(dispId);
+  if (!n || isNaN(n)) { el.textContent = '—'; el.className = 'change-indicator flat'; return; }
+  if (n > 0) { el.textContent = `▲ ${n.toFixed(2)}%`; el.className = 'change-indicator up'; }
+  else { el.textContent = `▼ ${Math.abs(n).toFixed(2)}%`; el.className = 'change-indicator dn'; }
+}
+
+function getRateData() {
+  const banks = [
+    { name: 'CBA', var: 'cba-var', fix: 'cba-fix', chg: 'cba-chg' },
+    { name: 'NAB', var: 'nab-var', fix: 'nab-fix', chg: 'nab-chg' },
+    { name: 'ANZ', var: 'anz-var', fix: 'anz-fix', chg: 'anz-chg' },
+    { name: 'Westpac', var: 'wbc-var', fix: 'wbc-fix', chg: 'wbc-chg' },
+  ];
+  const nonbank = [
+    { name: 'Macquarie', var: 'mac-var', spec: 'mac-spec', chg: 'mac-chg' },
+    { name: 'Pepper Money', var: 'pep-var', spec: 'pep-spec', chg: 'pep-chg' },
+    { name: 'La Trobe', var: 'lat-var', spec: 'lat-spec', chg: 'lat-chg' },
+    { name: 'Liberty', var: 'lib-var', spec: 'lib-spec', chg: 'lib-chg' },
+  ];
+  const get = id => document.getElementById(id)?.value || '';
+  return { banks: banks.map(b => ({ name: b.name, var: get(b.var), fix: get(b.fix), chg: parseFloat(get(b.chg)) || 0 })),
+           nonbank: nonbank.map(n => ({ name: n.name, var: get(n.var), spec: get(n.spec), chg: parseFloat(get(n.chg)) || 0 })) };
+}
+
+function buildIssuePrompt() {
+  const { banks, nonbank } = getRateData();
+  const fmtChg = n => n > 0 ? `▲${n.toFixed(2)}%` : n < 0 ? `▼${Math.abs(n).toFixed(2)}%` : '—';
+
+  const rateLines = banks.map(b => `  ${b.name}: Variable ${b.var || 'N/A'}%, 3yr Fixed ${b.fix || 'N/A'}%, Week change: ${fmtChg(b.chg)}`).join('\n');
+  const nonbankLines = nonbank.filter(n=>n.var).map(n => `  ${n.name}: Variable ${n.var}%, ${n.spec||'—'}, Week change: ${fmtChg(n.chg)}`).join('\n');
+
+  const system = `You are the editor of "Lender Rate Radar", a weekly newsletter for Australian mortgage brokers, accountants, and financial advisors. The newsletter is written by a former 8-year Big Four banker.
+
+Write a complete, polished newsletter issue. Tone: sharp, expert, direct. No waffle. Not a bank press release — real analyst commentary.
+
+Structure:
+1. HEADLINE HOOK (2-3 sentences — what's the one thing they need to know this week?)
+2. RATE TABLE (present the data in a clear summary — no need for HTML, just describe key movers)
+3. NON-BANK MOVERS (who moved and why it matters)
+4. RBA WATCH (implications for fixed vs variable advice)
+5. EXPERT INSIGHT (200 words — one meaty observation that only someone who's sat inside a major bank credit team would know. Make it specific and actionable.)
+6. POLICY ALERTS (any tightening/loosening of credit policy or LVR changes — if none provided, skip)
+7. QUICK WINS (2-3 bullet point actions readers can take this week with clients)
+8. SIGN-OFF (brief, warm, human)
+
+Write in markdown. Australian English. Use ## for section headers.`;
+
+  const user = `ISSUE #${document.getElementById('issue-num').value || '?'} — Week of ${document.getElementById('issue-week').value || 'TBC'}
+
+HEADLINE THEME: ${document.getElementById('headline').value || 'General weekly update'}
+
+BIG 4 RATES:
+${rateLines}
+
+NON-BANK RATES:
+${nonbankLines || 'No non-bank data provided'}
+
+RBA STATUS: ${document.getElementById('rba-status').value || 'Not provided'}
+
+MARKET OBSERVATIONS: ${document.getElementById('market-obs').value || 'None'}
+
+POLICY/APPETITE CHANGES: ${document.getElementById('policy-notes').value || 'None noted'}
+
+QUICK WINS NOTES: ${document.getElementById('quick-wins').value || 'None'}`;
+
+  return { system, user };
+}
+
+function updateRadarProvider() {
+  const p = localStorage.getItem('radar_provider') || 'anthropic';
+  document.getElementById('comp-provider').value = p;
+  document.getElementById('comp-apikey').placeholder = p === 'openai' ? 'sk-...' : 'sk-ant-...';
+}
+
+async function callRadarAI(system, user) {
+  const key = localStorage.getItem('radar_apikey') || document.getElementById('comp-apikey').value;
+  const provider = localStorage.getItem('radar_provider') || 'anthropic';
+  if (!key) throw new Error('Enter your API key in the header bar.');
+  if (provider === 'openai') {
+    const r = await fetch('https://api.openai.com/v1/chat/completions', {
+      method:'POST', headers:{'Authorization':`Bearer ${key}`,'Content-Type':'application/json'},
+      body:JSON.stringify({model:'gpt-4o',max_tokens:2000,messages:[{role:'system',content:system},{role:'user',content:user}]})
+    });
+    if (!r.ok) { const e=await r.json(); throw new Error(e.error?.message||r.status); }
+    return (await r.json()).choices[0].message.content;
+  } else {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST', headers:{'x-api-key':key,'anthropic-version':'2023-06-01','content-type':'application/json','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:2000,system,messages:[{role:'user',content:user}]})
+    });
+    if (!r.ok) { const e=await r.json(); throw new Error(e.error?.message||r.status); }
+    return (await r.json()).content[0].text;
+  }
+}
+
+async function generateIssue() {
+  document.getElementById('gen-spinner').classList.add('show');
+  document.getElementById('gen-btn').disabled = true;
+  document.getElementById('comp-error').style.display = 'none';
+
+  try {
+    const { system, user } = buildIssuePrompt();
+    const text = await callRadarAI(system, user);
+    renderIssue(text);
+  } catch(e) { showCompErr('Error: ' + e.message); }
+  finally { document.getElementById('gen-spinner').classList.remove('show'); document.getElementById('gen-btn').disabled = false; }
+}
+
+function renderIssue(markdown) {
+  const issueNum = document.getElementById('issue-num').value || '?';
+  const weekOf = document.getElementById('issue-week').value || '';
+  const weekFmt = weekOf ? new Date(weekOf).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
+
+  const { banks, nonbank } = getRateData();
+  const fmtChg = n => n > 0 ? `<span style="color:#e74c3c">▲ ${n.toFixed(2)}%</span>` : n < 0 ? `<span style="color:#2ECC85">▼ ${Math.abs(n).toFixed(2)}%</span>` : '<span style="color:#aaa">—</span>';
+
+  const rateRows = banks.map(b => `<tr><td><strong>${b.name}</strong></td><td>${b.var ? b.var+'%' : '—'}</td><td>${b.fix ? b.fix+'%' : '—'}</td><td>${fmtChg(b.chg)}</td></tr>`).join('');
+  const nonbankRows = nonbank.filter(n=>n.var).map(n => `<tr><td><strong>${n.name}</strong></td><td>${n.var}%</td><td>${n.spec||'—'}</td><td>${fmtChg(n.chg)}</td></tr>`).join('');
+
+  const tableHtml = `
+    <table><thead><tr><th>Lender</th><th>Variable</th><th>3yr Fixed</th><th>Wk Δ</th></tr></thead><tbody>${rateRows}</tbody></table>
+    ${nonbankRows ? `<table style="margin-top:12px;"><thead><tr><th>Non-Bank</th><th>Variable</th><th>Specialty</th><th>Wk Δ</th></tr></thead><tbody>${nonbankRows}</tbody></table>` : ''}
+  `;
+
+  let html = markdown
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^- (.+)$/gm, '<li>$1</li>')
+    .replace(/(<li>.*?<\/li>\n?)+/gs, m => '<ul>' + m + '</ul>')
+    .split('\n\n').map(p => {
+      if (p.trim().match(/^<(h2|ul)/)) return p;
+      if (!p.trim()) return '';
+      return `<p>${p.trim()}</p>`;
+    }).join('\n');
+
+  // Inject rate table after first h2
+  html = html.replace('</h2>', `</h2>${tableHtml}`, );
+
+  document.getElementById('issue-preview').innerHTML = `
+    <h1>📡 Lender Rate Radar — Issue #${issueNum}</h1>
+    <div class="issue-meta">Week of ${weekFmt} &nbsp;·&nbsp; Oney & Co</div>
+    ${html}
+    <div class="footer-note">© Oney & Co Pty Ltd · oneyco.com.au · Rate Radar Issue #${issueNum} · Not financial advice</div>
+  `;
+}
+
+function showCompErr(msg) {
+  const el = document.getElementById('comp-error');
+  el.textContent = '⚠️ ' + msg;
+  el.style.display = 'block';
+}
+function copyIssue() {
+  navigator.clipboard.writeText(document.getElementById('issue-preview').innerText).then(() => {
+    const btn = event.target; const orig = btn.textContent;
+    btn.textContent = '✅ Copied!'; setTimeout(() => btn.textContent = orig, 2000);
+  });
+}
+function clearComposer() {
+  ['issue-num','headline','rba-status','market-obs','policy-notes','quick-wins','cba-var','cba-fix','cba-chg','nab-var','nab-fix','nab-chg','anz-var','anz-fix','anz-chg','wbc-var','wbc-fix','wbc-chg','mac-var','mac-spec','mac-chg','pep-var','pep-spec','pep-chg','lat-var','lat-spec','lat-chg','lib-var','lib-spec','lib-chg'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['cba-chg-disp','nab-chg-disp','anz-chg-disp','wbc-chg-disp','mac-chg-disp','pep-chg-disp','lat-chg-disp','lib-chg-disp'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent='—';el.className='change-indicator flat';}});
+  setDefaultDate();
+}
+function loadComposerSample() {
+  document.getElementById('issue-num').value = '4';
+  document.getElementById('headline').value = 'RBA May hike now 65% probability; Macquarie going aggressive on clean deals';
+  document.getElementById('rba-status').value = 'Hold at 3.85% March. May hike 65% probability (futures market). Bullock signalled March was "live" at AFR Summit.';
+  document.getElementById('market-obs').value = 'Macquarie dropped 10bps this week — likely a volume acquisition play. CBA has been steady but word is they\'re tightening commercial LVR for industrial. NAB raised investor variable 5bps quietly mid-week.';
+  document.getElementById('policy-notes').value = 'ANZ tightening commercial security LVR from 70% to 65% for industrial from April 1. Pepper expanding alt-doc appetite for ABN 12m+ borrowers.';
+  document.getElementById('quick-wins').value = 'Refinance pitch: CBA variable clients to Macquarie — 45bps on $700k = $262/mo. Fixed rate window closing — lock clients in before May meeting. ANZ industrial LVR change: contact affected clients now.';
+  document.getElementById('cba-var').value = '5.59'; document.getElementById('cba-fix').value = '5.29'; document.getElementById('cba-chg').value = '0';
+  document.getElementById('nab-var').value = '5.94'; document.getElementById('nab-fix').value = '5.49'; document.getElementById('nab-chg').value = '0.05';
+  document.getElementById('anz-var').value = '5.89'; document.getElementById('anz-fix').value = '5.39'; document.getElementById('anz-chg').value = '0';
+  document.getElementById('wbc-var').value = '5.94'; document.getElementById('wbc-fix').value = '5.45'; document.getElementById('wbc-chg').value = '0';
+  document.getElementById('mac-var').value = '5.49'; document.getElementById('mac-spec').value = 'Low LVR'; document.getElementById('mac-chg').value = '-0.10';
+  document.getElementById('pep-var').value = '6.29'; document.getElementById('pep-spec').value = 'Alt doc'; document.getElementById('pep-chg').value = '0';
+  document.getElementById('lat-var').value = '6.85'; document.getElementById('lat-spec').value = 'Near-prime'; document.getElementById('lat-chg').value = '0';
+  document.getElementById('lib-var').value = '6.49'; document.getElementById('lib-spec').value = 'Self-emp'; document.getElementById('lib-chg').value = '0';
+  ['nab-chg','mac-chg'].forEach(id => { const el = document.getElementById(id); if(el) updateChange(id.replace('chg','chg-disp'), parseFloat(el.value)); });
+  ['nab-chg-disp','mac-chg-disp'].forEach((id,i) => updateChange(id, i===0?0.05:-0.10));
+}
+setDefaultDate();
+updateRadarProvider();
+document.getElementById('comp-apikey').value = localStorage.getItem('radar_apikey') || '';
+document.getElementById('comp-provider').value = localStorage.getItem('radar_provider') || 'anthropic';
+</script>
+</body>
+</html>
