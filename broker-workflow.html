@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<script>if(new URLSearchParams(location.search).has("embed"))document.documentElement.classList.add("embed-mode")</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Broker Workflow | Oney & Co</title>
+<style>
+.embed-mode .header,.embed-mode .disclaimer-footer{display:none!important}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;
+  --text:#f0f0f5;--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;
+  --red:#e74c3c;--yellow:#f39c12;--blue:#3498db;--orange:#e67e22;
+}
+[data-theme="light"]{--bg:#f0f4f8;--card:#ffffff;--border:#dde3ec;--muted:#64748b;--text:#1a1a2e;--green:#1FAD73;--green2:#2ECC85;--purple:#6B4C9A;--red:#dc2626;--yellow:#d97706;--blue:#2563eb}
+
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+
+/* Header */
+.header{display:flex;align-items:center;gap:12px;padding:14px 24px;border-bottom:1px solid var(--border);background:var(--card)}
+.logo svg{height:26px;width:auto}
+.header-title{font-size:0.95rem;font-weight:700;color:var(--text)}
+.header-sub{font-size:0.75rem;color:var(--muted);margin-left:4px}
+.theme-btn{margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:6px;cursor:pointer;font-size:0.75rem;font-family:inherit}
+.back-link{color:var(--green);text-decoration:none;font-size:0.8rem;margin-left:12px}
+
+/* Tabs */
+.tabs{display:flex;gap:0;border-bottom:2px solid var(--border);background:var(--card);overflow-x:auto;padding:0 24px}
+.tab{padding:12px 18px;cursor:pointer;font-size:0.82rem;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:color 0.2s,border-color 0.2s}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--green);border-bottom-color:var(--green)}
+.tab-num{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--border);font-size:0.65rem;margin-right:6px;color:var(--muted)}
+.tab.active .tab-num{background:rgba(46,204,133,0.2);color:var(--green)}
+
+/* Panels */
+.panel{display:none;max-width:900px;margin:0 auto;padding:1.5rem 1.5rem}
+.panel.active{display:block}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1.4rem;margin-bottom:1.2rem}
+.card-title{font-size:0.72rem;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
+
+/* Form */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+@media(max-width:620px){.grid-2,.grid-3{grid-template-columns:1fr}}
+.field{margin-bottom:1rem}
+.field:last-child{margin-bottom:0}
+label{display:block;font-size:0.75rem;font-weight:600;color:var(--muted);margin-bottom:5px;letter-spacing:0.3px}
+input[type=text],input[type=date],input[type=number],select,textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:9px 12px;color:var(--text);font-size:0.85rem;font-family:inherit;transition:border-color 0.2s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(46,204,133,0.1)}
+textarea{resize:vertical;min-height:80px}
+select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a3a3b8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;-webkit-appearance:none}
+
+/* Radio/Check groups */
+.choice-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.choice-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--border);background:var(--bg);color:var(--muted);cursor:pointer;font-size:0.8rem;font-weight:500;transition:all 0.15s;user-select:none}
+.choice-btn:hover{border-color:var(--green);color:var(--green)}
+.choice-btn.selected{border-color:var(--green);background:rgba(46,204,133,0.12);color:var(--green)}
+.choice-btn.danger.selected{border-color:var(--red);background:rgba(231,76,60,0.1);color:var(--red)}
+
+/* Checkbox list */
+.check-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.check-item:last-child{border-bottom:none}
+.check-item input[type=checkbox]{width:16px;height:16px;margin-top:2px;cursor:pointer;accent-color:var(--green)}
+.check-item label{font-size:0.85rem;color:var(--text);font-weight:400;cursor:pointer;margin:0}
+.check-item .check-tag{font-size:0.7rem;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:auto;white-space:nowrap}
+.tag-req{background:rgba(231,76,60,0.15);color:var(--red)}
+.tag-cond{background:rgba(243,156,18,0.15);color:var(--yellow)}
+.tag-nice{background:rgba(52,152,219,0.15);color:var(--blue)}
+
+/* Risk badge */
+.risk-bar{display:flex;align-items:center;gap:12px;padding:1rem 1.2rem;border-radius:8px;margin-bottom:1rem;border:1px solid}
+.risk-bar.green{background:rgba(46,204,133,0.08);border-color:rgba(46,204,133,0.25)}
+.risk-bar.yellow{background:rgba(243,156,18,0.08);border-color:rgba(243,156,18,0.25)}
+.risk-bar.red{background:rgba(231,76,60,0.08);border-color:rgba(231,76,60,0.25)}
+.risk-icon{font-size:1.5rem}
+.risk-label{font-size:0.75rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase}
+.risk-label.green{color:var(--green)}
+.risk-label.yellow{color:var(--yellow)}
+.risk-label.red{color:var(--red)}
+.risk-detail{font-size:0.8rem;color:var(--muted);margin-top:2px}
+
+/* Flags */
+.flag{display:flex;align-items:flex-start;gap:8px;padding:6px 10px;border-radius:6px;margin-bottom:6px;font-size:0.8rem}
+.flag.red{background:rgba(231,76,60,0.08);color:var(--red);border:1px solid rgba(231,76,60,0.2)}
+.flag.yellow{background:rgba(243,156,18,0.08);color:var(--yellow);border:1px solid rgba(243,156,18,0.2)}
+.flag.green{background:rgba(46,204,133,0.08);color:var(--green);border:1px solid rgba(46,204,133,0.2)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:7px;font-size:0.85rem;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:opacity 0.2s}
+.btn-primary{background:linear-gradient(135deg,var(--green2),var(--green));color:#fff}
+.btn-secondary{background:var(--card);border:1px solid var(--border);color:var(--text)}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.btn:hover{opacity:0.85}
+.btn:active{opacity:0.7}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem}
+
+/* Output box */
+.output-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:1.2rem;font-size:0.82rem;line-height:1.8;white-space:pre-wrap;font-family:'Menlo','Consolas',monospace;max-height:500px;overflow-y:auto;color:var(--text)}
+.output-box:empty::before{content:'Output will appear here...';color:var(--border)}
+
+/* Copy feedback */
+.copy-ok{color:var(--green);font-size:0.75rem;margin-left:8px;opacity:0;transition:opacity 0.3s}
+.copy-ok.show{opacity:1}
+
+/* Timeline */
+.timeline-item{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--border)}
+.timeline-item:last-child{border-bottom:none}
+.tl-date{font-size:0.8rem;font-weight:700;color:var(--green);min-width:110px}
+.tl-event{font-size:0.82rem;color:var(--text)}
+.tl-note{font-size:0.75rem;color:var(--muted);margin-top:2px}
+
+/* Section heading */
+.section-h{font-size:0.72rem;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--purple);margin:1.2rem 0 0.6rem;padding-bottom:4px;border-bottom:1px solid var(--border)}
+
+/* Email template card */
+.email-card{background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:1rem;overflow:hidden}
+.email-header{padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.email-header:hover{background:rgba(46,204,133,0.04)}
+.email-type{font-size:0.8rem;font-weight:700;color:var(--text)}
+.email-sub{font-size:0.75rem;color:var(--muted);margin-left:auto}
+.email-chevron{color:var(--muted);font-size:0.75rem;transition:transform 0.2s}
+.email-body{padding:1rem 1.2rem;display:none}
+.email-body.open{display:block}
+.email-fields{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin-bottom:0.8rem}
+@media(max-width:500px){.email-fields{grid-template-columns:1fr}}
+
+/* Progress bar */
+.progress-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.progress-label{font-size:0.75rem;color:var(--muted);min-width:90px}
+.progress-track{flex:1;height:6px;background:var(--bg);border-radius:3px;overflow:hidden;border:1px solid var(--border)}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--green2),var(--green))}
+.progress-pct{font-size:0.72rem;color:var(--muted);min-width:30px;text-align:right}
+
+/* Helper text */
+.hint{font-size:0.72rem;color:var(--muted);margin-top:4px}
+
+/* Empty state */
+.empty{text-align:center;padding:2rem;color:var(--muted)}
+.empty-icon{font-size:2rem;margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="header">
+  <div class="logo">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 90">
+      <defs>
+        <linearGradient id="hfg" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" style="stop-color:#1FAD73"/>
+          <stop offset="55%" style="stop-color:#2ECC85"/>
+          <stop offset="55%" style="stop-color:transparent"/>
+          <stop offset="100%" style="stop-color:transparent"/>
+        </linearGradient>
+        <linearGradient id="hsg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#2ECC85"/>
+          <stop offset="100%" style="stop-color:#1FAD73"/>
+        </linearGradient>
+      </defs>
+      <g transform="translate(40,45)">
+        <circle cx="0" cy="0" r="32" fill="none" stroke="url(#hsg)" stroke-width="7"/>
+        <circle cx="0" cy="0" r="24" fill="url(#hfg)"/>
+      </g>
+      <text x="82" y="52" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="600" fill="#a3a3b8" letter-spacing="-0.5">ney</text>
+      <text x="129" y="52" font-family="Inter,system-ui,sans-serif" font-size="21" font-weight="500" fill="url(#hsg)">&amp;</text>
+      <text x="148" y="52" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="600" fill="#a3a3b8" letter-spacing="-0.5">co</text>
+      <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
+    </svg>
+  </div>
+  <div>
+    <span class="header-title">Broker Workflow</span>
+    <span class="header-sub">Internal tool</span>
+  </div>
+  <button class="theme-btn" onclick="toggleTheme()">☀️ Light</button>
+  <a href="/" class="back-link">← Tools</a>
+</header>
+
+<!-- Tabs -->
+<nav class="tabs">
+  <div class="tab active" onclick="showTab(0)"><span class="tab-num">1</span>Smart Intake</div>
+  <div class="tab" onclick="showTab(1)"><span class="tab-num">2</span>Doc Checklist</div>
+  <div class="tab" onclick="showTab(2)"><span class="tab-num">3</span>Credit Memo</div>
+  <div class="tab" onclick="showTab(3)"><span class="tab-num">4</span>Third-Party Comms</div>
+  <div class="tab" onclick="showTab(4)"><span class="tab-num">5</span>Review Planner</div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════ TAB 1: INTAKE -->
+<div class="panel active" id="panel-0">
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>Deal Type</div>
+    <div class="field">
+      <label>What kind of deal?</label>
+      <div class="choice-group" id="dealTypeGroup">
+        <span class="choice-btn selected" data-val="resi-payg" onclick="selectChoice(this,'dealTypeGroup')">Residential PAYG</span>
+        <span class="choice-btn" data-val="resi-selfempl" onclick="selectChoice(this,'dealTypeGroup')">Residential Self-Employed</span>
+        <span class="choice-btn" data-val="investment" onclick="selectChoice(this,'dealTypeGroup')">Investment Property</span>
+        <span class="choice-btn" data-val="sme" onclick="selectChoice(this,'dealTypeGroup')">SME / Business</span>
+        <span class="choice-btn" data-val="commercial" onclick="selectChoice(this,'dealTypeGroup')">Commercial Property</span>
+        <span class="choice-btn" data-val="construction" onclick="selectChoice(this,'dealTypeGroup')">Construction</span>
+        <span class="choice-btn" data-val="refinance" onclick="selectChoice(this,'dealTypeGroup')">Refinance</span>
+      </div>
+    </div>
+    <div class="field">
+      <label>Transaction Purpose</label>
+      <div class="choice-group" id="purposeGroup">
+        <span class="choice-btn selected" data-val="purchase" onclick="selectChoice(this,'purposeGroup')">Purchase</span>
+        <span class="choice-btn" data-val="refinance" onclick="selectChoice(this,'purposeGroup')">Refinance</span>
+        <span class="choice-btn" data-val="equity" onclick="selectChoice(this,'purposeGroup')">Equity Release</span>
+        <span class="choice-btn" data-val="construction" onclick="selectChoice(this,'purposeGroup')">Construction</span>
+        <span class="choice-btn" data-val="bridging" onclick="selectChoice(this,'purposeGroup')">Bridging</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>Key Numbers</div>
+    <div class="grid-3">
+      <div class="field">
+        <label>Loan Amount ($)</label>
+        <input type="number" id="i_loanAmt" placeholder="650000" oninput="runIntake()">
+      </div>
+      <div class="field">
+        <label>Property Value ($)</label>
+        <input type="number" id="i_propVal" placeholder="800000" oninput="runIntake()">
+      </div>
+      <div class="field">
+        <label>Gross Annual Income ($)</label>
+        <input type="number" id="i_income" placeholder="120000" oninput="runIntake()">
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="field">
+        <label>Total Existing Debts (monthly repayments $)</label>
+        <input type="number" id="i_debts" placeholder="1500" oninput="runIntake()">
+      </div>
+      <div class="field">
+        <label>ABN Age (yrs) — SME/Self-Employed</label>
+        <input type="number" id="i_abnAge" placeholder="3" oninput="runIntake()">
+      </div>
+      <div class="field">
+        <label>Credit Score (approx)</label>
+        <select id="i_credit" onchange="runIntake()">
+          <option value="">Select…</option>
+          <option value="excellent">Excellent (800+)</option>
+          <option value="good">Good (700–799)</option>
+          <option value="average">Average (600–699)</option>
+          <option value="poor">Poor (&lt;600)</option>
+          <option value="unknown">Unknown / Defaults present</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot" style="background:var(--purple)"></span>Quick Flags</div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Property Type</label>
+        <div class="choice-group" id="propTypeGroup">
+          <span class="choice-btn selected" data-val="house" onclick="selectChoice(this,'propTypeGroup')">House / Townhouse</span>
+          <span class="choice-btn" data-val="apartment" onclick="selectChoice(this,'propTypeGroup')">Apartment</span>
+          <span class="choice-btn" data-val="rural" onclick="selectChoice(this,'propTypeGroup')">Rural / Acreage</span>
+          <span class="choice-btn" data-val="commercial" onclick="selectChoice(this,'propTypeGroup')">Commercial</span>
+          <span class="choice-btn" data-val="vacant" onclick="selectChoice(this,'propTypeGroup')">Vacant Land</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Additional Flags</label>
+        <div class="choice-group">
+          <span class="choice-btn danger" data-val="ato-debt" onclick="toggleFlag(this)">ATO Debt</span>
+          <span class="choice-btn danger" data-val="defaults" onclick="toggleFlag(this)">Defaults / Judgements</span>
+          <span class="choice-btn danger" data-val="discharged" onclick="toggleFlag(this)">Discharged Bankrupt</span>
+          <span class="choice-btn danger" data-val="foreign" onclick="toggleFlag(this)">Foreign Income</span>
+          <span class="choice-btn danger" data-val="non-resident" onclick="toggleFlag(this)">Non-Resident</span>
+          <span class="choice-btn danger" data-val="alt-doc" onclick="toggleFlag(this)">Alt Doc / Low Doc</span>
+          <span class="choice-btn danger" data-val="guarantor" onclick="toggleFlag(this)">Guarantor Required</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="intakeResult"></div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="runIntake()">▶ Run Assessment</button>
+    <button class="btn btn-secondary" onclick="showTab(1)">→ Go to Doc Checklist</button>
+  </div>
+
+</div><!-- /panel-0 -->
+
+<!-- ═══════════════════════════════════════════════════════════ TAB 2: DOCS -->
+<div class="panel" id="panel-1">
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>Generate Document Checklist</div>
+    <div class="grid-2">
+      <div class="field">
+        <label>Deal Type</label>
+        <select id="d_dealType" onchange="buildChecklist()">
+          <option value="resi-payg">Residential — PAYG</option>
+          <option value="resi-selfempl">Residential — Self-Employed</option>
+          <option value="investment">Investment Property</option>
+          <option value="sme">SME / Business Loan</option>
+          <option value="commercial">Commercial Property</option>
+          <option value="construction">Construction</option>
+          <option value="refinance">Refinance (add-on)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Entity Type</label>
+        <select id="d_entityType" onchange="buildChecklist()">
+          <option value="individual">Individual / Joint</option>
+          <option value="company">Company (Pty Ltd)</option>
+          <option value="trust">Trust (Discretionary / Unit)</option>
+          <option value="smsf">SMSF</option>
+          <option value="partnership">Partnership</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Additional Factors</label>
+      <div class="choice-group">
+        <span class="choice-btn" data-val="foreign" onclick="toggleDocFlag(this);buildChecklist()">Foreign Income</span>
+        <span class="choice-btn" data-val="multiple-prop" onclick="toggleDocFlag(this);buildChecklist()">Multiple Properties</span>
+        <span class="choice-btn" data-val="guarantor" onclick="toggleDocFlag(this);buildChecklist()">Guarantor</span>
+        <span class="choice-btn" data-val="leased" onclick="toggleDocFlag(this);buildChecklist()">Rental Income</span>
+        <span class="choice-btn" data-val="altdoc" onclick="toggleDocFlag(this);buildChecklist()">Alt Doc</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="checklistOutput"></div>
+
+  <div class="btn-row">
+    <button class="btn btn-primary" onclick="buildChecklist()">↻ Refresh Checklist</button>
+    <button class="btn btn-secondary" onclick="printChecklist()">🖨 Print</button>
+    <button class="btn btn-ghost" onclick="resetChecklist()">Reset Ticks</button>
+  </div>
+
+</div><!-- /panel-1 -->
+
+<!-- ═══════════════════════════════════════════════════════════ TAB 3: MEMO -->
+<div class="panel" id="panel-2">
+
+  <div class="grid-2">
+    <div>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Borrower & Transaction</div>
+        <div class="field"><label>Borrower Name(s)</label><input type="text" id="m_borrower" placeholder="John & Jane Smith" oninput="buildMemo()"></div>
+        <div class="field"><label>Entity (if applicable)</label><input type="text" id="m_entity" placeholder="Smith Holdings Pty Ltd ATF Smith Family Trust" oninput="buildMemo()"></div>
+        <div class="field"><label>Occupation / Business</label><input type="text" id="m_occ" placeholder="Civil Engineer — Tier 1 contractor (8 yrs)" oninput="buildMemo()"></div>
+        <div class="field"><label>Transaction Type</label><select id="m_txType" onchange="buildMemo()">
+          <option value="Purchase">Purchase</option>
+          <option value="Refinance">Refinance</option>
+          <option value="Equity Release">Equity Release</option>
+          <option value="Construction">Construction</option>
+          <option value="Business Acquisition">Business Acquisition</option>
+        </select></div>
+        <div class="field"><label>Loan Purpose</label><input type="text" id="m_purpose" placeholder="Owner-occupied residential purchase" oninput="buildMemo()"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--purple)"></span>Security</div>
+        <div class="field"><label>Property Address</label><input type="text" id="m_propAddr" placeholder="12 Smith St, Parramatta NSW 2150" oninput="buildMemo()"></div>
+        <div class="field"><label>Property Type & Zoning</label><input type="text" id="m_propType" placeholder="Freestanding house, Residential R2" oninput="buildMemo()"></div>
+        <div class="field"><label>Estimated Value / Purchase Price ($)</label><input type="number" id="m_propVal" placeholder="900000" oninput="buildMemo()"></div>
+        <div class="field"><label>Loan Amount ($)</label><input type="number" id="m_loanAmt" placeholder="720000" oninput="buildMemo()"></div>
+        <div class="field"><label>Loan Term & Type</label><input type="text" id="m_loanTerm" placeholder="30 years P&I / Variable" oninput="buildMemo()"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--yellow)"></span>Income & Serviceability</div>
+        <div class="field"><label>Income Summary</label><textarea id="m_income" placeholder="Borrower 1: Base $120K + Super. PAYG confirmed via 2x payslips + 2yr NOA.&#10;Borrower 2: Part-time $45K." oninput="buildMemo()"></textarea></div>
+        <div class="field"><label>Assessment Rate Used (%)</label><input type="number" id="m_assessRate" placeholder="6.85" step="0.01" oninput="buildMemo()"></div>
+        <div class="field"><label>Monthly Surplus / NSR ($)</label><input type="number" id="m_nsr" placeholder="1250" oninput="buildMemo()"></div>
+        <div class="field"><label>Existing Commitments</label><textarea id="m_commitments" placeholder="Home loan $1,800/m, Car loan $450/m, CC limit $10K ($300/m HEM)" oninput="buildMemo()" style="min-height:60px"></textarea></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot" style="background:var(--green)"></span>Assets, Risk & Recommendation</div>
+        <div class="field"><label>Assets Summary</label><textarea id="m_assets" placeholder="Savings $95K (3 months history verified), Super $180K, Investment property est. $450K." oninput="buildMemo()" style="min-height:60px"></textarea></div>
+        <div class="field"><label>Key Risks / Mitigants</label><textarea id="m_risks" placeholder="Risk: Income partially variable.&#10;Mitigant: 8yr employment tenure, strong savings history." oninput="buildMemo()"></textarea></div>
+        <div class="field"><label>Recommendation</label><select id="m_rec" onchange="buildMemo()">
+          <option value="Recommend approval subject to conditions">Recommend approval (subject to conditions)</option>
+          <option value="Recommend approval — clean deal">Recommend approval — clean deal</option>
+          <option value="Conditional support — refer for credit review">Conditional support — refer credit</option>
+          <option value="Decline — deal breaker identified">Decline — deal breaker identified</option>
+        </select></div>
+        <div class="field"><label>Additional Notes</label><textarea id="m_notes" placeholder="Clients prefer fixed rate for 2 years. Pre-approval requested." oninput="buildMemo()" style="min-height:50px"></textarea></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>Credit Memo Output <span id="copyOk" class="copy-ok">Copied ✓</span></div>
+    <div class="output-box" id="memoOutput"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="copyMemo()">Copy Memo</button>
+      <button class="btn btn-secondary" onclick="buildMemo()">↻ Refresh</button>
+      <button class="btn btn-ghost" onclick="clearMemo()">Clear Form</button>
+    </div>
+  </div>
+
+</div><!-- /panel-2 -->
+
+<!-- ═══════════════════════════════════════════════════════════ TAB 4: COMMS -->
+<div class="panel" id="panel-3">
+
+  <div class="card" style="margin-bottom:0.8rem">
+    <div class="card-title"><span class="dot"></span>Quick Variables</div>
+    <div class="grid-3">
+      <div class="field"><label>Client Name(s)</label><input type="text" id="c_client" placeholder="John & Jane Smith" oninput="refreshComms()"></div>
+      <div class="field"><label>Property Address</label><input type="text" id="c_addr" placeholder="12 Smith St, Parramatta" oninput="refreshComms()"></div>
+      <div class="field"><label>Loan Amount</label><input type="text" id="c_loanAmt" placeholder="$720,000" oninput="refreshComms()"></div>
+    </div>
+    <div class="grid-3">
+      <div class="field"><label>Lender</label><input type="text" id="c_lender" placeholder="NAB" oninput="refreshComms()"></div>
+      <div class="field"><label>Settlement Date</label><input type="date" id="c_settleDate" oninput="refreshComms()"></div>
+      <div class="field"><label>Your Name / Signature</label><input type="text" id="c_broker" placeholder="Dong — Oney & Co" oninput="refreshComms()"></div>
+    </div>
+  </div>
+
+  <!-- Email Cards -->
+  <div id="emailCards"></div>
+
+</div><!-- /panel-3 -->
+
+<!-- ═══════════════════════════════════════════════════════════ TAB 5: REVIEW -->
+<div class="panel" id="panel-4">
+
+  <div class="card">
+    <div class="card-title"><span class="dot"></span>Loan Details</div>
+    <div class="grid-3">
+      <div class="field"><label>Client Name</label><input type="text" id="r_client" placeholder="Smith Family" oninput="buildReviews()"></div>
+      <div class="field"><label>Settlement / Drawdown Date</label><input type="date" id="r_settle" oninput="buildReviews()"></div>
+      <div class="field"><label>Loan Term (years)</label><input type="number" id="r_term" placeholder="30" value="30" oninput="buildReviews()"></div>
+    </div>
+    <div class="grid-3">
+      <div class="field"><label>Loan Amount ($)</label><input type="number" id="r_loanAmt" placeholder="720000" oninput="buildReviews()"></div>
+      <div class="field"><label>Initial Rate (%)</label><input type="number" id="r_rate" placeholder="6.14" step="0.01" oninput="buildReviews()"></div>
+      <div class="field"><label>Rate Type</label><select id="r_rateType" onchange="buildReviews()">
+        <option value="variable">Variable</option>
+        <option value="fixed-1">Fixed — 1 year</option>
+        <option value="fixed-2">Fixed — 2 years</option>
+        <option value="fixed-3">Fixed — 3 years</option>
+        <option value="fixed-5">Fixed — 5 years</option>
+        <option value="split">Split</option>
+      </select></div>
+    </div>
+  </div>
+
+  <div id="reviewTimeline">
+    <div class="empty"><div class="empty-icon">📅</div>Enter settlement date to generate review timeline</div>
+  </div>
+
+</div><!-- /panel-4 -->
+
+<!-- Footer -->
+<footer class="disclaimer-footer" style="border-top:1px solid var(--border);padding:1rem 1.5rem;text-align:center;font-size:0.72rem;color:var(--muted)">
+  Internal tool · Oney & Co Pty Ltd · Not for distribution · Figures are estimates only
+</footer>
+
+<script>
+// ── Theme ────────────────────────────────────────────────────────────────────
+function toggleTheme(){
+  const h=document.documentElement,d=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',d?'light':'dark');
+  document.querySelector('.theme-btn').textContent=d?'🌙 Dark':'☀️ Light';
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────────────
+function showTab(i){
+  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
+  document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('active',j===i));
+}
+
+// ── Choice helpers ────────────────────────────────────────────────────────────
+function selectChoice(el,groupId){
+  document.querySelectorAll('#'+groupId+' .choice-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+  runIntake();
+}
+function toggleFlag(el){el.classList.toggle('selected');el.classList.toggle('danger');runIntake();}
+function toggleDocFlag(el){el.classList.toggle('selected');}
+function getChoice(groupId){const s=document.querySelector('#'+groupId+' .choice-btn.selected');return s?s.dataset.val:'';}
+function getFlags(){return [...document.querySelectorAll('#panel-0 .choice-btn.danger.selected')].map(e=>e.dataset.val);}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+function fmtMoney(n){return n?'$'+Number(n).toLocaleString('en-AU'):'—'}
+function addDays(date,days){const d=new Date(date);d.setDate(d.getDate()+days);return d;}
+function addMonths(date,months){const d=new Date(date);d.setMonth(d.getMonth()+months);return d;}
+function fmtDate(d){return d.toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});}
+
+// ════════════════════════════════════════════════════════════════ TAB 1 ══════
+function runIntake(){
+  const dealType=getChoice('dealTypeGroup');
+  const loanAmt=+document.getElementById('i_loanAmt').value||0;
+  const propVal=+document.getElementById('i_propVal').value||0;
+  const income=+document.getElementById('i_income').value||0;
+  const debts=+document.getElementById('i_debts').value||0;
+  const abnAge=+document.getElementById('i_abnAge').value||null;
+  const credit=document.getElementById('i_credit').value;
+  const propType=getChoice('propTypeGroup');
+  const flags=getFlags();
+
+  if(!loanAmt&&!propVal&&!income){
+    document.getElementById('intakeResult').innerHTML='';
+    return;
+  }
+
+  const lvr=propVal>0?((loanAmt/propVal)*100):null;
+  // DTI: total debt / gross income (annual)
+  const annualDebt=debts*12;
+  const newRepayEst=loanAmt*(0.0685/12)/(1-Math.pow(1+0.0685/12,-360));
+  const totalAnnualDebt=annualDebt+newRepayEst*12;
+  const dti=income>0?totalAnnualDebt/income:null;
+  // NSR crude: (income/12) - debts - new repay - HEM est
+  const hemEst=2500;
+  const nsr=income>0?(income/12)-debts-newRepayEst-hemEst:null;
+
+  let breakers=[];
+  let warnings=[];
+  let passes=[];
+
+  // LVR checks
+  if(lvr!==null){
+    if(propType==='commercial'&&lvr>70) breakers.push(`LVR ${lvr.toFixed(1)}% exceeds 70% commercial cap`);
+    else if(propType==='rural'&&lvr>80) breakers.push(`LVR ${lvr.toFixed(1)}% exceeds 80% rural cap — specialist lender required`);
+    else if(propType==='apartment'&&lvr>90) warnings.push(`LVR ${lvr.toFixed(1)}% for apartment — LMI required, some lenders cap at 80%`);
+    else if(lvr>95) breakers.push(`LVR ${lvr.toFixed(1)}% exceeds 95% — very limited lender options`);
+    else if(lvr>90) warnings.push(`LVR ${lvr.toFixed(1)}% — LMI required`);
+    else if(lvr>80) warnings.push(`LVR ${lvr.toFixed(1)}% — LMI required`);
+    else passes.push(`LVR ${lvr.toFixed(1)}% — within standard policy`);
+  }
+
+  // DTI
+  if(dti!==null){
+    if(dti>=7) breakers.push(`DTI ${dti.toFixed(1)}x — APRA cap (6x) significantly exceeded, limited lender options`);
+    else if(dti>=6) warnings.push(`DTI ${dti.toFixed(1)}x — at APRA 6x cap boundary, lender allocations may be exhausted`);
+    else if(dti>=5) warnings.push(`DTI ${dti.toFixed(1)}x — manageable but monitor`);
+    else passes.push(`DTI ${dti.toFixed(1)}x — within APRA limits`);
+  }
+
+  // NSR
+  if(nsr!==null){
+    if(nsr<0) breakers.push(`Estimated NSR negative (−${fmtMoney(Math.abs(nsr))/12}/mth) — serviceability failure`);
+    else if(nsr<500) warnings.push(`Thin NSR ~${fmtMoney(nsr)}/mth — tight serviceability`);
+    else passes.push(`Estimated NSR ~${fmtMoney(nsr)}/mth — serviceable`);
+  }
+
+  // ABN / self-employed
+  if((dealType==='resi-selfempl'||dealType==='sme')&&abnAge!==null){
+    if(abnAge<2) breakers.push(`ABN age ${abnAge} year(s) — minimum 2 years required for most lenders`);
+    else if(abnAge<3) warnings.push(`ABN age ${abnAge} years — some lenders require 3 years`);
+    else passes.push(`ABN age ${abnAge} years — meets standard policy`);
+  }
+
+  // Credit
+  if(credit==='poor'||credit==='unknown') breakers.push('Credit score poor or defaults present — specialist/non-conforming lender likely required');
+  else if(credit==='average') warnings.push('Credit score average — some Big 4 lenders may decline');
+  else if(credit==='good'||credit==='excellent') passes.push('Credit profile — acceptable');
+
+  // Flags
+  if(flags.includes('ato-debt')) breakers.push('ATO debt — must be cleared before settlement or via refinance; lenders treat this as deal risk');
+  if(flags.includes('defaults')) breakers.push('Defaults / judgements — disqualifies from prime lenders; specialist route required');
+  if(flags.includes('discharged')) breakers.push('Discharged bankrupt — typically 3–5 years discharge minimum; very limited options');
+  if(flags.includes('foreign')) warnings.push('Foreign income — fewer lenders, haircut applied (typically 20–30%), exchange rate risk');
+  if(flags.includes('non-resident')) breakers.push('Non-resident — FIRB approval required; very limited lender appetite');
+  if(flags.includes('alt-doc')) warnings.push('Alt Doc — non-bank / specialist lender required; higher rate expected');
+  if(flags.includes('guarantor')) warnings.push('Guarantor — ensure independent legal advice (ILA) planned; lender will require');
+
+  // Render
+  let lvlColor='green',lvlIcon='✅',lvlLabel='PROCEED',lvlDetail='No deal breakers identified. Continue to docs and submission.';
+  if(breakers.length>0){lvlColor='red';lvlIcon='🛑';lvlLabel='DEAL BREAKER(S)';lvlDetail='One or more critical issues found. Address before proceeding.';}
+  else if(warnings.length>0){lvlColor='yellow';lvlIcon='⚠️';lvlLabel='PROCEED WITH CAUTION';lvlDetail='Serviceable but has flags. Select lender carefully.';}
+
+  let html=`<div class="risk-bar ${lvlColor}"><span class="risk-icon">${lvlIcon}</span><div><div class="risk-label ${lvlColor}">${lvlLabel}</div><div class="risk-detail">${lvlDetail}</div></div></div>`;
+
+  if(lvr!==null||dti!==null){
+    html+=`<div class="card" style="margin-bottom:1rem"><div class="card-title"><span class="dot"></span>Metrics</div>`;
+    if(lvr!==null){html+=`<div class="progress-row"><span class="progress-label">LVR</span><div class="progress-track"><div class="progress-fill" style="width:${Math.min(100,lvr)}%;background:${lvr>90?'var(--red)':lvr>80?'var(--yellow)':'var(--green)'}"></div></div><span class="progress-pct">${lvr.toFixed(1)}%</span></div>`;}
+    if(dti!==null){const dtiPct=Math.min(100,dti/8*100);html+=`<div class="progress-row"><span class="progress-label">DTI</span><div class="progress-track"><div class="progress-fill" style="width:${dtiPct}%;background:${dti>=6?'var(--red)':dti>=5?'var(--yellow)':'var(--green)'}"></div></div><span class="progress-pct">${dti.toFixed(1)}x</span></div>`;}
+    html+=`</div>`;
+  }
+
+  if(breakers.length>0){html+=`<div class="section-h">🛑 Deal Breakers</div>`;breakers.forEach(b=>{html+=`<div class="flag red">⛔ ${b}</div>`;});}
+  if(warnings.length>0){html+=`<div class="section-h">⚠️ Warnings</div>`;warnings.forEach(w=>{html+=`<div class="flag yellow">⚠️ ${w}</div>`;});}
+  if(passes.length>0){html+=`<div class="section-h">✅ Passes</div>`;passes.forEach(p=>{html+=`<div class="flag green">✅ ${p}</div>`;});}
+
+  document.getElementById('intakeResult').innerHTML=html;
+}
+
+// ════════════════════════════════════════════════════════════════ TAB 2 ══════
+const DOC_DB={
+  'resi-payg':[
+    {label:'2 most recent payslips',req:'req',cat:'Income'},
+    {label:'Last 2 years Tax Returns (ATO)',req:'req',cat:'Income'},
+    {label:'Last 2 years Notices of Assessment (NOA)',req:'req',cat:'Income'},
+    {label:'3 months bank statements (all accounts)',req:'req',cat:'Financial'},
+    {label:'100-point ID (passport or driver licence)',req:'req',cat:'ID'},
+    {label:'Medicare card',req:'cond',cat:'ID'},
+    {label:'Contract of Sale (if purchase)',req:'cond',cat:'Property'},
+    {label:'Current Council Rates Notice',req:'cond',cat:'Property'},
+    {label:'Existing mortgage statement (if refinance)',req:'cond',cat:'Property'},
+    {label:'Home & Contents Insurance quote',req:'nice',cat:'Property'},
+    {label:'Credit card statements (if applicable)',req:'cond',cat:'Financial'},
+    {label:'Personal loan / car loan statements',req:'cond',cat:'Financial'},
+    {label:'Evidence of genuine savings (3+ months)',req:'cond',cat:'Financial'},
+  ],
+  'resi-selfempl':[
+    {label:'Last 2 years Business Tax Returns (signed)',req:'req',cat:'Income'},
+    {label:'Last 2 years Business Financial Statements (P&L + Balance Sheet)',req:'req',cat:'Income'},
+    {label:'Last 2 years Personal Tax Returns',req:'req',cat:'Income'},
+    {label:'Last 2 years Notices of Assessment',req:'req',cat:'Income'},
+    {label:'ABN & GST registration confirmation',req:'req',cat:'Income'},
+    {label:'6 months business bank statements',req:'req',cat:'Financial'},
+    {label:'3 months personal bank statements',req:'req',cat:'Financial'},
+    {label:'ATO portal screenshot — no tax debt',req:'req',cat:'Compliance'},
+    {label:'Accountant letter (if required)',req:'cond',cat:'Income'},
+    {label:'100-point ID',req:'req',cat:'ID'},
+    {label:'Contract of Sale / Rates Notice',req:'cond',cat:'Property'},
+    {label:'Trust Deed (if operating through trust)',req:'cond',cat:'Entity'},
+    {label:'Dividend statements (if applicable)',req:'nice',cat:'Income'},
+  ],
+  'investment':[
+    {label:'Last 2 payslips (PAYG) or 2yr financials (SE)',req:'req',cat:'Income'},
+    {label:'Last 2 years Tax Returns + NOAs',req:'req',cat:'Income'},
+    {label:'3–6 months bank statements',req:'req',cat:'Financial'},
+    {label:'Current rental agreements / leases',req:'req',cat:'Property'},
+    {label:'Property manager rental confirmation letter',req:'cond',cat:'Property'},
+    {label:'Council Rates Notice (existing security)',req:'req',cat:'Property'},
+    {label:'Strata levy notice (if apartment)',req:'cond',cat:'Property'},
+    {label:'Existing mortgage statements (all properties)',req:'req',cat:'Financial'},
+    {label:'Insurance policy / quote',req:'nice',cat:'Property'},
+    {label:'Depreciation schedule (if existing)',req:'nice',cat:'Income'},
+    {label:'100-point ID',req:'req',cat:'ID'},
+  ],
+  'sme':[
+    {label:'Last 2 years Business Tax Returns (signed)',req:'req',cat:'Business'},
+    {label:'Last 2 years Business Financial Statements (P&L, Balance Sheet, Cash Flow)',req:'req',cat:'Business'},
+    {label:'Last 2 years Personal Tax Returns (all directors/guarantors)',req:'req',cat:'Personal'},
+    {label:'Last 2 years Personal NOAs (all directors/guarantors)',req:'req',cat:'Personal'},
+    {label:'Last 6 months business bank statements (primary operating account)',req:'req',cat:'Financial'},
+    {label:'Last 3 months personal bank statements (directors)',req:'req',cat:'Financial'},
+    {label:'ATO portal screenshot — confirm no tax debt / payment plan details',req:'req',cat:'Compliance'},
+    {label:'Management accounts (if FY not finalised)',req:'cond',cat:'Business'},
+    {label:'BAS statements — last 4 quarters',req:'req',cat:'Compliance'},
+    {label:'ASIC company extract',req:'req',cat:'Entity'},
+    {label:'Trust Deed (if applicable)',req:'cond',cat:'Entity'},
+    {label:'List of assets & liabilities (all directors)',req:'req',cat:'Personal'},
+    {label:'Existing commercial loan statements',req:'cond',cat:'Financial'},
+    {label:'Lease agreement (if leasing premises)',req:'cond',cat:'Business'},
+    {label:'Contract / letter of award (if project finance)',req:'cond',cat:'Business'},
+    {label:'100-point ID (all directors)',req:'req',cat:'ID'},
+    {label:'Personal Guarantee acknowledgement',req:'nice',cat:'Legal'},
+  ],
+  'commercial':[
+    {label:'Last 2 years business financials (if entity borrower)',req:'req',cat:'Business'},
+    {label:'Last 2 years personal tax returns + NOAs (directors)',req:'req',cat:'Personal'},
+    {label:'6 months business bank statements',req:'req',cat:'Financial'},
+    {label:'ATO portal — no outstanding debt',req:'req',cat:'Compliance'},
+    {label:'Signed lease agreements (all tenants)',req:'req',cat:'Property'},
+    {label:'Rent roll (current)',req:'req',cat:'Property'},
+    {label:'Council Rates Notice',req:'req',cat:'Property'},
+    {label:'Strata plan / title search',req:'cond',cat:'Property'},
+    {label:'Building & Landlord Insurance',req:'req',cat:'Property'},
+    {label:'Commercial valuation (bank-appointed)',req:'req',cat:'Property'},
+    {label:'ASIC company extract',req:'cond',cat:'Entity'},
+    {label:'Trust Deed (if applicable)',req:'cond',cat:'Entity'},
+    {label:'Environmental report (if required)',req:'nice',cat:'Property'},
+    {label:'100-point ID (all parties)',req:'req',cat:'ID'},
+  ],
+  'construction':[
+    {label:'All standard income & ID docs (PAYG or SE)',req:'req',cat:'Income/ID'},
+    {label:'Fixed Price Building Contract (signed)',req:'req',cat:'Construction'},
+    {label:'Council Approved Plans & Permits',req:'req',cat:'Construction'},
+    {label:'Builder licence & insurance certificate',req:'req',cat:'Construction'},
+    {label:'Builder\'s public liability insurance',req:'req',cat:'Construction'},
+    {label:'Land contract of sale / title deed',req:'req',cat:'Property'},
+    {label:'Land valuation (current, bank-approved)',req:'req',cat:'Property'},
+    {label:'Council rates notice (land)',req:'cond',cat:'Property'},
+    {label:'Site soil report (if required by lender)',req:'nice',cat:'Construction'},
+    {label:'Owner builder permit (if applicable)',req:'cond',cat:'Construction'},
+    {label:'Progress payment schedule',req:'req',cat:'Construction'},
+  ],
+  'refinance':[
+    {label:'Last 12 months mortgage statements (existing lender)',req:'req',cat:'Property'},
+    {label:'Current payout figure letter',req:'req',cat:'Property'},
+    {label:'Evidence of no mortgage arrears',req:'req',cat:'Property'},
+    {label:'Rates notice (proof of current value basis)',req:'req',cat:'Property'},
+    {label:'Cash-out purpose evidence (if equity release)',req:'cond',cat:'Financial'},
+  ],
+};
+
+const ENTITY_EXTRAS={
+  company:[
+    {label:'ASIC Company Extract (current)',req:'req',cat:'Entity'},
+    {label:'Certificate of Incorporation',req:'req',cat:'Entity'},
+    {label:'Company Constitution or Memorandum',req:'cond',cat:'Entity'},
+    {label:'Director identification (all directors)',req:'req',cat:'Entity'},
+  ],
+  trust:[
+    {label:'Trust Deed (certified copy)',req:'req',cat:'Entity'},
+    {label:'ASIC Extract for Trustee Company',req:'req',cat:'Entity'},
+    {label:'Trustee resolution to borrow',req:'req',cat:'Entity'},
+    {label:'Variation deeds (if trust deed amended)',req:'cond',cat:'Entity'},
+  ],
+  smsf:[
+    {label:'SMSF Trust Deed',req:'req',cat:'Entity'},
+    {label:'SMSF Financial Statements (last 2 years)',req:'req',cat:'Entity'},
+    {label:'SMSF Compliance letter from auditor',req:'req',cat:'Entity'},
+    {label:'ATO SMSF Fund details',req:'req',cat:'Entity'},
+    {label:'Bare Trust Deed (for LRBA)',req:'req',cat:'Entity'},
+    {label:'Custodian trustee documents',req:'req',cat:'Entity'},
+  ],
+  partnership:[
+    {label:'Partnership Agreement',req:'req',cat:'Entity'},
+    {label:'All partner ID and income docs',req:'req',cat:'Entity'},
+  ],
+};
+
+const ADDON_DOCS={
+  foreign:[
+    {label:'Foreign income evidence (payslips, tax returns in English)',req:'req',cat:'Income'},
+    {label:'Currency conversion evidence (3 months)',req:'req',cat:'Income'},
+    {label:'Foreign tax residency declaration',req:'cond',cat:'Compliance'},
+  ],
+  'multiple-prop':[
+    {label:'Mortgage statements — all existing properties',req:'req',cat:'Financial'},
+    {label:'Rental income evidence — all investment properties',req:'cond',cat:'Income'},
+  ],
+  guarantor:[
+    {label:'Guarantor income docs (2yr tax returns + payslips)',req:'req',cat:'Guarantor'},
+    {label:'Guarantor bank statements (3 months)',req:'req',cat:'Guarantor'},
+    {label:'Independent Legal Advice (ILA) certificate',req:'req',cat:'Guarantor'},
+    {label:'Guarantor asset & liability statement',req:'req',cat:'Guarantor'},
+  ],
+  leased:[
+    {label:'Rental income — lease agreements',req:'req',cat:'Income'},
+    {label:'Property manager rental confirmation letter',req:'cond',cat:'Income'},
+    {label:'Council rates notice — investment properties',req:'req',cat:'Property'},
+  ],
+  altdoc:[
+    {label:'6–12 months BAS statements',req:'req',cat:'Alt Doc'},
+    {label:'6 months business bank statements',req:'req',cat:'Alt Doc'},
+    {label:'Accountant declaration letter',req:'req',cat:'Alt Doc'},
+    {label:'ABN registration (min 2 years active)',req:'req',cat:'Alt Doc'},
+  ],
+};
+
+function buildChecklist(){
+  const dealType=document.getElementById('d_dealType').value;
+  const entityType=document.getElementById('d_entityType').value;
+  const addons=[...document.querySelectorAll('#panel-1 .choice-btn.selected')].map(e=>e.dataset.val);
+
+  let docs=[...(DOC_DB[dealType]||[])];
+  if(entityType!=='individual') docs=[...docs,...(ENTITY_EXTRAS[entityType]||[])];
+  addons.forEach(a=>{if(ADDON_DOCS[a]) docs=[...docs,...ADDON_DOCS[a]];});
+
+  // Group by category
+  const cats={};
+  docs.forEach(d=>{if(!cats[d.cat])cats[d.cat]=[];cats[d.cat].push(d);});
+
+  const reqLabel={req:'Required',cond:'Conditional',nice:'Nice to Have'};
+  const reqColor={req:'tag-req',cond:'tag-cond',nice:'tag-nice'};
+
+  let html='';
+  let idx=0;
+  Object.keys(cats).forEach(cat=>{
+    html+=`<div class="card" style="margin-bottom:0.8rem"><div class="card-title"><span class="dot" style="background:var(--purple)"></span>${cat}</div>`;
+    cats[cat].forEach(d=>{
+      html+=`<div class="check-item" id="ci-${idx}"><input type="checkbox" id="ck-${idx}" onchange="updateProgress()"><label for="ck-${idx}">${d.label}</label><span class="check-tag ${reqColor[d.req]}">${reqLabel[d.req]}</span></div>`;
+      idx++;
+    });
+    html+='</div>';
+  });
+
+  // Progress
+  const total=docs.length;
+  html=`<div class="card" style="margin-bottom:1rem"><div class="card-title"><span class="dot"></span>Checklist Progress</div><div class="progress-row"><span class="progress-label">Complete</span><div class="progress-track"><div class="progress-fill" id="checkProgress" style="width:0%"></div></div><span class="progress-pct" id="checkPct">0/${total}</span></div></div>`+html;
+
+  document.getElementById('checklistOutput').innerHTML=html;
+  window._checkTotal=total;
+}
+
+function updateProgress(){
+  const total=window._checkTotal||0;
+  const done=document.querySelectorAll('#checklistOutput input[type=checkbox]:checked').length;
+  const pct=total>0?Math.round(done/total*100):0;
+  const el=document.getElementById('checkProgress');
+  const pt=document.getElementById('checkPct');
+  if(el) el.style.width=pct+'%';
+  if(pt) pt.textContent=`${done}/${total}`;
+}
+function resetChecklist(){document.querySelectorAll('#checklistOutput input[type=checkbox]').forEach(c=>c.checked=false);updateProgress();}
+function printChecklist(){window.print();}
+
+// ════════════════════════════════════════════════════════════════ TAB 3 ══════
+function v(id){return document.getElementById(id)?.value?.trim()||'';}
+
+function buildMemo(){
+  const borrower=v('m_borrower')||'[Borrower Name]';
+  const entity=v('m_entity');
+  const occ=v('m_occ')||'[Occupation]';
+  const txType=v('m_txType')||'Purchase';
+  const purpose=v('m_purpose')||'[Purpose]';
+  const propAddr=v('m_propAddr')||'[Property Address]';
+  const propType=v('m_propType')||'[Type/Zoning]';
+  const propVal=+document.getElementById('m_propVal')?.value||0;
+  const loanAmt=+document.getElementById('m_loanAmt')?.value||0;
+  const loanTerm=v('m_loanTerm')||'30 years P&I / Variable';
+  const income=v('m_income')||'[Income details]';
+  const assessRate=v('m_assessRate')||'[Rate]';
+  const nsr=+document.getElementById('m_nsr')?.value||0;
+  const commitments=v('m_commitments')||'[Commitments]';
+  const assets=v('m_assets')||'[Assets]';
+  const risks=v('m_risks')||'[Risk / Mitigants]';
+  const rec=v('m_rec')||'Recommend approval subject to conditions';
+  const notes=v('m_notes');
+
+  const lvr=propVal>0?((loanAmt/propVal)*100).toFixed(1):null;
+  const today=new Date().toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
+
+  const memo=`CREDIT SUBMISSION MEMO
+──────────────────────────────────────────────────
+Prepared by:  Oney & Co Pty Ltd
+Date:         ${today}
+──────────────────────────────────────────────────
+
+1. TRANSACTION OVERVIEW
+   Type:         ${txType}
+   Purpose:      ${purpose}
+   Loan Amount:  ${fmtMoney(loanAmt)}${lvr?`  |  LVR: ${lvr}%`:''}
+   Loan Terms:   ${loanTerm}
+
+2. BORROWER PROFILE
+   Borrower(s):  ${borrower}${entity?`\n   Entity:       ${entity}`:''}
+   Background:   ${occ}
+
+3. SECURITY
+   Address:      ${propAddr}
+   Type/Zoning:  ${propType}
+   Est. Value:   ${fmtMoney(propVal)}
+   Loan Amount:  ${fmtMoney(loanAmt)}${lvr?`  (LVR ${lvr}%)`:''}
+
+4. INCOME & SERVICEABILITY
+${income.split('\n').map(l=>`   ${l}`).join('\n')}
+
+   Assessment Rate:  ${assessRate}%
+   Existing Commitments:
+   ${commitments}
+
+   Monthly NSR / Surplus:  ${fmtMoney(nsr)}
+
+5. ASSETS & LIABILITIES
+   ${assets}
+
+6. RISK ASSESSMENT & MITIGANTS
+   ${risks}
+
+7. RECOMMENDATION
+   ${rec.toUpperCase()}${notes?`\n\n   Notes: ${notes}`:''}
+
+──────────────────────────────────────────────────
+END OF MEMO — Oney & Co Pty Ltd
+`;
+
+  document.getElementById('memoOutput').textContent=memo;
+}
+
+function copyMemo(){
+  const text=document.getElementById('memoOutput').textContent;
+  if(!text) return;
+  navigator.clipboard.writeText(text).then(()=>{
+    const el=document.getElementById('copyOk');
+    el.classList.add('show');
+    setTimeout(()=>el.classList.remove('show'),2000);
+  });
+}
+function clearMemo(){
+  ['m_borrower','m_entity','m_occ','m_purpose','m_propAddr','m_propType','m_propVal','m_loanAmt','m_loanTerm','m_income','m_assessRate','m_nsr','m_commitments','m_assets','m_risks','m_notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('memoOutput').textContent='';
+}
+
+// ════════════════════════════════════════════════════════════════ TAB 4 ══════
+const EMAIL_TEMPLATES=[
+  {
+    id:'solicitor-chase',
+    type:'Solicitor / Conveyancer',
+    icon:'⚖️',
+    subject:'RE: [Client] — Settlement Update Request',
+    desc:'Chase settlement timeline',
+    fields:[{id:'s_matter',label:'Matter Reference',placeholder:'Smith / 12 Smith St'}],
+    body:(f,c)=>`Subject: RE: ${c.client||'Client'} — Settlement Enquiry
+
+Hi [Solicitor Name],
+
+I'm following up on behalf of my clients ${c.client||'[Client Name]'} regarding the ${c.addr||'[property]'} matter${f.s_matter?' (Ref: '+f.s_matter+')':''}.
+
+Could you please provide an update on:
+1. Estimated settlement date / confirmation of ${c.settleDate?new Date(c.settleDate).toLocaleDateString('en-AU'):'[date]'}
+2. Any outstanding conditions or requirements from your end
+3. Confirmation that transfer docs have been prepared
+
+The lender (${c.lender||'[Lender]'}) has confirmed the loan is ready to settle. Please let me know if you need anything from our side to keep things moving.
+
+Happy to jump on a quick call if easier.
+
+Thanks,
+${c.broker||'Dong — Oney & Co'}
+Mortgage Broker | Oney & Co Pty Ltd`,
+  },
+  {
+    id:'banker-chase',
+    type:'Bank BDM / Lender',
+    icon:'🏦',
+    subject:'Application Update — [Client] [Lender]',
+    desc:'Chase application status or CCD',
+    fields:[{id:'b_appNum',label:'Application / Ref Number',placeholder:'APP-12345678'}],
+    body:(f,c)=>`Subject: Application Update — ${c.client||'Client'} | ${c.lender||'Lender'}
+
+Hi [BDM Name],
+
+Checking in on the below application — keen to get an update for my clients.
+
+Client:         ${c.client||'[Client Name]'}
+Property:       ${c.addr||'[Property]'}
+Loan Amount:    ${c.loanAmt||'[Amount]'}
+App Reference:  ${f.b_appNum||'[Reference]'}
+
+Specifically looking for:
+• Current status / stage in assessment
+• Any outstanding conditions or docs required
+• Estimated timeframe to formal approval
+
+My clients are time-sensitive — happy to provide any additional info to help expedite.
+
+Cheers,
+${c.broker||'Dong — Oney & Co'}`,
+  },
+  {
+    id:'valuer-chase',
+    type:'Valuer',
+    icon:'🏠',
+    subject:'Valuation Order — [Address]',
+    desc:'Order or follow up on valuation',
+    fields:[{id:'v_ref',label:'Valuation Order Ref',placeholder:'VAL-0001'}],
+    body:(f,c)=>`Subject: Valuation Order — ${c.addr||'[Property Address]'}${f.v_ref?' ('+f.v_ref+')':''}
+
+Hi,
+
+I'd like to confirm a valuation order for the following property on behalf of ${c.lender||'[Lender]'}:
+
+Property:     ${c.addr||'[Address]'}
+Client:       ${c.client||'[Client]'}
+Loan Amount:  ${c.loanAmt||'[Amount]'}
+Order Ref:    ${f.v_ref||'[Reference]'}
+
+Could you please confirm:
+1. Estimated inspection date
+2. Expected report turnaround
+3. Access arrangements (I can liaise with the vendor/agent if required)
+
+Please contact me directly if you have any questions.
+
+Regards,
+${c.broker||'Dong — Oney & Co'}`,
+  },
+  {
+    id:'accountant-req',
+    type:'Accountant / Tax Agent',
+    icon:'📊',
+    subject:'Client Income Verification — [Client Name]',
+    desc:'Request income confirmation or letter',
+    fields:[{id:'a_docs',label:'Docs Required',placeholder:'2x tax returns, 2x NOAs, financials'}],
+    body:(f,c)=>`Subject: Income Verification Request — ${c.client||'[Client Name]'}
+
+Hi [Accountant Name],
+
+I'm assisting your client ${c.client||'[Client Name]'} with a home loan application and would appreciate your help in obtaining the following documentation:
+
+Required Documents:
+${(f.a_docs||'• Last 2 years Tax Returns\n• Last 2 years Notices of Assessment\n• Business Financial Statements').split('\n').map(l=>'  '+l).join('\n')}
+
+The lender may also require an accountant's letter confirming:
+- Nature of the business / employment
+- Income expected to continue for the foreseeable future
+- ABN and GST registration details (if self-employed)
+
+Loan Amount: ${c.loanAmt||'[Amount]'} | Lender: ${c.lender||'[Lender]'}
+
+Please send directly to me at [your email] or securely to my client. Let me know if you need a signed authority form.
+
+Thank you for your assistance.
+
+Kind regards,
+${c.broker||'Dong — Oney & Co'}`,
+  },
+  {
+    id:'client-update',
+    type:'Client Update',
+    icon:'👤',
+    subject:'Your Loan Application — Update',
+    desc:'Progress update to client',
+    fields:[{id:'cu_stage',label:'Current Stage',placeholder:'Formal Approval received'}],
+    body:(f,c)=>`Subject: Your Home Loan — Update
+
+Hi ${c.client||'[Client]'},
+
+Quick update on your loan application:
+
+${f.cu_stage?'✅ '+f.cu_stage+'\n\n':''}Property:     ${c.addr||'[Property]'}
+Loan Amount:  ${c.loanAmt||'[Amount]'}
+Lender:       ${c.lender||'[Lender]'}${c.settleDate?'\nSettlement:   '+new Date(c.settleDate).toLocaleDateString('en-AU'):''}
+
+Next steps on our end:
+• [Step 1]
+• [Step 2]
+
+What we need from you:
+• [Any outstanding items]
+
+Don't hesitate to reach out if you have any questions — I'm always happy to chat.
+
+Talk soon,
+${c.broker||'Dong — Oney & Co'}
+Mortgage Broker | Oney & Co Pty Ltd
+hello@oneyco.com.au | oneyco.com.au`,
+  },
+];
+
+function renderEmailCards(){
+  const cards=document.getElementById('emailCards');
+  cards.innerHTML=EMAIL_TEMPLATES.map((t,i)=>`
+  <div class="email-card">
+    <div class="email-header" onclick="toggleEmail(${i})">
+      <span style="font-size:1.2rem">${t.icon}</span>
+      <div>
+        <div class="email-type">${t.type}</div>
+        <div style="font-size:0.72rem;color:var(--muted)">${t.desc}</div>
+      </div>
+      <span class="email-sub">${t.subject}</span>
+      <span class="email-chevron" id="chev-${i}">▼</span>
+    </div>
+    <div class="email-body" id="ebody-${i}">
+      ${t.fields.map(f=>`<div class="field" style="margin-bottom:0.8rem"><label>${f.label}</label><input type="text" id="${f.id}" placeholder="${f.placeholder}" oninput="refreshEmail(${i})"></div>`).join('')}
+      <div class="output-box" id="eout-${i}" style="max-height:280px"></div>
+      <div class="btn-row"><button class="btn btn-primary" onclick="copyEmail(${i})">Copy Email</button><span class="copy-ok" id="ecopy-${i}">Copied ✓</span></div>
+    </div>
+  </div>`).join('');
+}
+
+function toggleEmail(i){
+  const body=document.getElementById(`ebody-${i}`);
+  const chev=document.getElementById(`chev-${i}`);
+  const isOpen=body.classList.contains('open');
+  body.classList.toggle('open',!isOpen);
+  chev.style.transform=isOpen?'':'rotate(180deg)';
+  if(!isOpen) refreshEmail(i);
+}
+
+function getCommsVars(){
+  return{
+    client:document.getElementById('c_client')?.value||'',
+    addr:document.getElementById('c_addr')?.value||'',
+    loanAmt:document.getElementById('c_loanAmt')?.value||'',
+    lender:document.getElementById('c_lender')?.value||'',
+    settleDate:document.getElementById('c_settleDate')?.value||'',
+    broker:document.getElementById('c_broker')?.value||'',
+  };
+}
+function getEmailFields(t){
+  const f={};
+  t.fields.forEach(fi=>{const el=document.getElementById(fi.id);if(el)f[fi.id]=el.value;});
+  return f;
+}
+
+function refreshEmail(i){
+  const t=EMAIL_TEMPLATES[i];
+  const c=getCommsVars();
+  const f=getEmailFields(t);
+  const out=document.getElementById(`eout-${i}`);
+  if(out) out.textContent=t.body(f,c);
+}
+
+function refreshComms(){
+  EMAIL_TEMPLATES.forEach((_,i)=>{
+    if(document.getElementById(`ebody-${i}`)?.classList.contains('open')) refreshEmail(i);
+  });
+}
+
+function copyEmail(i){
+  const text=document.getElementById(`eout-${i}`)?.textContent;
+  if(!text)return;
+  navigator.clipboard.writeText(text).then(()=>{
+    const el=document.getElementById(`ecopy-${i}`);
+    el.classList.add('show');
+    setTimeout(()=>el.classList.remove('show'),2000);
+  });
+}
+
+// ════════════════════════════════════════════════════════════════ TAB 5 ══════
+function buildReviews(){
+  const client=document.getElementById('r_client').value||'Client';
+  const settleStr=document.getElementById('r_settle').value;
+  const term=+document.getElementById('r_term').value||30;
+  const rate=+document.getElementById('r_rate').value||0;
+  const rateType=document.getElementById('r_rateType').value;
+  if(!settleStr){return;}
+
+  const settle=new Date(settleStr);
+  const events=[];
+
+  // Post-settlement check-ins
+  events.push({date:addDays(settle,3),event:'Settlement Confirmation',note:'Confirm funds received, docs lodged. Welcome call to client.'});
+  events.push({date:addMonths(settle,1),event:'1-Month Check-in',note:'Any issues? Direct debit set up? App/portal access?'});
+  events.push({date:addMonths(settle,6),event:'6-Month Health Check',note:'Rate review, savings habits, any life changes affecting loan?'});
+  events.push({date:addMonths(settle,11),event:'Annual Review Notice',note:'Send review reminder letter / email.'});
+  events.push({date:addMonths(settle,12),event:'12-Month Annual Review',note:'Full loan health check. Rate comparison, offset balance, equity position.'});
+
+  // Fixed rate expiry
+  if(rateType.startsWith('fixed')){
+    const yrs=+rateType.split('-')[1];
+    const fixedExpiry=addMonths(settle,yrs*12);
+    const fixedWarn=addMonths(settle,yrs*12-3);
+    events.push({date:fixedWarn,event:`Fixed Rate Expiry Warning (${yrs}yr)`,note:`Rate reverts in 3 months. Compare revert rate vs market. Client decision required.`});
+    events.push({date:fixedExpiry,event:`Fixed Rate Expiry — Revert Date`,note:`Fixed ${yrs}yr expires. Negotiate new rate or refinance. Don't let client roll to revert rate silently.`});
+  }
+
+  // Ongoing annual reviews
+  for(let y=2;y<=Math.min(term,5);y++){
+    events.push({date:addMonths(settle,y*12),event:`Year ${y} Annual Review`,note:'Rate health check, equity update, life changes, next property goals?'});
+  }
+
+  // Refinance window
+  events.push({date:addMonths(settle,24),event:'Refinance Assessment Window',note:'2yr mark: enough equity built? Rate still competitive? Cashback offers available?'});
+
+  // Sort
+  events.sort((a,b)=>a.date-b.date);
+
+  const now=new Date();
+  let html=`<div class="card"><div class="card-title"><span class="dot"></span>${client} — Review Timeline (settled ${settle.toLocaleDateString('en-AU')}${rate?' @ '+rate+'%':''})</div>`;
+
+  events.forEach(e=>{
+    const past=e.date<now;
+    const upcoming=!past&&(e.date-now)<1000*60*60*24*60;
+    html+=`<div class="timeline-item" style="${past?'opacity:0.45':''}">
+      <div class="tl-date" style="${upcoming?'color:var(--yellow)':past?'color:var(--muted)':''}">${fmtDate(e.date)}${upcoming?' ⚡':past?' ✓':''}</div>
+      <div><div class="tl-event">${e.event}</div><div class="tl-note">${e.note}</div></div>
+    </div>`;
+  });
+  html+='</div>';
+
+  // Maturity
+  const maturity=addMonths(settle,term*12);
+  html+=`<div class="card" style="border-color:rgba(107,76,154,0.3)"><div class="card-title"><span class="dot" style="background:var(--purple)"></span>Loan Maturity</div><div class="tl-event">Expected payoff: <strong>${fmtDate(maturity)}</strong></div><div class="tl-note">If borrower maintains minimum repayments on a ${term}-year term.</div></div>`;
+
+  document.getElementById('reviewTimeline').innerHTML=html;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+buildChecklist();
+buildMemo();
+renderEmailCards();
+runIntake();
+</script>
+</body>
+</html>
