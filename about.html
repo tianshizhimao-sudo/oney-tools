@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1A1A2E">
+  <title>About — Oney & Co Tools</title>
+  <meta name="description" content="Free, practical financial tools built for Australian borrowers and mortgage professionals. Learn more about Oney Tools.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='fg' x1='0%25' y1='100%25' x2='0%25' y2='0%25'><stop offset='0%25' stop-color='%231FAD73'/><stop offset='60%25' stop-color='%232ECC85'/><stop offset='60%25' stop-color='transparent'/><stop offset='100%25' stop-color='transparent'/></linearGradient><linearGradient id='sg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><circle r='38' fill='none' stroke='url(%23sg)' stroke-width='10' stroke-linecap='round'/><circle r='28' fill='url(%23fg)'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta property="og:title" content="About — Oney & Co Tools">
+  <meta property="og:description" content="Free, practical financial tools built for Australian borrowers and mortgage professionals.">
+  <meta property="og:image" content="https://tools.oneyco.com.au/assets/og-image.png">
+  <meta property="og:url" content="https://tools.oneyco.com.au/about.html">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://tools.oneyco.com.au/about.html">
+  <style>
+    :root {
+      --bg: #1A1A2E;
+      --bg-secondary: #16162A;
+      --card: #252540;
+      --border: #3D3D5C;
+      --accent: #1FAD73;
+      --accent-light: #2ECC85;
+      --accent-lighter: #4ADE94;
+      --accent-glow: rgba(31, 173, 115, 0.15);
+      --text: #ffffff;
+      --text-muted: #a3a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
+
+    nav {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      background: rgba(26, 26, 46, 0.95);
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .nav-logo svg { height: 48px; }
+
+    .nav-links { display: flex; gap: 8px; align-items: center; }
+
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 100px;
+      transition: all 0.2s;
+    }
+    .nav-link:hover { color: var(--text); background: var(--card); }
+    .nav-link.active { color: var(--accent-light); }
+
+    /* Hero */
+    .hero {
+      padding: 100px 32px 60px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Sections */
+    .about-section {
+      padding: 40px 32px;
+    }
+
+    .about-section + .about-section {
+      padding-top: 0;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--accent-light);
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* What section */
+    .what-text {
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 800px;
+      line-height: 1.8;
+    }
+
+    /* Who cards */
+    .who-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .who-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+    }
+
+    .who-card h3 {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .who-card p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* Q&A */
+    .qa-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .qa-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 28px;
+    }
+
+    .qa-item h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .qa-item p {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    .qa-item a {
+      color: var(--accent-light);
+      text-decoration: none;
+    }
+    .qa-item a:hover { text-decoration: underline; }
+
+    /* Disclaimer */
+    .disclaimer {
+      padding: 40px 32px 60px;
+    }
+
+    .disclaimer-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px 28px;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+
+    /* Footer */
+    footer {
+      padding: 40px 32px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero { padding: 60px 20px 40px; }
+      .hero h1 { font-size: 32px; }
+      .hero p { font-size: 16px; }
+      .about-section { padding: 32px 20px; }
+      .who-grid { grid-template-columns: 1fr; }
+      .disclaimer { padding: 32px 20px 48px; }
+      footer { padding: 32px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 90">
+          <defs>
+            <linearGradient id="fillGradL1" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" style="stop-color:#1FAD73"/>
+              <stop offset="55%" style="stop-color:#2ECC85"/>
+              <stop offset="55%" style="stop-color:transparent"/>
+              <stop offset="100%" style="stop-color:transparent"/>
+            </linearGradient>
+            <linearGradient id="strokeGradL1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#2ECC85"/>
+              <stop offset="100%" style="stop-color:#1FAD73"/>
+            </linearGradient>
+          </defs>
+          <g transform="translate(40, 45)">
+            <circle cx="0" cy="0" r="32" fill="none" stroke="url(#strokeGradL1)" stroke-width="7"/>
+            <circle cx="0" cy="0" r="24" fill="url(#fillGradL1)"/>
+          </g>
+          <text x="82" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">ney</text>
+          <text x="129" y="52" font-family="Inter, system-ui, sans-serif" font-size="21" font-weight="500" fill="url(#strokeGradL1)">&amp;</text>
+          <text x="148" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">co</text>
+          <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
+        </svg>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="tools.html" class="nav-link">Pro Tools</a>
+        <a href="about.html" class="nav-link active">About</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>About Oney Tools</h1>
+    <p>Free, practical financial tools built for Australian borrowers and mortgage professionals.</p>
+  </section>
+
+  <section class="about-section">
+    <div class="container">
+      <h2 class="section-title">What Are These Tools?</h2>
+      <p class="what-text">Oney Tools is a collection of calculators and assessment tools designed to help you understand borrowing capacity, evaluate deals, and navigate the lending landscape — without the jargon.</p>
+    </div>
+  </section>
+
+  <section class="about-section">
+    <div class="container">
+      <h2 class="section-title">Who Are These Tools For?</h2>
+      <div class="who-grid">
+        <div class="who-card">
+          <h3>Borrowers</h3>
+          <p>First home buyers, investors, and property owners who want to understand their financial position before speaking with a broker.</p>
+        </div>
+        <div class="who-card">
+          <h3>Mortgage Professionals</h3>
+          <p>Brokers and bankers who need quick, reliable calculators for client conversations.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-section">
+    <div class="container">
+      <h2 class="section-title">Frequently Asked Questions</h2>
+      <div class="qa-list">
+        <div class="qa-item">
+          <h3>Are these tools free?</h3>
+          <p>Yes. All tools on this site are completely free to use. No sign-up required.</p>
+        </div>
+        <div class="qa-item">
+          <h3>Is my data private?</h3>
+          <p>All calculations happen locally in your browser. No data is sent to any server, and we do not collect or store any information you enter.</p>
+        </div>
+        <div class="qa-item">
+          <h3>How accurate are the calculations?</h3>
+          <p>Our tools use standard lending formulas and current market assumptions. Results are indicative and should be used as a starting point, not a definitive assessment. For complex situations, always verify with a licensed professional.</p>
+        </div>
+        <div class="qa-item">
+          <h3>Who built these tools?</h3>
+          <p>Oney Tools is built and maintained by Oney & Co, an Australian financial services company. Our team has 8+ years of experience in business and mortgage banking.</p>
+        </div>
+        <div class="qa-item">
+          <h3>Can I use these tools for client work?</h3>
+          <p>Yes. These tools are designed to be practical for professional use. We ask that you verify outputs independently before presenting to clients.</p>
+        </div>
+        <div class="qa-item">
+          <h3>How often are the tools updated?</h3>
+          <p>We update our tools regularly to reflect changes in market rates, APRA guidelines, and lending policies. Check back for the latest versions.</p>
+        </div>
+        <div class="qa-item">
+          <h3>Do you offer an API or embeddable version?</h3>
+          <p>Not at this stage. All tools are available for free use via this website.</p>
+        </div>
+        <div class="qa-item">
+          <h3>I found an error. How do I report it?</h3>
+          <p>Please contact us at <a href="mailto:hello@oneyco.com.au">hello@oneyco.com.au</a> with details of the issue.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="disclaimer">
+    <div class="container">
+      <div class="disclaimer-box">
+        All tools are provided for informational and educational purposes only. Results do not constitute financial, legal, or tax advice. Always seek professional advice before making financial decisions. Oney & Co Pty Ltd ACN 688 704 912.
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Oney & Co — Clarity in every deal</p>
+  </footer>
+</body>
+</html>
