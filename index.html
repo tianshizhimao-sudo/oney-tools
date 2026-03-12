@@ -158,6 +158,15 @@
       color: #a78bfa;
     }
     
+    .featured-card {
+      border-color: rgba(46, 204, 133, 0.4);
+      background: linear-gradient(135deg, rgba(46, 204, 133, 0.08), rgba(31, 173, 115, 0.04));
+    }
+    .featured-card:hover {
+      border-color: var(--accent-light);
+      box-shadow: 0 10px 40px rgba(46, 204, 133, 0.2);
+    }
+
     .pro-card {
       border-color: rgba(107, 76, 154, 0.3);
     }
@@ -240,7 +249,7 @@
     <div class="container">
       <h2 class="section-title">⚡ Featured — Free Tools</h2>
       <div class="tools-grid">
-        <a href="dti-router.html" class="tool-card">
+        <a href="dti-router.html" class="tool-card featured-card">
           <div class="tool-header">
             <div class="tool-icon">🏦</div>
             <span class="tool-badge" style="background: linear-gradient(135deg, #2ECC85, #1FAD73); color: #fff;">New</span>
@@ -249,7 +258,7 @@
           <p class="tool-desc">Check your Debt-to-Income ratio and find out if you should go bank or non-bank.</p>
         </a>
 
-        <a href="sme-score.html" class="tool-card">
+        <a href="sme-score.html" class="tool-card featured-card">
           <div class="tool-header">
             <div class="tool-icon">📊</div>
             <span class="tool-badge" style="background: linear-gradient(135deg, #2ECC85, #1FAD73); color: #fff;">New</span>
