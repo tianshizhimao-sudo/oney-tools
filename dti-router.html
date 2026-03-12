@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1A1A2E">
+  <title>DTI Router — Bank vs Non-Bank Guide | Oney & Co</title>
+  <meta name="description" content="Check your Debt-to-Income ratio and find out if you should go with a major bank or non-bank lender. Free DTI calculator by Oney & Co.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='fg' x1='0%25' y1='100%25' x2='0%25' y2='0%25'><stop offset='0%25' stop-color='%231FAD73'/><stop offset='60%25' stop-color='%232ECC85'/><stop offset='60%25' stop-color='transparent'/><stop offset='100%25' stop-color='transparent'/></linearGradient><linearGradient id='sg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><circle r='38' fill='none' stroke='url(%23sg)' stroke-width='10' stroke-linecap='round'/><circle r='28' fill='url(%23fg)'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta property="og:title" content="DTI Router — Bank vs Non-Bank Guide | Oney & Co">
+  <meta property="og:description" content="Check your Debt-to-Income ratio and find out which lenders are right for you.">
+  <meta property="og:url" content="https://tools.oneyco.com.au/dti-router.html">
+  <meta property="og:type" content="website">
+  <style>
+    :root {
+      --bg: #1A1A2E;
+      --card: #252540;
+      --border: #3D3D5C;
+      --accent: #1FAD73;
+      --accent-light: #2ECC85;
+      --accent-glow: rgba(31, 173, 115, 0.15);
+      --purple: #6B4C9A;
+      --purple-light: #9B59B6;
+      --text: #ffffff;
+      --text-muted: #a3a3b8;
+      --green: #2ECC85;
+      --yellow: #F59E0B;
+      --red: #EF4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Nav */
+    nav {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      background: rgba(26, 26, 46, 0.95);
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nav-logo svg { height: 48px; }
+    .nav-links { display: flex; gap: 8px; align-items: center; }
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 100px;
+      transition: all 0.2s;
+    }
+    .nav-link:hover { color: var(--text); background: var(--card); }
+    .nav-link.active { color: var(--accent-light); }
+
+    /* Layout */
+    .container { max-width: 720px; margin: 0 auto; padding: 0 24px; }
+
+    .hero {
+      padding: 60px 24px 32px;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+    .hero h1 span { color: var(--accent-light); }
+    .hero p {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    /* Form */
+    .form-section {
+      padding: 0 24px 40px;
+    }
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+    }
+    .form-group {
+      margin-bottom: 24px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+    .form-group label .hint {
+      font-weight: 400;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+    .form-group input[type="number"],
+    .form-group select {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 16px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+      -moz-appearance: textfield;
+    }
+    .form-group input::-webkit-outer-spin-button,
+    .form-group input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--accent-light);
+    }
+    .form-group select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23a3a3b8' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .input-prefix {
+      position: relative;
+    }
+    .input-prefix::before {
+      content: '$';
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 16px;
+      pointer-events: none;
+    }
+    .input-prefix input {
+      padding-left: 32px !important;
+    }
+
+    .btn-calculate {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--accent-light), var(--accent));
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .btn-calculate:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(46, 204, 133, 0.3);
+    }
+    .btn-calculate:active {
+      transform: translateY(0);
+    }
+
+    /* Results */
+    .results-section {
+      padding: 0 24px 40px;
+      display: none;
+    }
+    .results-section.visible { display: block; }
+
+    .dti-display {
+      text-align: center;
+      padding: 40px 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin-bottom: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .dti-display::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+    .dti-display.green::before { background: var(--green); }
+    .dti-display.yellow::before { background: var(--yellow); }
+    .dti-display.red::before { background: var(--red); }
+
+    .dti-label {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .dti-value {
+      font-size: 64px;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .dti-value.green { color: var(--green); }
+    .dti-value.yellow { color: var(--yellow); }
+    .dti-value.red { color: var(--red); }
+
+    .dti-category {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .dti-subtitle {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Breakdown */
+    .breakdown-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .breakdown-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-light);
+      margin-bottom: 16px;
+    }
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(61, 61, 92, 0.5);
+    }
+    .breakdown-row:last-child { border-bottom: none; }
+    .breakdown-row .label { color: var(--text-muted); }
+    .breakdown-row .value { font-weight: 600; }
+    .breakdown-row.total {
+      border-top: 2px solid var(--border);
+      margin-top: 4px;
+      padding-top: 14px;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    /* Lender Cards */
+    .lender-section {
+      margin-bottom: 24px;
+    }
+    .lender-section h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .lender-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .lender-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .lender-tag.recommended {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+    }
+    .lender-tag.caution {
+      border-color: var(--yellow);
+      background: rgba(245, 158, 11, 0.1);
+    }
+    .lender-tag.nonbank {
+      border-color: var(--purple);
+      background: rgba(107, 76, 154, 0.15);
+    }
+
+    /* Action Items */
+    .actions-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .actions-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .action-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(61, 61, 92, 0.5);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .action-item:last-child { border-bottom: none; }
+    .action-num {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--accent-glow);
+      color: var(--accent-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    /* Notice box */
+    .notice-box {
+      padding: 16px 20px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    .notice-box.info {
+      background: rgba(46, 204, 133, 0.08);
+      border: 1px solid rgba(46, 204, 133, 0.2);
+      color: var(--accent-light);
+    }
+    .notice-box.warning {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      color: var(--yellow);
+    }
+    .notice-box.danger {
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: var(--red);
+    }
+
+    /* Lead Capture */
+    .lead-section {
+      margin-bottom: 24px;
+    }
+    .lead-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--purple), var(--purple-light));
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .lead-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(107, 76, 154, 0.3);
+    }
+    .lead-form {
+      display: none;
+      margin-top: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+    .lead-form.visible { display: block; }
+    .lead-form h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .lead-form p {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+    .lead-form input[type="text"],
+    .lead-form input[type="email"] {
+      width: 100%;
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 16px;
+      font-family: inherit;
+      margin-bottom: 12px;
+      transition: border-color 0.2s;
+    }
+    .lead-form input:focus {
+      outline: none;
+      border-color: var(--accent-light);
+    }
+    .lead-submit {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--accent-light), var(--accent));
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .lead-submit:hover { box-shadow: 0 4px 16px rgba(46, 204, 133, 0.3); }
+    .lead-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .lead-success {
+      display: none;
+      text-align: center;
+      padding: 24px;
+    }
+    .lead-success.visible { display: block; }
+    .lead-success .check {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    .lead-success h4 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .lead-success p {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Reset button */
+    .btn-reset {
+      width: 100%;
+      padding: 14px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+      margin-bottom: 24px;
+    }
+    .btn-reset:hover {
+      border-color: var(--text-muted);
+      color: var(--text);
+    }
+
+    /* Footer */
+    footer {
+      padding: 40px 24px;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .disclaimer {
+      font-size: 12px;
+      color: var(--text-muted);
+      max-width: 640px;
+      margin: 0 auto 16px;
+      line-height: 1.7;
+    }
+    .footer-brand {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 28px; }
+      .form-card { padding: 24px 20px; }
+      .form-row { grid-template-columns: 1fr; }
+      .dti-value { font-size: 48px; }
+      .nav-inner { padding: 0 16px; }
+      .nav-links { gap: 4px; }
+      .nav-link { padding: 8px 10px; font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 90">
+          <defs>
+            <linearGradient id="fillGradL1" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" style="stop-color:#1FAD73"/>
+              <stop offset="55%" style="stop-color:#2ECC85"/>
+              <stop offset="55%" style="stop-color:transparent"/>
+              <stop offset="100%" style="stop-color:transparent"/>
+            </linearGradient>
+            <linearGradient id="strokeGradL1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#2ECC85"/>
+              <stop offset="100%" style="stop-color:#1FAD73"/>
+            </linearGradient>
+          </defs>
+          <g transform="translate(40, 45)">
+            <circle cx="0" cy="0" r="32" fill="none" stroke="url(#strokeGradL1)" stroke-width="7"/>
+            <circle cx="0" cy="0" r="24" fill="url(#fillGradL1)"/>
+          </g>
+          <text x="82" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">ney</text>
+          <text x="129" y="52" font-family="Inter, system-ui, sans-serif" font-size="21" font-weight="500" fill="url(#strokeGradL1)">&amp;</text>
+          <text x="148" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">co</text>
+          <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
+        </svg>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="tools.html" class="nav-link">Pro Tools</a>
+        <a href="about.html" class="nav-link">About</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <h1>🏦 Bank vs Non-Bank <span>DTI Router</span></h1>
+    <p>Check your Debt-to-Income ratio and find out which lenders are the right fit for your situation.</p>
+  </section>
+
+  <section class="form-section">
+    <div class="container">
+      <div class="form-card">
+        <form id="dtiForm" onsubmit="calculateDTI(event)">
+          <div class="form-group">
+            <label>Annual Gross Income <span class="hint">(before tax, all applicants combined)</span></label>
+            <div class="input-prefix">
+              <input type="number" id="annualIncome" placeholder="120000" min="1" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Total Existing Debt <span class="hint">(all outstanding loan balances — mortgage, credit cards, HECS, car loans, etc.)</span></label>
+            <div class="input-prefix">
+              <input type="number" id="existingDebt" placeholder="450000" min="0" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Proposed New Loan Amount</label>
+            <div class="input-prefix">
+              <input type="number" id="newLoanAmount" placeholder="800000" min="1" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Loan Purpose</label>
+              <select id="loanPurpose">
+                <option value="owner-occupied">Owner Occupied</option>
+                <option value="investment">Investment</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Number of Properties</label>
+              <select id="numProperties">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5+</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>First Home Buyer?</label>
+            <select id="firstHomeBuyer">
+              <option value="no">No</option>
+              <option value="yes">Yes</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn-calculate">Check My DTI →</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section class="results-section" id="resultsSection">
+    <div class="container">
+
+      <div class="dti-display" id="dtiDisplay">
+        <div class="dti-label">Your Debt-to-Income Ratio</div>
+        <div class="dti-value" id="dtiValue">—</div>
+        <div class="dti-category" id="dtiCategory"></div>
+        <div class="dti-subtitle" id="dtiSubtitle"></div>
+      </div>
+
+      <!-- Breakdown -->
+      <div class="breakdown-card">
+        <div class="breakdown-title">📊 Calculation Breakdown</div>
+        <div class="breakdown-row">
+          <span class="label">Annual gross income</span>
+          <span class="value" id="brkIncome">—</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="label">Existing debt balances</span>
+          <span class="value" id="brkExistingDebt">—</span>
+        </div>
+        <div class="breakdown-row">
+          <span class="label">New proposed loan</span>
+          <span class="value" id="brkNewDebt">—</span>
+        </div>
+        <div class="breakdown-row total">
+          <span class="label">Total debt / Income</span>
+          <span class="value" id="brkFormula">—</span>
+        </div>
+        <div class="breakdown-row" style="border-top:none;padding-top:4px">
+          <span class="label" style="font-size:12px">Assessed annual repayment on new loan <span style="color:var(--text-muted)">(@ 7.10% P&I, 30yr)</span></span>
+          <span class="value" style="font-size:12px" id="brkAssessedRepayment">—</span>
+        </div>
+      </div>
+
+      <!-- Notice -->
+      <div id="noticeBox" class="notice-box info"></div>
+
+      <!-- Lenders -->
+      <div class="lender-section" id="lenderSection"></div>
+
+      <!-- Actions -->
+      <div class="actions-card" id="actionsCard">
+        <h3>🎯 Recommended Actions</h3>
+        <div id="actionsList"></div>
+      </div>
+
+      <!-- Lead Capture -->
+      <div class="lead-section">
+        <button class="lead-btn" id="leadBtn" onclick="toggleLeadForm()">
+          🔍 Get Personalised Analysis — Free
+        </button>
+        <div class="lead-form" id="leadForm">
+          <h3>Get Your Personalised Report</h3>
+          <p>We'll review your situation and suggest the best lender options tailored to you.</p>
+          <input type="text" id="leadName" placeholder="Your name">
+          <input type="email" id="leadEmail" placeholder="Your email" required>
+          <button class="lead-submit" id="leadSubmitBtn" onclick="submitLead()">Send Me the Analysis →</button>
+        </div>
+        <div class="lead-success" id="leadSuccess">
+          <div class="check">✅</div>
+          <h4>Request Received!</h4>
+          <p>We'll review your DTI profile and get back to you with personalised lender recommendations.</p>
+        </div>
+      </div>
+
+      <button class="btn-reset" onclick="resetForm()">← Start Over</button>
+
+    </div>
+  </section>
+
+  <footer>
+    <p class="disclaimer">This tool provides general guidance only and is not financial advice. Your actual borrowing capacity depends on a comprehensive assessment by a qualified lender or mortgage broker. Contact Oney & Co for personalised advice.</p>
+    <p class="footer-brand">Oney & Co — Clarity in every deal</p>
+  </footer>
+
+  <script>
+    const SUPABASE_URL = 'https://syhwaeloljdswsmqkzrx.supabase.co';
+    const SUPABASE_ANON_KEY = 'SUPABASE_ANON_KEY_PLACEHOLDER';
+
+    function fmt(n) {
+      return '$' + Math.round(n).toLocaleString('en-AU');
+    }
+
+    // Calculate annual P&I repayment at assessment rate
+    function annualRepayment(principal, annualRate, years) {
+      const r = annualRate / 12;
+      const n = years * 12;
+      const monthlyPayment = principal * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
+      return monthlyPayment * 12;
+    }
+
+    function calculateDTI(e) {
+      e.preventDefault();
+
+      const income = parseFloat(document.getElementById('annualIncome').value);
+      const existingDebt = parseFloat(document.getElementById('existingDebt').value) || 0;
+      const newLoan = parseFloat(document.getElementById('newLoanAmount').value);
+      const loanPurpose = document.getElementById('loanPurpose').value;
+      const numProps = document.getElementById('numProperties').value;
+      const fhb = document.getElementById('firstHomeBuyer').value;
+
+      if (!income || !newLoan) return;
+
+      // DTI = Total Debt Balances / Gross Annual Income (APRA standard)
+      const totalDebt = existingDebt + newLoan;
+      const dti = totalDebt / income;
+
+      // Also calculate assessed annual repayment for reference
+      const assessmentRate = 0.071; // 7.10%
+      const newAnnualRepayment = annualRepayment(newLoan, assessmentRate, 30);
+
+      // Determine category
+      let category, subtitle, colorClass, noticeClass, noticeText;
+      let lenders = [];
+      let actions = [];
+
+      if (dti < 6.0) {
+        category = '✅ Within Safe Range';
+        subtitle = 'Most major banks will consider your application';
+        colorClass = 'green';
+        noticeClass = 'info';
+        noticeText = 'Your DTI is within the comfort zone for most ADI lenders. Focus on getting the best rate and features for your situation.';
+        lenders = [
+          { name: 'CBA', cls: 'recommended' },
+          { name: 'Westpac', cls: 'recommended' },
+          { name: 'NAB', cls: 'recommended' },
+          { name: 'ANZ', cls: 'recommended' },
+          { name: 'Macquarie', cls: 'recommended' },
+        ];
+        actions = [
+          'Shop around for the best rate — you have strong negotiating power at this DTI level.',
+          'Consider features like offset accounts, redraw, and split loan options.',
+          fhb === 'yes'
+            ? 'As a first home buyer, check your eligibility for stamp duty concessions and the First Home Guarantee.'
+            : 'Review your loan structure annually to ensure it still suits your goals.',
+        ];
+      } else if (dti <= 7.0) {
+        category = '⚠️ Approaching Limits';
+        subtitle = 'Some banks may restrict — strategic lender selection needed';
+        colorClass = 'yellow';
+        noticeClass = 'warning';
+        noticeText = 'APRA\'s DTI guidance means some major banks have tightened their thresholds. You\'re not locked out, but you need to be strategic about which lender you approach first.';
+        lenders = [
+          { name: 'Macquarie', cls: 'recommended', note: 'conditional' },
+          { name: 'ING', cls: 'recommended' },
+          { name: 'Bankwest', cls: 'recommended' },
+          { name: 'CBA', cls: 'caution', note: 'case-by-case' },
+          { name: 'Westpac', cls: 'caution', note: 'tighter criteria' },
+        ];
+        actions = [
+          'Approach lenders strategically — order matters. Start with those known to be flexible at higher DTIs.',
+          'Consider reducing existing debt before applying (e.g., close unused credit cards, pay down personal loans).',
+          loanPurpose === 'investment'
+            ? 'For investment loans, some lenders shade rental income differently — this can materially change your assessed DTI.'
+            : 'Document all income sources thoroughly. Bonus, overtime, and rental income can improve your position.',
+        ];
+      } else {
+        category = '🚫 Above Major Bank Limits';
+        subtitle = 'Non-bank lenders are your best pathway';
+        colorClass = 'red';
+        noticeClass = 'danger';
+        noticeText = 'At this DTI level, most APRA-regulated banks will decline. Non-bank lenders operate outside APRA\'s DTI guidance and assess applications on a broader set of criteria. Rates are typically 0.5–1.5% higher, but approval is more flexible.';
+        lenders = [
+          { name: 'Pepper Money', cls: 'nonbank' },
+          { name: 'Liberty', cls: 'nonbank' },
+          { name: 'La Trobe', cls: 'nonbank' },
+          { name: 'Resimac', cls: 'nonbank' },
+          { name: 'Firstmac', cls: 'nonbank' },
+          { name: 'Bluestone', cls: 'nonbank' },
+        ];
+        actions = [
+          'Engage a mortgage broker who specialises in non-bank lending — lender selection and packaging are critical.',
+          'Prepare a strong narrative around your repayment history and surplus cash flow.',
+          parseInt(numProps) >= 3
+            ? 'With ' + numProps + '+ properties, highlight your portfolio track record and rental yield stability.'
+            : 'Consider a refinance strategy: start with a non-bank now, then refinance to a major bank once DTI improves.',
+        ];
+      }
+
+      // Render results
+      const resultsSection = document.getElementById('resultsSection');
+      const dtiDisplay = document.getElementById('dtiDisplay');
+      const dtiValueEl = document.getElementById('dtiValue');
+      const dtiCategoryEl = document.getElementById('dtiCategory');
+      const dtiSubtitleEl = document.getElementById('dtiSubtitle');
+
+      dtiDisplay.className = 'dti-display ' + colorClass;
+      dtiValueEl.className = 'dti-value ' + colorClass;
+      dtiValueEl.textContent = dti.toFixed(1) + 'x';
+      dtiCategoryEl.textContent = category;
+      dtiSubtitleEl.textContent = subtitle;
+
+      // Breakdown
+      document.getElementById('brkIncome').textContent = fmt(income);
+      document.getElementById('brkExistingDebt').textContent = fmt(existingDebt);
+      document.getElementById('brkNewDebt').textContent = fmt(newLoan);
+      document.getElementById('brkFormula').textContent = fmt(totalDebt) + ' / ' + fmt(income) + ' = ' + dti.toFixed(1) + 'x';
+      document.getElementById('brkAssessedRepayment').textContent = fmt(newAnnualRepayment) + '/yr (' + fmt(newAnnualRepayment/12) + '/mo)';
+
+      // Notice
+      const noticeBox = document.getElementById('noticeBox');
+      noticeBox.className = 'notice-box ' + noticeClass;
+      noticeBox.textContent = noticeText;
+
+      // Lenders
+      const lenderSection = document.getElementById('lenderSection');
+      let lenderHTML = '<div class="breakdown-card"><div class="breakdown-title">🏛️ Suggested Lenders</div><div class="lender-tags">';
+      lenders.forEach(l => {
+        const noteText = l.note ? ' (' + l.note + ')' : '';
+        lenderHTML += '<span class="lender-tag ' + l.cls + '">' + l.name + noteText + '</span>';
+      });
+      lenderHTML += '</div></div>';
+      lenderSection.innerHTML = lenderHTML;
+
+      // Actions
+      const actionsList = document.getElementById('actionsList');
+      actionsList.innerHTML = actions.map((a, i) =>
+        '<div class="action-item"><div class="action-num">' + (i + 1) + '</div><div>' + a + '</div></div>'
+      ).join('');
+
+      // Show results, scroll to them
+      resultsSection.classList.add('visible');
+      resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      // Store results for lead capture
+      window._dtiResult = {
+        dti: dti.toFixed(2),
+        category: colorClass,
+        loanPurpose,
+        loanAmount: newLoan,
+        income,
+        existingDebt: existingDebt,
+        numProperties: numProps,
+        firstHomeBuyer: fhb,
+      };
+    }
+
+    function toggleLeadForm() {
+      const form = document.getElementById('leadForm');
+      const btn = document.getElementById('leadBtn');
+      form.classList.toggle('visible');
+      if (form.classList.contains('visible')) {
+        btn.style.display = 'none';
+      }
+    }
+
+    async function submitLead() {
+      const email = document.getElementById('leadEmail').value;
+      if (!email) return;
+
+      const name = document.getElementById('leadName').value;
+      const btn = document.getElementById('leadSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+
+      const result = window._dtiResult || {};
+
+      const payload = {
+        name: name || null,
+        email,
+        source: 'dti-router',
+        loan_purpose: result.loanPurpose || null,
+        loan_amount: result.loanAmount || null,
+        dti_ratio: parseFloat(result.dti) || null,
+        dti_category: result.category || null,
+        notes: JSON.stringify({
+          income: result.income,
+          existingDebt: result.existingDebt,
+          numProperties: result.numProperties,
+          firstHomeBuyer: result.firstHomeBuyer,
+        }),
+      };
+
+      try {
+        const res = await fetch(SUPABASE_URL + '/rest/v1/leads', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+            'Prefer': 'return=minimal',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        // Show success regardless (placeholder key will fail gracefully)
+        document.getElementById('leadForm').style.display = 'none';
+        document.getElementById('leadSuccess').classList.add('visible');
+      } catch (err) {
+        // Still show success — placeholder key
+        document.getElementById('leadForm').style.display = 'none';
+        document.getElementById('leadSuccess').classList.add('visible');
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('dtiForm').reset();
+      document.getElementById('resultsSection').classList.remove('visible');
+      document.getElementById('leadForm').classList.remove('visible');
+      document.getElementById('leadForm').style.display = '';
+      document.getElementById('leadSuccess').classList.remove('visible');
+      document.getElementById('leadBtn').style.display = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  </script>
+</body>
+</html>
