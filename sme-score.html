@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1A1A2E">
+  <title>SME Bank-Ready Score — Are You Loan Ready? | Oney & Co</title>
+  <meta name="description" content="Free self-assessment for small business owners. Check if your business is ready for a bank loan across 8 key dimensions.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='fg' x1='0%25' y1='100%25' x2='0%25' y2='0%25'><stop offset='0%25' stop-color='%231FAD73'/><stop offset='60%25' stop-color='%232ECC85'/><stop offset='60%25' stop-color='transparent'/><stop offset='100%25' stop-color='transparent'/></linearGradient><linearGradient id='sg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><circle r='38' fill='none' stroke='url(%23sg)' stroke-width='10' stroke-linecap='round'/><circle r='28' fill='url(%23fg)'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <meta property="og:title" content="SME Bank-Ready Score | Oney & Co">
+  <meta property="og:description" content="Free self-assessment — check if your business is ready for a bank loan.">
+  <meta property="og:url" content="https://tools.oneyco.com.au/sme-score.html">
+  <meta property="og:type" content="website">
+  <style>
+    :root {
+      --bg: #1A1A2E;
+      --card: #252540;
+      --border: #3D3D5C;
+      --accent: #1FAD73;
+      --accent-light: #2ECC85;
+      --accent-glow: rgba(31, 173, 115, 0.15);
+      --purple: #6B4C9A;
+      --purple-light: #9B59B6;
+      --text: #ffffff;
+      --text-muted: #a3a3b8;
+      --green: #2ECC85;
+      --yellow: #F59E0B;
+      --orange: #F97316;
+      --red: #EF4444;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Nav */
+    nav {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      background: rgba(26, 26, 46, 0.95);
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nav-logo svg { height: 48px; }
+    .nav-links { display: flex; gap: 8px; align-items: center; }
+    .nav-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 100px;
+      transition: all 0.2s;
+    }
+    .nav-link:hover { color: var(--text); background: var(--card); }
+    .nav-link.active { color: var(--accent-light); }
+
+    /* Layout */
+    .container { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+
+    .hero {
+      padding: 60px 24px 24px;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #2ECC85, #6B4C9A);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      color: var(--text-muted);
+      font-size: 16px;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    /* Steps indicator */
+    .steps-bar {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      padding: 24px;
+    }
+    .step-dot {
+      width: 32px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--border);
+      transition: background 0.3s;
+    }
+    .step-dot.active { background: var(--accent-light); }
+    .step-dot.done { background: var(--purple); }
+
+    /* Cards / Sections */
+    .section-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .section-card.visible { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .section-num {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--purple-light);
+      margin-bottom: 8px;
+    }
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .section-hint {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+
+    /* Form elements */
+    .field-group { margin-bottom: 20px; }
+    .field-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .field-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .input-row { display: flex; gap: 12px; }
+    .input-row .field-group { flex: 1; }
+
+    input[type="number"], input[type="text"], input[type="email"], select {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent-light);
+    }
+    select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23a3a3b8' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 16px center; padding-right: 40px; }
+    select option { background: var(--card); color: var(--text); }
+
+    /* Checkbox / Multi-select */
+    .check-group { display: flex; flex-direction: column; gap: 8px; }
+    .check-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+    }
+    .check-item:hover { border-color: var(--accent); }
+    .check-item.selected { border-color: var(--accent-light); background: var(--accent-glow); }
+    .check-item input[type="checkbox"] { display: none; }
+    .check-box {
+      width: 20px; height: 20px; border-radius: 6px;
+      border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .check-item.selected .check-box {
+      background: var(--accent-light);
+      border-color: var(--accent-light);
+    }
+    .check-box svg { width: 12px; height: 12px; opacity: 0; transition: opacity 0.2s; }
+    .check-item.selected .check-box svg { opacity: 1; }
+
+    /* Range slider */
+    .range-wrap { padding: 8px 0; }
+    .range-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    .range-value { text-align: center; font-size: 28px; font-weight: 700; color: var(--accent-light); margin-bottom: 12px; }
+    input[type="range"] {
+      -webkit-appearance: none; width: 100%; height: 6px;
+      border-radius: 3px; background: var(--border); outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 24px; height: 24px;
+      border-radius: 50%; background: var(--accent-light);
+      cursor: pointer; border: 3px solid var(--bg);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    /* Variance flag */
+    .variance-flag {
+      display: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    .variance-flag.warn {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(249, 115, 22, 0.15);
+      border: 1px solid rgba(249, 115, 22, 0.3);
+      color: var(--orange);
+    }
+
+    /* Buttons */
+    .btn-row { display: flex; gap: 12px; margin-top: 28px; }
+    .btn {
+      flex: 1; padding: 14px 24px;
+      border-radius: 10px; border: none;
+      font-size: 15px; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      transition: all 0.2s;
+    }
+    .btn-back {
+      background: rgba(255,255,255,0.06);
+      color: var(--text-muted);
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+    .btn-next {
+      background: linear-gradient(135deg, #2ECC85, #1FAD73);
+      color: #fff;
+    }
+    .btn-next:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(46,204,133,0.3); }
+    .btn-next:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* Results */
+    #results { display: none; }
+    #results.visible { display: block; animation: fadeIn 0.4s ease; }
+
+    .score-ring-wrap {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 40px 0 24px;
+    }
+    .score-ring { position: relative; width: 200px; height: 200px; }
+    .score-ring canvas { width: 200px; height: 200px; }
+    .score-number {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    .score-number .num { font-size: 56px; font-weight: 800; line-height: 1; }
+    .score-number .label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+
+    .score-category {
+      font-size: 20px; font-weight: 700; margin-top: 16px;
+      padding: 8px 24px; border-radius: 100px;
+    }
+
+    /* Radar chart */
+    .radar-section {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px; margin: 20px 0;
+    }
+    .radar-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
+    .radar-wrap { display: flex; justify-content: center; padding: 16px 0; }
+    .radar-wrap canvas { max-width: 380px; width: 100%; }
+
+    /* Findings */
+    .findings {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 32px; margin: 20px 0;
+    }
+    .findings h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+    .finding-item {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .finding-item:last-child { border-bottom: none; }
+    .finding-icon { font-size: 20px; flex-shrink: 0; }
+    .finding-text { font-size: 14px; line-height: 1.5; }
+    .finding-text strong { color: var(--accent-light); }
+
+    /* Veto alerts */
+    .veto-alert {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 16px; border-radius: 12px; margin-bottom: 12px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.25);
+    }
+    .veto-alert.orange-alert {
+      background: rgba(249, 115, 22, 0.1);
+      border: 1px solid rgba(249, 115, 22, 0.25);
+    }
+    .veto-alert .icon { font-size: 20px; flex-shrink: 0; }
+    .veto-alert .msg { font-size: 14px; line-height: 1.5; }
+
+    /* Recommendations */
+    .recs { display: flex; flex-direction: column; gap: 10px; }
+    .rec-item {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 16px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .rec-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--purple); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; flex-shrink: 0;
+    }
+    .rec-text { font-size: 14px; line-height: 1.5; }
+
+    /* Lead capture */
+    .lead-section {
+      background: linear-gradient(135deg, rgba(107, 76, 154, 0.15), rgba(46, 204, 133, 0.1));
+      border: 1px solid var(--purple);
+      border-radius: 16px;
+      padding: 32px;
+      margin: 24px 0;
+      text-align: center;
+    }
+    .lead-section h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .lead-section p { color: var(--text-muted); font-size: 14px; margin-bottom: 20px; }
+    .lead-form { display: flex; gap: 8px; max-width: 400px; margin: 0 auto; }
+    .lead-form input {
+      flex: 1; padding: 14px 16px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid var(--border);
+      border-radius: 10px; color: var(--text);
+      font-size: 14px; font-family: inherit;
+    }
+    .lead-form input:focus { outline: none; border-color: var(--accent-light); }
+    .lead-form button {
+      padding: 14px 24px;
+      background: linear-gradient(135deg, var(--purple), var(--purple-light));
+      color: #fff; border: none; border-radius: 10px;
+      font-weight: 600; font-size: 14px; cursor: pointer;
+      font-family: inherit; white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .lead-form button:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(107,76,154,0.3); }
+    .lead-success {
+      display: none; color: var(--green);
+      font-size: 14px; font-weight: 600; margin-top: 12px;
+    }
+
+    /* Disclaimer */
+    .disclaimer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 32px 24px;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Reset button */
+    .reset-row { text-align: center; margin-top: 20px; }
+    .btn-reset {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 12px 28px; border-radius: 10px;
+      background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+      color: var(--text-muted); font-size: 14px; font-weight: 500;
+      cursor: pointer; font-family: inherit; transition: all 0.2s;
+    }
+    .btn-reset:hover { color: var(--text); background: rgba(255,255,255,0.1); }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 32px 24px;
+      font-size: 13px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+      margin-top: 40px;
+    }
+    footer a { color: var(--accent-light); text-decoration: none; }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .nav-inner { padding: 0 16px; }
+      .nav-links { gap: 4px; }
+      .nav-link { padding: 8px 10px; font-size: 13px; }
+      .hero { padding: 40px 16px 16px; }
+      .hero h1 { font-size: 28px; }
+      .section-card { padding: 24px 20px; }
+      .input-row { flex-direction: column; gap: 0; }
+      .lead-form { flex-direction: column; }
+      .lead-form button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav>
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 90">
+          <defs>
+            <linearGradient id="fillGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" style="stop-color:#1FAD73"/>
+              <stop offset="55%" style="stop-color:#2ECC85"/>
+              <stop offset="55%" style="stop-color:transparent"/>
+              <stop offset="100%" style="stop-color:transparent"/>
+            </linearGradient>
+            <linearGradient id="strokeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#2ECC85"/>
+              <stop offset="100%" style="stop-color:#1FAD73"/>
+            </linearGradient>
+          </defs>
+          <g transform="translate(40, 45)">
+            <circle cx="0" cy="0" r="32" fill="none" stroke="url(#strokeGrad)" stroke-width="7"/>
+            <circle cx="0" cy="0" r="24" fill="url(#fillGrad)"/>
+          </g>
+          <text x="82" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">ney</text>
+          <text x="129" y="52" font-family="Inter, system-ui, sans-serif" font-size="21" font-weight="500" fill="url(#strokeGrad)">&amp;</text>
+          <text x="148" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">co</text>
+          <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
+        </svg>
+      </a>
+      <div class="nav-links">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="tools.html" class="nav-link">Pro Tools</a>
+        <a href="about.html" class="nav-link">About</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero">
+    <h1>SME Bank-Ready Score</h1>
+    <p>Find out how banks see your business. Answer 8 questions and get a personalised readiness score with actionable insights.</p>
+  </div>
+
+  <!-- Steps bar -->
+  <div class="steps-bar" id="stepsBar"></div>
+
+  <!-- Form sections -->
+  <div class="container" id="formContainer">
+
+    <!-- Step 1: Annual Turnover -->
+    <div class="section-card visible" data-step="0">
+      <div class="section-num">Dimension 1 of 8</div>
+      <div class="section-title">Annual Turnover</div>
+      <div class="section-hint">Banks look at your revenue trajectory. Steady or growing turnover signals a healthy business. Large year-on-year swings (>35%) may trigger extra scrutiny.</div>
+      <div class="input-row">
+        <div class="field-group">
+          <label class="field-label">Current Year Turnover</label>
+          <input type="number" id="turnoverCurrent" placeholder="e.g. 1500000" min="0" step="1000">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Prior Year Turnover</label>
+          <input type="number" id="turnoverPrior" placeholder="e.g. 1200000" min="0" step="1000">
+        </div>
+      </div>
+      <div class="variance-flag" id="turnoverVariance"></div>
+      <div class="btn-row">
+        <button class="btn btn-next" onclick="nextStep()">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Net Profit Margin -->
+    <div class="section-card" data-step="1">
+      <div class="section-num">Dimension 2 of 8</div>
+      <div class="section-title">Net Profit Margin</div>
+      <div class="section-hint">Profitability shows your business can service debt. Banks typically want to see consistent margins — wild swings can be a red flag.</div>
+      <div class="input-row">
+        <div class="field-group">
+          <label class="field-label">Current Year Net Profit ($)</label>
+          <input type="number" id="profitCurrent" placeholder="e.g. 150000" step="1000">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Prior Year Net Profit ($)</label>
+          <input type="number" id="profitPrior" placeholder="e.g. 120000" step="1000">
+        </div>
+      </div>
+      <div class="variance-flag" id="profitVariance"></div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="prevStep()">← Back</button>
+        <button class="btn btn-next" onclick="nextStep()">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Years in Business -->
+    <div class="section-card" data-step="2">
+      <div class="section-num">Dimension 3 of 8</div>
+      <div class="section-title">Years in Business</div>
+      <div class="section-hint">Lenders view trading history as a proxy for stability. Under 1 year is extremely difficult to finance; 2+ years is the sweet spot.</div>
+      <div class="field-group">
+        <label class="field-label">How long has your business been operating?</label>
+        <select id="yearsInBusiness">
+          <option value="" disabled selected>Select...</option>
+          <option value="0">Less than 1 year</option>
+          <option value="1">1–2 years</option>
+          <option value="2">2–5 years</option>
+          <option value="3">5+ years</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="prevStep()">← Back</button>
+        <button class="btn btn-next" onclick="nextStep()">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 4: ATO Tax Compliance -->
+    <div class="section-card" data-step="3">
+      <div class="section-num">Dimension 4 of 8</div>
+      <div class="section-title">ATO Tax Compliance</div>
+      <div class="section-hint">Banks check ATO portal status. Outstanding tax debt (especially >$25K without a payment plan) is one of the fastest ways to get declined.</div>
+      <div class="field-group">
+        <label class="field-label">Select all that apply:</label>
+        <div class="check-group" id="atoChecks">
+          <label class="check-item" data-value="clean">
+            <input type="checkbox"><div class="check-box"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <span>No ATO debt — all clear</span>
+          </label>
+          <label class="check-item" data-value="plan">
+            <input type="checkbox"><div class="check-box"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <span>ATO debt exists, but payment plan is in place</span>
+          </label>
+          <label class="check-item" data-value="small">
+            <input type="checkbox"><div class="check-box"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <span>ATO debt &lt;$25K, no payment plan</span>
+          </label>
+          <label class="check-item" data-value="large">
+            <input type="checkbox"><div class="check-box"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <span>ATO debt &gt;$25K, no payment plan</span>
+          </label>
+          <label class="check-item" data-value="bas">
+            <input type="checkbox"><div class="check-box"><svg viewBox="0 0 12 12" fill="none"><path d="M2 6l3 3 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <span>BAS lodgement overdue</span>
+          </label>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="prevStep()">← Back</button>
+        <button class="btn btn-next" onclick="nextStep()">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 5: Existing Debt / Gearing -->
+    <div class="section-card" data-step="4">
+      <div class="section-num">Dimension 5 of 8</div>
+      <div class="section-title">Existing Debt &amp; Gearing</div>
+      <div class="section-hint">Your debt-to-asset ratio tells lenders how leveraged you are. There's no hard cutoff — but higher gearing means more risk and tighter terms.</div>
+      <div class="input-row">
+        <div class="field-group">
+          <label class="field-label">Total Business Debt ($)</label>
+          <input type="number" id="totalDebt" placeholder="e.g. 500000" min="0" step="1000">
+        </div>
+        <div class="field-group">
+          <label class="field-label">Total Business Assets ($)</label>
+          <input type="number" id="totalAssets" placeholder="e.g. 2000000" min="0" step="1000">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="prevStep()">← Back</button>
+        <button class="btn btn-next" onclick="nextStep()">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 6: Industry Type -->
+    <div class="section-card" data-step="5">
+      <div class="section-num">Dimension 6 of 8</div>
+      <div class="section-title">Industry Type</div>
+      <div class="section-hint">Banks maintain internal risk ratings by industry. Construction, property development, and mining face the strictest scrutiny. Professional services and healthcare are generally favoured.</div>
+      <div class="field-group">
+        <label class="field-label">What industry is your business in?</label>
+        <select id="industryType">
+          <option value="" disabled selected>Select your industry...</option>
+          <optgroup label="Low Risk">
+            <option value="low">Professional Services</option>
+            <option value="low">Healthcare</option>
+            <option value="low">Technology / SaaS</option>
+            <option value="low">Manufacturing (established)</option>
+            <option value="low">Agriculture (established)</option>
+            <option value="low">Education</option>
+          </optgroup>
+          <optgroup label="Medium Risk">
+            <option value="medium">Retail</option>
+            <option value="medium">NDIS Provider</option>
+            <option value="medium">Hospitality / Food &amp; Beverage</option>
+            <option value="medium">Transport &amp; Logistics</option>
+            <option value="medium">Wholesale / Distribution</option>
+          </optgroup>
+          <optgroup label="High Risk">
+            <option value="high">Construction</option>
+            <option value="high">Property Development</option>
+            <option value="high">Mining / Resources</option>
+            <option value="high">Environmental / Pollution Risk</option>
+            <option value="high">Gambling / Adult Entertainment</option>
+            <option value="high">Owner Builder</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="prevStep()">← Back</button>
+        <button class="btn btn-next" onclick="nextStep()">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 7: Director Credit Score -->
+    <div class="section-card" data-step="6">
+      <div class="section-num">Dimension 7 of 8</div>
+      <div class="section-title">Director Credit Score</div>
+      <div class="section-hint">Most lenders check directors' personal credit. Below 600 is a near-automatic decline at major banks. 700+ puts you in the strongest position.</div>
+      <div class="field-group">
+        <div class="range-value" id="creditScoreDisplay">700</div>
+        <div class="range-wrap">
+          <input type="range" id="creditScore" min="300" max="900" value="700" step="10">
+          <div class="range-labels"><span>300</span><span>500</span><span>600</span><span>700</span><span>900</span></div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="prevStep()">← Back</button>
+        <button class="btn btn-next" onclick="nextStep()">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step 8: Cash Flow Consistency -->
+    <div class="section-card" data-step="7">
+      <div class="section-num">Dimension 8 of 8</div>
+      <div class="section-title">Cash Flow Consistency</div>
+      <div class="section-hint">Lenders review bank statements for consistent cash flow. Seasonal variation is fine if explainable — but volatile, unpredictable patterns raise concerns about debt servicing.</div>
+      <div class="field-group">
+        <label class="field-label">How would you describe your business cash flow?</label>
+        <select id="cashFlow">
+          <option value="" disabled selected>Select...</option>
+          <option value="2">Stable and predictable</option>
+          <option value="1">Seasonal fluctuations but overall stable</option>
+          <option value="0">Volatile and unpredictable</option>
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-back" onclick="prevStep()">← Back</button>
+        <button class="btn btn-next" onclick="calcScore()">Calculate My Score →</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Results -->
+  <div class="container" id="results">
+
+    <div class="score-ring-wrap">
+      <div class="score-ring">
+        <canvas id="scoreRingCanvas" width="400" height="400"></canvas>
+        <div class="score-number">
+          <div class="num" id="scoreNum">0</div>
+          <div class="label">out of 100</div>
+        </div>
+      </div>
+      <div class="score-category" id="scoreCategory">—</div>
+    </div>
+
+    <div id="vetoAlerts"></div>
+
+    <div class="radar-section">
+      <div class="radar-title">Your 8-Dimension Breakdown</div>
+      <div class="radar-wrap">
+        <canvas id="radarCanvas" width="760" height="760"></canvas>
+      </div>
+    </div>
+
+    <div class="findings" id="findingsSection">
+      <h3>Key Findings</h3>
+      <div id="findingsList"></div>
+    </div>
+
+    <div class="findings">
+      <h3>Recommendations</h3>
+      <div class="recs" id="recsList"></div>
+    </div>
+
+    <div class="lead-section">
+      <h3>Get Your Full Report</h3>
+      <p>Receive a detailed breakdown with personalised next steps from Oney&nbsp;&amp;&nbsp;Co.</p>
+      <div class="lead-form" id="leadForm">
+        <input type="email" id="leadEmail" placeholder="Your email address">
+        <button onclick="submitLead()">Send Report</button>
+      </div>
+      <div class="lead-success" id="leadSuccess">✓ Report sent! We'll be in touch.</div>
+    </div>
+
+    <div class="reset-row">
+      <button class="btn-reset" onclick="resetForm()">↻ Start Over</button>
+    </div>
+
+  </div>
+
+  <div class="disclaimer">
+    This tool provides general guidance based on common bank lending criteria. It is not financial advice and does not guarantee loan approval. Each lender has unique policies. Contact <a href="https://oneyco.com.au" target="_blank">Oney&nbsp;&amp;&nbsp;Co</a> for a personalised assessment.
+  </div>
+
+  <footer>
+    © 2026 Oney & Co — <a href="https://oneyco.com.au" target="_blank">oneyco.com.au</a>
+  </footer>
+
+<script>
+(function() {
+  'use strict';
+
+  const TOTAL_STEPS = 8;
+  let currentStep = 0;
+
+  // Build step dots
+  const stepsBar = document.getElementById('stepsBar');
+  for (let i = 0; i < TOTAL_STEPS; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'step-dot' + (i === 0 ? ' active' : '');
+    stepsBar.appendChild(dot);
+  }
+
+  function updateSteps() {
+    const dots = stepsBar.querySelectorAll('.step-dot');
+    dots.forEach((d, i) => {
+      d.className = 'step-dot' + (i === currentStep ? ' active' : (i < currentStep ? ' done' : ''));
+    });
+  }
+
+  function showStep(idx) {
+    document.querySelectorAll('.section-card').forEach((c, i) => {
+      c.classList.toggle('visible', i === idx);
+    });
+    currentStep = idx;
+    updateSteps();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  window.nextStep = function() { if (currentStep < TOTAL_STEPS - 1) showStep(currentStep + 1); };
+  window.prevStep = function() { if (currentStep > 0) showStep(currentStep - 1); };
+
+  // ATO checkbox toggle
+  document.querySelectorAll('#atoChecks .check-item').forEach(item => {
+    item.addEventListener('click', function() {
+      const val = this.dataset.value;
+      const cb = this.querySelector('input[type="checkbox"]');
+      // "clean" is exclusive with debt options
+      if (val === 'clean') {
+        document.querySelectorAll('#atoChecks .check-item').forEach(i => {
+          if (i.dataset.value !== 'clean') { i.classList.remove('selected'); i.querySelector('input').checked = false; }
+        });
+      } else {
+        const clean = document.querySelector('#atoChecks .check-item[data-value="clean"]');
+        clean.classList.remove('selected');
+        clean.querySelector('input').checked = false;
+      }
+      // "large" and "small" are mutually exclusive
+      if (val === 'large') {
+        const sm = document.querySelector('#atoChecks .check-item[data-value="small"]');
+        sm.classList.remove('selected'); sm.querySelector('input').checked = false;
+      } else if (val === 'small') {
+        const lg = document.querySelector('#atoChecks .check-item[data-value="large"]');
+        lg.classList.remove('selected'); lg.querySelector('input').checked = false;
+      }
+      cb.checked = !cb.checked;
+      this.classList.toggle('selected', cb.checked);
+    });
+  });
+
+  // Credit score slider
+  const slider = document.getElementById('creditScore');
+  const display = document.getElementById('creditScoreDisplay');
+  slider.addEventListener('input', () => {
+    display.textContent = slider.value;
+    const v = parseInt(slider.value);
+    display.style.color = v >= 700 ? 'var(--green)' : v >= 600 ? 'var(--yellow)' : 'var(--red)';
+  });
+
+  // Variance checkers
+  function checkVariance(currentId, priorId, flagId) {
+    const c = parseFloat(document.getElementById(currentId).value) || 0;
+    const p = parseFloat(document.getElementById(priorId).value) || 0;
+    const flag = document.getElementById(flagId);
+    if (p > 0 && c > 0) {
+      const pct = Math.abs((c - p) / p) * 100;
+      if (pct > 35) {
+        flag.innerHTML = '⚠️ ' + pct.toFixed(0) + '% year-on-year variance — banks may ask questions about this.';
+        flag.className = 'variance-flag warn';
+      } else {
+        flag.className = 'variance-flag';
+      }
+    } else {
+      flag.className = 'variance-flag';
+    }
+  }
+
+  ['turnoverCurrent', 'turnoverPrior'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => checkVariance('turnoverCurrent', 'turnoverPrior', 'turnoverVariance'));
+  });
+  ['profitCurrent', 'profitPrior'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => checkVariance('profitCurrent', 'profitPrior', 'profitVariance'));
+  });
+
+  // ===== SCORING =====
+  const dimensionNames = [
+    'Annual Turnover', 'Net Profit Margin', 'Years in Business',
+    'ATO Compliance', 'Existing Debt', 'Industry Type',
+    'Director Credit', 'Cash Flow'
+  ];
+  const weights = [0.05, 0.05, 0.20, 0.20, 0.05, 0.20, 0.20, 0.05];
+
+  function getScores() {
+    const scores = {};
+
+    // 1. Turnover
+    const tc = parseFloat(document.getElementById('turnoverCurrent').value) || 0;
+    if (tc >= 10000000) scores.turnover = 100;
+    else if (tc >= 2000000) scores.turnover = 80;
+    else if (tc >= 500000) scores.turnover = 60;
+    else scores.turnover = 40;
+
+    // 2. Net profit margin
+    const pc = parseFloat(document.getElementById('profitCurrent').value) || 0;
+    const margin = tc > 0 ? (pc / tc) * 100 : 0;
+    if (margin >= 20) scores.profit = 100;
+    else if (margin >= 10) scores.profit = 80;
+    else if (margin >= 5) scores.profit = 60;
+    else scores.profit = 30;
+
+    // 3. Years in business
+    const yv = document.getElementById('yearsInBusiness').value;
+    scores.years = yv === '3' ? 100 : yv === '2' ? 75 : yv === '1' ? 50 : 20;
+
+    // 4. ATO
+    const atoSelected = [...document.querySelectorAll('#atoChecks .check-item.selected')].map(i => i.dataset.value);
+    if (atoSelected.includes('clean') || atoSelected.length === 0) {
+      scores.ato = 100;
+    } else {
+      let s = 100;
+      if (atoSelected.includes('large')) s = 15;
+      else if (atoSelected.includes('small')) s = 45;
+      else if (atoSelected.includes('plan')) s = 65;
+      if (atoSelected.includes('bas')) s = Math.min(s, 40);
+      scores.ato = s;
+    }
+
+    // 5. Gearing
+    const debt = parseFloat(document.getElementById('totalDebt').value) || 0;
+    const assets = parseFloat(document.getElementById('totalAssets').value) || 0;
+    const gearing = assets > 0 ? debt / assets : 0;
+    if (gearing <= 0.3) scores.gearing = 90;
+    else if (gearing <= 0.5) scores.gearing = 70;
+    else if (gearing <= 0.7) scores.gearing = 50;
+    else scores.gearing = 30;
+
+    // 6. Industry
+    const ind = document.getElementById('industryType').value;
+    scores.industry = ind === 'low' ? 100 : ind === 'medium' ? 60 : 25;
+
+    // 7. Credit score
+    const cs = parseInt(document.getElementById('creditScore').value) || 700;
+    if (cs >= 800) scores.credit = 100;
+    else if (cs >= 700) scores.credit = 85;
+    else if (cs >= 600) scores.credit = 55;
+    else scores.credit = 20;
+
+    // 8. Cash flow
+    const cf = document.getElementById('cashFlow').value;
+    scores.cashflow = cf === '2' ? 100 : cf === '1' ? 60 : 25;
+
+    return scores;
+  }
+
+  window.calcScore = function() {
+    const s = getScores();
+    const dimScores = [s.turnover, s.profit, s.years, s.ato, s.gearing, s.industry, s.credit, s.cashflow];
+    let weighted = 0;
+    dimScores.forEach((v, i) => weighted += v * weights[i]);
+    let total = Math.round(weighted);
+
+    // Veto rules
+    const vetoes = [];
+    const yv = document.getElementById('yearsInBusiness').value;
+    if (yv === '0') {
+      vetoes.push({ msg: 'Less than 1 year in business — most banks will not consider this application.', hard: true });
+    }
+    const atoSel = [...document.querySelectorAll('#atoChecks .check-item.selected')].map(i => i.dataset.value);
+    if (atoSel.includes('large')) {
+      vetoes.push({ msg: 'ATO debt >$25K without a payment plan — this is a deal-breaker for virtually all lenders.', hard: true });
+    }
+    const cs = parseInt(document.getElementById('creditScore').value) || 700;
+    if (cs < 600) {
+      vetoes.push({ msg: 'Director credit score below 600 — most major banks will decline automatically.', hard: true });
+    }
+    const ind = document.getElementById('industryType').value;
+    if (ind === 'high') {
+      vetoes.push({ msg: 'High-risk industry — additional lender restrictions apply. NAB restricts developer/construction; WBC restricts NDIS and specialised property.', hard: false });
+    }
+
+    const hardVeto = vetoes.some(v => v.hard);
+    const softVeto = vetoes.some(v => !v.hard);
+    if (hardVeto) total = Math.min(total, 39);
+    else if (softVeto) total = Math.min(total, 59);
+
+    // Show results
+    document.getElementById('formContainer').style.display = 'none';
+    document.getElementById('stepsBar').style.display = 'none';
+    document.getElementById('results').classList.add('visible');
+
+    renderScoreRing(total);
+    renderCategory(total);
+    renderVetoAlerts(vetoes);
+    renderRadar(dimScores);
+    renderFindings(dimScores);
+    renderRecs(s, atoSel, yv, cs, ind);
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  function getColor(score) {
+    if (score >= 80) return '#2ECC85';
+    if (score >= 60) return '#F59E0B';
+    if (score >= 40) return '#F97316';
+    return '#EF4444';
+  }
+  function getLabel(score) {
+    if (score >= 80) return 'Healthy';
+    if (score >= 60) return 'Fine';
+    if (score >= 40) return 'Action Required';
+    return 'No Deal';
+  }
+  function getSignal(score) {
+    if (score >= 80) return 'Banks will welcome you — ready to apply.';
+    if (score >= 60) return 'You can try — keep an eye on weak spots.';
+    if (score >= 40) return 'Improve before applying.';
+    return 'Not recommended to apply right now.';
+  }
+
+  function renderScoreRing(score) {
+    const canvas = document.getElementById('scoreRingCanvas');
+    const ctx = canvas.getContext('2d');
+    const cx = 200, cy = 200, r = 160, lw = 14;
+    ctx.clearRect(0, 0, 400, 400);
+    // Background ring
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, 2 * Math.PI);
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth = lw;
+    ctx.stroke();
+    // Score arc
+    const angle = (score / 100) * 2 * Math.PI;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + angle);
+    ctx.strokeStyle = getColor(score);
+    ctx.lineWidth = lw;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+
+    document.getElementById('scoreNum').textContent = score;
+    document.getElementById('scoreNum').style.color = getColor(score);
+  }
+
+  function renderCategory(score) {
+    const el = document.getElementById('scoreCategory');
+    const color = getColor(score);
+    el.textContent = getLabel(score) + ' — ' + getSignal(score);
+    el.style.background = color + '18';
+    el.style.color = color;
+    el.style.border = '1px solid ' + color + '40';
+  }
+
+  function renderVetoAlerts(vetoes) {
+    const wrap = document.getElementById('vetoAlerts');
+    wrap.innerHTML = '';
+    vetoes.forEach(v => {
+      const div = document.createElement('div');
+      div.className = 'veto-alert' + (v.hard ? '' : ' orange-alert');
+      div.innerHTML = '<div class="icon">' + (v.hard ? '🚫' : '⚠️') + '</div><div class="msg">' + v.msg + '</div>';
+      wrap.appendChild(div);
+    });
+  }
+
+  function renderRadar(scores) {
+    const canvas = document.getElementById('radarCanvas');
+    const ctx = canvas.getContext('2d');
+    const w = 760, h = 760;
+    const cx = w / 2, cy = h / 2;
+    const maxR = 280;
+    const n = 8;
+    ctx.clearRect(0, 0, w, h);
+
+    function getXY(i, r) {
+      const a = (Math.PI * 2 * i / n) - Math.PI / 2;
+      return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+    }
+
+    // Grid
+    [0.25, 0.5, 0.75, 1].forEach(pct => {
+      ctx.beginPath();
+      for (let i = 0; i <= n; i++) {
+        const p = getXY(i % n, maxR * pct);
+        i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    // Axes
+    for (let i = 0; i < n; i++) {
+      const p = getXY(i, maxR);
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(p.x, p.y);
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.stroke();
+    }
+
+    // Data polygon
+    ctx.beginPath();
+    scores.forEach((s, i) => {
+      const p = getXY(i, maxR * (s / 100));
+      i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+    });
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(46, 204, 133, 0.15)';
+    ctx.fill();
+    ctx.strokeStyle = '#2ECC85';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // Dots + labels
+    scores.forEach((s, i) => {
+      const p = getXY(i, maxR * (s / 100));
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
+      ctx.fillStyle = '#2ECC85';
+      ctx.fill();
+
+      // Labels
+      const lp = getXY(i, maxR + 36);
+      ctx.fillStyle = '#a3a3b8';
+      ctx.font = '600 13px Inter, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const label = dimensionNames[i];
+      ctx.fillText(label, lp.x, lp.y);
+      // Score value
+      ctx.fillStyle = getColor(s);
+      ctx.font = '700 14px Inter, sans-serif';
+      ctx.fillText(s, lp.x, lp.y + 18);
+    });
+  }
+
+  function renderFindings(dimScores) {
+    const best = dimScores.indexOf(Math.max(...dimScores));
+    const worst = dimScores.indexOf(Math.min(...dimScores));
+    const list = document.getElementById('findingsList');
+    list.innerHTML = '';
+
+    const items = [
+      { icon: '💪', text: '<strong>Strongest:</strong> ' + dimensionNames[best] + ' (' + dimScores[best] + '/100)' },
+      { icon: '⚡', text: '<strong>Needs Work:</strong> ' + dimensionNames[worst] + ' (' + dimScores[worst] + '/100)' }
+    ];
+
+    // Turnover variance
+    const tc = parseFloat(document.getElementById('turnoverCurrent').value) || 0;
+    const tp = parseFloat(document.getElementById('turnoverPrior').value) || 0;
+    if (tp > 0 && tc > 0) {
+      const pct = ((tc - tp) / tp) * 100;
+      if (Math.abs(pct) > 35) {
+        items.push({ icon: '📊', text: 'Turnover variance of <strong>' + pct.toFixed(0) + '%</strong> YoY — lenders will want an explanation.' });
+      }
+    }
+    // Profit variance
+    const pc = parseFloat(document.getElementById('profitCurrent').value) || 0;
+    const pp = parseFloat(document.getElementById('profitPrior').value) || 0;
+    if (pp > 0 && pc > 0) {
+      const pct = ((pc - pp) / pp) * 100;
+      if (Math.abs(pct) > 35) {
+        items.push({ icon: '📊', text: 'Profit variance of <strong>' + pct.toFixed(0) + '%</strong> YoY — prepare supporting documentation.' });
+      }
+    }
+    // Gearing
+    const debt = parseFloat(document.getElementById('totalDebt').value) || 0;
+    const assets = parseFloat(document.getElementById('totalAssets').value) || 0;
+    if (assets > 0) {
+      const g = debt / assets;
+      const label = g <= 0.3 ? 'Low' : g <= 0.5 ? 'Moderate' : g <= 0.7 ? 'High' : 'Very High';
+      items.push({ icon: '⚖️', text: 'Gearing ratio: <strong>' + (g * 100).toFixed(0) + '%</strong> (' + label + ' leverage)' });
+    }
+
+    items.forEach(it => {
+      const div = document.createElement('div');
+      div.className = 'finding-item';
+      div.innerHTML = '<div class="finding-icon">' + it.icon + '</div><div class="finding-text">' + it.text + '</div>';
+      list.appendChild(div);
+    });
+  }
+
+  function renderRecs(s, atoSel, yv, cs, ind) {
+    const recs = [];
+    if (s.ato < 60) {
+      if (atoSel.includes('large') || atoSel.includes('small')) {
+        recs.push('Clear your ATO debt or establish a formal payment plan. Banks check your ATO portal — any red flags will delay or kill the deal.');
+      }
+      if (atoSel.includes('bas')) {
+        recs.push('Lodge all outstanding BAS immediately. Consistent lodgement history is a basic hygiene check for lenders.');
+      }
+    }
+    if (yv === '0' || yv === '1') {
+      recs.push('Build more trading history. If under 1 year, focus on operating and generating clean financials before approaching banks.');
+    }
+    if (cs < 700) {
+      recs.push(cs < 600
+        ? 'Your credit score needs urgent attention. Pay overdue bills, dispute errors on your credit report, and avoid new credit applications.'
+        : 'Improve your credit score by paying on time and reducing outstanding credit card limits.');
+    }
+    if (ind === 'high') {
+      recs.push('High-risk industry — consider specialist lenders who understand your sector. A strong broker can position your application properly.');
+    }
+    const debt = parseFloat(document.getElementById('totalDebt').value) || 0;
+    const assets = parseFloat(document.getElementById('totalAssets').value) || 0;
+    if (assets > 0 && (debt / assets) > 0.5) {
+      recs.push('Your gearing is elevated. Pay down existing debt before taking on more, or bring additional equity/security to the table.');
+    }
+    if (s.cashflow <= 60) {
+      recs.push('Stabilise your cash flow. Set up separate accounts for operations vs. savings, and smooth out invoicing cycles.');
+    }
+    if (s.profit < 60) {
+      recs.push('Improve profitability — banks use net profit (with add-backs) to calculate servicing capacity. Consider cost reduction or pricing adjustments.');
+    }
+    if (recs.length === 0) {
+      recs.push('Your profile looks strong across all dimensions. Talk to Oney & Co to get the best deal.');
+    }
+
+    const wrap = document.getElementById('recsList');
+    wrap.innerHTML = '';
+    recs.forEach((r, i) => {
+      const div = document.createElement('div');
+      div.className = 'rec-item';
+      div.innerHTML = '<div class="rec-num">' + (i + 1) + '</div><div class="rec-text">' + r + '</div>';
+      wrap.appendChild(div);
+    });
+  }
+
+  // Lead capture
+  window.submitLead = async function() {
+    const email = document.getElementById('leadEmail').value.trim();
+    if (!email || !email.includes('@')) { document.getElementById('leadEmail').style.borderColor = 'var(--red)'; return; }
+
+    const s = getScores();
+    const dimScores = [s.turnover, s.profit, s.years, s.ato, s.gearing, s.industry, s.credit, s.cashflow];
+    let weighted = 0;
+    dimScores.forEach((v, i) => weighted += v * weights[i]);
+    let total = Math.round(weighted);
+
+    // Re-apply veto caps
+    const yv = document.getElementById('yearsInBusiness').value;
+    const atoSel = [...document.querySelectorAll('#atoChecks .check-item.selected')].map(i => i.dataset.value);
+    const cs = parseInt(document.getElementById('creditScore').value) || 700;
+    const ind = document.getElementById('industryType').value;
+    const hardVeto = (yv === '0') || atoSel.includes('large') || (cs < 600);
+    const softVeto = ind === 'high';
+    if (hardVeto) total = Math.min(total, 39);
+    else if (softVeto) total = Math.min(total, 59);
+
+    const cat = getLabel(total);
+
+    try {
+      const SUPABASE_URL = 'https://syhwaeloljdswsmqkzrx.supabase.co';
+      const SUPABASE_KEY = 'SUPABASE_ANON_KEY_PLACEHOLDER';
+      await fetch(SUPABASE_URL + '/rest/v1/leads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({
+          email: email,
+          source: 'sme-score',
+          sme_score: total,
+          sme_category: cat,
+          metadata: {
+            dimensions: Object.fromEntries(dimensionNames.map((n, i) => [n, dimScores[i]])),
+            score: total,
+            category: cat
+          }
+        })
+      });
+    } catch(e) { /* silent fail */ }
+
+    document.getElementById('leadForm').style.display = 'none';
+    document.getElementById('leadSuccess').style.display = 'block';
+  };
+
+  // Reset
+  window.resetForm = function() {
+    document.getElementById('results').classList.remove('visible');
+    document.getElementById('formContainer').style.display = 'block';
+    document.getElementById('stepsBar').style.display = 'flex';
+    document.querySelectorAll('input[type="number"]').forEach(i => i.value = '');
+    document.getElementById('yearsInBusiness').selectedIndex = 0;
+    document.getElementById('industryType').selectedIndex = 0;
+    document.getElementById('cashFlow').selectedIndex = 0;
+    document.getElementById('creditScore').value = 700;
+    document.getElementById('creditScoreDisplay').textContent = '700';
+    document.getElementById('creditScoreDisplay').style.color = 'var(--accent-light)';
+    document.querySelectorAll('#atoChecks .check-item').forEach(i => {
+      i.classList.remove('selected');
+      i.querySelector('input').checked = false;
+    });
+    document.querySelectorAll('.variance-flag').forEach(f => f.className = 'variance-flag');
+    document.getElementById('leadForm').style.display = 'flex';
+    document.getElementById('leadSuccess').style.display = 'none';
+    document.getElementById('leadEmail').value = '';
+    showStep(0);
+  };
+
+})();
+</script>
+</body>
+</html>
