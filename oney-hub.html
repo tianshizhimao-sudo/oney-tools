@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#1A1A2E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Oney Hub">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%231A1A2E'/><g transform='translate(90,90)'><circle r='50' fill='none' stroke='%232ECC85' stroke-width='12'/><circle r='36' fill='%231FAD73'/></g></svg>">
+  <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiT25leSBIdWIiLCJzaG9ydF9uYW1lIjoiT25leSBIdWIiLCJzdGFydF91cmwiOiIvb25leS1odWIuaHRtbCIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMxQTFBMkUiLCJ0aGVtZV9jb2xvciI6IiMxQTFBMkUiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTkyIDE5Mic+PHJlY3Qgd2lkdGg9JzE5MicgaGVpZ2h0PScxOTInIHJ4PSc0MCcgZmlsbD0nJTIzMUExQTJFJy8+PGcgdHJhbnNmb3JtPSd0cmFuc2xhdGUoOTYsOTYpJz48Y2lyY2xlIHI9JzUyJyBmaWxsPSdub25lJyBzdHJva2U9JyUyMzJFQ0M4NScgc3Ryb2tlLXdpZHRoPScxMicvPjxjaXJjbGUgcj0nMzgnIGZpbGw9JyUyMzFGQUQ3MycvPjwvZz48L3N2Zz4iLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
+  <title>Oney Hub — Command Center</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #1A1A2E;
+      --card: #252540;
+      --card-hover: #2D2D4A;
+      --border: #3D3D5C;
+      --green: #2ECC85;
+      --green-dim: rgba(46, 204, 133, 0.12);
+      --green-glow: rgba(46, 204, 133, 0.25);
+      --purple: #6B4C9A;
+      --purple-dim: rgba(107, 76, 154, 0.12);
+      --purple-glow: rgba(107, 76, 154, 0.25);
+      --text: #EEEEF5;
+      --text-muted: #8888A8;
+      --radius: 16px;
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100dvh;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 48px 20px 16px;
+      position: relative;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, var(--green-dim) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .logo {
+      width: 56px; height: 56px;
+      margin: 0 auto 12px;
+      position: relative;
+    }
+    .logo svg { width: 100%; height: 100%; }
+    .header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .header h1 span { color: var(--green); }
+    .header p {
+      color: var(--text-muted);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    /* Tab bar */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin: 16px 20px 0;
+      background: rgba(37, 37, 64, 0.6);
+      border-radius: 12px;
+      padding: 4px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+    .tab {
+      flex: 1;
+      padding: 10px 0;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: var(--text-muted);
+      border: none;
+      background: none;
+      font-family: inherit;
+    }
+    .tab.active {
+      background: var(--card);
+      color: var(--text);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .tab:not(.active):hover { color: var(--text); }
+
+    /* Sections */
+    .section { display: none; padding: 16px 16px calc(24px + var(--safe-bottom)); }
+    .section.active { display: block; }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 16px 4px 10px;
+    }
+    .section-label:first-child { margin-top: 4px; }
+
+    /* Button grid */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 16px 4px 12px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      min-height: 88px;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--radius);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .btn[data-accent="green"]::before {
+      background: radial-gradient(circle at center, var(--green-glow) 0%, transparent 70%);
+    }
+    .btn[data-accent="purple"]::before {
+      background: radial-gradient(circle at center, var(--purple-glow) 0%, transparent 70%);
+    }
+    .btn:hover::before, .btn:focus::before { opacity: 1; }
+    .btn:active {
+      transform: scale(0.93);
+      background: var(--card-hover);
+    }
+    .btn .icon {
+      font-size: 28px;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+    }
+    .btn .label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text);
+      text-align: center;
+      line-height: 1.2;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 10, 20, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 100;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-width: 500px;
+      padding: 24px 20px calc(20px + var(--safe-bottom));
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    .modal-overlay.open .modal {
+      transform: translateY(0);
+    }
+    .modal-handle {
+      width: 36px; height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 16px;
+    }
+    .modal h3 {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .modal textarea {
+      width: 100%;
+      min-height: 100px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 15px;
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .modal textarea:focus {
+      border-color: var(--green);
+    }
+    .modal textarea::placeholder {
+      color: var(--text-muted);
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .modal-btn {
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s;
+    }
+    .modal-btn.cancel {
+      background: var(--bg);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+    .modal-btn.send {
+      background: var(--green);
+      color: #fff;
+    }
+    .modal-btn.send:active { transform: scale(0.97); }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: calc(24px + var(--safe-bottom));
+      left: 50%; transform: translateX(-50%) translateY(80px);
+      background: var(--card);
+      border: 1px solid var(--green);
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--green);
+      z-index: 200;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+      white-space: nowrap;
+      box-shadow: 0 4px 20px rgba(46, 204, 133, 0.15);
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Desktop */
+    @media (min-width: 600px) {
+      .header { padding-top: 56px; }
+      .tabs { max-width: 400px; margin-left: auto; margin-right: auto; }
+      .section { max-width: 520px; margin: 0 auto; }
+      .modal { border-radius: 20px; margin-bottom: 40px; }
+      .grid { gap: 12px; }
+      .btn { min-height: 96px; padding: 18px 6px 14px; }
+      .btn .icon { font-size: 32px; }
+      .btn .label { font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <svg viewBox="0 0 100 100">
+      <defs>
+        <linearGradient id="g1" x1="0%" y1="100%" x2="0%" y2="0%">
+          <stop offset="0%" stop-color="#1FAD73"/>
+          <stop offset="60%" stop-color="#2ECC85"/>
+          <stop offset="60%" stop-color="transparent"/>
+          <stop offset="100%" stop-color="transparent"/>
+        </linearGradient>
+        <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#2ECC85"/>
+          <stop offset="100%" stop-color="#1FAD73"/>
+        </linearGradient>
+      </defs>
+      <g transform="translate(50,50)">
+        <circle r="38" fill="none" stroke="url(#g2)" stroke-width="10" stroke-linecap="round"/>
+        <circle r="28" fill="url(#g1)"/>
+      </g>
+    </svg>
+  </div>
+  <h1><span>Oney</span> Hub</h1>
+  <p>Personal Command Center</p>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('life')">🏠 生活</button>
+  <button class="tab" onclick="switchTab('work')">💼 工作</button>
+</div>
+
+<!-- 生活 Section -->
+<div class="section active" id="sec-life">
+  <div class="section-label">Daily</div>
+  <div class="grid">
+    <div class="btn" data-accent="green" onclick="send('今天天气怎么样，适合跑步吗？')">
+      <span class="icon">🌤</span><span class="label">今日天气</span>
+    </div>
+    <div class="btn" data-accent="green" onclick="send('帮我查一下今天的日历安排')">
+      <span class="icon">📅</span><span class="label">今日日程</span>
+    </div>
+    <div class="btn" data-accent="green" onclick="send('给我今天的健身计划')">
+      <span class="icon">💪</span><span class="label">健身计划</span>
+    </div>
+    <div class="btn" data-accent="green" onclick="send('帮我看看最近作息，给点调整建议')">
+      <span class="icon">😴</span><span class="label">作息建议</span>
+    </div>
+  </div>
+
+  <div class="section-label">Personal</div>
+  <div class="grid">
+    <div class="btn" data-accent="green" onclick="prompt('📝 加笔记', '要记什么？', '帮我加一条 Apple Notes：')">
+      <span class="icon">📝</span><span class="label">加笔记</span>
+    </div>
+    <div class="btn" data-accent="green" onclick="prompt('⏰ 加提醒', '提醒内容', '帮我加一个提醒：')">
+      <span class="icon">⏰</span><span class="label">加提醒</span>
+    </div>
+    <div class="btn" data-accent="green" onclick="send('同步打卡')">
+      <span class="icon">🏃</span><span class="label">打卡健身</span>
+    </div>
+    <div class="btn" data-accent="green" onclick="prompt('🏠 家庭账单', '记什么账？', '帮我记家庭账：')">
+      <span class="icon">🏠</span><span class="label">家庭账单</span>
+    </div>
+  </div>
+
+  <div class="section-label">Info</div>
+  <div class="grid">
+    <div class="btn" data-accent="green" onclick="send('RBA 最新现金利率和下次会议时间')">
+      <span class="icon">🌡</span><span class="label">RBA 利率</span>
+    </div>
+    <div class="btn" data-accent="green" onclick="send('给我今天的商业新闻简报')">
+      <span class="icon">📰</span><span class="label">今日新闻</span>
+    </div>
+    <div class="btn" data-accent="green" onclick="prompt('🔍 搜索', '搜索什么？', '搜索：')">
+      <span class="icon">🔍</span><span class="label">搜索</span>
+    </div>
+    <div class="btn" data-accent="green" onclick="send('提醒 Olivia 吃 Vitamin D')">
+      <span class="icon">💊</span><span class="label">Oli 提醒</span>
+    </div>
+  </div>
+</div>
+
+<!-- 工作 Section -->
+<div class="section" id="sec-work">
+  <div class="section-label">Oney & Co</div>
+  <div class="grid">
+    <div class="btn" data-accent="purple" onclick="send('Oney & Co 今日业务快报：竞品动态 + 行业新闻')">
+      <span class="icon">🏢</span><span class="label">业务快报</span>
+    </div>
+    <div class="btn" data-accent="purple" onclick="send('Business Model Canvas')">
+      <span class="icon">📊</span><span class="label">BMC 分析</span>
+    </div>
+    <div class="btn" data-accent="purple" onclick="send('CEO 建议')">
+      <span class="icon">🎯</span><span class="label">CEO 建议</span>
+    </div>
+    <div class="btn" data-accent="purple" onclick="prompt('📈 市场研究', '研究什么？', '深度研究：')">
+      <span class="icon">📈</span><span class="label">市场研究</span>
+    </div>
+  </div>
+
+  <div class="section-label">Content & Design</div>
+  <div class="grid">
+    <div class="btn" data-accent="purple" onclick="prompt('✍️ 写文案', '文案主题', '帮我写文案：')">
+      <span class="icon">✍️</span><span class="label">写文案</span>
+    </div>
+    <div class="btn" data-accent="purple" onclick="send('帮我改进这个设计：')">
+      <span class="icon">🎨</span><span class="label">设计建议</span>
+    </div>
+    <div class="btn" data-accent="purple" onclick="prompt('🤖 去AI味', '粘贴文本', '去 AI 味：')">
+      <span class="icon">🤖</span><span class="label">去AI味</span>
+    </div>
+    <div class="btn" data-accent="purple" onclick="prompt('📧 写邮件', '邮件内容概要', '帮我起草邮件：')">
+      <span class="icon">📧</span><span class="label">写邮件</span>
+    </div>
+  </div>
+
+  <div class="section-label">Dev & Tools</div>
+  <div class="grid">
+    <div class="btn" data-accent="purple" onclick="prompt('🔧 派 CTO', '任务描述', '让 CTO 去做：')">
+      <span class="icon">🔧</span><span class="label">派 CTO</span>
+    </div>
+    <div class="btn" data-accent="purple" onclick="prompt('🧪 算房贷', '贷款详情', '帮我算一下澳洲房贷：')">
+      <span class="icon">🧪</span><span class="label">算房贷</span>
+    </div>
+    <div class="btn" data-accent="purple" onclick="send('帮我分析一下最近的笔记和TODO')">
+      <span class="icon">📋</span><span class="label">笔记分析</span>
+    </div>
+    <div class="btn" data-accent="purple" onclick="prompt('💡 头脑风暴', '主题是什么？', '头脑风暴：')">
+      <span class="icon">💡</span><span class="label">头脑风暴</span>
+    </div>
+  </div>
+
+  <div class="section-label">Quick Shortcuts</div>
+  <div class="grid">
+    <div class="btn" data-accent="purple" onclick="prompt('💬 问 GPT', '问什么？', 'GPT：')">
+      <span class="icon">💬</span><span class="label">问 GPT</span>
+    </div>
+    <div class="btn" data-accent="purple" onclick="prompt('🔮 OP 优化', '优化内容', 'OP：')">
+      <span class="icon">🔮</span><span class="label">OP 优化</span>
+    </div>
+    <div class="btn" data-accent="purple" onclick="prompt('📊 记账', '记什么账？', '记账：')">
+      <span class="icon">📊</span><span class="label">记账</span>
+    </div>
+    <div class="btn" data-accent="purple" onclick="prompt('🕵️ 派 Analyst', '研究什么？', '让 Analyst 去研究：')">
+      <span class="icon">🕵️</span><span class="label">派 Analyst</span>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 id="modal-title"></h3>
+    <textarea id="modal-input" placeholder=""></textarea>
+    <div class="modal-actions">
+      <button class="modal-btn cancel" onclick="closeModal()">取消</button>
+      <button class="modal-btn send" onclick="submitModal()">发送 →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">正在打开 Telegram...</div>
+
+<script>
+  const BOT = 'OneyAUS_bot';
+  let modalPrefix = '';
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach((t, i) => {
+      t.classList.toggle('active', (tab === 'life' ? i === 0 : i === 1));
+    });
+    document.getElementById('sec-life').classList.toggle('active', tab === 'life');
+    document.getElementById('sec-work').classList.toggle('active', tab === 'work');
+  }
+
+  function send(text) {
+    const url = 'tg://resolve?domain=' + BOT + '&text=' + encodeURIComponent(text);
+    showToast();
+    window.location.href = url;
+  }
+
+  function prompt(title, placeholder, prefix) {
+    modalPrefix = prefix;
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-input').placeholder = placeholder;
+    document.getElementById('modal-input').value = '';
+    document.getElementById('modal').classList.add('open');
+    setTimeout(() => document.getElementById('modal-input').focus(), 300);
+  }
+
+  function closeModal(e) {
+    if (e && e.target !== document.getElementById('modal')) return;
+    document.getElementById('modal').classList.remove('open');
+  }
+
+  function submitModal() {
+    const input = document.getElementById('modal-input').value.trim();
+    if (!input) return;
+    closeModal();
+    send(modalPrefix + input);
+  }
+
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  // Allow Enter to submit modal (Shift+Enter for newline)
+  document.getElementById('modal-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      submitModal();
+    }
+  });
+
+  // Swipe between tabs
+  let touchStartX = 0;
+  document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  document.addEventListener('touchend', e => {
+    const diff = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(diff) > 80) {
+      switchTab(diff > 0 ? 'life' : 'work');
+    }
+  }, { passive: true });
+</script>
+</body>
+</html>
