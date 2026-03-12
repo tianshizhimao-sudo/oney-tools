@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <script>if(new URLSearchParams(location.search).has("embed"))document.documentElement.classList.add("embed-mode")</script>
 <meta charset="UTF-8">
@@ -12,7 +12,6 @@
 
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--bg:#1A1A2E;--card:#252540;--border:#3D3D5C;--muted:#a3a3b8;--white:#f0f0f5}
-[data-theme="light"]{--bg:#f5f5f5;--card:#ffffff;--border:#e0e0e0;--muted:#666;--text:#1a1a1a;--green:#1FAD73;--green2:#2ECC85;--purple:#6B4C9A}
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--white);min-height:100vh;padding:20px}
 .header{display:flex;align-items:center;gap:12px;padding:20px 24px;border-bottom:1px solid var(--border)}
 .logo svg{height:32px;width:auto}
@@ -54,7 +53,30 @@ input:focus,select:focus{border-color:var(--green)}
 .btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted)}
 .btn-outline:hover{border-color:var(--green);color:var(--green)}
 .watermark{text-align:center;margin-top:30px;color:var(--muted);font-size:.7rem;opacity:.5}
-</style>
+
+    /* === 3-Theme Switcher === */
+    .theme-switcher { display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:100px;padding:4px 6px;margin-left:8px; }
+    .theme-dot { width:18px;height:18px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all 0.2s ease;position:relative; }
+    .theme-dot:hover { transform:scale(1.15); }
+    .theme-dot[data-theme="dark"] { background:#1A1A2E;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.2); }
+    .theme-dot[data-theme="purple"] { background:#9B59B6; }
+    .theme-dot[data-theme="light"] { background:#F8F9FC;box-shadow:inset 0 0 0 1px rgba(0,0,0,0.1); }
+    .theme-dot.active { border-color:var(--accent, #2ECC85);transform:scale(1.15); }
+    .theme-dot::after { content:attr(data-tooltip);position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--text-muted, #a3a3b8);background:var(--card, #252540);border:1px solid var(--border, #3D3D5C);padding:2px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.2s; }
+    .theme-dot:hover::after { opacity:1; }
+    html, html * { transition:background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; }
+    html.no-transition, html.no-transition * { transition:none !important; }
+    .theme-float { position:fixed;top:12px;right:12px;z-index:9999; }
+    /* Purple theme */
+    html[data-theme="purple"] { --bg:#0D0D1A;--bg-secondary:#0A0A15;--card:#1A1228;--border:#3D2D5C;--accent:#9B59B6;--accent-light:#9B59B6;--accent-glow:rgba(155,89,182,0.1);--green:#9B59B6;--green-dark:#6B4C9A;--text:#ffffff;--text-muted:#b8a9c9;--accent-lighter:#C4A3F0;--green-gradient:linear-gradient(135deg,#9B59B6,#6B4C9A);--purple-gradient:linear-gradient(135deg,#9B59B6,#6B4C9A);--purple:#9B59B6;--purple-light:#B08AE0;--purple-glow:rgba(155,89,182,0.15);--primary:#9B59B6;--primary-light:#B08AE0;--primary-glow:rgba(155,89,182,0.15);--success:#22c55e;--warning:#f59e0b;--danger:#ef4444;--info:#8b5cf6; }
+    html[data-theme="purple"] nav, html[data-theme="purple"] .top-bar, html[data-theme="purple"] .header, html[data-theme="purple"] header { background:rgba(13,13,26,0.95)!important; }
+    html[data-theme="purple"] .theme-switcher { background:rgba(155,89,182,0.08);border-color:rgba(155,89,182,0.15); }
+    /* Light theme */
+    html[data-theme="light"] { --bg:#F8F9FC;--bg-secondary:#EFF1F5;--card:#FFFFFF;--border:#E2E8F0;--accent:#1FAD73;--accent-light:#1FAD73;--accent-glow:rgba(31,173,115,0.1);--green:#1FAD73;--green-dark:#178A5C;--text:#1A1A2E;--text-muted:#6B7280;--accent-lighter:#4ADE94;--green-gradient:linear-gradient(135deg,#1FAD73,#178A5C);--purple-gradient:linear-gradient(135deg,#6B4C9A,#9B59B6);--purple:#6B4C9A;--purple-light:#9B59B6;--purple-glow:rgba(107,76,154,0.1);--primary:#1FAD73;--primary-light:#2ECC85;--primary-glow:rgba(31,173,115,0.1);--success:#22c55e;--warning:#f59e0b;--danger:#ef4444;--info:#3b82f6; }
+    html[data-theme="light"] nav, html[data-theme="light"] .top-bar, html[data-theme="light"] .header, html[data-theme="light"] header { background:rgba(255,255,255,0.95)!important;box-shadow:0 1px 8px rgba(0,0,0,0.06); }
+    html[data-theme="light"] .theme-switcher { background:rgba(0,0,0,0.04);border-color:rgba(0,0,0,0.08); }
+    html[data-theme="light"] .nav-logo text[fill="#ffffff"], html[data-theme="light"] .top-bar-logo text[fill="#ffffff"], html[data-theme="light"] .logo text[fill="#f0f0f5"], html[data-theme="light"] .logo text[fill="#ffffff"] { fill:#1A1A2E; }
+  </style>
 </head>
 <body>
 
@@ -66,7 +88,8 @@ input:focus,select:focus{border-color:var(--green)}
       <text x="40" y="22" fill="#f0f0f5" font-family="Inter,sans-serif" font-weight="700" font-size="16">oney</text>
       <text x="82" y="22" fill="#a3a3b8" font-family="Inter,sans-serif" font-weight="400" font-size="11">&amp; co</text>
     </svg>
-  </div>
+    <div class="theme-switcher" role="radiogroup" aria-label="Theme"><div class="theme-dot active" data-theme="dark" data-tooltip="Dark" role="radio" aria-checked="true" tabindex="0"></div><div class="theme-dot" data-theme="purple" data-tooltip="Purple" role="radio" aria-checked="false" tabindex="0"></div><div class="theme-dot" data-theme="light" data-tooltip="Light" role="radio" aria-checked="false" tabindex="0"></div></div>
+</div>
   <h1>Commission Calculator</h1>
   <a href="index.html" class="header-back">← Back to Tools</a>
 </div>
@@ -218,8 +241,10 @@ calc();
   ⚠️ This tool is for informational purposes only and does not constitute financial advice. Please consult a licensed professional before making financial decisions.
 </div>
 <script>
-(function(){var t=localStorage.getItem('oney-theme');if(t)document.documentElement.setAttribute('data-theme',t)})();
 window.addEventListener('message',function(e){if(e.data&&e.data.type==='THEME_CHANGE')document.documentElement.setAttribute('data-theme',e.data.theme)});
+</script>
+<script>
+(function(){var s=localStorage.getItem('oney-theme')||'dark';document.documentElement.classList.add('no-transition');document.documentElement.setAttribute('data-theme',s);requestAnimationFrame(function(){requestAnimationFrame(function(){document.documentElement.classList.remove('no-transition')})});document.querySelectorAll('.theme-dot').forEach(function(d){d.classList.toggle('active',d.dataset.theme===s);d.setAttribute('aria-checked',String(d.dataset.theme===s))});var sw=document.querySelector('.theme-switcher');if(sw){sw.addEventListener('click',function(e){var dot=e.target.closest('.theme-dot');if(!dot)return;var t=dot.dataset.theme;document.documentElement.setAttribute('data-theme',t);localStorage.setItem('oney-theme',t);document.querySelectorAll('.theme-dot').forEach(function(d){d.classList.toggle('active',d.dataset.theme===t);d.setAttribute('aria-checked',String(d.dataset.theme===t))})});sw.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();e.target.click()}})}})();
 </script>
 </body>
 </html>
