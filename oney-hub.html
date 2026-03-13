@@ -10,6 +10,47 @@
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' rx='40' fill='%231A1A2E'/><g transform='translate(90,90)'><circle r='50' fill='none' stroke='%232ECC85' stroke-width='12'/><circle r='36' fill='%231FAD73'/></g></svg>">
   <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiT25leSBIdWIiLCJzaG9ydF9uYW1lIjoiT25leSBIdWIiLCJzdGFydF91cmwiOiIvb25leS1odWIuaHRtbCIsImRpc3BsYXkiOiJzdGFuZGFsb25lIiwiYmFja2dyb3VuZF9jb2xvciI6IiMxQTFBMkUiLCJ0aGVtZV9jb2xvciI6IiMxQTFBMkUiLCJpY29ucyI6W3sic3JjIjoiZGF0YTppbWFnZS9zdmcreG1sLDxzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTkyIDE5Mic+PHJlY3Qgd2lkdGg9JzE5MicgaGVpZ2h0PScxOTInIHJ4PSc0MCcgZmlsbD0nJTIzMUExQTJFJy8+PGcgdHJhbnNmb3JtPSd0cmFuc2xhdGUoOTYsOTYpJz48Y2lyY2xlIHI9JzUyJyBmaWxsPSdub25lJyBzdHJva2U9JyUyMzJFQ0M4NScgc3Ryb2tlLXdpZHRoPScxMicvPjxjaXJjbGUgcj0nMzgnIGZpbGw9JyUyMzFGQUQ3MycvPjwvZz48L3N2Zz4iLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
   <title>Oney Hub — Command Center</title>
+  <style>
+    /* Model Switcher */
+    .model-switcher {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin: 12px auto 4px;
+      width: fit-content;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 4px;
+    }
+    .model-pill {
+      padding: 6px 16px;
+      border-radius: 32px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+      letter-spacing: 0.2px;
+    }
+    .model-pill.active {
+      background: linear-gradient(135deg, #2ECC85, #1FAD73);
+      color: #0a1a12;
+    }
+    .model-pill.active.opus {
+      background: linear-gradient(135deg, #6B4C9A, #9B59B6);
+      color: #fff;
+    }
+    .model-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 8px;
+    }
+  </style>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -334,6 +375,13 @@
   </div>
   <h1><span>Oney</span> Hub</h1>
   <p>Personal Command Center</p>
+
+  <!-- Model Switcher -->
+  <div class="model-switcher" id="modelSwitcher">
+    <button class="model-pill active" id="pillSonnet" onclick="switchModel('sonnet')">⚡ Sonnet</button>
+    <button class="model-pill opus" id="pillOpus" onclick="switchModel('opus')">🧠 Opus</button>
+  </div>
+  <div class="model-label" id="modelLabel">当前：Sonnet 4.6（快速）</div>
 </div>
 
 <div class="tabs">
@@ -478,6 +526,34 @@
 <script>
   const BOT = 'OneyAUS_bot';
   let modalPrefix = '';
+
+  // Model switcher
+  const MODEL_INFO = {
+    sonnet: { label: '当前：Sonnet 4.6（快速）', cmd: '/model sonnet' },
+    opus:   { label: '当前：Opus 4.6（深度思考）', cmd: '/model opus' }
+  };
+  let currentModel = localStorage.getItem('oneyModel') || 'sonnet';
+
+  function initModel() {
+    updateModelUI(currentModel);
+  }
+
+  function switchModel(m) {
+    if (m === currentModel) return;
+    currentModel = m;
+    localStorage.setItem('oneyModel', m);
+    updateModelUI(m);
+    send(MODEL_INFO[m].cmd);
+  }
+
+  function updateModelUI(m) {
+    document.getElementById('pillSonnet').classList.toggle('active', m === 'sonnet');
+    document.getElementById('pillSonnet').classList.remove('opus');
+    document.getElementById('pillOpus').classList.toggle('active', m === 'opus');
+    document.getElementById('modelLabel').textContent = MODEL_INFO[m].label;
+  }
+
+  initModel();
 
   function switchTab(tab) {
     document.querySelectorAll('.tab').forEach((t, i) => {
