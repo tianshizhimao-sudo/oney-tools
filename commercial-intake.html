@@ -890,7 +890,7 @@
         
         const payload = {
           entity_type: formData.get('entityType'),
-          loan_amount: parseFloat(formData.get('loanAmount')),
+          loan_amount: parseDollar(formData.get('loanAmount')),
           loan_purpose: formData.get('loanPurpose'),
           ato_debt: formData.get('atoDebt'),
           security_available: security.join(', '),
@@ -900,17 +900,17 @@
           industry_description: formData.get('industryDescription'),
           employees: parseInt(formData.get('employees')),
           gst_registered: formData.get('gstRegistered'),
-          last_year_revenue: parseFloat(formData.get('lastYearRevenue')),
-          prev_year_revenue: parseFloat(formData.get('prevYearRevenue')),
-          last_year_profit: parseFloat(formData.get('lastYearProfit')),
-          prev_year_profit: parseFloat(formData.get('prevYearProfit')),
+          last_year_revenue: parseDollar(formData.get('lastYearRevenue')),
+          prev_year_revenue: parseDollar(formData.get('prevYearRevenue')),
+          last_year_profit: parseDollar(formData.get('lastYearProfit')),
+          prev_year_profit: parseDollar(formData.get('prevYearProfit')),
           financials_prepared_by: formData.get('financialsPreparedBy'),
           addbacks: formData.get('addbacks'),
           outstanding_debts: formData.get('outstandingDebts'),
           real_property_owned: formData.get('realPropertyOwned'),
           property_address: formData.get('propertyAddress'),
-          property_value: formData.get('realPropertyOwned') === 'Yes' ? parseFloat(formData.get('propertyValue')) : null,
-          mortgage_balance: formData.get('realPropertyOwned') === 'Yes' ? parseFloat(formData.get('mortgageBalance')) : null,
+          property_value: formData.get('realPropertyOwned') === 'Yes' ? parseDollar(formData.get('propertyValue')) : null,
+          mortgage_balance: formData.get('realPropertyOwned') === 'Yes' ? parseDollar(formData.get('mortgageBalance')) : null,
           property_type: formData.get('propertyType'),
           other_assets: formData.get('otherAssets'),
           preferred_term: formData.get('preferredTerm'),
@@ -928,19 +928,21 @@
           submitted_at: new Date().toISOString()
         };
 
-        // Step 1: Save to Supabase
-        const supabaseResponse = await fetch(`${SUPABASE_URL}/rest/v1/commercial_leads`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-          },
-          body: JSON.stringify(payload)
-        });
-
-        if (!supabaseResponse.ok) {
-          throw new Error(`Supabase error: ${supabaseResponse.statusText}`);
+        // Step 1: Save to Supabase (non-blocking — table may not exist yet)
+        try {
+          const supabaseResponse = await fetch(`${SUPABASE_URL}/rest/v1/commercial_leads`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify(payload)
+          });
+          // Silently ignore Supabase errors — Telegram notification is the source of truth
+        } catch (supabaseErr) {
+          console.warn('Supabase save failed (non-fatal):', supabaseErr);
         }
 
         // Step 2: Send Telegram notification
@@ -994,6 +996,36 @@ Referral: ${payload.hear_about_us}
         submitBtn.innerHTML = '<span id="submitText">Submit Enquiry</span>';
       }
     });
+
+    // ── Dollar input formatting (comma thousands separator) ──
+    const dollarFields = ['loanAmount', 'lastYearRevenue', 'prevYearRevenue', 'lastYearProfit', 'prevYearProfit', 'propertyValue', 'mortgageBalance'];
+
+    dollarFields.forEach(name => {
+      const input = form.querySelector(`[name="${name}"]`);
+      if (!input) return;
+
+      // Change to text type for formatting
+      input.setAttribute('type', 'text');
+      input.setAttribute('inputmode', 'numeric');
+      input.placeholder = input.placeholder.replace(/e\.g\., (\d+)/, (m, n) => 'e.g., ' + parseInt(n).toLocaleString('en-AU'));
+
+      input.addEventListener('input', function() {
+        let raw = this.value.replace(/[^0-9]/g, '');
+        if (raw) this.value = parseInt(raw).toLocaleString('en-AU');
+        else this.value = '';
+      });
+
+      input.addEventListener('blur', function() {
+        let raw = this.value.replace(/[^0-9]/g, '');
+        if (raw) this.value = parseInt(raw).toLocaleString('en-AU');
+      });
+    });
+
+    // Override parseFloat for dollar fields to strip commas
+    function parseDollar(val) {
+      if (!val) return null;
+      return parseFloat(String(val).replace(/,/g, '')) || null;
+    }
 
     // Initialize
     updateProgress();
