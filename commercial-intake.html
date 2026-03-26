@@ -787,7 +787,7 @@
     // Constants
     const SUPABASE_URL = 'https://syhwaeloljdswsmqkzrx.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_kQrtxdvnex0ObqoI0UXNLQ_-1FVABOM';
-    const TELEGRAM_BOT_TOKEN = '7737524932:AAGWwTrB8FYjwY2Uz9cCvEvUcsQXrJ-1sro';
+    const TELEGRAM_BOT_TOKEN = '7903827578:AAExosb2aCoYP0CARIFrh5Fj-rvwFOkrtAw';
     const TELEGRAM_CHAT_ID = '777287927';
 
     const form = document.getElementById('intakeForm');
@@ -1008,17 +1008,87 @@ Referral: ${payload.hear_about_us || 'N/A'}
 
 ⏰ ${aestTime} AEST`;
 
-        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            chat_id: TELEGRAM_CHAT_ID,
-            text: telegramMessage,
-            parse_mode: 'Markdown'
-          })
-        });
+        // Send Telegram notification (best effort)
+        try {
+          await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              chat_id: TELEGRAM_CHAT_ID,
+              text: telegramMessage
+            })
+          });
+        } catch(tgErr) {
+          console.warn('Telegram send failed:', tgErr);
+        }
+
+        // Send confirmation email via Resend (best effort)
+        if (payload.contact_email) {
+          try {
+            await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer re_daqk4v5i_6UYKkNjgt6z5SxzAnXBgGgZt'
+              },
+              body: JSON.stringify({
+                from: 'Oney & Co <hello@oneyco.com.au>',
+                to: [payload.contact_email],
+                bcc: ['hello@oneyco.com.au'],
+                subject: "We've received your enquiry — Oney & Co",
+                html: `
+                  <div style="font-family:Inter,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;color:#1a1a2e;">
+                    <div style="margin-bottom:24px;">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 70" width="120">
+                        <defs>
+                          <linearGradient id="fg" x1="0%" y1="100%" x2="0%" y2="0%">
+                            <stop offset="0%" style="stop-color:#1FAD73"/>
+                            <stop offset="55%" style="stop-color:#2ECC85"/>
+                            <stop offset="55%" style="stop-color:transparent"/>
+                            <stop offset="100%" style="stop-color:transparent"/>
+                          </linearGradient>
+                          <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#2ECC85"/>
+                            <stop offset="100%" style="stop-color:#1FAD73"/>
+                          </linearGradient>
+                        </defs>
+                        <g transform="translate(30,35)"><circle cx="0" cy="0" r="25" fill="none" stroke="url(#sg)" stroke-width="6"/><circle cx="0" cy="0" r="18" fill="url(#fg)"/></g>
+                        <text x="65" y="42" font-family="Inter,sans-serif" font-size="22" font-weight="600" fill="#1a1a2e" letter-spacing="-0.5">ney</text>
+                        <text x="101" y="42" font-family="Inter,sans-serif" font-size="17" font-weight="500" fill="url(#sg)">&amp;</text>
+                        <text x="116" y="42" font-family="Inter,sans-serif" font-size="22" font-weight="600" fill="#1a1a2e" letter-spacing="-0.5">co</text>
+                        <circle cx="143" cy="38" r="3" fill="#6B4C9A"/>
+                      </svg>
+                    </div>
+                    <h2 style="font-size:22px;font-weight:700;margin:0 0 12px;color:#1a1a2e;">We've received your enquiry</h2>
+                    <p style="font-size:16px;line-height:1.6;color:#444;margin:0 0 16px;">
+                      Hi ${payload.contact_name || 'there'},
+                    </p>
+                    <p style="font-size:16px;line-height:1.6;color:#444;margin:0 0 16px;">
+                      Thanks for submitting your commercial deal enquiry. We've received the details for <strong>${payload.business_name || 'your business'}</strong> and will be in touch shortly.
+                    </p>
+                    <div style="background:#f7f7f9;border-left:3px solid #2ECC85;padding:16px 20px;margin:24px 0;border-radius:4px;">
+                      <p style="margin:0 0 8px;font-size:14px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Enquiry Summary</p>
+                      <p style="margin:0 0 4px;font-size:15px;color:#1a1a2e;"><strong>Business:</strong> ${payload.business_name || 'N/A'}</p>
+                      <p style="margin:0 0 4px;font-size:15px;color:#1a1a2e;"><strong>Loan Amount:</strong> ${fmt(payload.loan_amount)}</p>
+                      <p style="margin:0;font-size:15px;color:#1a1a2e;"><strong>Purpose:</strong> ${payload.loan_purpose || 'N/A'}</p>
+                    </div>
+                    <p style="font-size:15px;line-height:1.6;color:#444;margin:0 0 24px;">
+                      We typically respond within 1 business day. If you have any urgent questions, feel free to reply to this email.
+                    </p>
+                    <p style="font-size:15px;color:#444;margin:0;">
+                      — Dong Mao<br>
+                      <span style="color:#666;">Oney & Co | <a href="https://oneyco.com.au" style="color:#1FAD73;">oneyco.com.au</a></span>
+                    </p>
+                    <hr style="margin:32px 0;border:none;border-top:1px solid #eee;">
+                    <p style="font-size:12px;color:#aaa;margin:0;">General information only. Not financial advice. Oney & Co is not yet a licensed credit representative.</p>
+                  </div>
+                `
+              })
+            });
+          } catch(emailErr) {
+            console.warn('Confirmation email failed:', emailErr);
+          }
+        }
 
         // Show success message
         form.style.display = 'none';
