@@ -873,29 +873,35 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      // Validate required text/select/textarea fields
-      const requiredFields = form.querySelectorAll('[required]');
-      let firstInvalid = null;
-      requiredFields.forEach(field => {
-        const isRadioGroup = field.type === 'radio';
-        if (isRadioGroup) {
-          const groupChecked = form.querySelector(`input[name="${field.name}"]:checked`);
-          if (!groupChecked) {
-            field.closest('.form-group')?.classList.add('field-error');
-            if (!firstInvalid) firstInvalid = field;
-          } else {
-            field.closest('.form-group')?.classList.remove('field-error');
-          }
-        } else if (!field.value.trim()) {
+      // Validate required fields
+      let isValid = true;
+      let firstInvalidEl = null;
+
+      // Check text/select/textarea required fields
+      form.querySelectorAll('input[required]:not([type="radio"]):not([type="checkbox"]), select[required], textarea[required]').forEach(field => {
+        if (!field.value.trim()) {
           field.classList.add('error');
-          if (!firstInvalid) firstInvalid = field;
+          isValid = false;
+          if (!firstInvalidEl) firstInvalidEl = field;
         } else {
           field.classList.remove('error');
         }
       });
 
-      if (firstInvalid) {
-        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      // Check radio groups — get unique group names that are required
+      const radioGroups = new Set();
+      form.querySelectorAll('input[type="radio"][required]').forEach(r => radioGroups.add(r.name));
+      radioGroups.forEach(groupName => {
+        const checked = form.querySelector(`input[name="${groupName}"]:checked`);
+        if (!checked) {
+          isValid = false;
+          const firstRadio = form.querySelector(`input[name="${groupName}"]`);
+          if (!firstInvalidEl) firstInvalidEl = firstRadio;
+        }
+      });
+
+      if (!isValid) {
+        if (firstInvalidEl) firstInvalidEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
         alert('Please fill in all required fields before submitting.');
         return;
       }
