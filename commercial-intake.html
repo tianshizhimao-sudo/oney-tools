@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commercial Deal Enquiry — Oney & Co</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #1A1A2E;
+      --bg-secondary: #16162A;
+      --card: #252540;
+      --border: #3D3D5C;
+      --accent: #1FAD73;
+      --accent-light: #2ECC85;
+      --accent-lighter: #4ADE94;
+      --accent-glow: rgba(31, 173, 115, 0.15);
+      --text: #ffffff;
+      --text-muted: #a3a3b8;
+      --error: #ff4757;
+      --success: #2ECC85;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 40px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    .header-title h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .header-title p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    /* Progress Indicator */
+    .progress-container {
+      margin-bottom: 40px;
+    }
+
+    .progress-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-light);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--card);
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-light));
+      border-radius: 4px;
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+
+    /* Form */
+    .form-container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+    }
+
+    .form-section {
+      margin-bottom: 32px;
+    }
+
+    .form-section-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--accent-light);
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    label .required {
+      color: var(--error);
+      margin-left: 2px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    input[type="number"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--accent-light);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%232ECC85' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+
+    /* Radio & Checkbox */
+    .radio-group,
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .radio-option,
+    .checkbox-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    input[type="radio"],
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--accent-light);
+    }
+
+    .radio-option label,
+    .checkbox-option label {
+      margin: 0;
+      cursor: pointer;
+      font-weight: 400;
+    }
+
+    /* Conditional Fields */
+    .conditional-group {
+      margin-top: 16px;
+      padding: 16px;
+      background: rgba(46, 204, 133, 0.05);
+      border-left: 3px solid var(--accent-light);
+      border-radius: 8px;
+      display: none;
+    }
+
+    .conditional-group.show {
+      display: block;
+    }
+
+    /* Button */
+    .button-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    button {
+      flex: 1;
+      padding: 12px 20px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .btn-submit {
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      color: var(--bg);
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(46, 204, 133, 0.3);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-reset {
+      background: var(--bg-secondary);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-reset:hover {
+      background: var(--card);
+      color: var(--text);
+    }
+
+    /* Success Message */
+    .success-message {
+      display: none;
+      padding: 24px;
+      background: rgba(46, 204, 133, 0.1);
+      border: 1px solid var(--accent-light);
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .success-message.show {
+      display: block;
+      animation: slideDown 0.3s ease;
+    }
+
+    .success-message h2 {
+      color: var(--accent-light);
+      margin-bottom: 8px;
+      font-size: 1.3rem;
+    }
+
+    .success-message p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Error Message */
+    .error-message {
+      color: var(--error);
+      font-size: 0.85rem;
+      margin-top: 6px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    input.error,
+    textarea.error {
+      border-color: var(--error) !important;
+    }
+
+    /* Loading State */
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(46, 204, 133, 0.3);
+      border-top-color: var(--accent-light);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      .container {
+        padding: 0 12px;
+      }
+
+      .form-container {
+        padding: 20px;
+      }
+
+      .header-title h1 {
+        font-size: 1.5rem;
+      }
+
+      .button-group {
+        flex-direction: column-reverse;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="fg" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" stop-color="#1FAD73"/>
+            <stop offset="60%" stop-color="#2ECC85"/>
+            <stop offset="60%" stop-color="transparent"/>
+            <stop offset="100%" stop-color="transparent"/>
+          </linearGradient>
+          <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2ECC85"/>
+            <stop offset="100%" stop-color="#1FAD73"/>
+          </linearGradient>
+        </defs>
+        <g transform="translate(50,50)">
+          <circle r="38" fill="none" stroke="url(#sg)" stroke-width="10" stroke-linecap="round"/>
+          <circle r="28" fill="url(#fg)"/>
+        </g>
+      </svg>
+      <div class="header-title">
+        <h1>Commercial Deal Enquiry</h1>
+        <p>Oney & Co — SME & Commercial Lending</p>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    <div class="success-message" id="successMessage">
+      <h2>✓ Thank You</h2>
+      <p>Your commercial deal enquiry has been received. We'll be in touch shortly.</p>
+    </div>
+
+    <!-- Progress -->
+    <div class="progress-container">
+      <div class="progress-label" id="progressLabel">TIER 1: Quick Filter</div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form class="form-container" id="intakeForm">
+      <!-- TIER 1: Quick Filter -->
+      <div class="form-section">
+        <h2 class="form-section-title">🏷️ Quick Filter</h2>
+
+        <!-- Q1: Entity type -->
+        <div class="form-group">
+          <label>Entity Type <span class="required">*</span></label>
+          <select name="entityType" required>
+            <option value="">Select entity type...</option>
+            <option value="Sole Trader">Sole Trader</option>
+            <option value="Company">Company</option>
+            <option value="Trust">Trust</option>
+            <option value="Partnership">Partnership</option>
+          </select>
+        </div>
+
+        <!-- Q2: Total loan amount -->
+        <div class="form-group">
+          <label>Total Loan Amount Needed ($AUD) <span class="required">*</span></label>
+          <input type="number" name="loanAmount" min="0" placeholder="e.g., 500000" required>
+        </div>
+
+        <!-- Q3: Loan purpose -->
+        <div class="form-group">
+          <label>Loan Purpose <span class="required">*</span></label>
+          <select name="loanPurpose" required>
+            <option value="">Select purpose...</option>
+            <option value="Asset Finance">Asset Finance</option>
+            <option value="Commercial Property">Commercial Property</option>
+            <option value="Working Capital">Working Capital</option>
+            <option value="Tax Debt">Tax Debt</option>
+            <option value="Refinance">Refinance</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- Q4: ATO debt -->
+        <div class="form-group">
+          <label>ATO Debt or Overdue Obligations? <span class="required">*</span></label>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" id="atoYes" name="atoDebt" value="Yes" required>
+              <label for="atoYes">Yes</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="atoNo" name="atoDebt" value="No" required>
+              <label for="atoNo">No</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q5: Security available -->
+        <div class="form-group">
+          <label>Security Available <span class="required">*</span></label>
+          <div class="checkbox-group">
+            <div class="checkbox-option">
+              <input type="checkbox" name="security" value="Real Property">
+              <label>Real Property</label>
+            </div>
+            <div class="checkbox-option">
+              <input type="checkbox" name="security" value="Equipment">
+              <label>Equipment</label>
+            </div>
+            <div class="checkbox-option">
+              <input type="checkbox" name="security" value="Debtor Book">
+              <label>Debtor Book</label>
+            </div>
+            <div class="checkbox-option">
+              <input type="checkbox" name="security" value="Unsecured">
+              <label>Unsecured</label>
+            </div>
+          </div>
+          <span class="error-message" id="securityError">Please select at least one security type</span>
+        </div>
+      </div>
+
+      <!-- TIER 2: Business Profile -->
+      <div class="form-section">
+        <h2 class="form-section-title">🏢 Business Profile</h2>
+
+        <!-- Q6: Business name -->
+        <div class="form-group">
+          <label>Business Name <span class="required">*</span></label>
+          <input type="text" name="businessName" placeholder="e.g., Acme Pty Ltd" required>
+        </div>
+
+        <!-- Q7: ABN -->
+        <div class="form-group">
+          <label>ABN (11-digit) <span class="required">*</span></label>
+          <input type="text" name="abn" placeholder="e.g., 12345678901" pattern="\d{11}" maxlength="11" required>
+          <span class="error-message" id="abnError">ABN must be 11 digits</span>
+        </div>
+
+        <!-- Q8: Years in operation -->
+        <div class="form-group">
+          <label>Years in Operation <span class="required">*</span></label>
+          <input type="number" name="yearsInOperation" min="0" placeholder="e.g., 5" required>
+        </div>
+
+        <!-- Q9: Industry description -->
+        <div class="form-group">
+          <label>Industry / Business Description <span class="required">*</span></label>
+          <textarea name="industryDescription" placeholder="What does the business do?" required></textarea>
+        </div>
+
+        <!-- Q10: Number of employees -->
+        <div class="form-group">
+          <label>Number of Employees <span class="required">*</span></label>
+          <input type="number" name="employees" min="0" placeholder="e.g., 10" required>
+        </div>
+
+        <!-- Q11: GST registered -->
+        <div class="form-group">
+          <label>GST Registered? <span class="required">*</span></label>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" id="gstYes" name="gstRegistered" value="Yes" required>
+              <label for="gstYes">Yes</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="gstNo" name="gstRegistered" value="No" required>
+              <label for="gstNo">No</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIER 2: Financials -->
+      <div class="form-section">
+        <h2 class="form-section-title">💰 Financials</h2>
+
+        <!-- Q12: Last year revenue -->
+        <div class="form-group">
+          <label>Last Year Revenue ($AUD) <span class="required">*</span></label>
+          <input type="number" name="lastYearRevenue" min="0" placeholder="e.g., 1000000" required>
+        </div>
+
+        <!-- Q13: Previous year revenue -->
+        <div class="form-group">
+          <label>Previous Year Revenue ($AUD) <span class="required">*</span></label>
+          <input type="number" name="prevYearRevenue" min="0" placeholder="e.g., 950000" required>
+        </div>
+
+        <!-- Q14: Last year net profit -->
+        <div class="form-group">
+          <label>Last Year Net Profit After Tax ($AUD) <span class="required">*</span></label>
+          <input type="number" name="lastYearProfit" min="0" placeholder="e.g., 100000" required>
+        </div>
+
+        <!-- Q15: Previous year net profit -->
+        <div class="form-group">
+          <label>Previous Year Net Profit After Tax ($AUD) <span class="required">*</span></label>
+          <input type="number" name="prevYearProfit" min="0" placeholder="e.g., 90000" required>
+        </div>
+
+        <!-- Q16: Financials prepared by accountant -->
+        <div class="form-group">
+          <label>Financials Prepared By? <span class="required">*</span></label>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" id="finAcctYes" name="financialsPreparedBy" value="Accountant" required>
+              <label for="finAcctYes">Accountant</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="finAcctNo" name="financialsPreparedBy" value="Self-prepared" required>
+              <label for="finAcctNo">Self-prepared</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="finAcctOther" name="financialsPreparedBy" value="Other" required>
+              <label for="finAcctOther">Other</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q17: Any addbacks -->
+        <div class="form-group">
+          <label>Any Add-backs? (owner salary, depreciation, one-offs)</label>
+          <textarea name="addbacks" placeholder="Describe any adjustments to normalise earnings..."></textarea>
+        </div>
+
+        <!-- Q18: Current outstanding debts -->
+        <div class="form-group">
+          <label>Current Outstanding Debts <span class="required">*</span></label>
+          <textarea name="outstandingDebts" placeholder="List banks, leases, credit cards, ATO amounts..." required></textarea>
+        </div>
+      </div>
+
+      <!-- TIER 2: Security -->
+      <div class="form-section">
+        <h2 class="form-section-title">🏠 Security</h2>
+
+        <!-- Q19: Real property owned -->
+        <div class="form-group">
+          <label>Real Property Owned? <span class="required">*</span></label>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" id="propYes" name="realPropertyOwned" value="Yes" required>
+              <label for="propYes">Yes</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="propNo" name="realPropertyOwned" value="No" required>
+              <label for="propNo">No</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q20: Property details (conditional) -->
+        <div class="conditional-group" id="propertyDetailsGroup">
+          <!-- Q20a: Property address -->
+          <div class="form-group">
+            <label>Property Address <span class="required">*</span></label>
+            <input type="text" name="propertyAddress" placeholder="e.g., 123 Main St, Sydney NSW 2000">
+          </div>
+
+          <!-- Q20b: Estimated value -->
+          <div class="form-group">
+            <label>Estimated Value ($AUD) <span class="required">*</span></label>
+            <input type="number" name="propertyValue" min="0" placeholder="e.g., 1500000">
+          </div>
+
+          <!-- Q20c: Existing mortgage -->
+          <div class="form-group">
+            <label>Existing Mortgage Balance ($AUD) <span class="required">*</span></label>
+            <input type="number" name="mortgageBalance" min="0" placeholder="e.g., 800000">
+          </div>
+
+          <!-- Q21: Property type -->
+          <div class="form-group">
+            <label>Property Type <span class="required">*</span></label>
+            <select name="propertyType">
+              <option value="">Select type...</option>
+              <option value="Residential">Residential</option>
+              <option value="Commercial">Commercial</option>
+              <option value="Vacant Land">Vacant Land</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Q22: Other assets -->
+        <div class="form-group">
+          <label>Other Assets (equipment, vehicles, debtors)</label>
+          <textarea name="otherAssets" placeholder="Describe other assets available as security..."></textarea>
+        </div>
+      </div>
+
+      <!-- TIER 2: Deal Details -->
+      <div class="form-section">
+        <h2 class="form-section-title">📋 Deal Details</h2>
+
+        <!-- Q23: Preferred loan term -->
+        <div class="form-group">
+          <label>Preferred Loan Term <span class="required">*</span></label>
+          <select name="preferredTerm" required>
+            <option value="">Select term...</option>
+            <option value="1 Year">1 Year</option>
+            <option value="2 Years">2 Years</option>
+            <option value="3 Years">3 Years</option>
+            <option value="5 Years">5 Years</option>
+            <option value="7 Years">7 Years</option>
+            <option value="10 Years">10 Years</option>
+            <option value="15 Years">15 Years</option>
+            <option value="20 Years">20 Years</option>
+            <option value="25 Years">25 Years</option>
+          </select>
+        </div>
+
+        <!-- Q24: Urgency or deadline -->
+        <div class="form-group">
+          <label>Any Urgency or Deadline?</label>
+          <textarea name="urgency" placeholder="e.g., funds needed by 30 June..."></textarea>
+        </div>
+
+        <!-- Q25: Approached other lenders -->
+        <div class="form-group">
+          <label>Approached Other Lenders? Any Declines? <span class="required">*</span></label>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" id="otherLendersYes" name="approachedOtherLenders" value="Yes" required>
+              <label for="otherLendersYes">Yes</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="otherLendersNo" name="approachedOtherLenders" value="No" required>
+              <label for="otherLendersNo">No</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q25 conditional: Details -->
+        <div class="conditional-group" id="otherLendersGroup">
+          <div class="form-group">
+            <label>Details of Approaches & Declines <span class="required">*</span></label>
+            <textarea name="otherLendersDetails" placeholder="Which lenders? Reasons for declines?"></textarea>
+          </div>
+        </div>
+
+        <!-- Q26: Directors / guarantors -->
+        <div class="form-group">
+          <label>Directors / Guarantors Names <span class="required">*</span></label>
+          <input type="text" name="directorsGuarantors" placeholder="e.g., John Smith, Jane Doe" required>
+        </div>
+
+        <!-- Q27: Adverse credit history -->
+        <div class="form-group">
+          <label>Any Adverse Credit History? <span class="required">*</span></label>
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" id="creditYes" name="adverseCredit" value="Yes" required>
+              <label for="creditYes">Yes</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="creditNo" name="adverseCredit" value="No" required>
+              <label for="creditNo">No</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="creditUnknown" name="adverseCredit" value="Unknown" required>
+              <label for="creditUnknown">Unknown</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Q27 conditional: Details -->
+        <div class="conditional-group" id="adverseCreditGroup">
+          <div class="form-group">
+            <label>Details of Adverse Credit History <span class="required">*</span></label>
+            <textarea name="adverseCreditDetails" placeholder="Describe the adverse history (defaults, late payments, etc.)..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- TIER 2: Referral -->
+      <div class="form-section">
+        <h2 class="form-section-title">🤝 Referral & Contact</h2>
+
+        <!-- Q28: How did you hear about us -->
+        <div class="form-group">
+          <label>How Did You Hear About Us? <span class="required">*</span></label>
+          <select name="hearAboutUs" required>
+            <option value="">Select source...</option>
+            <option value="Referral">Referral (accountant/broker/advisor)</option>
+            <option value="Website">Website</option>
+            <option value="Social Media">Social Media</option>
+            <option value="Direct Outreach">Direct Outreach</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <!-- Q29: Referring advisor (optional) -->
+        <div class="form-group">
+          <label>Referring Accountant/Advisor Name (optional)</label>
+          <input type="text" name="referringAdvisor" placeholder="e.g., Jane Smith, CPA">
+        </div>
+
+        <!-- Q30: Your name -->
+        <div class="form-group">
+          <label>Your Name <span class="required">*</span></label>
+          <input type="text" name="contactName" placeholder="Your full name" required>
+        </div>
+
+        <!-- Q31: Your email -->
+        <div class="form-group">
+          <label>Your Email <span class="required">*</span></label>
+          <input type="email" name="contactEmail" placeholder="your.email@example.com" required>
+        </div>
+
+        <!-- Q32: Your phone -->
+        <div class="form-group">
+          <label>Your Phone <span class="required">*</span></label>
+          <input type="tel" name="contactPhone" placeholder="e.g., 0412 345 678" required>
+        </div>
+      </div>
+
+      <!-- Button Group -->
+      <div class="button-group">
+        <button type="reset" class="btn-reset">Clear Form</button>
+        <button type="submit" class="btn-submit" id="submitBtn">
+          <span id="submitText">Submit Enquiry</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // Constants
+    const SUPABASE_URL = 'https://syhwaeloljdswsmqkzrx.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_kQrtxdvnex0ObqoI0UXNLQ_-1FVABOM';
+    const TELEGRAM_BOT_TOKEN = '7737524932:AAGWwTrB8FYjwY2Uz9cCvEvUcsQXrJ-1sro';
+    const TELEGRAM_CHAT_ID = '777287927';
+
+    const form = document.getElementById('intakeForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const successMessage = document.getElementById('successMessage');
+    const progressFill = document.getElementById('progressFill');
+    const progressLabel = document.getElementById('progressLabel');
+
+    // Track form progress
+    function updateProgress() {
+      const inputs = form.querySelectorAll('input[required], textarea[required], select[required]');
+      let filled = 0;
+      inputs.forEach(input => {
+        if (input.type === 'checkbox') {
+          if (input.checked) filled++;
+        } else if (input.type === 'radio') {
+          if (input.checked) filled++;
+        } else if (input.value.trim()) {
+          filled++;
+        }
+      });
+      const percent = Math.round((filled / inputs.length) * 100);
+      progressFill.style.width = percent + '%';
+      
+      // Update tier label
+      if (percent < 33) {
+        progressLabel.textContent = 'TIER 1: Quick Filter';
+      } else if (percent < 67) {
+        progressLabel.textContent = 'TIER 2: Business Profile';
+      } else {
+        progressLabel.textContent = 'TIER 2: Final Details';
+      }
+    }
+
+    // Conditional field visibility
+    function updateConditionals() {
+      const realPropertyYes = document.getElementById('propYes').checked;
+      document.getElementById('propertyDetailsGroup').classList.toggle('show', realPropertyYes);
+
+      const otherLendersYes = document.getElementById('otherLendersYes').checked;
+      document.getElementById('otherLendersGroup').classList.toggle('show', otherLendersYes);
+
+      const adverseYes = document.getElementById('creditYes').checked;
+      document.getElementById('adverseCreditGroup').classList.toggle('show', adverseYes);
+    }
+
+    // Event listeners for progress & conditionals
+    form.addEventListener('change', () => {
+      updateProgress();
+      updateConditionals();
+    });
+
+    form.addEventListener('input', updateProgress);
+
+    // ABN validation
+    form.addEventListener('change', (e) => {
+      if (e.target.name === 'abn') {
+        const abnError = document.getElementById('abnError');
+        if (e.target.value.length > 0 && e.target.value.length !== 11) {
+          e.target.classList.add('error');
+          abnError.classList.add('show');
+        } else {
+          e.target.classList.remove('error');
+          abnError.classList.remove('show');
+        }
+      }
+    });
+
+    // Security validation
+    function validateSecurity() {
+      const securityChecked = form.querySelectorAll('input[name="security"]:checked');
+      const securityError = document.getElementById('securityError');
+      if (securityChecked.length === 0) {
+        securityError.classList.add('show');
+        return false;
+      } else {
+        securityError.classList.remove('show');
+        return true;
+      }
+    }
+
+    // Form submission
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Validate security
+      if (!validateSecurity()) {
+        alert('Please select at least one security type');
+        return;
+      }
+
+      // Disable submit button
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="loading-spinner"></span>Submitting...';
+
+      try {
+        // Gather form data
+        const formData = new FormData(form);
+        const security = Array.from(form.querySelectorAll('input[name="security"]:checked')).map(cb => cb.value);
+        
+        const payload = {
+          entity_type: formData.get('entityType'),
+          loan_amount: parseFloat(formData.get('loanAmount')),
+          loan_purpose: formData.get('loanPurpose'),
+          ato_debt: formData.get('atoDebt'),
+          security_available: security.join(', '),
+          business_name: formData.get('businessName'),
+          abn: formData.get('abn'),
+          years_in_operation: parseInt(formData.get('yearsInOperation')),
+          industry_description: formData.get('industryDescription'),
+          employees: parseInt(formData.get('employees')),
+          gst_registered: formData.get('gstRegistered'),
+          last_year_revenue: parseFloat(formData.get('lastYearRevenue')),
+          prev_year_revenue: parseFloat(formData.get('prevYearRevenue')),
+          last_year_profit: parseFloat(formData.get('lastYearProfit')),
+          prev_year_profit: parseFloat(formData.get('prevYearProfit')),
+          financials_prepared_by: formData.get('financialsPreparedBy'),
+          addbacks: formData.get('addbacks'),
+          outstanding_debts: formData.get('outstandingDebts'),
+          real_property_owned: formData.get('realPropertyOwned'),
+          property_address: formData.get('propertyAddress'),
+          property_value: formData.get('realPropertyOwned') === 'Yes' ? parseFloat(formData.get('propertyValue')) : null,
+          mortgage_balance: formData.get('realPropertyOwned') === 'Yes' ? parseFloat(formData.get('mortgageBalance')) : null,
+          property_type: formData.get('propertyType'),
+          other_assets: formData.get('otherAssets'),
+          preferred_term: formData.get('preferredTerm'),
+          urgency: formData.get('urgency'),
+          approached_other_lenders: formData.get('approachedOtherLenders'),
+          other_lenders_details: formData.get('otherLendersDetails'),
+          directors_guarantors: formData.get('directorsGuarantors'),
+          adverse_credit: formData.get('adverseCredit'),
+          adverse_credit_details: formData.get('adverseCreditDetails'),
+          hear_about_us: formData.get('hearAboutUs'),
+          referring_advisor: formData.get('referringAdvisor'),
+          contact_name: formData.get('contactName'),
+          contact_email: formData.get('contactEmail'),
+          contact_phone: formData.get('contactPhone'),
+          submitted_at: new Date().toISOString()
+        };
+
+        // Step 1: Save to Supabase
+        const supabaseResponse = await fetch(`${SUPABASE_URL}/rest/v1/commercial_leads`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!supabaseResponse.ok) {
+          throw new Error(`Supabase error: ${supabaseResponse.statusText}`);
+        }
+
+        // Step 2: Send Telegram notification
+        const aestTime = new Date(payload.submitted_at).toLocaleString('en-AU', {
+          timeZone: 'Australia/Sydney',
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+
+        const telegramMessage = `🏢 New Commercial Deal Enquiry
+
+Entity: ${payload.business_name} (${payload.entity_type})
+Amount: $${payload.loan_amount.toLocaleString()}
+Purpose: ${payload.loan_purpose}
+ATO Debt: ${payload.ato_debt}
+Security: ${payload.security_available}
+
+Revenue: $${payload.last_year_revenue.toLocaleString()} / $${payload.prev_year_revenue.toLocaleString()}
+Net Profit: $${payload.last_year_profit.toLocaleString()} / $${payload.prev_year_profit.toLocaleString()}
+Trading: ${payload.years_in_operation} years | ${payload.industry_description}
+
+Contact: ${payload.contact_name} | ${payload.contact_email} | ${payload.contact_phone}
+Referral: ${payload.hear_about_us}
+
+⏰ ${aestTime} AEST`;
+
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            chat_id: TELEGRAM_CHAT_ID,
+            text: telegramMessage,
+            parse_mode: 'Markdown'
+          })
+        });
+
+        // Show success message
+        form.style.display = 'none';
+        successMessage.classList.add('show');
+
+      } catch (error) {
+        console.error('Submission error:', error);
+        alert('Error submitting form: ' + error.message);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<span id="submitText">Submit Enquiry</span>';
+      }
+    });
+
+    // Initialize
+    updateProgress();
+  </script>
+</body>
+</html>
