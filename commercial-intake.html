@@ -989,20 +989,22 @@
           second: '2-digit'
         });
 
+        const fmt = (v) => v != null ? '$' + Number(v).toLocaleString('en-AU') : 'N/A';
+
         const telegramMessage = `🏢 New Commercial Deal Enquiry
 
-Entity: ${payload.business_name} (${payload.entity_type})
-Amount: $${payload.loan_amount.toLocaleString()}
-Purpose: ${payload.loan_purpose}
-ATO Debt: ${payload.ato_debt}
-Security: ${payload.security_available}
+Entity: ${payload.business_name || 'N/A'} (${payload.entity_type || 'N/A'})
+Amount: ${fmt(payload.loan_amount)}
+Purpose: ${payload.loan_purpose || 'N/A'}
+ATO Debt: ${payload.ato_debt || 'N/A'}
+Security: ${payload.security_available || 'N/A'}
 
-Revenue: $${payload.last_year_revenue.toLocaleString()} / $${payload.prev_year_revenue.toLocaleString()}
-Net Profit: $${payload.last_year_profit.toLocaleString()} / $${payload.prev_year_profit.toLocaleString()}
-Trading: ${payload.years_in_operation} years | ${payload.industry_description}
+Revenue: ${fmt(payload.last_year_revenue)} / ${fmt(payload.prev_year_revenue)}
+Net Profit: ${fmt(payload.last_year_profit)} / ${fmt(payload.prev_year_profit)}
+Trading: ${payload.years_in_operation || 'N/A'} years | ${payload.industry_description || 'N/A'}
 
-Contact: ${payload.contact_name} | ${payload.contact_email} | ${payload.contact_phone}
-Referral: ${payload.hear_about_us}
+Contact: ${payload.contact_name || 'N/A'} | ${payload.contact_email || 'N/A'} | ${payload.contact_phone || 'N/A'}
+Referral: ${payload.hear_about_us || 'N/A'}
 
 ⏰ ${aestTime} AEST`;
 
