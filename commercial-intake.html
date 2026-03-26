@@ -401,7 +401,7 @@
     </div>
 
     <!-- Form -->
-    <form class="form-container" id="intakeForm">
+    <form class="form-container" id="intakeForm" novalidate>
       <!-- TIER 1: Quick Filter -->
       <div class="form-section">
         <h2 class="form-section-title">🏷️ Quick Filter</h2>
@@ -873,9 +873,36 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
+      // Validate required text/select/textarea fields
+      const requiredFields = form.querySelectorAll('[required]');
+      let firstInvalid = null;
+      requiredFields.forEach(field => {
+        const isRadioGroup = field.type === 'radio';
+        if (isRadioGroup) {
+          const groupChecked = form.querySelector(`input[name="${field.name}"]:checked`);
+          if (!groupChecked) {
+            field.closest('.form-group')?.classList.add('field-error');
+            if (!firstInvalid) firstInvalid = field;
+          } else {
+            field.closest('.form-group')?.classList.remove('field-error');
+          }
+        } else if (!field.value.trim()) {
+          field.classList.add('error');
+          if (!firstInvalid) firstInvalid = field;
+        } else {
+          field.classList.remove('error');
+        }
+      });
+
+      if (firstInvalid) {
+        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        alert('Please fill in all required fields before submitting.');
+        return;
+      }
+
       // Validate security
       if (!validateSecurity()) {
-        alert('Please select at least one security type');
+        alert('Please select at least one security type.');
         return;
       }
 
