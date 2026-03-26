@@ -993,18 +993,38 @@
 
         const telegramMessage = `🏢 New Commercial Deal Enquiry
 
+📋 DEAL
 Entity: ${payload.business_name || 'N/A'} (${payload.entity_type || 'N/A'})
+ABN: ${payload.abn || 'N/A'}
+Industry: ${payload.industry_description || 'N/A'}
+Trading: ${payload.years_in_operation || 'N/A'} yrs | ${payload.employees || 'N/A'} staff | GST: ${payload.gst_registered || 'N/A'}
+
+💰 LOAN
 Amount: ${fmt(payload.loan_amount)}
 Purpose: ${payload.loan_purpose || 'N/A'}
+Term: ${payload.preferred_term || 'N/A'}
 ATO Debt: ${payload.ato_debt || 'N/A'}
 Security: ${payload.security_available || 'N/A'}
+${payload.real_property_owned === 'Yes' ? `Property: ${payload.property_address || 'N/A'} | Est. ${fmt(payload.property_value)} | Mortgage: ${fmt(payload.mortgage_balance)}` : ''}
+Urgency: ${payload.urgency || 'None'}
 
-Revenue: ${fmt(payload.last_year_revenue)} / ${fmt(payload.prev_year_revenue)}
+📊 FINANCIALS
+Revenue: ${fmt(payload.last_year_revenue)} / ${fmt(payload.prev_year_revenue)} (last/prev yr)
 Net Profit: ${fmt(payload.last_year_profit)} / ${fmt(payload.prev_year_profit)}
-Trading: ${payload.years_in_operation || 'N/A'} years | ${payload.industry_description || 'N/A'}
+Financials by: ${payload.financials_prepared_by || 'N/A'}
+Addbacks: ${payload.addbacks || 'None'}
+Outstanding debts: ${payload.outstanding_debts || 'None'}
 
-Contact: ${payload.contact_name || 'N/A'} | ${payload.contact_email || 'N/A'} | ${payload.contact_phone || 'N/A'}
-Referral: ${payload.hear_about_us || 'N/A'}
+⚠️ RISK
+Other lenders approached: ${payload.approached_other_lenders || 'N/A'}${payload.other_lenders_details ? ' — ' + payload.other_lenders_details : ''}
+Adverse credit: ${payload.adverse_credit || 'N/A'}${payload.adverse_credit_details ? ' — ' + payload.adverse_credit_details : ''}
+Directors/Guarantors: ${payload.directors_guarantors || 'N/A'}
+
+👤 CONTACT
+Name: ${payload.contact_name || 'N/A'}
+Email: ${payload.contact_email || 'N/A'}
+Phone: ${payload.contact_phone || 'N/A'}
+Referral: ${payload.hear_about_us || 'N/A'}${payload.referring_advisor ? ' — ' + payload.referring_advisor : ''}
 
 ⏰ ${aestTime} AEST`;
 
@@ -1067,10 +1087,23 @@ Referral: ${payload.hear_about_us || 'N/A'}
                       Thanks for submitting your commercial deal enquiry. We've received the details for <strong>${payload.business_name || 'your business'}</strong> and will be in touch shortly.
                     </p>
                     <div style="background:#f7f7f9;border-left:3px solid #2ECC85;padding:16px 20px;margin:24px 0;border-radius:4px;">
-                      <p style="margin:0 0 8px;font-size:14px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Enquiry Summary</p>
-                      <p style="margin:0 0 4px;font-size:15px;color:#1a1a2e;"><strong>Business:</strong> ${payload.business_name || 'N/A'}</p>
-                      <p style="margin:0 0 4px;font-size:15px;color:#1a1a2e;"><strong>Loan Amount:</strong> ${fmt(payload.loan_amount)}</p>
-                      <p style="margin:0;font-size:15px;color:#1a1a2e;"><strong>Purpose:</strong> ${payload.loan_purpose || 'N/A'}</p>
+                      <p style="margin:0 0 12px;font-size:14px;color:#666;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">Your Enquiry Details</p>
+                      <table style="width:100%;border-collapse:collapse;font-size:14px;">
+                        <tr><td style="padding:4px 0;color:#888;width:140px;">Business</td><td style="padding:4px 0;color:#1a1a2e;font-weight:500;">${payload.business_name || 'N/A'}</td></tr>
+                        <tr><td style="padding:4px 0;color:#888;">ABN</td><td style="padding:4px 0;color:#1a1a2e;">${payload.abn || 'N/A'}</td></tr>
+                        <tr><td style="padding:4px 0;color:#888;">Entity Type</td><td style="padding:4px 0;color:#1a1a2e;">${payload.entity_type || 'N/A'}</td></tr>
+                        <tr><td style="padding:4px 0;color:#888;">Industry</td><td style="padding:4px 0;color:#1a1a2e;">${payload.industry_description || 'N/A'}</td></tr>
+                        <tr><td style="padding:4px 0;color:#888;">Trading</td><td style="padding:4px 0;color:#1a1a2e;">${payload.years_in_operation || 'N/A'} years</td></tr>
+                        <tr><td colspan="2" style="padding:8px 0 4px;border-top:1px solid #e5e5e5;"></td></tr>
+                        <tr><td style="padding:4px 0;color:#888;">Loan Amount</td><td style="padding:4px 0;color:#1a1a2e;font-weight:600;">${fmt(payload.loan_amount)}</td></tr>
+                        <tr><td style="padding:4px 0;color:#888;">Purpose</td><td style="padding:4px 0;color:#1a1a2e;">${payload.loan_purpose || 'N/A'}</td></tr>
+                        <tr><td style="padding:4px 0;color:#888;">Term</td><td style="padding:4px 0;color:#1a1a2e;">${payload.preferred_term || 'N/A'}</td></tr>
+                        <tr><td style="padding:4px 0;color:#888;">ATO Debt</td><td style="padding:4px 0;color:#1a1a2e;">${payload.ato_debt || 'N/A'}</td></tr>
+                        <tr><td style="padding:4px 0;color:#888;">Security</td><td style="padding:4px 0;color:#1a1a2e;">${payload.security_available || 'N/A'}</td></tr>
+                        <tr><td colspan="2" style="padding:8px 0 4px;border-top:1px solid #e5e5e5;"></td></tr>
+                        <tr><td style="padding:4px 0;color:#888;">Revenue (Last Yr)</td><td style="padding:4px 0;color:#1a1a2e;">${fmt(payload.last_year_revenue)}</td></tr>
+                        <tr><td style="padding:4px 0;color:#888;">Net Profit (Last Yr)</td><td style="padding:4px 0;color:#1a1a2e;">${fmt(payload.last_year_profit)}</td></tr>
+                      </table>
                     </div>
                     <p style="font-size:15px;line-height:1.6;color:#444;margin:0 0 24px;">
                       We typically respond within 1 business day. If you have any urgent questions, feel free to reply to this email.
