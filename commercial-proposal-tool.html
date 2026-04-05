@@ -1,0 +1,1215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commercial Multi-Lender Proposal Tool | Oney & Co</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #1A1A2E;
+      --card: #252540;
+      --border: #3D3D5C;
+      --green: #2ECC85;
+      --green-dark: #1FAD73;
+      --purple: #6B4C9A;
+      --muted: #a3a3b8;
+      --red: #E74C3C;
+      --orange: #E67E22;
+      --yellow: #F1C40F;
+      --gradient: linear-gradient(135deg, #2ECC85, #1FAD73);
+    }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: #e2e2e2;
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 24px 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      margin-bottom: 32px;
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #fff 0%, #c8c8d8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .header p {
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .progress-wrap {
+      background: var(--card);
+      border-radius: 8px;
+      height: 8px;
+      margin-bottom: 28px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    .progress-bar {
+      height: 100%;
+      background: var(--gradient);
+      border-radius: 8px;
+      width: 0%;
+      transition: width 0.4s ease;
+    }
+    .progress-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 8px;
+      text-align: right;
+    }
+    /* Steps */
+    .step {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+    }
+    .step.active {
+      display: flex;
+    }
+    .step-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 24px;
+      flex: 1;
+    }
+    .step-title {
+      font-size: 19px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+    .step-hint {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #e2e2e2;
+    }
+    label .req {
+      color: var(--red);
+    }
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.03);
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #e2e2e2;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]::placeholder,
+    input[type="number"]::placeholder,
+    textarea::placeholder {
+      color: var(--muted);
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--green);
+    }
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%232ECC85' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 40px;
+    }
+    .radio-group,
+    .checkbox-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .radio-option,
+    .checkbox-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    input[type="radio"],
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--green);
+    }
+    .radio-option label,
+    .checkbox-option label {
+      margin: 0;
+      cursor: pointer;
+      font-weight: 400;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 640px) {
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+    }
+    /* Nav buttons */
+    .step-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      gap: 12px;
+    }
+    button {
+      border: none;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-back {
+      background: none;
+      border: 1.5px solid var(--border);
+      color: var(--muted);
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .btn-back:hover {
+      border-color: var(--green);
+      color: #fff;
+    }
+    .btn-back:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+    .btn-next {
+      background: var(--gradient);
+      color: #fff;
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: auto;
+      box-shadow: 0 4px 16px rgba(46, 204, 133, 0.25);
+    }
+    .btn-next:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(46, 204, 133, 0.35);
+    }
+    .btn-next:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    /* Results section */
+    .results {
+      display: none;
+    }
+    .results.show {
+      display: flex;
+      flex-direction: column;
+    }
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .metric-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+    .metric-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .metric-value {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .metric-status {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 12px;
+      border-radius: 6px;
+      display: inline-block;
+      margin-top: 8px;
+    }
+    .status-good {
+      background: rgba(46, 204, 133, 0.15);
+      color: var(--green);
+    }
+    .status-warning {
+      background: rgba(230, 126, 34, 0.15);
+      color: var(--orange);
+    }
+    .status-risk {
+      background: rgba(231, 76, 60, 0.15);
+      color: var(--red);
+    }
+    /* Lender table */
+    .lenders-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 28px;
+      overflow-x: auto;
+    }
+    .lenders-section h2 {
+      font-size: 17px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .lender-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .lender-table th {
+      text-align: left;
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .lender-table td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .lender-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+    .lender-name {
+      font-weight: 600;
+      color: #fff;
+    }
+    .match-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .match-likely {
+      background: rgba(46, 204, 133, 0.15);
+      color: var(--green);
+    }
+    .match-possible {
+      background: rgba(230, 126, 34, 0.15);
+      color: var(--orange);
+    }
+    .match-unlikely {
+      background: rgba(231, 76, 60, 0.15);
+      color: var(--red);
+    }
+    /* Proposal section */
+    .proposal-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 24px;
+      margin-bottom: 28px;
+    }
+    .proposal-section h2 {
+      font-size: 19px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .proposal-section h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-top: 20px;
+      margin-bottom: 12px;
+      color: var(--green);
+    }
+    .proposal-content {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #ccc;
+    }
+    .proposal-list {
+      margin: 12px 0;
+      padding-left: 20px;
+    }
+    .proposal-list li {
+      margin-bottom: 8px;
+    }
+    /* Buttons */
+    .results-nav {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+    .btn-print,
+    .btn-reset,
+    .btn-back-form {
+      flex: 1;
+      min-width: 140px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-print {
+      background: var(--gradient);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(46, 204, 133, 0.25);
+    }
+    .btn-print:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(46, 204, 133, 0.35);
+    }
+    .btn-reset,
+    .btn-back-form {
+      background: rgba(255,255,255,0.03);
+      border: 1.5px solid var(--border);
+      color: var(--muted);
+    }
+    .btn-reset:hover,
+    .btn-back-form:hover {
+      border-color: var(--green);
+      color: #fff;
+    }
+    /* Print styles */
+    @media print {
+      body {
+        background: #fff;
+        color: #000;
+      }
+      .progress-wrap,
+      .step-nav,
+      .results-nav,
+      .header {
+        display: none !important;
+      }
+      .results {
+        display: flex !important;
+      }
+      .container {
+        max-width: 100%;
+        padding: 0;
+      }
+      .proposal-section,
+      .metric-card,
+      .lenders-section {
+        background: #fff !important;
+        border: 1px solid #ccc !important;
+        color: #000 !important;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      .proposal-section h2,
+      .proposal-section h3 {
+        color: #000 !important;
+      }
+      .metric-label,
+      .muted {
+        color: #666 !important;
+      }
+    }
+    .validation-error {
+      color: var(--red);
+      font-size: 12px;
+      margin-top: 6px;
+      display: none;
+    }
+    .validation-error.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Commercial Proposal Tool</h1>
+    <p>Multi-lender matching for commercial deals</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+  <div class="progress-label"><span id="progressText">Step 1 of 3</span></div>
+
+  <!-- STEP 1: Deal Info -->
+  <div class="step active" id="step1">
+    <div class="step-card">
+      <h2 class="step-title">Deal Information</h2>
+      <p class="step-hint">Start with the basics of the commercial loan request.</p>
+
+      <div class="form-group">
+        <label>Loan Amount (AUD) <span class="req">*</span></label>
+        <input type="number" id="loanAmount" placeholder="e.g. 500000" min="0">
+        <div class="validation-error" id="err-loanAmount">Loan amount is required</div>
+      </div>
+
+      <div class="form-group">
+        <label>Loan Purpose <span class="req">*</span></label>
+        <select id="loanPurpose">
+          <option value="">Select purpose</option>
+          <option value="purchase">Purchase</option>
+          <option value="refinance">Refinance</option>
+          <option value="equity">Equity Release</option>
+          <option value="construction">Construction</option>
+          <option value="working">Working Capital</option>
+        </select>
+        <div class="validation-error" id="err-loanPurpose">Please select a purpose</div>
+      </div>
+
+      <div class="two-col">
+        <div class="form-group">
+          <label>Loan Term (Years) <span class="req">*</span></label>
+          <input type="number" id="loanTerm" placeholder="e.g. 25" min="1" max="40">
+          <div class="validation-error" id="err-loanTerm">Loan term is required</div>
+        </div>
+
+        <div class="form-group">
+          <label>Interest Rate (%) <span class="req">*</span></label>
+          <input type="number" id="interestRate" placeholder="e.g. 6.5" min="0" max="20" step="0.01">
+          <div class="validation-error" id="err-interestRate">Interest rate is required</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Repayment Type <span class="req">*</span></label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input type="radio" id="repayPI" name="repayment" value="PI">
+            <label for="repayPI">Principal & Interest (P&I)</label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" id="repayIO" name="repayment" value="IO">
+            <label for="repayIO">Interest Only (IO)</label>
+          </div>
+        </div>
+        <div class="validation-error" id="err-repayment">Please select a repayment type</div>
+      </div>
+
+      <div class="form-group" id="ioGroup" style="display:none;">
+        <label>Interest Only Period (Years)</label>
+        <input type="number" id="ioPeriod" placeholder="e.g. 5" min="0" max="10">
+      </div>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-back" disabled>Back</button>
+      <button class="btn-next" onclick="nextStep(1)">Next</button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Borrower Info -->
+  <div class="step" id="step2">
+    <div class="step-card">
+      <h2 class="step-title">Borrower Information</h2>
+      <p class="step-hint">Tell us about the business and financials.</p>
+
+      <div class="form-group">
+        <label>Borrower Type <span class="req">*</span></label>
+        <select id="borrowerType">
+          <option value="">Select type</option>
+          <option value="individual">Individual</option>
+          <option value="company">Company Pty Ltd</option>
+          <option value="trust">Discretionary Trust</option>
+          <option value="unit">Unit Trust</option>
+          <option value="partnership">Partnership</option>
+        </select>
+        <div class="validation-error" id="err-borrowerType">Please select borrower type</div>
+      </div>
+
+      <div class="form-group">
+        <label>Business/Entity Name <span class="req">*</span></label>
+        <input type="text" id="businessName" placeholder="e.g. Acme Trading Pty Ltd">
+        <div class="validation-error" id="err-businessName">Business name is required</div>
+      </div>
+
+      <div class="form-group">
+        <label>ABN</label>
+        <input type="text" id="abn" placeholder="e.g. 12345678901">
+      </div>
+
+      <div class="form-group">
+        <label>Industry <span class="req">*</span></label>
+        <select id="industry">
+          <option value="">Select industry</option>
+          <option value="retail">Retail Trade</option>
+          <option value="hospitality">Hospitality & Food</option>
+          <option value="professional">Professional Services</option>
+          <option value="construction">Construction</option>
+          <option value="manufacturing">Manufacturing</option>
+          <option value="transport">Transport & Logistics</option>
+          <option value="property">Property Services</option>
+          <option value="health">Health & Aged Care</option>
+          <option value="education">Education</option>
+          <option value="finance">Finance & Insurance</option>
+          <option value="technology">Technology & IT</option>
+          <option value="agriculture">Agriculture</option>
+          <option value="mining">Mining</option>
+          <option value="energy">Energy & Utilities</option>
+          <option value="media">Media & Entertainment</option>
+          <option value="real_estate">Real Estate</option>
+          <option value="wholesale">Wholesale Trade</option>
+          <option value="admin">Administrative Services</option>
+          <option value="rental">Rental & Hiring</option>
+          <option value="other">Other</option>
+        </select>
+        <div class="validation-error" id="err-industry">Please select an industry</div>
+      </div>
+
+      <div class="two-col">
+        <div class="form-group">
+          <label>Years in Business <span class="req">*</span></label>
+          <input type="number" id="yearsInBusiness" placeholder="e.g. 5" min="0" max="100">
+          <div class="validation-error" id="err-yearsInBusiness">Years in business is required</div>
+        </div>
+
+        <div class="form-group">
+          <label>Annual Revenue (AUD) <span class="req">*</span></label>
+          <input type="number" id="annualRevenue" placeholder="e.g. 1000000" min="0">
+          <div class="validation-error" id="err-annualRevenue">Annual revenue is required</div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="form-group">
+          <label>EBITDA / Net Profit (AUD) <span class="req">*</span></label>
+          <input type="number" id="ebitda" placeholder="e.g. 250000" min="0">
+          <div class="validation-error" id="err-ebitda">EBITDA/Net profit is required</div>
+        </div>
+
+        <div class="form-group">
+          <label>Guarantor Personal Income (AUD)</label>
+          <input type="number" id="personalIncome" placeholder="e.g. 150000" min="0">
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="form-group">
+          <label>Existing Total Debt (AUD) <span class="req">*</span></label>
+          <input type="number" id="existingDebt" placeholder="e.g. 300000" min="0">
+          <div class="validation-error" id="err-existingDebt">Existing debt is required</div>
+        </div>
+
+        <div class="form-group">
+          <label>Monthly Debt Repayments (AUD) <span class="req">*</span></label>
+          <input type="number" id="monthlyRepayments" placeholder="e.g. 8000" min="0">
+          <div class="validation-error" id="err-monthlyRepayments">Monthly repayments is required</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-back" onclick="prevStep(2)">Back</button>
+      <button class="btn-next" onclick="nextStep(2)">Next</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: Security -->
+  <div class="step" id="step3">
+    <div class="step-card">
+      <h2 class="step-title">Security (Collateral)</h2>
+      <p class="step-hint">Details of the property securing the loan.</p>
+
+      <div class="form-group">
+        <label>Property Type <span class="req">*</span></label>
+        <select id="propertyType">
+          <option value="">Select type</option>
+          <option value="office">Office</option>
+          <option value="retail">Retail</option>
+          <option value="industrial">Industrial</option>
+          <option value="hotel">Hotel/Motel</option>
+          <option value="land">Land</option>
+          <option value="mixed">Mixed Use</option>
+          <option value="other">Other</option>
+        </select>
+        <div class="validation-error" id="err-propertyType">Please select property type</div>
+      </div>
+
+      <div class="form-group">
+        <label>Property Address <span class="req">*</span></label>
+        <input type="text" id="propertyAddress" placeholder="e.g. 123 Main Street, Brisbane QLD 4000">
+        <div class="validation-error" id="err-propertyAddress">Property address is required</div>
+      </div>
+
+      <div class="form-group">
+        <label>Estimated Property Value (AUD) <span class="req">*</span></label>
+        <input type="number" id="propertyValue" placeholder="e.g. 2000000" min="0">
+        <div class="validation-error" id="err-propertyValue">Property value is required</div>
+      </div>
+
+      <div class="form-group">
+        <label>Owner-Occupied?</label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input type="radio" id="ownerYes" name="ownerOccupied" value="yes">
+            <label for="ownerYes">Yes</label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" id="ownerNo" name="ownerOccupied" value="no">
+            <label for="ownerNo">No (Investment)</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Existing Mortgage on Property?</label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input type="radio" id="mortgageYes" name="existingMortgage" value="yes">
+            <label for="mortgageYes">Yes</label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" id="mortgageNo" name="existingMortgage" value="no">
+            <label for="mortgageNo">No</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" id="mortgageAmtGroup" style="display:none;">
+        <label>Existing Mortgage Amount (AUD)</label>
+        <input type="number" id="mortgageAmount" placeholder="e.g. 800000" min="0">
+      </div>
+
+      <div class="form-group">
+        <label>Additional Security Available?</label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input type="radio" id="addSecYes" name="additionalSecurity" value="yes">
+            <label for="addSecYes">Yes</label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" id="addSecNo" name="additionalSecurity" value="no">
+            <label for="addSecNo">No</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" id="addSecDescGroup" style="display:none;">
+        <label>Description of Additional Security</label>
+        <textarea id="additionalSecurityDesc" placeholder="e.g. Residential property, equipment, etc."></textarea>
+      </div>
+    </div>
+
+    <div class="step-nav">
+      <button class="btn-back" onclick="prevStep(3)">Back</button>
+      <button class="btn-next" onclick="submitForm()">Generate Proposal</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="results" id="results">
+    <div class="header">
+      <h1>Proposal Results</h1>
+      <p>Key metrics and lender recommendations</p>
+    </div>
+
+    <!-- Key Metrics Dashboard -->
+    <div class="dashboard" id="dashboard"></div>
+
+    <!-- Lender Match Table -->
+    <div class="lenders-section">
+      <h2>Lender Matching Results</h2>
+      <table class="lender-table" id="lenderTable">
+        <thead>
+          <tr>
+            <th>Lender</th>
+            <th>Max LVR (O/O)</th>
+            <th>Max LVR (Inv)</th>
+            <th>Min DSCR</th>
+            <th>Match</th>
+          </tr>
+        </thead>
+        <tbody id="lenderBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Credit Proposal -->
+    <div class="proposal-section">
+      <h2>Credit Proposal Draft</h2>
+
+      <h3>Executive Summary</h3>
+      <div class="proposal-content" id="execSummary"></div>
+
+      <h3>Financial Analysis</h3>
+      <div class="proposal-content" id="finAnalysis"></div>
+
+      <h3>Borrower Profile</h3>
+      <div class="proposal-content" id="borrowerProfile"></div>
+
+      <h3>Security Assessment</h3>
+      <div class="proposal-content" id="securityAssess"></div>
+
+      <h3>Risk Considerations</h3>
+      <div class="proposal-content" id="riskConsider"></div>
+
+      <h3>Recommended Lenders</h3>
+      <div class="proposal-content" id="topLenders"></div>
+
+      <h3>Next Steps</h3>
+      <div class="proposal-content" id="nextSteps"></div>
+    </div>
+
+    <div class="results-nav">
+      <button class="btn-print" onclick="window.print()">Print / Export</button>
+      <button class="btn-back-form" onclick="goBack()">Back to Form</button>
+      <button class="btn-reset" onclick="resetForm()">Start Over</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ====== DATA STATE ======
+  const formData = {
+    // Step 1
+    loanAmount: 0,
+    loanPurpose: '',
+    loanTerm: 0,
+    interestRate: 0,
+    repayment: 'PI',
+    ioPeriod: 0,
+    // Step 2
+    borrowerType: '',
+    businessName: '',
+    abn: '',
+    industry: '',
+    yearsInBusiness: 0,
+    annualRevenue: 0,
+    ebitda: 0,
+    personalIncome: 0,
+    existingDebt: 0,
+    monthlyRepayments: 0,
+    // Step 3
+    propertyType: '',
+    propertyAddress: '',
+    propertyValue: 0,
+    ownerOccupied: 'yes',
+    existingMortgage: 'no',
+    mortgageAmount: 0,
+    additionalSecurity: 'no',
+    additionalSecurityDesc: ''
+  };
+
+  // Lender criteria
+  const lenders = [
+    { name: 'NAB', maxLvrOO: 0.70, maxLvrInv: 0.65, minDscr: 1.20 },
+    { name: 'CBA', maxLvrOO: 0.70, maxLvrInv: 0.65, minDscr: 1.20 },
+    { name: 'ANZ', maxLvrOO: 0.65, maxLvrInv: 0.60, minDscr: 1.30 },
+    { name: 'Westpac', maxLvrOO: 0.70, maxLvrInv: 0.65, minDscr: 1.20 },
+    { name: 'Bankwest', maxLvrOO: 0.65, maxLvrInv: 0.60, minDscr: 1.25 },
+    { name: 'Macquarie', maxLvrOO: 0.75, maxLvrInv: 0.70, minDscr: 1.15 },
+    { name: 'Pepper/Liberty', maxLvrOO: 0.80, maxLvrInv: 0.75, minDscr: 1.10 },
+    { name: 'La Trobe', maxLvrOO: 0.80, maxLvrInv: 0.75, minDscr: 1.10 }
+  ];
+
+  // ====== UI HELPERS ======
+  function showStep(n) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step' + n).classList.add('active');
+    updateProgress(n);
+    window.scrollTo(0, 0);
+  }
+
+  function updateProgress(step) {
+    const percent = ((step - 1) / 3) * 100;
+    document.getElementById('progressBar').style.width = percent + '%';
+    document.getElementById('progressText').textContent = `Step ${step} of 3`;
+  }
+
+  function validateStep(step) {
+    clearErrors();
+    const errors = [];
+
+    if (step === 1) {
+      if (!document.getElementById('loanAmount').value) errors.push('loanAmount');
+      if (!document.getElementById('loanPurpose').value) errors.push('loanPurpose');
+      if (!document.getElementById('loanTerm').value) errors.push('loanTerm');
+      if (!document.getElementById('interestRate').value) errors.push('interestRate');
+      if (!document.querySelector('input[name="repayment"]:checked')) errors.push('repayment');
+    } else if (step === 2) {
+      if (!document.getElementById('borrowerType').value) errors.push('borrowerType');
+      if (!document.getElementById('businessName').value) errors.push('businessName');
+      if (!document.getElementById('industry').value) errors.push('industry');
+      if (!document.getElementById('yearsInBusiness').value) errors.push('yearsInBusiness');
+      if (!document.getElementById('annualRevenue').value) errors.push('annualRevenue');
+      if (!document.getElementById('ebitda').value) errors.push('ebitda');
+      if (!document.getElementById('existingDebt').value) errors.push('existingDebt');
+      if (!document.getElementById('monthlyRepayments').value) errors.push('monthlyRepayments');
+    } else if (step === 3) {
+      if (!document.getElementById('propertyType').value) errors.push('propertyType');
+      if (!document.getElementById('propertyAddress').value) errors.push('propertyAddress');
+      if (!document.getElementById('propertyValue').value) errors.push('propertyValue');
+    }
+
+    errors.forEach(id => {
+      const el = document.getElementById('err-' + id);
+      if (el) el.classList.add('show');
+    });
+
+    return errors.length === 0;
+  }
+
+  function clearErrors() {
+    document.querySelectorAll('.validation-error').forEach(e => e.classList.remove('show'));
+  }
+
+  function nextStep(current) {
+    if (!validateStep(current)) return;
+
+    if (current === 1) {
+      formData.loanAmount = parseFloat(document.getElementById('loanAmount').value);
+      formData.loanPurpose = document.getElementById('loanPurpose').value;
+      formData.loanTerm = parseFloat(document.getElementById('loanTerm').value);
+      formData.interestRate = parseFloat(document.getElementById('interestRate').value);
+      formData.repayment = document.querySelector('input[name="repayment"]:checked').value;
+      formData.ioPeriod = parseFloat(document.getElementById('ioPeriod').value) || 0;
+    } else if (current === 2) {
+      formData.borrowerType = document.getElementById('borrowerType').value;
+      formData.businessName = document.getElementById('businessName').value;
+      formData.abn = document.getElementById('abn').value;
+      formData.industry = document.getElementById('industry').value;
+      formData.yearsInBusiness = parseFloat(document.getElementById('yearsInBusiness').value);
+      formData.annualRevenue = parseFloat(document.getElementById('annualRevenue').value);
+      formData.ebitda = parseFloat(document.getElementById('ebitda').value);
+      formData.personalIncome = parseFloat(document.getElementById('personalIncome').value) || 0;
+      formData.existingDebt = parseFloat(document.getElementById('existingDebt').value);
+      formData.monthlyRepayments = parseFloat(document.getElementById('monthlyRepayments').value);
+    }
+
+    showStep(current + 1);
+  }
+
+  function prevStep(current) {
+    showStep(current - 1);
+  }
+
+  function submitForm() {
+    if (!validateStep(3)) return;
+
+    formData.propertyType = document.getElementById('propertyType').value;
+    formData.propertyAddress = document.getElementById('propertyAddress').value;
+    formData.propertyValue = parseFloat(document.getElementById('propertyValue').value);
+    formData.ownerOccupied = document.querySelector('input[name="ownerOccupied"]:checked').value || 'yes';
+    formData.existingMortgage = document.querySelector('input[name="existingMortgage"]:checked').value || 'no';
+    formData.mortgageAmount = parseFloat(document.getElementById('mortgageAmount').value) || 0;
+    formData.additionalSecurity = document.querySelector('input[name="additionalSecurity"]:checked').value || 'no';
+    formData.additionalSecurityDesc = document.getElementById('additionalSecurityDesc').value;
+
+    generateResults();
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('results').classList.add('show');
+    window.scrollTo(0, 0);
+  }
+
+  function goBack() {
+    document.getElementById('results').classList.remove('show');
+    showStep(3);
+  }
+
+  function resetForm() {
+    Object.keys(formData).forEach(key => { formData[key] = typeof formData[key] === 'number' ? 0 : ''; });
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+      if (el.type === 'radio' || el.type === 'checkbox') {
+        el.checked = false;
+      } else {
+        el.value = '';
+      }
+    });
+    document.getElementById('results').classList.remove('show');
+    showStep(1);
+    clearErrors();
+  }
+
+  // ====== CALCULATIONS ======
+  function calculateMetrics() {
+    const { loanAmount, propertyValue, interestRate, loanTerm, ebitda, annualRevenue, repayment, ioPeriod, existingDebt, monthlyRepayments } = formData;
+    const isOwnerOccupied = formData.ownerOccupied === 'yes';
+
+    // LVR
+    const lvr = loanAmount / propertyValue;
+
+    // DSCR calculation
+    const bufferedRate = Math.max(interestRate + 2, 6.5) / 100;
+    const monthlyRate = bufferedRate / 12;
+    let monthlyPayment;
+
+    if (repayment === 'IO') {
+      const piYears = loanTerm - (ioPeriod || 0);
+      const ioMonths = Math.max(ioPeriod || 0, 0) * 12;
+      const piMonths = piYears * 12;
+
+      const ioPayment = loanAmount * monthlyRate;
+      const piPayment = piMonths > 0 ?
+        (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, piMonths)) /
+        (Math.pow(1 + monthlyRate, piMonths) - 1) : 0;
+
+      monthlyPayment = (ioMonths * ioPayment + piMonths * piPayment) / (ioMonths + piMonths);
+    } else {
+      const totalMonths = loanTerm * 12;
+      monthlyPayment = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, totalMonths)) /
+                       (Math.pow(1 + monthlyRate, totalMonths) - 1);
+    }
+
+    const annualDebtService = monthlyPayment * 12;
+    const noi = ebitda || (annualRevenue * 0.15);
+    const dscr = noi / annualDebtService;
+
+    // ICR
+    const annualInterest = loanAmount * bufferedRate;
+    const icr = noi / annualInterest;
+
+    // DTI
+    const totalMonthlyDebt = monthlyRepayments + monthlyPayment;
+    const grossMonthlyIncome = (ebitda || (annualRevenue * 0.15)) / 12;
+    const dti = (totalMonthlyDebt / grossMonthlyIncome) * 100;
+
+    return { lvr, dscr, icr, dti, isOwnerOccupied };
+  }
+
+  function getLvrMax(lender, isOwnerOccupied) {
+    return isOwnerOccupied ? lender.maxLvrOO : lender.maxLvrInv;
+  }
+
+  function getMatchResult(lender, lvr, dscr, isOwnerOccupied) {
+    const isHighRisk = ['hospitality', 'construction', 'mining'].includes(formData.industry);
+    let adjustedLvr = lvr;
+
+    if (isHighRisk) adjustedLvr += 0.05;
+
+    const maxLvr = getLvrMax(lender, isOwnerOccupied);
+    let match = 'unlikely';
+    let reason = '';
+
+    if (formData.yearsInBusiness < 2 && ['NAB', 'CBA', 'Westpac', 'ANZ'].includes(lender.name)) {
+      match = 'unlikely';
+      reason = 'Business < 2 years';
+    } else if (adjustedLvr <= maxLvr && dscr >= lender.minDscr) {
+      match = 'likely';
+    } else if (adjustedLvr <= maxLvr + 0.05 && dscr >= lender.minDscr - 0.10) {
+      match = 'possible';
+      reason = 'May require conditions';
+    } else if (dscr < lender.minDscr) {
+      if (match === 'likely') match = 'possible';
+      reason = 'DSCR below requirement';
+    }
+
+    return { match, reason };
+  }
+
+  function formatCurrency(n) {
+    return '$' + n.toLocaleString('en-AU', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  }
+
+  function formatPercent(n) {
+    return (n * 100).toFixed(2) + '%';
+  }
+
+  // ====== RESULTS GENERATION ======
+  function generateResults() {
+    const metrics = calculateMetrics();
+
+    // Dashboard
+    const dashboard = document.getElementById('dashboard');
+    dashboard.innerHTML = `
+      <div class="metric-card">
+        <div class="metric-label">LVR (Loan-to-Value Ratio)</div>
+        <div class="metric-value">${formatPercent(metrics.lvr)}</div>
+        <div class="metric-status ${metrics.lvr <= 0.70 ? 'status-good' : metrics.lvr <= 0.80 ? 'status-warning' : 'status-risk'}">
+          ${metrics.lvr <= 0.70 ? 'Strong' : metrics.lvr <= 0.80 ? 'Moderate' : 'High Risk'}
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">DSCR (Debt Service Coverage)</div>
+        <div class="metric-value">${metrics.dscr.toFixed(2)}x</div>
+        <div class="metric-status ${metrics.dscr >= 1.50 ? 'status-good' : metrics.dscr >= 1.20 ? 'status-warning' : 'status-risk'}">
+          ${metrics.dscr >= 1.50 ? 'Strong' : metrics.dscr >= 1.20 ? 'Acceptable' : 'Weak'}
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">ICR (Interest Coverage)</div>
+        <div class="metric-value">${metrics.icr.toFixed(2)}x</div>
+        <div class="metric-status ${metrics.icr >= 2.00 ? 'status-good' : metrics.icr >= 1.50 ? 'status-warning' : 'status-risk'}">
+          ${metrics.icr >= 2.00 ? 'Strong' : metrics.icr >= 1.50 ? 'Acceptable' : 'Weak'}
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">DTI (Debt-to-Income)</div>
+        <div class="metric-value">${metrics.dti.toFixed(1)}%</div>
+        <div class="metric-status ${metrics.dti <= 50 ? 'status-good' : metrics.dti <= 70 ? 'status-warning' : 'status-risk'}">
+          ${metrics.dti <= 50 ? 'Strong' : metrics.dti <= 70 ? 'Moderate' : 'High'}
+        </div>
+      </div>
+    `;
+
+    // Lender table
+    const lenderBody = document.getElementById('lenderBody');
+    lenderBody.innerHTML = '';
+
+    const matches = [];
+    lenders.forEach(lender => {
+      const { match } = getMatchResult(lender, metrics.lvr, metrics.dscr, metrics.isOwnerOccupied);
+      const maxLvr = getLvrMax(lender, metrics.isOwnerOccupied);
+
+      matches.push({ lender: lender.name, match, dscr: lender.minDscr });
+
+      const badgeClass = match === 'likely' ? 'match-likely' : match === 'possible' ? 'match-possible' : 'match-unlikely';
+      const badgeText = match.charAt(0).toUpperCase() + match.slice(1);
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td class="lender-name">${lender.name}</td>
+        <td>${formatPercent(lender.maxLvrOO)}</td>
+        <td>${formatPercent(lender.maxLvrInv)}</td>
+        <td>${lender.minDscr.toFixed(2)}x</td>
+        <td><span class="match-badge ${badgeClass}">${badgeText}</span></td>
+      `;
+      lenderBody.appendChild(row);
+    });
+
+    // Top 3 matches
+    const topMatches = matches
+      .filter(m => m.match === 'likely')
+      .slice(0, 3)
+      .map(m => m.lender)
+      .join(', ') || matches
+      .filter(m => m.match === 'possible')
+      .slice(0, 3)
+      .map(m => m.lender)
+      .join(', ') || 'Manual review recommended';
+
+    // Proposal sections
+    document.getElementById('execSummary').innerHTML = `
+      <p><strong>Borrower:</strong> ${formData.businessName}</p>
+      <p><strong>Loan Amount:</strong> ${formatCurrency(formData.loanAmount)}</p>
+      <p><strong>Purpose:</strong> ${formData.loanPurpose.charAt(0).toUpperCase() + formData.loanPurpose.slice(1)}</p>
+      <p><strong>Security:</strong> ${formData.propertyType.charAt(0).toUpperCase() + formData.propertyType.slice(1)} at ${formData.propertyAddress}</p>
+      <p><strong>Property Value:</strong> ${formatCurrency(formData.propertyValue)}</p>
+    `;
+
+    document.getElementById('finAnalysis').innerHTML = `
+      <p><strong>DSCR: ${metrics.dscr.toFixed(2)}x</strong> - ${metrics.dscr >= 1.30 ? 'Strong debt service coverage' : metrics.dscr >= 1.20 ? 'Acceptable coverage with some flexibility' : 'Below recommended minimum; potential refinement needed'}</p>
+      <p><strong>ICR: ${metrics.icr.toFixed(2)}x</strong> - Interest coverage is ${metrics.icr >= 1.50 ? 'adequate' : 'tight'}.</p>
+      <p><strong>LVR: ${formatPercent(metrics.lvr)}</strong> - ${metrics.lvr <= 0.65 ? 'Conservative' : metrics.lvr <= 0.75 ? 'Moderate' : 'Higher'} leverage ratio.</p>
+      <p><strong>DTI: ${metrics.dti.toFixed(1)}%</strong> - Total debt-to-income ratio reflects ${metrics.dti <= 50 ? 'strong' : 'adequate'} debt servicing capacity.</p>
+    `;
+
+    document.getElementById('borrowerProfile').innerHTML = `
+      <p><strong>Entity Type:</strong> ${formData.borrowerType}</p>
+      <p><strong>Industry:</strong> ${formData.industry.charAt(0).toUpperCase() + formData.industry.slice(1)}</p>
+      <p><strong>Years in Business:</strong> ${formData.yearsInBusiness} year(s)</p>
+      <p><strong>Annual Revenue:</strong> ${formatCurrency(formData.annualRevenue)}</p>
+      <p><strong>EBITDA/Net Profit:</strong> ${formatCurrency(formData.ebitda)}</p>
+      ${formData.personalIncome ? `<p><strong>Guarantor Income:</strong> ${formatCurrency(formData.personalIncome)}</p>` : ''}
+    `;
+
+    document.getElementById('securityAssess').innerHTML = `
+      <p><strong>Property Type:</strong> ${formData.propertyType.charAt(0).toUpperCase() + formData.propertyType.slice(1)}</p>
+      <p><strong>Address:</strong> ${formData.propertyAddress}</p>
+      <p><strong>Estimated Value:</strong> ${formatCurrency(formData.propertyValue)}</p>
+      <p><strong>Owner-Occupied:</strong> ${formData.ownerOccupied === 'yes' ? 'Yes' : 'Investment property'}</p>
+      <p><strong>Existing Mortgage:</strong> ${formData.existingMortgage === 'yes' ? 'Yes - ' + formatCurrency(formData.mortgageAmount) : 'No'}</p>
+      <p><strong>Additional Security:</strong> ${formData.additionalSecurity === 'yes' ? formData.additionalSecurityDesc : 'None'}</p>
+    `;
+
+    const risks = [];
+    if (metrics.dscr < 1.20) risks.push('DSCR below lender minimum thresholds');
+    if (metrics.lvr > 0.75) risks.push('High loan-to-value ratio');
+    if (formData.yearsInBusiness < 2) risks.push('Business less than 2 years old');
+    if (['hospitality', 'construction', 'mining'].includes(formData.industry)) risks.push('Industry classified as higher-risk sector');
+    if (metrics.dti > 70) risks.push('Elevated debt-to-income ratio');
+
+    if (risks.length === 0) risks.push('Profile appears well-balanced with standard lending criteria met.');
+
+    document.getElementById('riskConsider').innerHTML = `<ul class="proposal-list">${risks.map(r => `<li>${r}</li>`).join('')}</ul>`;
+
+    document.getElementById('topLenders').innerHTML = `
+      <p><strong>Recommended Lenders:</strong> ${topMatches}</p>
+      <p>Based on the metrics above, this deal is likely to appeal to lenders with appetite for ${['hospitality', 'construction', 'mining'].includes(formData.industry) ? 'specialist' : 'standard'} commercial lending.</p>
+    `;
+
+    document.getElementById('nextSteps').innerHTML = `
+      <ul class="proposal-list">
+        <li>Prepare 2-3 years of financial statements</li>
+        <li>Gather property valuation or recent appraisal</li>
+        <li>Compile tax returns for business and guarantor(s)</li>
+        <li>Document existing debt obligations and recent payment history</li>
+        <li>Prepare business plan or cash flow projections if relevant</li>
+        <li>Submit initial pre-qualification to shortlisted lenders</li>
+      </ul>
+    `;
+  }
+
+  // ====== EVENT LISTENERS ======
+  document.getElementById('repayIO').addEventListener('change', () => {
+    document.getElementById('ioGroup').style.display = 'block';
+  });
+  document.getElementById('repayPI').addEventListener('change', () => {
+    document.getElementById('ioGroup').style.display = 'none';
+  });
+
+  document.getElementById('mortgageYes').addEventListener('change', () => {
+    document.getElementById('mortgageAmtGroup').style.display = 'block';
+  });
+  document.getElementById('mortgageNo').addEventListener('change', () => {
+    document.getElementById('mortgageAmtGroup').style.display = 'none';
+  });
+
+  document.getElementById('addSecYes').addEventListener('change', () => {
+    document.getElementById('addSecDescGroup').style.display = 'block';
+  });
+  document.getElementById('addSecNo').addEventListener('change', () => {
+    document.getElementById('addSecDescGroup').style.display = 'none';
+  });
+
+  // Initialize
+  showStep(1);
+</script>
+
+</body>
+</html>
