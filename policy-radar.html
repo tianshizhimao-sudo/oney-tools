@@ -1,0 +1,3266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Policy Radar — Search Lender Policies</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green: #2ECC85;
+      --green-dark: #1FAD73;
+      --purple: #6B4C9A;
+      --purple-light: #9B59B6;
+      --bg: #1A1A2E;
+      --card: #252540;
+      --card2: #2D2D4A;
+      --border: #3D3D5C;
+      --text: #e2e2e2;
+      --muted: #a3a3b8;
+      --white: #ffffff;
+      --warn: #f39c12;
+      --danger: #e74c3c;
+      --success: #2ECC85;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 32px;
+      background: rgba(26,26,46,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-left { display: flex; align-items: center; gap: 12px; }
+    .nav-logo { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+    .nav-logo svg { height: 32px; width: auto; }
+    .nav-badge {
+      font-size: 11px; font-weight: 600; color: var(--green);
+      background: rgba(46,204,133,0.12); border: 1px solid rgba(46,204,133,0.25);
+      border-radius: 20px; padding: 3px 10px; letter-spacing: 0.5px; text-transform: uppercase;
+    }
+    .nav-divider { color: var(--border); font-size: 20px; }
+    .nav-title { font-size: 15px; font-weight: 600; color: var(--text); }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-tag {
+      font-size: 11px; font-weight: 500; color: var(--muted);
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 6px; padding: 4px 10px;
+    }
+    .nav-tag span { color: var(--green); }
+
+    /* TAB BAR */
+    .tab-bar {
+      display: flex; align-items: center; gap: 0;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+    }
+    .tab-btn {
+      position: relative;
+      padding: 12px 24px;
+      font-size: 14px; font-weight: 600;
+      color: var(--muted);
+      background: none; border: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: color 0.2s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { color: var(--text); }
+    .tab-btn.active { color: var(--green); }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute; bottom: 0; left: 12px; right: 12px;
+      height: 2px;
+      background: var(--green);
+      border-radius: 2px 2px 0 0;
+    }
+    .tab-btn .tab-count {
+      font-size: 10px; font-weight: 700;
+      background: rgba(46,204,133,0.12); color: var(--green);
+      border-radius: 10px; padding: 1px 7px;
+      margin-left: 6px;
+    }
+    .tab-btn:not(.active) .tab-count {
+      background: rgba(163,163,184,0.12); color: var(--muted);
+    }
+
+    /* LAYOUT */
+    .app { display: flex; min-height: calc(100vh - 99px); }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 300px;
+      flex-shrink: 0;
+      background: var(--card);
+      border-right: 1px solid var(--border);
+      padding: 0;
+      overflow-y: auto;
+      position: sticky;
+      top: 99px;
+      height: calc(100vh - 99px);
+      transition: width 0.3s cubic-bezier(0.4,0,0.2,1), padding 0.3s, opacity 0.25s;
+    }
+    .sidebar.collapsed {
+      width: 0; overflow: hidden; border-right: none; padding: 0;
+    }
+    .sidebar-inner { padding: 20px 18px 28px; min-width: 264px; }
+
+    /* SIDEBAR TOGGLE (desktop) */
+    .sidebar-toggle {
+      position: fixed;
+      top: 112px; left: 300px;
+      z-index: 101;
+      width: 24px; height: 48px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-left: none;
+      border-radius: 0 8px 8px 0;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 14px;
+      transition: left 0.3s cubic-bezier(0.4,0,0.2,1), background 0.2s, color 0.2s;
+    }
+    .sidebar-toggle:hover { background: var(--card2); color: var(--green); }
+    .sidebar-toggle.shifted { left: 0; }
+    .sidebar-toggle svg { width: 14px; height: 14px; transition: transform 0.3s; }
+    .sidebar-toggle.shifted svg { transform: rotate(180deg); }
+
+    /* FILTER SECTIONS */
+    .sidebar-section { margin-bottom: 20px; }
+    .sidebar-section:last-of-type { margin-bottom: 24px; }
+    .sidebar-label {
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .sidebar-label .label-icon { font-size: 12px; opacity: 0.7; }
+    .filter-group { display: flex; flex-direction: column; gap: 6px; }
+    .filter-row { display: flex; gap: 6px; }
+
+    /* DIVIDER */
+    .sidebar-divider {
+      height: 1px; background: var(--border); margin: 16px 0;
+      opacity: 0.5;
+    }
+
+    select, input[type="number"], input[type="text"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13px;
+      font-family: inherit;
+      padding: 9px 11px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+    select:focus, input:focus {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(46,204,133,0.1);
+    }
+    select option { background: var(--card); }
+
+    .lvr-input-wrap { position: relative; }
+    .lvr-input-wrap input { padding-right: 36px; }
+    .lvr-input-wrap::after {
+      content: '%';
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      color: var(--muted); font-size: 13px; pointer-events: none;
+    }
+    .loan-input-wrap { position: relative; }
+    .loan-input-wrap input { padding-left: 20px; }
+    .loan-input-wrap::before {
+      content: '$';
+      position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+      color: var(--muted); font-size: 13px; pointer-events: none;
+    }
+
+    /* CUSTOM TOGGLE SWITCH */
+    .toggle-group { display: flex; flex-direction: column; gap: 5px; }
+    .toggle-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 10px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      font-size: 13px; color: var(--text);
+      user-select: none;
+    }
+    .toggle-item:hover { border-color: rgba(46,204,133,0.4); }
+    .toggle-item.active {
+      border-color: rgba(46,204,133,0.5);
+      background: rgba(46,204,133,0.06);
+    }
+    .toggle-item input[type="checkbox"] { display: none; }
+    .toggle-switch {
+      width: 32px; height: 18px;
+      background: var(--border);
+      border-radius: 9px;
+      position: relative;
+      flex-shrink: 0;
+      transition: background 0.25s;
+    }
+    .toggle-switch::after {
+      content: '';
+      position: absolute; top: 2px; left: 2px;
+      width: 14px; height: 14px;
+      background: var(--muted);
+      border-radius: 50%;
+      transition: transform 0.25s, background 0.25s;
+    }
+    .toggle-item.active .toggle-switch {
+      background: rgba(46,204,133,0.5);
+    }
+    .toggle-item.active .toggle-switch::after {
+      transform: translateX(14px);
+      background: var(--green);
+    }
+
+    .checkbox-group { display: flex; flex-direction: column; gap: 5px; }
+    .checkbox-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 7px 10px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      font-size: 13px;
+    }
+    .checkbox-item:hover { border-color: rgba(46,204,133,0.4); }
+    .checkbox-item input[type="checkbox"] { accent-color: var(--green); width: 14px; height: 14px; flex-shrink: 0; }
+    .checkbox-item.checked { border-color: rgba(46,204,133,0.4); background: rgba(46,204,133,0.06); }
+
+    /* PILL TOGGLE (for Tier filter) */
+    .pill-group { display: flex; gap: 4px; flex-wrap: wrap; }
+    .pill-option {
+      font-size: 12px; font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      user-select: none;
+    }
+    .pill-option:hover { border-color: rgba(46,204,133,0.4); color: var(--text); }
+    .pill-option.active {
+      background: rgba(46,204,133,0.12);
+      border-color: rgba(46,204,133,0.4);
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    /* SEARCH + RESET */
+    .search-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      color: #0f1a0f;
+      border: none; border-radius: 10px;
+      padding: 12px;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.2px;
+    }
+    .search-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(46,204,133,0.3); }
+    .search-btn:active { transform: translateY(0); }
+
+    .sidebar-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 10px; gap: 12px;
+    }
+    .reset-link {
+      font-size: 12px; color: var(--muted); cursor: pointer;
+      text-decoration: none; transition: color 0.2s;
+      white-space: nowrap;
+    }
+    .reset-link:hover { color: var(--text); }
+    .active-count {
+      font-size: 11px; color: var(--green);
+      background: rgba(46,204,133,0.1);
+      border-radius: 10px; padding: 2px 8px;
+      font-weight: 600; white-space: nowrap;
+    }
+
+
+    /* MAIN */
+    .main {
+      flex: 1;
+      padding: 28px 32px;
+      overflow-y: auto;
+    }
+
+    .results-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .results-title { font-size: 18px; font-weight: 700; }
+    .results-count {
+      font-size: 13px; color: var(--muted);
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 6px; padding: 4px 10px;
+    }
+
+    /* SCENARIO SUMMARY */
+    .scenario-bar {
+      background: rgba(46,204,133,0.08);
+      border: 1px solid rgba(46,204,133,0.2);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      display: flex; align-items: center; gap: 8px;
+      flex-wrap: wrap;
+    }
+    .scenario-bar .tag {
+      background: rgba(46,204,133,0.15); color: var(--green);
+      border-radius: 6px; padding: 3px 8px; font-weight: 600; font-size: 12px;
+    }
+    .scenario-bar .hidden { display: none; }
+
+    /* LENDER CARDS — ICON GRID */
+    .lender-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 14px;
+    }
+
+    .lender-tile {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 10px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: border-color 0.25s, transform 0.2s, box-shadow 0.25s;
+      user-select: none;
+      position: relative;
+    }
+    .lender-tile:hover {
+      border-color: rgba(46,204,133,0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .lender-tile.active {
+      border-color: var(--green);
+      box-shadow: 0 0 0 2px rgba(46,204,133,0.25), 0 8px 24px rgba(0,0,0,0.25);
+    }
+    .lender-tile.partial { border-left: 3px solid var(--warn); }
+
+    .tile-logo { flex-shrink: 0; }
+    .tile-name {
+      font-size: 12px; font-weight: 700;
+      text-align: center;
+      color: var(--text);
+      line-height: 1.3;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+    .tile-tier {
+      font-size: 9px; font-weight: 600;
+      border-radius: 4px; padding: 1px 6px;
+      white-space: nowrap;
+    }
+    .tile-tier.tier1 { background: rgba(107,76,154,0.2); color: var(--purple-light); }
+    .tile-tier.tier2 { background: rgba(46,204,133,0.1); color: var(--green); }
+    .tile-tier.nonbank { background: rgba(46,204,133,0.1); color: var(--green); }
+    .tile-lvr {
+      font-size: 11px; font-weight: 700; color: var(--green);
+      margin-top: -4px;
+    }
+    .tile-pills {
+      display: flex; gap: 3px; flex-wrap: wrap; justify-content: center;
+      max-height: 20px; overflow: hidden;
+    }
+    .tile-pills .mini-pill {
+      font-size: 8px; padding: 0px 5px;
+      border-radius: 8px;
+      background: rgba(107,76,154,0.12); color: var(--purple-light);
+      border: 1px solid rgba(107,76,154,0.15);
+      white-space: nowrap;
+    }
+    .tile-pill-count {
+      font-size: 9px; color: var(--muted); font-weight: 500;
+    }
+
+    /* DETAIL PANEL — slides in below the grid */
+    .detail-panel {
+      display: none;
+      grid-column: 1 / -1;
+      background: var(--card);
+      border: 1px solid var(--green);
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+      animation: panelSlide 0.25s ease-out;
+    }
+    .detail-panel.open { display: block; }
+    @keyframes panelSlide {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .detail-panel-header {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 18px;
+    }
+    .detail-panel-name {
+      font-size: 20px; font-weight: 800; color: var(--white);
+    }
+    .detail-panel-close {
+      position: absolute; top: 16px; right: 16px;
+      background: none; border: none; cursor: pointer;
+      color: var(--muted); font-size: 20px;
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      transition: color 0.2s, background 0.2s;
+    }
+    .detail-panel-close:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+    .detail-panel-stats {
+      display: flex; gap: 20px; margin-bottom: 16px; flex-wrap: wrap;
+    }
+    .detail-stat { text-align: center; }
+    .detail-stat-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+    .detail-stat-value { font-size: 18px; font-weight: 700; color: var(--green); }
+    .detail-stat-value.muted { color: var(--muted); font-weight: 400; font-size: 14px; }
+    .detail-pills { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 14px; }
+    .detail-pills .mini-pill {
+      font-size: 10px; font-weight: 500;
+      border-radius: 10px; padding: 2px 8px;
+      background: rgba(107,76,154,0.12); color: var(--purple-light);
+      border: 1px solid rgba(107,76,154,0.15);
+    }
+
+    /* BADGES */
+    .badge {
+      font-size: 11px; font-weight: 600;
+      border-radius: 6px; padding: 3px 8px;
+      white-space: nowrap;
+    }
+    .badge.pass { background: rgba(46,204,133,0.15); color: var(--green); border: 1px solid rgba(46,204,133,0.2); }
+    .badge.warn { background: rgba(243,156,18,0.15); color: var(--warn); border: 1px solid rgba(243,156,18,0.2); }
+    .badge.fail { background: rgba(231,76,60,0.15); color: var(--danger); border: 1px solid rgba(231,76,60,0.2); }
+
+    .meta-tag {
+      font-size: 10px; font-weight: 600;
+      border-radius: 4px; padding: 1px 6px;
+      white-space: nowrap;
+    }
+    .meta-tag.tier1 { background: rgba(107,76,154,0.2); color: var(--purple-light); }
+    .meta-tag.tier2 { background: rgba(46,204,133,0.1); color: var(--green); }
+    .meta-tag.nonbank { background: rgba(46,204,133,0.1); color: var(--green); }
+
+    @media (max-width: 768px) {
+      .lender-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+      .lender-tile { padding: 14px 8px 12px; }
+      .tile-name { font-size: 11px; }
+      .detail-panel { padding: 16px; }
+      .detail-panel-name { font-size: 16px; }
+      .detail-panel-stats { gap: 12px; }
+    }
+    @media (min-width: 1200px) {
+      .lender-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    }
+
+    /* POLICY GRID */
+    .policy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .policy-cell {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    .cell-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; font-weight: 500; }
+    .cell-value { font-size: 14px; font-weight: 600; color: var(--text); }
+    .cell-value.green { color: var(--green); }
+    .cell-value.warn { color: var(--warn); }
+    .cell-value.muted { color: var(--muted); font-weight: 400; font-size: 12px; }
+
+    /* MODIFIERS */
+    .modifiers-section { margin-bottom: 16px; }
+    .modifiers-title { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .modifier-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+    .modifier-tag {
+      font-size: 11px; border-radius: 5px; padding: 3px 8px;
+    }
+    .modifier-tag.active { background: rgba(231,76,60,0.15); color: #e74c3c; border: 1px solid rgba(231,76,60,0.2); }
+    .modifier-tag.inactive { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+
+    /* SPECIAL POLICIES */
+    .specials { display: flex; gap: 8px; flex-wrap: wrap; }
+    .special-pill {
+      font-size: 12px; font-weight: 500;
+      border-radius: 20px; padding: 4px 12px;
+      background: rgba(107,76,154,0.15); color: var(--purple-light);
+      border: 1px solid rgba(107,76,154,0.2);
+    }
+
+    /* DATA NOTE */
+    .data-note {
+      font-size: 11px; color: var(--muted);
+      padding-top: 12px; border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .data-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .data-dot.full { background: var(--green); }
+    .data-dot.partial { background: var(--warn); }
+
+    /* COMPARE */
+    .compare-bar {
+      position: fixed;
+      bottom: 0; left: 320px; right: 0;
+      background: var(--card);
+      border-top: 1px solid var(--green);
+      padding: 14px 32px;
+      display: flex; align-items: center; gap: 16px;
+      transform: translateY(100%);
+      transition: transform 0.3s;
+      z-index: 50;
+    }
+    .compare-bar.show { transform: translateY(0); }
+    .compare-slots { display: flex; gap: 10px; flex: 1; }
+    .compare-slot {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 8px 14px;
+      font-size: 13px; font-weight: 600;
+      display: flex; align-items: center; gap: 8px; min-width: 140px;
+    }
+    .compare-slot .remove { cursor: pointer; color: var(--muted); font-size: 16px; margin-left: auto; }
+    .compare-slot .remove:hover { color: var(--danger); }
+    .compare-btn {
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      color: #0f1a0f; border: none; border-radius: 8px;
+      padding: 10px 20px; font-size: 14px; font-weight: 700;
+      cursor: pointer; white-space: nowrap;
+    }
+
+    /* COMPARE TABLE */
+    .compare-overlay {
+      position: fixed; inset: 0;
+      background: rgba(10,10,20,0.9);
+      z-index: 200; display: none;
+      padding: 24px;
+      overflow-y: auto;
+    }
+    .compare-overlay.show { display: block; }
+    .compare-inner {
+      max-width: 900px; margin: 0 auto;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; overflow: hidden;
+    }
+    .compare-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px; border-bottom: 1px solid var(--border);
+    }
+    .compare-header h2 { font-size: 18px; font-weight: 700; }
+    .close-btn {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); font-size: 18px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .compare-table { width: 100%; border-collapse: collapse; }
+    .compare-table th, .compare-table td {
+      padding: 12px 16px; text-align: left;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+    .compare-table th { background: var(--bg); font-weight: 600; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .compare-table th:first-child { color: var(--muted); }
+    .compare-table th:not(:first-child) { color: var(--text); font-size: 14px; text-transform: none; letter-spacing: 0; }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table td:first-child { color: var(--muted); font-weight: 500; }
+    .val-good { color: var(--green); font-weight: 600; }
+    .val-warn { color: var(--warn); font-weight: 600; }
+    .val-na { color: var(--muted); font-style: italic; }
+
+    /* EMPTY STATE */
+    .empty-state {
+      text-align: center; padding: 80px 24px;
+      color: var(--muted);
+      grid-column: 1 / -1;
+    }
+    .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+    .empty-state h3 { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+    .empty-suggestion {
+      margin-top: 20px; padding: 16px 20px;
+      background: rgba(46,204,133,0.06);
+      border: 1px solid rgba(46,204,133,0.2);
+      border-radius: 12px;
+      text-align: left; font-size: 13px; line-height: 1.7;
+      color: var(--text); max-width: 560px; margin-left: auto; margin-right: auto;
+    }
+    .empty-suggestion .green { color: var(--green); font-weight: 600; }
+
+    /* ADD TO COMPARE checkbox on card */
+    .compare-checkbox-wrap {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--muted); cursor: pointer;
+      margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);
+    }
+    .compare-checkbox-wrap input { accent-color: var(--green); }
+    .compare-checkbox-wrap:hover { color: var(--text); }
+
+    .mobile-filter-btn {
+      display: none;
+      align-items: center; justify-content: center; gap: 8px;
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--text); border-radius: 10px; padding: 11px 16px;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      margin-bottom: 16px; width: 100%;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .mobile-filter-btn:hover { border-color: var(--green); box-shadow: 0 0 0 3px rgba(46,204,133,0.1); }
+    .mobile-filter-btn .filter-count-badge {
+      background: var(--green); color: #0f1a0f;
+      font-size: 11px; font-weight: 700;
+      border-radius: 10px; padding: 1px 7px; min-width: 18px; text-align: center;
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        z-index: 200; overflow-y: auto;
+        width: 100% !important;
+        background: var(--bg);
+        padding: 0;
+      }
+      .sidebar-inner { padding: 20px 16px 100px; min-width: unset; }
+      .sidebar.open { display: block; }
+      .sidebar-close-btn {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
+      }
+      .sidebar-toggle { display: none !important; }
+      .mobile-filter-btn { display: flex; }
+      .main { padding: 20px 16px; }
+      .compare-bar { left: 0; }
+    }
+    @media (min-width: 769px) {
+      .sidebar-close-btn { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <a href="https://policy.oneyco.com.au" class="nav-logo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 90">
+        <defs>
+          <linearGradient id="fg" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" style="stop-color:#1FAD73"/><stop offset="55%" style="stop-color:#2ECC85"/>
+            <stop offset="55%" style="stop-color:transparent"/><stop offset="100%" style="stop-color:transparent"/>
+          </linearGradient>
+          <linearGradient id="sg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#2ECC85"/><stop offset="100%" style="stop-color:#1FAD73"/>
+          </linearGradient>
+        </defs>
+        <g transform="translate(40,45)">
+          <circle cx="0" cy="0" r="32" fill="none" stroke="url(#sg)" stroke-width="7"/>
+          <circle cx="0" cy="0" r="24" fill="url(#fg)"/>
+        </g>
+        <text x="82" y="52" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="600" fill="#e2e2e2" letter-spacing="-0.5">ney</text>
+        <text x="129" y="52" font-family="Inter,system-ui,sans-serif" font-size="21" font-weight="500" fill="url(#sg)">&amp;</text>
+        <text x="148" y="52" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="600" fill="#e2e2e2" letter-spacing="-0.5">co</text>
+        <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
+      </svg>
+    </a>
+    <span class="nav-divider">/</span>
+    <span class="nav-title">Policy Radar</span>
+    <span class="nav-badge">Beta</span>
+  </div>
+  <div class="nav-right">
+    <span class="nav-tag" id="navTagEl"><span id="lenderCountNav">8</span> lenders</span>
+  </div>
+</nav>
+
+<!-- TAB BAR -->
+<div class="tab-bar">
+  <button class="tab-btn active" id="tabResi" onclick="switchTab('residential')">
+    🏠 Residential <span class="tab-count" id="tabResiCount">22</span>
+  </button>
+  <button class="tab-btn" id="tabComm" onclick="switchTab('commercial')">
+    🏢 Commercial <span class="tab-count" id="tabCommCount">12</span>
+  </button>
+</div>
+
+<div class="app">
+  <!-- SIDEBAR TOGGLE (Desktop) -->
+  <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle filters">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+  </button>
+
+  <!-- MOBILE FILTER BUTTON -->
+  <div class="main" style="padding-bottom:0;display:none" id="mobileFilterRow">
+    <button class="mobile-filter-btn" onclick="toggleMobileFilters()">
+      <span>⚙️</span> <span>Filters & Scenario</span>
+      <span class="filter-count-badge" id="mobileFilterCount"></span>
+    </button>
+  </div>
+
+  <!-- SIDEBAR FILTERS -->
+  <aside class="sidebar" id="sidebarEl">
+   <div class="sidebar-inner">
+    <div class="sidebar-close-btn">
+      <span style="font-size:16px;font-weight:700;">Filters & Scenario</span>
+      <button onclick="toggleMobileFilters()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;">✕</button>
+    </div>
+
+    <!-- ═══ RESIDENTIAL FILTERS ═══ -->
+    <div id="residentialFilters">
+
+    <!-- LOAN SCENARIO -->
+    <div class="sidebar-section">
+      <div class="sidebar-label"><span class="label-icon">🏠</span> Loan Type</div>
+      <div class="filter-group">
+        <select id="loanType">
+          <option value="">All loan types</option>
+          <option value="oo_pi">Owner Occupied — P&I</option>
+          <option value="oo_io">Owner Occupied — IO</option>
+          <option value="inv_pi">Investment — P&I</option>
+          <option value="inv_io">Investment — IO</option>
+          <option value="refinance">Refinance</option>
+          <option value="construction">Construction</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label"><span class="label-icon">📊</span> Client LVR</div>
+      <div class="filter-group">
+        <div class="lvr-input-wrap">
+          <input type="number" id="lvrInput" placeholder="e.g. 88" min="1" max="100" step="1">
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label"><span class="label-icon">👤</span> Borrower Type</div>
+      <div class="filter-group">
+        <select id="borrowerType">
+          <option value="">Any borrower</option>
+          <option value="individual">Individual (PAYG)</option>
+          <option value="self_employed">Self-Employed</option>
+          <option value="company">Company</option>
+          <option value="trust">Trust</option>
+          <option value="smsf">SMSF</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- LENDER TIER -->
+    <div class="sidebar-section">
+      <div class="sidebar-label"><span class="label-icon">🏦</span> Lender Tier</div>
+      <div class="pill-group" id="tierPills">
+        <span class="pill-option active" data-tier="" onclick="toggleTier(this)">All</span>
+        <span class="pill-option" data-tier="tier1" onclick="toggleTier(this)">Major Bank</span>
+        <span class="pill-option" data-tier="tier2" onclick="toggleTier(this)">Non-Major</span>
+        <span class="pill-option" data-tier="non_bank" onclick="toggleTier(this)">Non-Bank</span>
+      </div>
+    </div>
+
+    <!-- MIN LOAN -->
+    <div class="sidebar-section">
+      <div class="sidebar-label"><span class="label-icon">💰</span> Min Loan Amount</div>
+      <div class="filter-group">
+        <div class="loan-input-wrap">
+          <input type="number" id="minLoanInput" placeholder="e.g. 500000" min="0" step="50000">
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- SCENARIO FLAGS -->
+    <div class="sidebar-section">
+      <div class="sidebar-label"><span class="label-icon">⚡</span> Scenario Flags</div>
+      <div class="toggle-group">
+        <label class="toggle-item" id="chk-io-wrap">
+          <input type="checkbox" id="chk-io">
+          <span class="toggle-switch"></span>
+          Interest Only portion
+        </label>
+        <label class="toggle-item" id="chk-dti-wrap">
+          <input type="checkbox" id="chk-dti">
+          <span class="toggle-switch"></span>
+          DTI likely above 6×
+        </label>
+        <label class="toggle-item" id="chk-hd-wrap">
+          <input type="checkbox" id="chk-hd">
+          <span class="toggle-switch"></span>
+          High density apartment
+        </label>
+        <label class="toggle-item" id="chk-casual-wrap">
+          <input type="checkbox" id="chk-casual">
+          <span class="toggle-switch"></span>
+          Casual income
+        </label>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- INCOME & DOCS -->
+    <div class="sidebar-section">
+      <div class="sidebar-label"><span class="label-icon">📄</span> Income & Docs</div>
+      <div class="toggle-group">
+        <label class="toggle-item" id="chk-altdoc-wrap">
+          <input type="checkbox" id="chk-altdoc">
+          <span class="toggle-switch"></span>
+          Alt Doc / Low Doc
+        </label>
+        <label class="toggle-item" id="chk-selfempl1-wrap">
+          <input type="checkbox" id="chk-selfempl1">
+          <span class="toggle-switch"></span>
+          Self-Employed &lt; 2 years
+        </label>
+        <label class="toggle-item" id="chk-foreignincome-wrap">
+          <input type="checkbox" id="chk-foreignincome">
+          <span class="toggle-switch"></span>
+          Foreign Income
+        </label>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <!-- SPECIAL NEEDS -->
+    <div class="sidebar-section">
+      <div class="sidebar-label"><span class="label-icon">✨</span> Special Needs</div>
+      <div class="toggle-group">
+        <label class="toggle-item" id="chk-medico-wrap">
+          <input type="checkbox" id="chk-medico">
+          <span class="toggle-switch"></span>
+          Medico / LMI Waiver
+        </label>
+        <label class="toggle-item" id="chk-bridge-wrap">
+          <input type="checkbox" id="chk-bridge">
+          <span class="toggle-switch"></span>
+          Bridging Loan
+        </label>
+        <label class="toggle-item" id="chk-construction-wrap">
+          <input type="checkbox" id="chk-construction">
+          <span class="toggle-switch"></span>
+          Construction Loan
+        </label>
+        <label class="toggle-item" id="chk-famguarantee-wrap">
+          <input type="checkbox" id="chk-famguarantee">
+          <span class="toggle-switch"></span>
+          Family Guarantee
+        </label>
+        <label class="toggle-item" id="chk-nogs-wrap">
+          <input type="checkbox" id="chk-nogs">
+          <span class="toggle-switch"></span>
+          No Genuine Savings
+        </label>
+        <label class="toggle-item" id="chk-smsf-wrap">
+          <input type="checkbox" id="chk-smsf">
+          <span class="toggle-switch"></span>
+          SMSF Lending
+        </label>
+        <label class="toggle-item" id="chk-2ndmortgage-wrap">
+          <input type="checkbox" id="chk-2ndmortgage">
+          <span class="toggle-switch"></span>
+          Second Mortgage
+        </label>
+        <label class="toggle-item" id="chk-leasehold-wrap">
+          <input type="checkbox" id="chk-leasehold">
+          <span class="toggle-switch"></span>
+          Leasehold Property
+        </label>
+      </div>
+    </div>
+
+    </div><!-- /residentialFilters -->
+
+    <!-- ═══ COMMERCIAL FILTERS ═══ -->
+    <div id="commercialFilters" style="display:none">
+
+    <div class="sidebar-section">
+      <div class="sidebar-label"><span class="label-icon">🏢</span> Property Type</div>
+      <div class="filter-group">
+        <select id="commPropertyType">
+          <option value="">All property types</option>
+          <option value="office">Office</option>
+          <option value="retail">Retail / Shop</option>
+          <option value="industrial">Industrial / Warehouse</option>
+          <option value="mixed_use">Mixed Use</option>
+          <option value="medical">Medical / Healthcare</option>
+          <option value="childcare">Childcare</option>
+          <option value="hotel">Hotel / Hospitality</option>
+          <option value="rural">Rural / Agri</option>
+          <option value="vacant_land">Vacant Land (Commercial)</option>
+          <option value="development">Development Site</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label"><span class="label-icon">🎯</span> Loan Purpose</div>
+      <div class="filter-group">
+        <select id="commLoanPurpose">
+          <option value="">Any purpose</option>
+          <option value="purchase">Purchase</option>
+          <option value="refinance">Refinance</option>
+          <option value="equity_release">Equity Release</option>
+          <option value="development">Development / Construction</option>
+          <option value="working_capital">Working Capital</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label"><span class="label-icon">📊</span> Client LVR</div>
+      <div class="filter-group">
+        <div class="lvr-input-wrap">
+          <input type="number" id="commLvrInput" placeholder="e.g. 65" min="1" max="100" step="1">
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label"><span class="label-icon">💰</span> Loan Amount</div>
+      <div class="filter-group">
+        <div class="loan-input-wrap">
+          <input type="number" id="commLoanAmount" placeholder="e.g. 2000000" step="50000">
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label"><span class="label-icon">👤</span> Borrower Entity</div>
+      <div class="filter-group">
+        <select id="commEntityType">
+          <option value="">Any entity</option>
+          <option value="individual">Individual</option>
+          <option value="company">Company</option>
+          <option value="trust">Trust (Discretionary)</option>
+          <option value="unit_trust">Unit Trust</option>
+          <option value="smsf">SMSF</option>
+          <option value="partnership">Partnership</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label"><span class="label-icon">🏦</span> Lender Tier</div>
+      <div class="pill-group" id="commTierPills">
+        <span class="pill-option active" data-tier="" onclick="setCommTier(this)">All</span>
+        <span class="pill-option" data-tier="tier1" onclick="setCommTier(this)">Major Bank</span>
+        <span class="pill-option" data-tier="tier2" onclick="setCommTier(this)">Non-Major</span>
+        <span class="pill-option" data-tier="non_bank" onclick="setCommTier(this)">Non-Bank</span>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label"><span class="label-icon">🏗️</span> Occupancy</div>
+      <div class="pill-group" id="commOccupancy">
+        <span class="pill-option active" data-occ="" onclick="setCommOcc(this)">Any</span>
+        <span class="pill-option" data-occ="owner_occ" onclick="setCommOcc(this)">Owner Occupied</span>
+        <span class="pill-option" data-occ="investment" onclick="setCommOcc(this)">Investment</span>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label"><span class="label-icon">📋</span> Documentation</div>
+      <div class="toggle-group">
+        <label class="toggle-item" id="chk-comm-altdoc-wrap">
+          <input type="checkbox" id="chk-comm-altdoc">
+          <span class="toggle-switch"></span>
+          Alt Doc / Low Doc
+        </label>
+        <label class="toggle-item" id="chk-comm-smsf-wrap">
+          <input type="checkbox" id="chk-comm-smsf">
+          <span class="toggle-switch"></span>
+          SMSF Lending
+        </label>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label"><span class="label-icon">✨</span> Special</div>
+      <div class="toggle-group">
+        <label class="toggle-item" id="chk-comm-medico-wrap">
+          <input type="checkbox" id="chk-comm-medico">
+          <span class="toggle-switch"></span>
+          Medical / Healthcare
+        </label>
+        <label class="toggle-item" id="chk-comm-rural-wrap">
+          <input type="checkbox" id="chk-comm-rural">
+          <span class="toggle-switch"></span>
+          Rural Property
+        </label>
+        <label class="toggle-item" id="chk-comm-dev-wrap">
+          <input type="checkbox" id="chk-comm-dev">
+          <span class="toggle-switch"></span>
+          Development Finance
+        </label>
+        <label class="toggle-item" id="chk-comm-leasehold-wrap">
+          <input type="checkbox" id="chk-comm-leasehold">
+          <span class="toggle-switch"></span>
+          Leasehold Property
+        </label>
+      </div>
+    </div>
+
+    </div><!-- /commercialFilters -->
+
+    <button class="search-btn" id="searchBtn" onclick="activeTab==='residential'?runSearch():runCommSearch()">Search Policies</button>
+    <div class="sidebar-footer">
+      <a class="reset-link" onclick="activeTab==='residential'?resetFilters():resetCommFilters()">Reset all filters</a>
+      <span class="active-count" id="activeFilterCount" style="display:none">0 active</span>
+    </div>
+   </div>
+  </aside>
+
+  <!-- MAIN RESULTS -->
+  <main class="main">
+    <div class="results-header">
+      <div class="results-title">Lender Policy Results</div>
+      <div class="results-count" id="resultsCount">8 lenders</div>
+    </div>
+
+
+    <div class="scenario-bar hidden" id="scenarioBar">
+      <span style="color:var(--muted);font-size:12px;">Showing results for:</span>
+    </div>
+
+    <div class="lender-grid" id="lenderGrid">
+      <!-- populated by JS -->
+    </div>
+
+    <!-- COMMERCIAL RESULTS (hidden by default) -->
+    <div class="lender-grid" id="commLenderGrid" style="display:none">
+      <!-- populated by JS -->
+    </div>
+  </main>
+</div>
+
+<!-- COMPARE BAR -->
+<div class="compare-bar" id="compareBar">
+  <div style="font-size:13px;font-weight:600;white-space:nowrap;">Compare:</div>
+  <div class="compare-slots" id="compareSlots"></div>
+  <button class="compare-btn" onclick="openCompare()">Compare Side-by-Side →</button>
+</div>
+
+<!-- COMPARE OVERLAY -->
+<div class="compare-overlay" id="compareOverlay">
+  <div class="compare-inner">
+    <div class="compare-header">
+      <h2>Side-by-Side Comparison</h2>
+      <button class="close-btn" onclick="closeCompare()">✕</button>
+    </div>
+    <table class="compare-table" id="compareTable"></table>
+  </div>
+</div>
+
+<script>
+// ── SIDEBAR TOGGLE (desktop collapse) ────────────────────────────────────────
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebarEl');
+  const toggle = document.getElementById('sidebarToggle');
+  const isCollapsed = sidebar.classList.toggle('collapsed');
+  toggle.classList.toggle('shifted', isCollapsed);
+  localStorage.setItem('pr_sidebar_collapsed', isCollapsed ? '1' : '');
+}
+// Restore sidebar state
+if (localStorage.getItem('pr_sidebar_collapsed') === '1' && window.innerWidth > 768) {
+  document.getElementById('sidebarEl').classList.add('collapsed');
+  document.getElementById('sidebarToggle').classList.add('shifted');
+}
+
+// ── MOBILE FILTER TOGGLE ─────────────────────────────────────────────────────
+function toggleMobileFilters() {
+  const sidebar = document.getElementById('sidebarEl');
+  sidebar.classList.toggle('open');
+  document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+}
+// Show mobile filter button on small screens
+if (window.innerWidth <= 768) {
+  document.getElementById('mobileFilterRow').style.display = 'block';
+}
+window.addEventListener('resize', () => {
+  const row = document.getElementById('mobileFilterRow');
+  if (row) row.style.display = window.innerWidth <= 768 ? 'block' : 'none';
+});
+
+// ── TIER PILL TOGGLE ─────────────────────────────────────────────────────────
+function toggleTier(el) {
+  document.querySelectorAll('#tierPills .pill-option').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── TOGGLE SWITCH BINDING ────────────────────────────────────────────────────
+function bindToggleSwitches() {
+  document.querySelectorAll('.toggle-item input[type="checkbox"]').forEach(cb => {
+    cb.addEventListener('change', () => {
+      cb.closest('.toggle-item').classList.toggle('active', cb.checked);
+    });
+  });
+}
+
+// ── ACTIVE FILTER COUNT ──────────────────────────────────────────────────────
+function updateActiveFilterCount() {
+  let count = 0;
+  if (document.getElementById('loanType').value) count++;
+  if (document.getElementById('lvrInput').value) count++;
+  if (document.getElementById('borrowerType').value) count++;
+  if (document.getElementById('minLoanInput').value) count++;
+  const activeTier = document.querySelector('#tierPills .pill-option.active');
+  if (activeTier && activeTier.dataset.tier) count++;
+  ['chk-io','chk-dti','chk-hd','chk-casual','chk-medico','chk-bridge','chk-construction','chk-famguarantee','chk-altdoc','chk-smsf','chk-selfempl1','chk-foreignincome','chk-nogs','chk-2ndmortgage','chk-leasehold']
+    .forEach(id => { if (document.getElementById(id)?.checked) count++; });
+  // Desktop badge
+  const badge = document.getElementById('activeFilterCount');
+  if (count > 0) { badge.style.display = ''; badge.textContent = count + ' active'; }
+  else { badge.style.display = 'none'; }
+  // Mobile badge
+  const mobileBadge = document.getElementById('mobileFilterCount');
+  if (count > 0) { mobileBadge.style.display = ''; mobileBadge.textContent = count; }
+  else { mobileBadge.style.display = 'none'; }
+}
+
+// ── LENDER DATA ──────────────────────────────────────────────────────────────
+let LENDERS = [
+  {
+    id: "macquarie",
+    name: "Macquarie Bank",
+    icon: "🏦",
+    type: "non_major_bank",
+    tier: "tier2",
+    completeness: "full",
+    source: "Public PDF v13.1 · Verified 23 Mar 2026",
+    lvr: {
+      oo_pi: 0.95, oo_io: 0.80, inv_pi: 0.90, inv_io: 0.80,
+      refinance: 0.90, equity_release: 0.80, construction: 0.90,
+      off_the_plan: 0.90, lmi_required_above: 0.80,
+      lmi_waiver: false
+    },
+    modifiers: [
+      { id: "dti_above_6x", label: "DTI > 6×", max_lvr: 0.80 },
+      { id: "interest_only_any_portion", label: "Any IO", max_lvr: 0.80 },
+      { id: "high_density_io", label: "High density + IO", max_lvr: 0.70 },
+      { id: "high_density_pi", label: "High density + PI", max_lvr: 0.80 },
+      { id: "valuation_red_flag", label: "Valuation red flag", max_lvr: 0.75 }
+    ],
+    servicing: {
+      assessment_floor: "5.30%",
+      buffer: "3.00%",
+      dti_max: "8×",
+      min_surplus: "$500/yr"
+    },
+    income: {
+      payg_base: "100%",
+      casual: "100%",
+      overtime_other: "80%",
+      commission: "80%",
+      self_employed_yrs: 2,
+      rental: "80%"
+    },
+    special: {
+      medico: true, medico_lvr: "95% (Tier 1)", lmi_waiver: false,
+      bridging: false, construction: true, family_guarantee: false, smsf: false
+    },
+    entity: { company: false, trust: false, note: "Paused all company/trust applications since Oct 2025" },
+    second_mortgage: { allowed: false, note: "Not available" },
+    docs: { payslips: 2, self_emp: "2yr financials or ATO NOA", alt_doc: false },
+    leasehold: { accepted: true, lvr_reduction: 0.10, min_remaining_lease: 30, note: "LVR reduced 10%; min 30yr remaining lease at maturity" }
+  },
+  {
+    id: "cba",
+    name: "Commonwealth Bank (CBA)",
+    icon: "🏦",
+    type: "major_bank",
+    tier: "tier1",
+    completeness: "full",
+    source: "CBA public resources, broker guides · Verified Apr 2026",
+    lvr: {
+      oo_pi: 0.95, oo_io: 0.80, inv_pi: 0.90, inv_io: 0.80,
+      refinance: 0.90, equity_release: 0.80, construction: 0.95,
+      off_the_plan: 0.90, lmi_required_above: 0.80,
+      lmi_waiver: true,
+      lmi_waiver_note: "Doctors, dentists, lawyers, accountants (CPA/CA), engineers, vets, optometrists, pharmacists, physios: up to 90–95% no LMI."
+    },
+    modifiers: [
+      { id: "interest_only_any_portion", label: "Any IO", max_lvr: 0.80 },
+      { id: "high_density_io", label: "High density + IO", max_lvr: 0.70 },
+      { id: "dti_above_7x", label: "DTI > 7×", max_lvr: 0.80 }
+    ],
+    servicing: {
+      assessment_floor: "5.40%",
+      buffer: "3.00%",
+      dti_max: "8×",
+      min_surplus: "$500/yr",
+      hem_basis: "ABS HEM"
+    },
+    income: {
+      payg_base: "100%",
+      casual: "100%",
+      overtime_other: "80%",
+      commission: "80%",
+      self_employed_yrs: 2,
+      rental: "80%",
+      foreign: "80%"
+    },
+    special: {
+      medico: true, medico_lvr: "95% no LMI",
+      allied_health: true, allied_health_lvr: "90% no LMI",
+      legal_accounting: true, legal_accounting_lvr: "90% no LMI",
+      lmi_waiver: true,
+      bridging: true, construction: true, family_guarantee: true, smsf: false
+    },
+    entity: { company: true, trust: true, max_lvr: 0.80, note: "Restricted — requires existing CBA lending facility 6+ months" },
+    second_mortgage: { allowed: true, max_combined_lvr: 0.95, note: "Same lender only (guarantor structure)" },
+    docs: { payslips: 2, self_emp: "2yr tax returns or financials", alt_doc: false },
+    leasehold: { accepted: true, lvr_reduction: 0.05, min_remaining_lease: 25, note: "Accepted — 5% LVR reduction; min 25yr remaining" }
+  },
+  {
+    id: "anz",
+    name: "ANZ Bank",
+    icon: "🏦",
+    type: "major_bank",
+    tier: "tier1",
+    completeness: "full",
+    source: "ANZ public resources, broker guides · Verified Apr 2026",
+    lvr: {
+      oo_pi: 0.95, oo_io: 0.80, inv_pi: 0.90, inv_io: 0.80,
+      refinance: 0.90, equity_release: 0.80, construction: 0.95,
+      off_the_plan: 0.90, lmi_required_above: 0.80,
+      lmi_waiver: true,
+      lmi_waiver_note: "Doctors, dentists, lawyers, accountants (CPA/CA), optometrists, vets: up to 90–95% no LMI."
+    },
+    modifiers: [
+      { id: "interest_only_any_portion", label: "Any IO", max_lvr: 0.80 },
+      { id: "high_density_io", label: "High density + IO", max_lvr: 0.70 },
+      { id: "dti_above_7x", label: "DTI > 7×", max_lvr: 0.80 }
+    ],
+    servicing: {
+      assessment_floor: "5.40%",
+      buffer: "3.00%",
+      dti_max: "8×",
+      min_surplus: "$500/yr",
+      hem_basis: "ABS HEM"
+    },
+    income: {
+      payg_base: "100%",
+      casual: "100%",
+      overtime_other: "80%",
+      commission: "80%",
+      self_employed_yrs: 2,
+      rental: "80%",
+      foreign: "80%"
+    },
+    special: {
+      medico: true, medico_lvr: "95% no LMI",
+      legal_accounting: true, legal_accounting_lvr: "90% no LMI",
+      lmi_waiver: true,
+      bridging: true, construction: true, family_guarantee: true, smsf: false
+    },
+    entity: { company: true, trust: true, max_lvr: 0.70, note: "Tightened Jan 2026 — requires 6-month existing relationship" },
+    second_mortgage: { allowed: false, note: "Not generally available" },
+    docs: { payslips: 2, self_emp: "2yr tax returns or financials", alt_doc: false },
+    leasehold: { accepted: true, lvr_reduction: 0.05, min_remaining_lease: 25, note: "Accepted — 5% LVR reduction; min 25yr remaining" }
+  },
+  {
+    id: "nab",
+    name: "NAB",
+    icon: "🏦",
+    type: "major_bank",
+    tier: "tier1",
+    completeness: "full",
+    source: "NAB public resources, broker guides · Verified Apr 2026",
+    lvr: {
+      oo_pi: 0.95, oo_io: 0.80, inv_pi: 0.90, inv_io: 0.80,
+      refinance: 0.90, equity_release: 0.80, construction: 0.95,
+      off_the_plan: 0.90, lmi_required_above: 0.80,
+      lmi_waiver: true,
+      lmi_waiver_note: "Doctors, dentists, vets, lawyers (Aug 2025), accountants (CPA/CA, Aug 2025), engineers, actuaries: up to 90% no LMI. Min income $150K for most."
+    },
+    modifiers: [
+      { id: "interest_only_any_portion", label: "Any IO", max_lvr: 0.80 },
+      { id: "high_density_io", label: "High density + IO", max_lvr: 0.70 },
+      { id: "dti_above_7x", label: "DTI > 7×", max_lvr: 0.80 }
+    ],
+    servicing: {
+      assessment_floor: "5.40%",
+      buffer: "3.00%",
+      dti_max: "8×",
+      min_surplus: "$500/yr",
+      hem_basis: "ABS HEM"
+    },
+    income: {
+      payg_base: "100%",
+      casual: "100%",
+      overtime_other: "80%",
+      commission: "80%",
+      self_employed_yrs: 2,
+      rental: "80%",
+      foreign: "80%"
+    },
+    special: {
+      medico: true, medico_lvr: "90% no LMI",
+      legal_accounting: true, legal_accounting_lvr: "90% no LMI (added Aug 2025)",
+      lmi_waiver: true,
+      bridging: true, construction: true, family_guarantee: true, smsf: false
+    },
+    entity: { company: true, trust: true, max_lvr: 0.80, note: "Reviewing — cautious on high-risk investors" },
+    second_mortgage: { allowed: false, note: "Not generally available" },
+    docs: { payslips: 2, self_emp: "2yr tax returns or financials", alt_doc: false },
+    leasehold: { accepted: true, lvr_reduction: 0.05, min_remaining_lease: 25, note: "Accepted — LVR capped at 80% for leasehold; min 25yr" }
+  },
+  {
+    id: "stgeorge",
+    name: "St.George Bank",
+    icon: "🏦",
+    type: "major_bank",
+    tier: "tier1",
+    completeness: "partial",
+    source: "Westpac Group policy, lmiwaiver.com.au · Verified Mar 2026",
+    lvr: {
+      oo_pi: 0.95, oo_io: 0.80, inv_pi: 0.90, inv_io: 0.90,
+      refinance: null, construction_oo: 0.95, construction_inv: 0.90,
+      lmi_required_above: 0.80,
+      lmi_waiver: true,
+      lmi_waiver_note: "Same as Westpac Group. Doctors, dentists, lawyers, accountants, nurses/midwives (AHPRA), vets, pharmacists, physios: up to 90–95% no LMI. Nurses min $90K."
+    },
+    modifiers: [
+      { id: "interest_only_inv", label: "Investor IO", max_lvr: 0.90, note: "Includes LMI" }
+    ],
+    servicing: {
+      assessment_floor: null,
+      buffer: "3.00%",
+      dti_max: null,
+      min_surplus: null
+    },
+    income: {
+      payg_base: "100%",
+      casual: "100%",
+      overtime_other: null,
+      commission: null,
+      self_employed_yrs: 2,
+      rental: null,
+      self_emp_fast_track: "2yr ATO NOA (up to 80% LVR)"
+    },
+    special: {
+      medico: true, medico_lvr: "95% no LMI (Tier 1)",
+      allied_health: true,
+      industry_specialist: true,
+      lmi_waiver: true,
+      bridging: true, bridging_months: 12,
+      construction: true, family_guarantee: true, smsf: null
+    },
+    entity: { company: true, trust: true, max_lvr: 0.80, note: "Westpac Group — same policy as Westpac" },
+    second_mortgage: { allowed: false, note: "Not generally available" },
+    docs: { payslips: null, self_emp: "2yr ATO NOA (Fast Track) or financials", alt_doc: true },
+    leasehold: { accepted: true, lvr_reduction: 0.05, min_remaining_lease: 25, note: "Westpac Group — 5% LVR reduction; min 25yr remaining" }
+  },
+  {
+    id: "westpac",
+    name: "Westpac",
+    icon: "🏦",
+    type: "major_bank",
+    tier: "tier1",
+    completeness: "partial",
+    source: "Public Niche PDF · Verified 23 Mar 2026",
+    lvr: {
+      oo_pi: 0.95, oo_io: null, inv_pi: 0.90, inv_io: 0.90,
+      refinance: null, construction_oo: 0.95, construction_inv: 0.90,
+      lmi_required_above: 0.80,
+      lmi_waiver: true,
+      lmi_waiver_note: "Medico Tier 1 (GP/Dentist/Specialist): 95% no LMI\nAllied Health (min $90k): 90% no LMI\nAccountant/Lawyer: 90% no LMI"
+    },
+    modifiers: [
+      { id: "interest_only_inv", label: "Investor IO", max_lvr: 0.90, note: "Includes LMI" }
+    ],
+    servicing: {
+      assessment_floor: null,
+      buffer: "3.00%",
+      dti_max: null,
+      min_surplus: null
+    },
+    income: {
+      payg_base: "100%",
+      casual: "100%",
+      overtime_other: null,
+      commission: null,
+      self_employed_yrs: 2,
+      rental: null,
+      self_emp_fast_track: "2yr ATO NOA (up to 80% LVR)"
+    },
+    special: {
+      medico: true, medico_lvr: "95% no LMI (Tier 1)", lmi_waiver: true,
+      allied_health: true, industry_specialist: true,
+      bridging: true, bridging_months: 12,
+      construction: true, family_guarantee: true, smsf: null
+    },
+    entity: { company: false, trust: false, note: "Stopped residential channel — business banking only" },
+    second_mortgage: { allowed: false, note: "Not generally available" },
+    docs: { payslips: null, self_emp: "2yr ATO NOA (Fast Track) or financials", alt_doc: true },
+    leasehold: { accepted: true, lvr_reduction: 0.05, min_remaining_lease: 25, note: "Accepted — 5% LVR reduction; min 25yr remaining" }
+  },
+  {
+    id: "bankwest",
+    name: "Bankwest",
+    icon: "🏦",
+    type: "major_bank",
+    tier: "tier1",
+    completeness: "full",
+    source: "CBA Group policy, Bankwest public resources · Verified Apr 2026",
+    lvr: {
+      oo_pi: 0.95, oo_io: 0.80, inv_pi: 0.90, inv_io: 0.80,
+      refinance: 0.90, equity_release: 0.80, construction: 0.95,
+      off_the_plan: 0.90, lmi_required_above: 0.80,
+      lmi_waiver: true,
+      lmi_waiver_note: "Doctors, dentists, optometrists, pharmacists, physios, chiropractors, vets: up to 90% no LMI."
+    },
+    modifiers: [
+      { id: "interest_only_any_portion", label: "Any IO", max_lvr: 0.80 },
+      { id: "high_density_io", label: "High density + IO", max_lvr: 0.70 },
+      { id: "dti_above_7x", label: "DTI > 7×", max_lvr: 0.80 }
+    ],
+    servicing: {
+      assessment_floor: "5.40%",
+      buffer: "3.00%",
+      dti_max: "8×",
+      min_surplus: "$500/yr",
+      hem_basis: "ABS HEM"
+    },
+    income: {
+      payg_base: "100%",
+      casual: "100%",
+      overtime_other: "80%",
+      commission: "80%",
+      self_employed_yrs: 2,
+      rental: "80%",
+      foreign: "80%"
+    },
+    special: {
+      medico: true, medico_lvr: "90% no LMI",
+      lmi_waiver: true,
+      bridging: true, construction: true, construction_strength: "Strong",
+      family_guarantee: true, smsf: false
+    },
+    entity: { company: true, trust: true, max_lvr: 0.80, note: "CBA Group — same restrictions as CBA" },
+    second_mortgage: { allowed: true, max_combined_lvr: 0.95, note: "Guarantor structure only" },
+    docs: { payslips: 2, self_emp: "2yr financials or ATO NOA", alt_doc: false },
+    leasehold: { accepted: true, lvr_reduction: 0.05, min_remaining_lease: 25, note: "CBA Group — 5% LVR reduction; min 25yr" }
+  },
+  {
+    id: "ing",
+    name: "ING Australia",
+    icon: "🏦",
+    type: "non_major_bank",
+    tier: "tier2",
+    completeness: "full",
+    source: "ING public resources, broker guides · Verified Apr 2026",
+    lvr: {
+      oo_pi: 0.95, oo_io: 0.80,
+      inv_pi: null, inv_io: null,
+      refinance: 0.90, equity_release: 0.80,
+      construction: null, off_the_plan: null,
+      lmi_required_above: 0.80,
+      lmi_waiver: true,
+      lmi_waiver_note: "Doctors, dentists, specialists, vets: up to 95% no LMI."
+    },
+    modifiers: [
+      { id: "interest_only_any_portion", label: "Any IO", max_lvr: 0.80 },
+      { id: "dti_above_7x", label: "DTI > 7×", max_lvr: 0.80 }
+    ],
+    servicing: {
+      assessment_floor: "5.50%",
+      buffer: "3.00%",
+      dti_max: "7.5×",
+      min_surplus: "$1000/yr",
+      hem_basis: "Actual declared expenses (flexible)"
+    },
+    income: {
+      payg_base: "100%",
+      casual: "100%",
+      overtime_other: "80%",
+      commission: "80%",
+      self_employed_yrs: 2,
+      rental: "Not accepted",
+      foreign: "80%"
+    },
+    special: {
+      medico: true, medico_lvr: "95% no LMI",
+      lmi_waiver: true,
+      owner_occupier_only: true,
+      bridging: false, construction: false,
+      family_guarantee: false, smsf: false,
+      note: "Individuals & joints only, no companies/trusts"
+    },
+    entity: { company: false, trust: false, note: "Individuals & joints only" },
+    second_mortgage: { allowed: false, note: "Not available" },
+    docs: { payslips: 2, payslip_max_age: "30 days", self_emp: "2yr financials", alt_doc: false },
+    leasehold: { accepted: false, note: "ING does not accept leasehold residential properties" }
+  },
+  {
+    id: "thinktank",
+    name: "Thinktank",
+    icon: "TT",
+    type: "non_bank",
+    tier: "tier2",
+    completeness: "full",
+    source: "Public data · Commercial specialist",
+    lvr: {
+      oo_pi: 0.80, oo_io: 0.75, inv_pi: 0.80, inv_io: 0.75,
+      construction: 0.80, lmi_required_above: 0.80, lmi_waiver: false
+    },
+    modifiers: [{ id: "dti_above_6x", label: "DTI > 6×", max_lvr: 0.75 }],
+    servicing: { assessment_floor: null, buffer: "3.00%", dti_max: "7×", min_surplus: null },
+    income: { payg_base: "100%", casual: "80%", overtime_other: "80%", commission: "80%", self_employed_yrs: 1, rental: "80%" },
+    special: { medico: false, bridging: false, construction: true, family_guarantee: false, smsf: true, foreign_income: false, no_genuine_savings: false },
+    entity: { company: true, trust: true, max_lvr: 0.80, note: "Commercial specialist — accepts company/trust" },
+    second_mortgage: { allowed: true, max_combined_lvr: 0.75, note: "Accepted — combined LVR 75% max" },
+    docs: { payslips: null, self_emp: "1yr accountant's letter", alt_doc: true },
+    leasehold: { accepted: true, lvr_reduction: 0.05, min_remaining_lease: 20, note: "Flexible — 5% reduction; min 20yr remaining" }
+  },
+  {
+    id: "bluestone",
+    name: "Bluestone Home Loans",
+    icon: "BST",
+    type: "non_bank",
+    tier: "tier2",
+    completeness: "full",
+    source: "Public data · Near-prime specialist",
+    lvr: {
+      oo_pi: 0.90, oo_io: 0.80, inv_pi: 0.85, inv_io: 0.75,
+      construction: null, lmi_required_above: 0.80, lmi_waiver: false
+    },
+    modifiers: [{ id: "dti_above_6x", label: "DTI > 6×", max_lvr: 0.80 }],
+    servicing: { assessment_floor: null, buffer: "3.00%", dti_max: "7.5×", min_surplus: null },
+    income: { payg_base: "100%", casual: "100%", overtime_other: "80%", commission: "80%", self_employed_yrs: 1, rental: "80%" },
+    special: { medico: false, bridging: false, construction: false, family_guarantee: false, smsf: false, foreign_income: false, no_genuine_savings: true },
+    entity: { company: true, trust: true, max_lvr: 0.90, note: "Accepts company/discretionary/unit/family trust — directors must guarantee" },
+    second_mortgage: { allowed: true, max_combined_lvr: 0.80, note: "Accepted — combined LVR 80% max" },
+    docs: { payslips: 2, self_emp: "1yr accountant's letter or ATO", alt_doc: true },
+    leasehold: { accepted: true, lvr_reduction: 0.05, min_remaining_lease: 15, note: "Non-bank flexible — 5% reduction; min 15yr remaining" }
+  },
+  {
+    id: "columbus",
+    name: "Columbus Capital",
+    icon: "CMB",
+    type: "non_bank",
+    tier: "tier2",
+    completeness: "partial",
+    source: "Public data · White-label funder",
+    lvr: {
+      oo_pi: 0.85, oo_io: 0.75, inv_pi: 0.80, inv_io: 0.70,
+      construction: null, lmi_required_above: 0.80, lmi_waiver: false
+    },
+    modifiers: [],
+    servicing: { assessment_floor: null, buffer: "3.00%", dti_max: null, min_surplus: null },
+    income: { payg_base: "100%", casual: "80%", overtime_other: "80%", commission: "70%", self_employed_yrs: 2, rental: "75%" },
+    special: { medico: false, bridging: false, construction: false, family_guarantee: false, smsf: false, foreign_income: false, no_genuine_savings: false },
+    entity: { company: true, trust: true, max_lvr: 0.80, note: "White-label funder — accepts company/trust" },
+    second_mortgage: { allowed: false, note: "Not available" },
+    docs: { payslips: 2, self_emp: "2yr tax returns", alt_doc: false },
+    leasehold: { accepted: true, lvr_reduction: 0.05, min_remaining_lease: 15, note: "Flexible — 5% reduction; min 15yr remaining" }
+  },
+  {
+    id: "brighten",
+    name: "Brighten Home Loans",
+    icon: "BRT",
+    type: "non_bank",
+    tier: "tier2",
+    completeness: "full",
+    source: "Public data · Foreign income specialist",
+    lvr: {
+      oo_pi: 0.90, oo_io: 0.80, inv_pi: 0.85, inv_io: 0.75,
+      construction: null, lmi_required_above: 0.80, lmi_waiver: false
+    },
+    modifiers: [{ id: "dti_above_6x", label: "DTI > 6×", max_lvr: 0.80 }],
+    servicing: { assessment_floor: null, buffer: "3.00%", dti_max: "7×", min_surplus: null },
+    income: { payg_base: "100%", casual: "100%", overtime_other: "80%", commission: "80%", self_employed_yrs: 2, rental: "80%", foreign: "100%" },
+    special: { medico: false, bridging: false, construction: false, family_guarantee: false, smsf: false, foreign_income: true, no_genuine_savings: false },
+    entity: { company: true, trust: true, max_lvr: 0.85, note: "Foreign income specialist — accepts company/trust" },
+    second_mortgage: { allowed: false, note: "Not available" },
+    docs: { payslips: 2, self_emp: "2yr financials", alt_doc: true },
+    leasehold: { accepted: true, lvr_reduction: 0.05, min_remaining_lease: 20, note: "Accepted — 5% reduction; min 20yr remaining" }
+  },
+  {
+    id: "granite",
+    name: "Granite Home Loans",
+    icon: "GRN",
+    type: "non_bank",
+    tier: "tier2",
+    completeness: "partial",
+    source: "Public data · White-label funder",
+    lvr: {
+      oo_pi: 0.85, oo_io: 0.75, inv_pi: 0.80, inv_io: 0.70,
+      construction: null, lmi_required_above: 0.80, lmi_waiver: false
+    },
+    modifiers: [],
+    servicing: { assessment_floor: null, buffer: "3.00%", dti_max: null, min_surplus: null },
+    income: { payg_base: "100%", casual: "80%", overtime_other: "80%", commission: "70%", self_employed_yrs: 2, rental: "75%" },
+    special: { medico: false, bridging: false, construction: false, family_guarantee: false, smsf: false, foreign_income: false, no_genuine_savings: false },
+    entity: { company: true, trust: true, max_lvr: 0.75, note: "White-label funder — accepts company/trust" },
+    second_mortgage: { allowed: false, note: "Not available" },
+    docs: { payslips: 2, self_emp: "2yr tax returns", alt_doc: false },
+    leasehold: { accepted: false, note: "Granite does not accept leasehold properties" }
+  },
+  {
+    id: "auswide",
+    name: "Auswide Bank",
+    icon: "AWB",
+    type: "non_major_bank",
+    tier: "tier2",
+    completeness: "full",
+    source: "Public data · Regional bank",
+    lvr: {
+      oo_pi: 0.90, oo_io: 0.80, inv_pi: 0.85, inv_io: 0.75,
+      construction: null, lmi_required_above: 0.80, lmi_waiver: false
+    },
+    modifiers: [{ id: "dti_above_6x", label: "DTI > 6×", max_lvr: 0.80 }],
+    servicing: { assessment_floor: "5.40%", buffer: "3.00%", dti_max: "8×", min_surplus: null },
+    income: { payg_base: "100%", casual: "100%", overtime_other: "80%", commission: "80%", self_employed_yrs: 2, rental: "80%" },
+    special: { medico: false, bridging: true, construction: false, family_guarantee: false, smsf: false, foreign_income: false, no_genuine_savings: false },
+    entity: { company: false, trust: false, note: "Individuals only — regional bank" },
+    second_mortgage: { allowed: false, note: "Not available" },
+    docs: { payslips: 2, self_emp: "2yr tax returns", alt_doc: false },
+    leasehold: { accepted: false, note: "Auswide does not accept leasehold properties" }
+  },
+  {
+    id: "heritage",
+    name: "Heritage Bank",
+    icon: "HBK",
+    type: "non_major_bank",
+    tier: "tier2",
+    completeness: "full",
+    source: "Public data · Regional bank",
+    lvr: {
+      oo_pi: 0.90, oo_io: 0.80, inv_pi: 0.85, inv_io: 0.75,
+      construction: null, lmi_required_above: 0.80, lmi_waiver: false
+    },
+    modifiers: [{ id: "dti_above_6x", label: "DTI > 6×", max_lvr: 0.80 }],
+    servicing: { assessment_floor: "5.40%", buffer: "3.00%", dti_max: "8×", min_surplus: null },
+    income: { payg_base: "100%", casual: "100%", overtime_other: "80%", commission: "80%", self_employed_yrs: 2, rental: "80%" },
+    special: { medico: false, bridging: false, construction: false, family_guarantee: false, smsf: false, foreign_income: false, no_genuine_savings: false },
+    entity: { company: false, trust: false, note: "Individuals only — regional bank" },
+    second_mortgage: { allowed: false, note: "Not available" },
+    docs: { payslips: 2, self_emp: "2yr tax returns", alt_doc: false },
+    leasehold: { accepted: false, note: "Heritage does not accept leasehold properties" }
+  },
+  {
+    id: "banksa",
+    name: "BankSA",
+    icon: "BSA",
+    type: "major_bank",
+    tier: "tier1",
+    completeness: "full",
+    source: "Public data · Major bank (Westpac subsidiary)",
+    lvr: {
+      oo_pi: 0.95, oo_io: 0.80, inv_pi: 0.90, inv_io: 0.80,
+      construction: 0.95, lmi_required_above: 0.80, lmi_waiver: true
+    },
+    modifiers: [{ id: "interest_only_any_portion", label: "Any IO", max_lvr: 0.80 }],
+    servicing: { assessment_floor: "5.40%", buffer: "3.00%", dti_max: "8×", min_surplus: "$500/yr" },
+    income: { payg_base: "100%", casual: "100%", overtime_other: "80%", commission: "80%", self_employed_yrs: 2, rental: "80%" },
+    special: { medico: true, medico_lvr: "90% no LMI", lmi_waiver: true, bridging: true, construction: true, family_guarantee: true, smsf: false, foreign_income: false, no_genuine_savings: false },
+    entity: { company: true, trust: true, max_lvr: 0.80, note: "Westpac subsidiary — same policy" },
+    second_mortgage: { allowed: false, note: "Not available" },
+    docs: { payslips: 2, self_emp: "2yr tax returns", alt_doc: false },
+    leasehold: { accepted: true, lvr_reduction: 0.05, min_remaining_lease: 25, note: "Westpac Group — 5% LVR reduction; min 25yr" }
+  },
+  {
+    id: "greater",
+    name: "Greater Bank",
+    icon: "GRB",
+    type: "non_major_bank",
+    tier: "tier2",
+    completeness: "full",
+    source: "Public data · Regional bank",
+    lvr: {
+      oo_pi: 0.90, oo_io: 0.80, inv_pi: 0.85, inv_io: 0.75,
+      construction: null, lmi_required_above: 0.80, lmi_waiver: false
+    },
+    modifiers: [{ id: "dti_above_6x", label: "DTI > 6×", max_lvr: 0.80 }],
+    servicing: { assessment_floor: "5.40%", buffer: "3.00%", dti_max: "8×", min_surplus: null },
+    income: { payg_base: "100%", casual: "100%", overtime_other: "80%", commission: "80%", self_employed_yrs: 2, rental: "80%" },
+    special: { medico: false, bridging: false, construction: false, family_guarantee: false, smsf: false, foreign_income: false, no_genuine_savings: false },
+    entity: { company: false, trust: false, note: "Individuals only — regional bank" },
+    second_mortgage: { allowed: false, note: "Not available" },
+    docs: { payslips: 2, self_emp: "2yr tax returns", alt_doc: false },
+    leasehold: { accepted: false, note: "Greater Bank does not accept leasehold properties" }
+  },
+  {
+    id: "racq",
+    name: "RACQ Bank",
+    icon: "RCQ",
+    type: "non_major_bank",
+    tier: "tier2",
+    completeness: "full",
+    source: "Public data · Regional bank (RACQ subsidiary)",
+    lvr: {
+      oo_pi: 0.90, oo_io: 0.80, inv_pi: 0.85, inv_io: 0.75,
+      construction: null, lmi_required_above: 0.80, lmi_waiver: false
+    },
+    modifiers: [{ id: "dti_above_6x", label: "DTI > 6×", max_lvr: 0.80 }],
+    servicing: { assessment_floor: "5.40%", buffer: "3.00%", dti_max: "8×", min_surplus: null },
+    income: { payg_base: "100%", casual: "100%", overtime_other: "80%", commission: "80%", self_employed_yrs: 2, rental: "80%" },
+    special: { medico: false, bridging: false, construction: false, family_guarantee: false, smsf: false, foreign_income: false, no_genuine_savings: false },
+    entity: { company: false, trust: false, note: "Individuals only — regional bank" },
+    second_mortgage: { allowed: false, note: "Not available" },
+    docs: { payslips: 2, self_emp: "2yr tax returns", alt_doc: false },
+    leasehold: { accepted: false, note: "RACQ does not accept leasehold properties" }
+  },
+  {
+    id: "86400",
+    name: "86 400 (Ubank)",
+    icon: "86K",
+    type: "non_major_bank",
+    tier: "tier2",
+    completeness: "partial",
+    source: "Public data · Digital bank",
+    lvr: {
+      oo_pi: 0.80, oo_io: 0.70, inv_pi: 0.80, inv_io: 0.70,
+      construction: null, lmi_required_above: 0.80, lmi_waiver: false
+    },
+    modifiers: [],
+    servicing: { assessment_floor: null, buffer: "3.00%", dti_max: null, min_surplus: null },
+    income: { payg_base: "100%", casual: "80%", overtime_other: "80%", commission: "70%", self_employed_yrs: 2, rental: "75%" },
+    special: { medico: false, bridging: false, construction: false, family_guarantee: false, smsf: false, foreign_income: false, no_genuine_savings: false },
+    entity: { company: false, trust: false, note: "Individuals only — digital bank" },
+    second_mortgage: { allowed: false, note: "Not available" },
+    docs: { payslips: 2, self_emp: "2yr tax returns", alt_doc: false },
+    leasehold: { accepted: false, note: "86 400 does not accept leasehold properties" }
+  },
+  {
+    id: "athena",
+    name: "Athena Home Loans",
+    icon: "ATH",
+    type: "non_bank",
+    tier: "tier2",
+    completeness: "full",
+    source: "Public data · Digital lender",
+    lvr: {
+      oo_pi: 0.80, oo_io: 0.70, inv_pi: 0.75, inv_io: 0.65,
+      construction: null, lmi_required_above: 0.80, lmi_waiver: false
+    },
+    modifiers: [{ id: "dti_above_6x", label: "DTI > 6×", max_lvr: 0.75 }],
+    servicing: { assessment_floor: null, buffer: "3.00%", dti_max: "7×", min_surplus: null },
+    income: { payg_base: "100%", casual: "80%", overtime_other: "80%", commission: "75%", self_employed_yrs: 2, rental: "75%" },
+    special: { medico: false, bridging: false, construction: false, family_guarantee: false, smsf: false, foreign_income: false, no_genuine_savings: false },
+    entity: { company: false, trust: false, note: "Individuals only — digital lender" },
+    second_mortgage: { allowed: false, note: "Not available" },
+    docs: { payslips: 2, self_emp: "2yr financials", alt_doc: true },
+    leasehold: { accepted: false, note: "Athena does not accept leasehold properties" }
+  },
+  {
+    id: "loans_com",
+    name: "Loans.com.au",
+    icon: "LCM",
+    type: "non_bank",
+    tier: "tier2",
+    completeness: "partial",
+    source: "Public data · Broker aggregator",
+    lvr: {
+      oo_pi: 0.85, oo_io: 0.75, inv_pi: 0.80, inv_io: 0.70,
+      construction: null, lmi_required_above: 0.80, lmi_waiver: false
+    },
+    modifiers: [],
+    servicing: { assessment_floor: null, buffer: "3.00%", dti_max: null, min_surplus: null },
+    income: { payg_base: "100%", casual: "80%", overtime_other: "80%", commission: "75%", self_employed_yrs: 2, rental: "75%" },
+    special: { medico: false, bridging: false, construction: false, family_guarantee: false, smsf: false, foreign_income: false, no_genuine_savings: false },
+    entity: { company: false, trust: false, note: "Individuals only" },
+    second_mortgage: { allowed: false, note: "Not available" },
+    docs: { payslips: null, self_emp: "2yr financials", alt_doc: true },
+    leasehold: { accepted: false, note: "Loans.com.au does not accept leasehold properties" }
+  },
+  {
+    id: "reduce",
+    name: "Reduce Home Loans",
+    icon: "RDC",
+    type: "non_bank",
+    tier: "tier2",
+    completeness: "partial",
+    source: "Public data · Online lender",
+    lvr: {
+      oo_pi: 0.80, oo_io: 0.70, inv_pi: 0.75, inv_io: 0.65,
+      construction: null, lmi_required_above: 0.80, lmi_waiver: false
+    },
+    modifiers: [],
+    servicing: { assessment_floor: null, buffer: "3.00%", dti_max: null, min_surplus: null },
+    income: { payg_base: "100%", casual: "80%", overtime_other: "80%", commission: "75%", self_employed_yrs: 2, rental: "75%" },
+    special: { medico: false, bridging: false, construction: false, family_guarantee: false, smsf: false, foreign_income: false, no_genuine_savings: false },
+    entity: { company: false, trust: false, note: "Individuals only" },
+    second_mortgage: { allowed: false, note: "Not available" },
+    docs: { payslips: 2, self_emp: "2yr accountant's letter", alt_doc: false },
+    leasehold: { accepted: false, note: "Reduce does not accept leasehold properties" }
+  }
+];
+
+// ── SUPABASE INTEGRATION (Optional) ───────────────────────────────────────────
+// Configuration for Supabase API (replace placeholders with actual credentials)
+const SUPABASE_CONFIG = {
+  URL: 'https://syhwaeloljdswsmqkzrx.supabase.co',
+  ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN5aHdhZWxvbGpkc3dzbXFrenJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAxMDI0NjksImV4cCI6MjA4NTY3ODQ2OX0.wWe9fnjMe0d7PbXfF5s9hdY6rXHB4rCAbMzXhgbyTE8',
+  API_ENDPOINT: 'https://syhwaeloljdswsmqkzrx.supabase.co/functions/v1/policy-radar-api',
+  ENABLED: true
+};
+
+let lastSyncedTime = null;
+
+const LOGO_PALETTE = [
+  '#1a3c6e','#c8102e','#003366','#d5002b','#e35205','#00a3e0',
+  '#6d2077','#00573f','#002f6c','#ff6900','#78be20','#004b87',
+  '#b5121b','#1b365d','#009cde','#5c2d91','#00704a','#cc0000'
+];
+
+function getLenderLogo(id, name) {
+  let bgColor = '#1a3c6e';
+  let textColor = '#fff';
+  let initials = name.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 3);
+
+  // Specific brand colors
+  if (id === 'cba') {
+    bgColor = '#ffd200';
+    textColor = '#000';
+    initials = 'CBA';
+  } else if (id === 'anz') {
+    bgColor = '#003366';
+    initials = 'ANZ';
+  } else if (id === 'nab') {
+    bgColor = '#c8102e';
+    initials = 'NAB';
+  } else if (id === 'westpac') {
+    bgColor = '#d5002b';
+    initials = 'WBC';
+  } else if (id === 'bankwest') {
+    bgColor = '#e35205';
+    initials = 'BWA';
+  } else if (id === 'stgeorge') {
+    bgColor = '#00573f';
+    initials = 'SGB';
+  } else if (id === 'macquarie') {
+    bgColor = '#000000';
+    initials = 'MQG';
+  } else if (id === 'ing') {
+    bgColor = '#ff6900';
+    initials = 'ING';
+  } else if (id === 'pepper') {
+    bgColor = '#6d2077';
+    initials = 'PML';
+  } else if (id === 'liberty') {
+    bgColor = '#003366';
+    initials = 'LFS';
+  } else if (id === 'latrobe') {
+    bgColor = '#002f6c';
+    initials = 'LTU';
+  } else if (id === 'bluestone') {
+    bgColor = '#004b87';
+    initials = 'BST';
+  } else if (id === 'thinktank') {
+    bgColor = '#6d2077';
+    initials = 'TT';
+  } else if (id === 'columbus') {
+    bgColor = '#1a3c6e';
+    initials = 'CMB';
+  } else if (id === 'brighten') {
+    bgColor = '#00a3e0';
+    initials = 'BRT';
+  } else if (id === 'granite') {
+    bgColor = '#004b87';
+    initials = 'GRN';
+  } else if (id === 'auswide') {
+    bgColor = '#003087';
+    initials = 'AWB';
+  } else if (id === 'heritage') {
+    bgColor = '#e4002b';
+    initials = 'HBK';
+  } else if (id === 'banksa') {
+    bgColor = '#c8102e';
+    initials = 'BSA';
+  } else if (id === 'greater') {
+    bgColor = '#003366';
+    initials = 'GRB';
+  } else if (id === 'racq') {
+    bgColor = '#ffd200';
+    textColor = '#000';
+    initials = 'RCQ';
+  } else if (id === '86400') {
+    bgColor = '#003366';
+    initials = '86K';
+  } else if (id === 'athena') {
+    bgColor = '#6d2077';
+    initials = 'ATH';
+  } else if (id === 'loans_com') {
+    bgColor = '#78be20';
+    textColor = '#000';
+    initials = 'LCM';
+  } else if (id === 'reduce') {
+    bgColor = '#009cde';
+    initials = 'RDC';
+  } else {
+    // Hash-based color for unknown lenders
+    let hash = 0;
+    for (let i = 0; i < id.length; i++) {
+      hash = ((hash << 5) - hash) + id.charCodeAt(i);
+    }
+    bgColor = LOGO_PALETTE[Math.abs(hash) % LOGO_PALETTE.length];
+  }
+
+  return `<div style="background:${bgColor};color:${textColor};width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;letter-spacing:0.5px;border:2px solid rgba(255,255,255,0.12);box-shadow:0 4px 12px rgba(0,0,0,0.3);">${initials}</div>`;
+}
+
+let dataSource = 'inline'; // 'inline' or 'supabase'
+
+// Attempt to fetch lenders from Supabase REST API (direct query, no Edge Function needed)
+async function loadFromSupabase() {
+  if (!SUPABASE_CONFIG.ENABLED) {
+    console.log('Policy Radar: Supabase not configured, using inline data');
+    return null;
+  }
+
+  try {
+    console.log('Policy Radar: Fetching from Supabase REST API...');
+    const restUrl = `${SUPABASE_CONFIG.URL}/rest/v1/v_lender_summary?select=*&order=tier.asc,name.asc`;
+    const response = await fetch(restUrl, {
+      headers: {
+        'apikey': SUPABASE_CONFIG.ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_CONFIG.ANON_KEY}`
+      }
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const rows = await response.json();
+
+    if (rows && rows.length > 0) {
+      // Transform DB rows into the inline LENDERS format
+      const lenders = rows.map(r => ({
+        id: r.id,
+        name: r.name,
+        icon: r.icon || '🏦',
+        type: r.type,
+        tier: r.tier,
+        completeness: r.completeness || 'minimal',
+        source: `${r.source_type || 'public'} · Verified ${r.last_verified || 'N/A'}`,
+        lvr: {
+          oo_pi: r.max_lvr_oo_pi ? parseFloat(r.max_lvr_oo_pi) : null,
+          oo_io: r.max_lvr_oo_io ? parseFloat(r.max_lvr_oo_io) : null,
+          inv_pi: r.max_lvr_inv_pi ? parseFloat(r.max_lvr_inv_pi) : null,
+          inv_io: r.max_lvr_inv_io ? parseFloat(r.max_lvr_inv_io) : null,
+          construction: r.max_lvr_construction ? parseFloat(r.max_lvr_construction) : null,
+          lmi_required_above: r.lmi_required_above ? parseFloat(r.lmi_required_above) : 0.80,
+          lmi_waiver: r.lmi_waiver_available || false,
+          lmi_waiver_note: r.lvr_matrix?.lmi_waiver_conditions || ''
+        },
+        modifiers: (r.lvr_matrix?.modifiers || []).map(m => ({
+          id: m.trigger, label: m.trigger?.replace(/_/g, ' '), max_lvr: m.max_lvr
+        })),
+        servicing: {
+          assessment_floor: r.assessment_rate_floor ? `${(parseFloat(r.assessment_rate_floor) * 100).toFixed(2)}%` : null,
+          buffer: r.assessment_buffer ? `${(parseFloat(r.assessment_buffer) * 100).toFixed(2)}%` : '3.00%',
+          dti_max: r.dti_max ? `${r.dti_max}×` : null,
+          min_surplus: r.servicing?.min_surplus_pa ? `$${r.servicing.min_surplus_pa}/yr` : null
+        },
+        income: {
+          payg_base: r.income_policy?.payg_base ? `${r.income_policy.payg_base * 100}%` : '100%',
+          casual: r.income_policy?.payg_casual ? `${r.income_policy.payg_casual * 100}%` : '100%',
+          overtime_other: r.income_policy?.payg_overtime_other ? `${r.income_policy.payg_overtime_other * 100}%` : '80%',
+          commission: r.income_policy?.payg_commission ? `${r.income_policy.payg_commission * 100}%` : '80%',
+          self_employed_yrs: r.income_policy?.self_employed_years_required || 2,
+          rental: r.income_policy?.rental_income ? `${r.income_policy.rental_income * 100}%` : '80%'
+        },
+        special: {
+          medico: r.has_medico_program || false,
+          medico_lvr: r.medico_max_lvr ? `${(parseFloat(r.medico_max_lvr) * 100).toFixed(0)}% no LMI` : null,
+          allied_health: r.has_allied_health || false,
+          industry_specialist: r.special_policies?.industry_specialist?.available || false,
+          lmi_waiver: r.lmi_waiver_available || false,
+          bridging: r.has_bridging || false,
+          construction: r.has_construction || false,
+          family_guarantee: r.has_family_guarantee || false,
+          smsf: r.accepts_smsf || false,
+          foreign_income: r.accepts_foreign_income || false,
+          no_genuine_savings: r.no_genuine_savings_required || false
+        },
+        entity: {
+          company: r.accepts_company || false,
+          trust: r.accepts_trust || false,
+          max_lvr: r.entity_max_lvr || null,
+          note: r.entity_note || null
+        },
+        second_mortgage: {
+          allowed: r.accepts_second_mortgage || false,
+          max_combined_lvr: r.second_mortgage_max_clvr || null,
+          note: r.second_mortgage_note || null
+        },
+        docs: {
+          payslips: r.documentation?.payslips_required || null,
+          self_emp: r.documentation?.notes || '2yr tax returns or financials',
+          alt_doc: r.has_alt_doc || false
+        },
+        leasehold: r.leasehold_accepted !== undefined ? {
+          accepted: r.leasehold_accepted || false,
+          lvr_reduction: r.leasehold_lvr_reduction ? parseFloat(r.leasehold_lvr_reduction) : null,
+          min_remaining_lease: r.leasehold_min_remaining_lease || null,
+          note: r.leasehold_note || null
+        } : null
+      }));
+
+      lastSyncedTime = new Date();
+      dataSource = 'supabase';
+      console.log(`Policy Radar: Loaded ${lenders.length} lenders from Supabase`);
+      return lenders;
+    }
+  } catch (error) {
+    console.warn('Policy Radar: Supabase fetch failed, falling back to inline data', error);
+  }
+  return null;
+}
+
+// Load commercial lenders from Supabase
+async function loadCommFromSupabase() {
+  if (!SUPABASE_CONFIG.ENABLED) return null;
+  try {
+    console.log('Policy Radar: Fetching commercial from Supabase...');
+    const restUrl = `${SUPABASE_CONFIG.URL}/rest/v1/v_commercial_summary?select=*&order=tier.asc,name.asc`;
+    const response = await fetch(restUrl, {
+      headers: {
+        'apikey': SUPABASE_CONFIG.ANON_KEY,
+        'Authorization': `Bearer ${SUPABASE_CONFIG.ANON_KEY}`
+      }
+    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const rows = await response.json();
+
+    if (rows && rows.length > 0) {
+      const lenders = rows.map(r => ({
+        id: r.id,
+        name: r.name,
+        tier: r.tier,
+        type: r.type,
+        completeness: r.completeness || 'minimal',
+        source: r.source || 'Supabase · Verified ' + (r.last_verified || 'N/A'),
+        lvr: {
+          standard: r.lvr_standard ? parseFloat(r.lvr_standard) : null,
+          retail: r.lvr_retail ? parseFloat(r.lvr_retail) : null,
+          industrial: r.lvr_industrial ? parseFloat(r.lvr_industrial) : null,
+          office: r.lvr_office ? parseFloat(r.lvr_office) : null,
+          medical: r.lvr_medical ? parseFloat(r.lvr_medical) : null,
+          rural: r.lvr_rural ? parseFloat(r.lvr_rural) : null,
+          development: r.lvr_development ? parseFloat(r.lvr_development) : null,
+          vacant_land: r.lvr_vacant_land ? parseFloat(r.lvr_vacant_land) : null,
+          mixed_use: r.lvr_mixed_use ? parseFloat(r.lvr_mixed_use) : null
+        },
+        lvr_inv: {
+          standard: r.lvr_inv_standard ? parseFloat(r.lvr_inv_standard) : null,
+          retail: r.lvr_inv_retail ? parseFloat(r.lvr_inv_retail) : null,
+          industrial: r.lvr_inv_industrial ? parseFloat(r.lvr_inv_industrial) : null,
+          office: r.lvr_inv_office ? parseFloat(r.lvr_inv_office) : null,
+          medical: r.lvr_inv_medical ? parseFloat(r.lvr_inv_medical) : null,
+          rural: r.lvr_inv_rural ? parseFloat(r.lvr_inv_rural) : null,
+          development: r.lvr_inv_development ? parseFloat(r.lvr_inv_development) : null,
+          vacant_land: r.lvr_inv_vacant_land ? parseFloat(r.lvr_inv_vacant_land) : null,
+          mixed_use: r.lvr_inv_mixed_use ? parseFloat(r.lvr_inv_mixed_use) : null
+        },
+        loan: {
+          min: r.loan_min || 100000,
+          max: r.loan_max || 5000000,
+          max_term: r.max_term || 25,
+          max_io: r.max_io || 5
+        },
+        purpose: {
+          purchase: r.purpose_purchase || false,
+          refinance: r.purpose_refinance || false,
+          equity_release: r.purpose_equity_release || false,
+          development: r.purpose_development || false,
+          working_capital: r.purpose_working_capital || false
+        },
+        entity: {
+          individual: r.entity_individual !== false,
+          company: r.entity_company || false,
+          trust: r.entity_trust || false,
+          unit_trust: r.entity_unit_trust || false,
+          smsf: r.entity_smsf || false,
+          partnership: r.entity_partnership || false,
+          note: r.entity_note || ''
+        },
+        servicing: {
+          buffer: r.servicing_buffer || '3.00%',
+          dscr_min: r.dscr_min ? parseFloat(r.dscr_min) : 1.20,
+          rental_income: r.rental_income_pct || '80%',
+          assessment_floor: r.assessment_floor || null
+        },
+        special: {
+          medico: r.special_medico || false,
+          medico_note: r.special_medico_note || null,
+          rural: r.special_rural || false,
+          development: r.special_development || false,
+          alt_doc: r.special_alt_doc || false,
+          smsf: r.special_smsf || false
+        },
+        docs: {
+          full_doc: r.docs_full_doc !== false,
+          alt_doc: r.docs_alt_doc || false,
+          low_doc: r.docs_low_doc || false
+        },
+        leasehold: {
+          accepted: r.leasehold_accepted || false,
+          lvr_reduction: r.leasehold_lvr_reduction ? parseFloat(r.leasehold_lvr_reduction) : null,
+          min_remaining_lease: r.leasehold_min_remaining_lease || null,
+          note: r.leasehold_note || null
+        }
+      }));
+      console.log(`Policy Radar: Loaded ${lenders.length} commercial lenders from Supabase`);
+      return lenders;
+    }
+  } catch (error) {
+    console.warn('Policy Radar: Commercial Supabase fetch failed, using inline data', error);
+  }
+  return null;
+}
+
+// Initialize: try Supabase first, fall back to inline
+async function initializeLenderData() {
+  // Load residential
+  const supabaseLenders = await loadFromSupabase();
+  if (supabaseLenders && supabaseLenders.length > 0) {
+    // Backfill fields not yet in Supabase from inline data
+    const inlineMap = {};
+    LENDERS.forEach(l => { inlineMap[l.id] = l; });
+    supabaseLenders.forEach(sl => {
+      const il = inlineMap[sl.id];
+      if (il) {
+        if (!sl.leasehold && il.leasehold) sl.leasehold = il.leasehold;
+        if (!sl.second_mortgage?.allowed && il.second_mortgage) sl.second_mortgage = il.second_mortgage;
+        if (!sl.entity?.note && il.entity) { sl.entity.note = il.entity.note; sl.entity.max_lvr = sl.entity.max_lvr || il.entity.max_lvr; }
+      }
+    });
+    LENDERS = supabaseLenders;
+    updateSyncIndicator();
+  } else {
+    dataSource = 'inline';
+  }
+
+  // Load commercial
+  const supabaseComm = await loadCommFromSupabase();
+  if (supabaseComm && supabaseComm.length > 0) {
+    // Backfill from inline commercial data
+    const inlineCommMap = {};
+    COMM_LENDERS.forEach(l => { inlineCommMap[l.id] = l; });
+    supabaseComm.forEach(sl => {
+      const il = inlineCommMap[sl.id];
+      if (il) {
+        if (!sl.leasehold?.accepted && il.leasehold) sl.leasehold = il.leasehold;
+      }
+    });
+    COMM_LENDERS = supabaseComm;
+    commResults = [...COMM_LENDERS];
+    console.log(`Policy Radar: Commercial data loaded from Supabase (${COMM_LENDERS.length} lenders)`);
+  }
+
+  currentResults = [...LENDERS];
+  initializeApp();
+}
+
+// Update lender count in nav
+function updateSyncIndicator() {
+  const navTag = document.getElementById('navTagEl');
+  if (navTag) {
+    navTag.innerHTML = `<span id="lenderCountNav">${LENDERS.length}</span> lenders`;
+  }
+}
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let compareList = [];
+let currentResults = [...LENDERS];
+
+let openPanelId = null;
+
+// ── RENDER ───────────────────────────────────────────────────────────────────
+function render(results) {
+  currentResults = results;
+  const grid = document.getElementById('lenderGrid');
+  document.getElementById('resultsCount').textContent = results.length + ' lender' + (results.length !== 1 ? 's' : '');
+
+  if (results.length === 0) {
+    const filters = getFilters();
+    let suggestion = '';
+    if (filters.noGenuineSavings) {
+      suggestion = `<div class="empty-suggestion">
+        <strong>💡 Tip:</strong> Most major banks require genuine savings for LVR above 80%.
+        Consider <strong>non-bank lenders</strong> like <span class="green">Bluestone</span>, <span class="green">Pepper Money</span>, or <span class="green">La Trobe Financial</span> — they often accept gifted deposits and no genuine savings at up to 90% LVR.
+      </div>`;
+    } else if (filters.secondMortgage) {
+      suggestion = `<div class="empty-suggestion">
+        <strong>💡 Tip:</strong> Second mortgages are uncommon with major banks.
+        Consider specialist funders like <span class="green">Thinktank</span>, <span class="green">Bluestone</span>, or private funders (Dark Horse Financial, Max Funding) who offer second mortgages up to 75-80% combined LVR. Speak with your broker for specific options.
+      </div>`;
+    } else if (filters.borrower === 'company' || filters.borrower === 'trust') {
+      suggestion = `<div class="empty-suggestion">
+        <strong>💡 Tip:</strong> Major banks have been tightening company/trust lending since late 2025 (Macquarie paused entirely, ANZ capped at 70% LVR).
+        <strong>Non-bank lenders</strong> like <span class="green">Bluestone</span> (up to 90%), <span class="green">Thinktank</span>, and <span class="green">Columbus Capital</span> still accept company/trust borrowers. Try selecting "Non-Bank" in the Lender Tier filter.
+      </div>`;
+    } else if (filters.leasehold) {
+      suggestion = `<div class="empty-suggestion">
+        <strong>💡 Tip:</strong> Leasehold properties are restricted by many lenders, especially smaller banks and digital-only lenders.
+        <strong>Major banks</strong> like <span class="green">CBA</span>, <span class="green">ANZ</span>, <span class="green">NAB</span>, <span class="green">Westpac</span> typically accept leasehold with a 5% LVR reduction and minimum 25-year remaining lease. Non-banks like <span class="green">Bluestone</span> and <span class="green">Thinktank</span> are also flexible.
+      </div>`;
+    } else if (filters.foreignIncome) {
+      suggestion = `<div class="empty-suggestion">
+        <strong>💡 Tip:</strong> Foreign income is restrictive with most banks.
+        Consider <span class="green">Brighten Home Loans</span> (specialist in foreign income, up to 90% LVR) or <span class="green">Pepper Money</span> for flexible income assessment.
+      </div>`;
+    } else {
+      suggestion = `<div class="empty-suggestion">
+        <strong>💡 Tip:</strong> Try relaxing some filters, or this client may need a specialist non-bank lender not yet in our database. <a href="https://oneyco.com.au" target="_blank" style="color:var(--green);">Contact Oney & Co</a> for a tailored recommendation.
+      </div>`;
+    }
+    grid.innerHTML = `<div class="empty-state">
+      <div class="icon">🔍</div>
+      <h3>No lenders match this scenario</h3>
+      <p>Your current filter combination returned zero results.</p>
+      ${suggestion}
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = results.map(l => renderTile(l)).join('');
+  openPanelId = null;
+  // Re-bind checkboxes
+  results.forEach(l => {
+    const cb = document.getElementById('compare-' + l.id);
+    if (cb) {
+      cb.checked = compareList.includes(l.id);
+      cb.addEventListener('change', () => toggleCompare(l.id, cb.checked, l.name));
+    }
+  });
+}
+
+function renderTile(l) {
+  const filters = getFilters();
+  const effectiveLvr = getEffectiveLvr(l, filters);
+  const maxLvr = l.lvr.oo_pi ? (l.lvr.oo_pi*100).toFixed(0)+'%' : '—';
+
+  // Top 2 pills for tile preview
+  const pills = [];
+  if (l.special.medico) pills.push('Medico');
+  if (l.special.lmi_waiver) pills.push('LMI waiver');
+  if (l.special.construction) pills.push('Construction');
+  if (l.special.bridging) pills.push('Bridging');
+  if (l.special.smsf) pills.push('SMSF');
+  if (l.docs && l.docs.alt_doc) pills.push('Alt Doc');
+  if (l.entity && l.entity.company) pills.push('Company');
+  if (l.entity && l.entity.trust) pills.push('Trust');
+  if (l.second_mortgage && l.second_mortgage.allowed) pills.push('2nd Mtg');
+  const visiblePills = pills.slice(0, 2);
+  const extraCount = pills.length - 2;
+
+  const tierClass = l.type === 'non_bank' ? 'nonbank' : l.tier;
+  const tierLabel = l.tier === 'tier1' ? 'Major' : l.type === 'non_bank' ? 'Non-Bank' : 'Non-Major';
+
+  return `
+  <div class="lender-tile ${l.completeness === 'partial' ? 'partial' : ''}" id="tile-${l.id}" onclick="openDetailPanel('${l.id}')">
+    <div class="tile-logo">${getLenderLogo(l.id, l.name)}</div>
+    <div class="tile-name">${l.name}</div>
+    <span class="tile-tier ${tierClass}">${tierLabel}</span>
+    <div class="tile-lvr">${maxLvr}</div>
+    ${visiblePills.length ? `<div class="tile-pills">${visiblePills.map(p => '<span class="mini-pill">'+p+'</span>').join('')}${extraCount > 0 ? '<span class="tile-pill-count">+'+extraCount+'</span>' : ''}</div>` : ''}
+  </div>`;
+}
+
+function openDetailPanel(id) {
+  const grid = document.getElementById('lenderGrid');
+  // Remove any existing panel
+  const existing = document.getElementById('detailPanel');
+  const prevTile = document.querySelector('.lender-tile.active');
+  if (prevTile) prevTile.classList.remove('active');
+
+  if (existing) {
+    const wasId = existing.dataset.lenderId;
+    existing.remove();
+    if (wasId === id) { openPanelId = null; return; } // toggle off
+  }
+
+  const l = currentResults.find(x => x.id === id);
+  if (!l) return;
+  openPanelId = id;
+
+  const tile = document.getElementById('tile-' + id);
+  if (tile) tile.classList.add('active');
+
+  const filters = getFilters();
+  const effectiveLvr = getEffectiveLvr(l, filters);
+  const lvrBadge = filters.lvr
+    ? (effectiveLvr !== null && effectiveLvr * 100 >= filters.lvr
+        ? `<span class="badge pass">✓ ${filters.lvr}% OK</span>`
+        : `<span class="badge fail">✗ ${filters.lvr}% over</span>`)
+    : '';
+
+  const pills = [];
+  if (l.special.medico) pills.push('Medico');
+  if (l.special.lmi_waiver) pills.push('LMI waiver');
+  if (l.special.allied_health) pills.push('Allied Health');
+  if (l.special.bridging) pills.push('Bridging');
+  if (l.special.construction) pills.push('Construction');
+  if (l.special.family_guarantee) pills.push('Fam. Guarantee');
+  if (l.special.smsf) pills.push('SMSF');
+  if (l.special.foreign_income) pills.push('Foreign Income');
+  if (l.docs && l.docs.alt_doc) pills.push('Alt Doc');
+  if (l.special.no_genuine_savings) pills.push('No GS');
+
+  const activeModifiers = getActiveModifiers(l, filters);
+  const isCompared = compareList.includes(l.id);
+  const tierClass = l.type === 'non_bank' ? 'nonbank' : l.tier;
+  const tierLabel = l.tier === 'tier1' ? 'Major' : l.type === 'non_bank' ? 'Non-Bank' : 'Non-Major';
+
+  const panelHTML = `
+  <div class="detail-panel open" id="detailPanel" data-lender-id="${l.id}">
+    <button class="detail-panel-close" onclick="event.stopPropagation();closeDetailPanel()">✕</button>
+    <div class="detail-panel-header">
+      ${getLenderLogo(l.id, l.name)}
+      <div>
+        <div class="detail-panel-name">${l.name} ${lvrBadge}</div>
+        <span class="meta-tag ${tierClass}" style="margin-top:4px;display:inline-block;">${tierLabel}</span>
+      </div>
+    </div>
+    ${pills.length ? `<div class="detail-pills">${pills.map(p => '<span class="mini-pill">'+p+'</span>').join('')}</div>` : ''}
+    <div class="detail-panel-stats">
+      <div class="detail-stat"><div class="detail-stat-label">OO P&I LVR</div><div class="detail-stat-value">${l.lvr.oo_pi ? (l.lvr.oo_pi*100).toFixed(0)+'%' : '—'}</div></div>
+      <div class="detail-stat"><div class="detail-stat-label">INV P&I LVR</div><div class="detail-stat-value">${l.lvr.inv_pi ? (l.lvr.inv_pi*100).toFixed(0)+'%' : '—'}</div></div>
+      <div class="detail-stat"><div class="detail-stat-label">IO Max LVR</div><div class="detail-stat-value">${l.lvr.oo_io ? (l.lvr.oo_io*100).toFixed(0)+'%' : '—'}</div></div>
+      <div class="detail-stat"><div class="detail-stat-label">Buffer</div><div class="detail-stat-value${!l.servicing.buffer ? ' muted' : ''}">${l.servicing.buffer || '—'}</div></div>
+      <div class="detail-stat"><div class="detail-stat-label">Floor</div><div class="detail-stat-value${!l.servicing.assessment_floor ? ' muted' : ''}">${l.servicing.assessment_floor || '—'}</div></div>
+      <div class="detail-stat"><div class="detail-stat-label">Max DTI</div><div class="detail-stat-value${!l.servicing.dti_max ? ' muted' : ''}">${l.servicing.dti_max || '—'}</div></div>
+    </div>
+    <div class="policy-grid">
+      <div class="policy-cell"><div class="cell-label">Commission</div><div class="cell-value">${l.income.commission || '—'}</div></div>
+      <div class="policy-cell"><div class="cell-label">Self-Employed</div><div class="cell-value">${l.income.self_employed_yrs} yr${l.income.self_employed_yrs > 1 ? 's' : ''}</div></div>
+      <div class="policy-cell"><div class="cell-label">Casual Income</div><div class="cell-value">${l.income.casual || '—'}</div></div>
+      <div class="policy-cell"><div class="cell-label">Alt Doc</div><div class="cell-value">${l.docs && l.docs.alt_doc ? '<span class="green">Yes</span>' : 'No'}</div></div>
+      <div class="policy-cell"><div class="cell-label">Company</div><div class="cell-value">${l.entity && l.entity.company ? '<span class="green">Yes</span>' + (l.entity.max_lvr ? ' ('+Math.round(l.entity.max_lvr*100)+'%)' : '') : '<span class="muted">No</span>'}</div></div>
+      <div class="policy-cell"><div class="cell-label">Trust</div><div class="cell-value">${l.entity && l.entity.trust ? '<span class="green">Yes</span>' + (l.entity.max_lvr ? ' ('+Math.round(l.entity.max_lvr*100)+'%)' : '') : '<span class="muted">No</span>'}</div></div>
+      <div class="policy-cell"><div class="cell-label">2nd Mortgage</div><div class="cell-value">${l.second_mortgage && l.second_mortgage.allowed ? '<span class="green">Yes</span>' + (l.second_mortgage.max_combined_lvr ? ' ('+Math.round(l.second_mortgage.max_combined_lvr*100)+'% CLVR)' : '') : '<span class="muted">No</span>'}</div></div>
+      <div class="policy-cell"><div class="cell-label">Leasehold</div><div class="cell-value">${l.leasehold && l.leasehold.accepted ? '<span class="green">Yes</span> (−'+Math.round(l.leasehold.lvr_reduction*100)+'% LVR, min '+l.leasehold.min_remaining_lease+'yr)' : '<span class="muted">No</span>'}</div></div>
+    </div>
+    ${activeModifiers.length ? `
+    <div class="modifiers-section">
+      <div class="modifiers-title">LVR Modifiers</div>
+      <div class="modifier-tags">${l.modifiers.map(m => {
+        const active = activeModifiers.includes(m.id);
+        return '<span class="modifier-tag '+(active ? 'active' : 'inactive')+'">'+(active ? '⚠ ' : '')+m.label+': max '+(m.max_lvr*100).toFixed(0)+'%</span>';
+      }).join('')}</div>
+    </div>` : ''}
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
+      <div class="data-note" style="border:none;padding:0;margin:0;">
+        <span class="data-dot ${l.completeness}"></span>
+        ${l.completeness === 'full' ? 'Full data' : 'Partial data'} · Updated Apr 2026
+      </div>
+      <label class="compare-checkbox-wrap" style="margin:0;border:none;padding:0;" onclick="event.stopPropagation()">
+        <input type="checkbox" id="compare-${l.id}" ${isCompared ? 'checked' : ''}>
+        Compare
+      </label>
+    </div>
+  </div>`;
+
+  // Insert panel after the clicked tile (at end of its grid row)
+  // We insert it right after the tile in DOM; CSS grid-column: 1/-1 makes it span full width
+  tile.insertAdjacentHTML('afterend', panelHTML);
+
+  // Scroll panel into view
+  setTimeout(() => {
+    const panel = document.getElementById('detailPanel');
+    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 50);
+}
+
+function closeDetailPanel() {
+  const panel = document.getElementById('detailPanel');
+  const prevTile = document.querySelector('.lender-tile.active');
+  if (prevTile) prevTile.classList.remove('active');
+  if (panel) panel.remove();
+  openPanelId = null;
+}
+
+// ── FILTERS ──────────────────────────────────────────────────────────────────
+function getFilters() {
+  const activeTier = document.querySelector('#tierPills .pill-option.active');
+  return {
+    loanType: document.getElementById('loanType').value,
+    lvr: parseFloat(document.getElementById('lvrInput').value) || null,
+    borrower: document.getElementById('borrowerType').value,
+    tier: activeTier ? activeTier.dataset.tier : '',
+    minLoan: parseFloat(document.getElementById('minLoanInput').value) || null,
+    io: document.getElementById('chk-io').checked,
+    dti: document.getElementById('chk-dti').checked,
+    hd: document.getElementById('chk-hd').checked,
+    casual: document.getElementById('chk-casual').checked,
+    medico: document.getElementById('chk-medico').checked,
+    bridge: document.getElementById('chk-bridge').checked,
+    construction: document.getElementById('chk-construction').checked,
+    famguarantee: document.getElementById('chk-famguarantee').checked,
+    altdoc: document.getElementById('chk-altdoc').checked,
+    smsf: document.getElementById('chk-smsf').checked,
+    selfEmpl1: document.getElementById('chk-selfempl1').checked,
+    foreignIncome: document.getElementById('chk-foreignincome').checked,
+    noGenuineSavings: document.getElementById('chk-nogs').checked,
+    secondMortgage: document.getElementById('chk-2ndmortgage').checked,
+    leasehold: document.getElementById('chk-leasehold').checked,
+  };
+}
+
+function getEffectiveLvr(lender, filters) {
+  const loanType = filters.loanType;
+  let baseLvr = null;
+
+  if (loanType === 'oo_pi') baseLvr = lender.lvr.oo_pi;
+  else if (loanType === 'oo_io') baseLvr = lender.lvr.oo_io;
+  else if (loanType === 'inv_pi') baseLvr = lender.lvr.inv_pi;
+  else if (loanType === 'inv_io') baseLvr = lender.lvr.inv_io;
+  else if (loanType === 'refinance') baseLvr = lender.lvr.refinance;
+  else if (loanType === 'construction') baseLvr = lender.lvr.construction || lender.lvr.construction_oo;
+  else baseLvr = lender.lvr.oo_pi; // default
+
+  if (baseLvr === null || baseLvr === undefined) return null;
+
+  let effective = baseLvr;
+
+  // Apply company/trust entity LVR cap
+  if ((filters.borrower === 'company' || filters.borrower === 'trust') && lender.entity) {
+    const entityKey = filters.borrower === 'company' ? 'company' : 'trust';
+    if (lender.entity[entityKey] && lender.entity.max_lvr) {
+      effective = Math.min(effective, lender.entity.max_lvr);
+    }
+  }
+
+  // Apply modifiers
+  if (filters.io) {
+    const m = lender.modifiers.find(x => x.id === 'interest_only_any_portion');
+    if (m) effective = Math.min(effective, m.max_lvr);
+  }
+  if (filters.dti) {
+    const m = lender.modifiers.find(x => x.id === 'dti_above_6x');
+    if (m) effective = Math.min(effective, m.max_lvr);
+  }
+  if (filters.hd && filters.io) {
+    const m = lender.modifiers.find(x => x.id === 'high_density_io');
+    if (m) effective = Math.min(effective, m.max_lvr);
+  } else if (filters.hd) {
+    const m = lender.modifiers.find(x => x.id === 'high_density_pi');
+    if (m) effective = Math.min(effective, m.max_lvr);
+  }
+
+  // Apply leasehold LVR reduction
+  if (filters.leasehold && lender.leasehold && lender.leasehold.accepted && lender.leasehold.lvr_reduction) {
+    effective = effective - lender.leasehold.lvr_reduction;
+  }
+
+  return effective;
+}
+
+function getActiveModifiers(lender, filters) {
+  const active = [];
+  if (filters.io) active.push('interest_only_any_portion');
+  if (filters.dti) active.push('dti_above_6x');
+  if (filters.hd && filters.io) active.push('high_density_io');
+  else if (filters.hd) active.push('high_density_pi');
+  return active;
+}
+
+// ── SEARCH ───────────────────────────────────────────────────────────────────
+function runSearch() {
+  const filters = getFilters();
+  let results = [...LENDERS];
+
+  // Filter: lender tier
+  if (filters.tier) {
+    if (filters.tier === 'non_bank') {
+      results = results.filter(l => l.type === 'non_bank');
+    } else {
+      results = results.filter(l => l.tier === filters.tier);
+    }
+  }
+
+  // Filter: min loan amount (compare against lender min loan if available)
+  if (filters.minLoan) {
+    results = results.filter(l => {
+      // If lender has no min loan data, keep it (don't exclude)
+      if (!l.minLoan) return true;
+      return l.minLoan <= filters.minLoan;
+    });
+  }
+
+  // Filter: medico required
+  if (filters.medico) {
+    results = results.filter(l => l.special.medico);
+  }
+  // Filter: bridge required
+  if (filters.bridge) {
+    results = results.filter(l => l.special.bridging);
+  }
+  // Filter: construction
+  if (filters.construction) {
+    results = results.filter(l => l.special.construction);
+  }
+  // Filter: family guarantee
+  if (filters.famguarantee) {
+    results = results.filter(l => l.special.family_guarantee);
+  }
+  // Filter: Alt Doc
+  if (filters.altdoc) {
+    results = results.filter(l => l.docs && l.docs.alt_doc);
+  }
+  // Filter: SMSF
+  if (filters.smsf || filters.borrower === 'smsf') {
+    results = results.filter(l => l.special.smsf !== false);
+  }
+  // Filter: Company borrower
+  if (filters.borrower === 'company') {
+    results = results.filter(l => l.entity && l.entity.company === true);
+  }
+  // Filter: Trust borrower
+  if (filters.borrower === 'trust') {
+    results = results.filter(l => l.entity && l.entity.trust === true);
+  }
+  // Filter: Second mortgage
+  if (filters.secondMortgage) {
+    results = results.filter(l => l.second_mortgage && l.second_mortgage.allowed === true);
+  }
+  // Filter: Leasehold property
+  if (filters.leasehold) {
+    results = results.filter(l => l.leasehold && l.leasehold.accepted === true);
+  }
+  // Filter: Self-employed < 2 years
+  if (filters.selfEmpl1) {
+    results = results.filter(l => l.income.self_employed_yrs <= 1);
+  }
+  // Filter: Foreign income
+  if (filters.foreignIncome) {
+    results = results.filter(l => l.special.foreign_income === true);
+  }
+  // Filter: No genuine savings required
+  if (filters.noGenuineSavings) {
+    results = results.filter(l => l.special.no_genuine_savings === true);
+  }
+
+  // Sort: pass LVR check first
+  if (filters.lvr) {
+    results.sort((a, b) => {
+      const aLvr = getEffectiveLvr(a, filters);
+      const bLvr = getEffectiveLvr(b, filters);
+      const aPass = aLvr !== null && aLvr * 100 >= filters.lvr;
+      const bPass = bLvr !== null && bLvr * 100 >= filters.lvr;
+      if (aPass && !bPass) return -1;
+      if (!aPass && bPass) return 1;
+      return (bLvr || 0) - (aLvr || 0);
+    });
+  }
+
+  // Update scenario bar + filter count
+  updateScenarioBar(filters);
+  updateActiveFilterCount();
+
+  render(results);
+}
+
+function updateScenarioBar(filters) {
+  const bar = document.getElementById('scenarioBar');
+  const tags = [];
+  if (filters.loanType) tags.push(document.getElementById('loanType').options[document.getElementById('loanType').selectedIndex].text);
+  if (filters.lvr) tags.push(`LVR ${filters.lvr}%`);
+  if (filters.borrower) tags.push(document.getElementById('borrowerType').options[document.getElementById('borrowerType').selectedIndex].text);
+  if (filters.tier) {
+    const tierLabel = filters.tier === 'tier1' ? 'Major Bank' : filters.tier === 'tier2' ? 'Non-Major' : 'Non-Bank';
+    tags.push(tierLabel);
+  }
+  if (filters.minLoan) tags.push(`Min $${(filters.minLoan/1000).toFixed(0)}K`);
+  if (filters.io) tags.push('Interest Only');
+  if (filters.dti) tags.push('DTI > 6×');
+  if (filters.hd) tags.push('High Density');
+  if (filters.casual) tags.push('Casual Income');
+  if (filters.medico) tags.push('Medico LMI Waiver');
+  if (filters.bridge) tags.push('Bridging');
+  if (filters.construction) tags.push('Construction');
+  if (filters.famguarantee) tags.push('Family Guarantee');
+  if (filters.altdoc) tags.push('Alt Doc');
+  if (filters.smsf) tags.push('SMSF');
+  if (filters.selfEmpl1) tags.push('Self-Employed <2yr');
+  if (filters.foreignIncome) tags.push('Foreign Income');
+  if (filters.noGenuineSavings) tags.push('No Genuine Savings');
+  if (filters.secondMortgage) tags.push('Second Mortgage');
+  if (filters.leasehold) tags.push('Leasehold');
+  if (tags.length > 0) {
+    bar.classList.remove('hidden');
+    bar.innerHTML = '<span style="color:var(--muted);font-size:12px;">Scenario:</span> ' + tags.map(t => `<span class="tag">${t}</span>`).join('');
+  } else {
+    bar.classList.add('hidden');
+  }
+}
+
+function resetFilters() {
+  document.getElementById('loanType').value = '';
+  document.getElementById('lvrInput').value = '';
+  document.getElementById('borrowerType').value = '';
+  document.getElementById('minLoanInput').value = '';
+  // Reset tier pills
+  document.querySelectorAll('#tierPills .pill-option').forEach(p => p.classList.remove('active'));
+  document.querySelector('#tierPills .pill-option[data-tier=""]').classList.add('active');
+  // Reset all checkboxes + toggle switches
+  ['chk-io','chk-dti','chk-hd','chk-casual','chk-medico','chk-bridge','chk-construction','chk-famguarantee','chk-altdoc','chk-smsf','chk-selfempl1','chk-foreignincome','chk-nogs','chk-2ndmortgage','chk-leasehold']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.checked = false;
+        const wrap = el.closest('.toggle-item');
+        if (wrap) wrap.classList.remove('active');
+      }
+    });
+  document.getElementById('scenarioBar').classList.add('hidden');
+  updateActiveFilterCount();
+  render([...LENDERS]);
+}
+
+// ── COMPARE ──────────────────────────────────────────────────────────────────
+function toggleCompare(id, checked, name) {
+  if (checked && compareList.length >= 3) {
+    alert('You can compare up to 3 lenders at a time.');
+    document.getElementById('compare-' + id).checked = false;
+    return;
+  }
+  if (checked) {
+    compareList.push(id);
+  } else {
+    compareList = compareList.filter(x => x !== id);
+  }
+  updateCompareBar();
+}
+
+function updateCompareBar() {
+  const bar = document.getElementById('compareBar');
+  const slots = document.getElementById('compareSlots');
+  if (compareList.length === 0) {
+    bar.classList.remove('show');
+    return;
+  }
+  bar.classList.add('show');
+  slots.innerHTML = compareList.map(id => {
+    const l = LENDERS.find(x => x.id === id);
+    return `<div class="compare-slot">${l.name}<span class="remove" onclick="removeCompare('${id}')">×</span></div>`;
+  }).join('');
+}
+
+function removeCompare(id) {
+  compareList = compareList.filter(x => x !== id);
+  const cb = document.getElementById('compare-' + id);
+  if (cb) cb.checked = false;
+  updateCompareBar();
+  if (compareList.length === 0) closeCompare();
+  else openCompare();
+}
+
+function openCompare() {
+  const overlay = document.getElementById('compareOverlay');
+  overlay.classList.add('show');
+  buildCompareTable();
+}
+
+function closeCompare() {
+  document.getElementById('compareOverlay').classList.remove('show');
+}
+
+function buildCompareTable() {
+  const lenders = compareList.map(id => LENDERS.find(x => x.id === id));
+  const table = document.getElementById('compareTable');
+
+  const rows = [
+    { label: 'Type', fn: l => l.tier === 'tier1' ? 'Major Bank' : 'Non-Major Bank' },
+    { label: 'OO P&I Max LVR', fn: l => l.lvr.oo_pi ? `<span class="val-good">${(l.lvr.oo_pi*100).toFixed(0)}%</span>` : '<span class="val-na">—</span>' },
+    { label: 'OO IO Max LVR', fn: l => l.lvr.oo_io ? `${(l.lvr.oo_io*100).toFixed(0)}%` : '<span class="val-na">—</span>' },
+    { label: 'Investor P&I Max LVR', fn: l => l.lvr.inv_pi ? `<span class="val-good">${(l.lvr.inv_pi*100).toFixed(0)}%</span>` : '<span class="val-na">—</span>' },
+    { label: 'Investor IO Max LVR', fn: l => l.lvr.inv_io ? `${(l.lvr.inv_io*100).toFixed(0)}%` : '<span class="val-na">—</span>' },
+    { label: 'LMI Required Above', fn: l => l.lvr.lmi_required_above ? `${(l.lvr.lmi_required_above*100).toFixed(0)}%` : '<span class="val-na">—</span>' },
+    { label: 'LMI Waiver Available', fn: l => l.lvr.lmi_waiver ? `<span class="val-good">✓ Yes</span>` : '✗ No' },
+    { label: 'Assessment Buffer', fn: l => l.servicing.buffer || '<span class="val-na">—</span>' },
+    { label: 'Assessment Floor Rate', fn: l => l.servicing.assessment_floor || '<span class="val-na">See portal</span>' },
+    { label: 'Max DTI', fn: l => l.servicing.dti_max || '<span class="val-na">See portal</span>' },
+    { label: 'Commission Income', fn: l => l.income.commission || '<span class="val-na">—</span>' },
+    { label: 'Casual Income', fn: l => l.income.casual || '<span class="val-na">—</span>' },
+    { label: 'Self-Employed Docs', fn: l => l.docs.self_emp },
+    { label: 'Medico / LMI Waiver', fn: l => l.special.medico ? `<span class="val-good">✓ ${l.special.medico_lvr}</span>` : '✗ No' },
+    { label: 'Bridging Loan', fn: l => l.special.bridging ? (l.special.bridging_months ? `<span class="val-good">✓ Up to ${l.special.bridging_months}mo</span>` : '<span class="val-good">✓ Available</span>') : '✗ No' },
+    { label: 'Family Guarantee', fn: l => l.special.family_guarantee ? '<span class="val-good">✓ Available</span>' : (l.special.family_guarantee === null ? '<span class="val-na">See portal</span>' : '✗ No') },
+    { label: 'Construction Loan', fn: l => l.special.construction ? '<span class="val-good">✓ Available</span>' : '✗ No' },
+    { label: 'Data Source', fn: l => `<span style="font-size:11px;color:var(--muted)">${l.source}</span>` },
+  ];
+
+  const headerRow = `<tr><th>Policy</th>${lenders.map(l => `<th>${l.icon} ${l.name}</th>`).join('')}</tr>`;
+  const bodyRows = rows.map(r => {
+    return `<tr><td>${r.label}</td>${lenders.map(l => `<td>${r.fn(l)}</td>`).join('')}</tr>`;
+  }).join('');
+
+  table.innerHTML = `<thead>${headerRow}</thead><tbody>${bodyRows}</tbody>`;
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+function initializeApp() {
+  document.getElementById('lenderCountNav').textContent = LENDERS.length;
+  updateSyncIndicator();
+  render([...LENDERS]);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize with Supabase fetch attempt (will fall back to inline data)
+  initializeLenderData();
+
+  // Bind toggle switches
+  bindToggleSwitches();
+
+  // Checkbox styling (for any remaining standard checkboxes)
+  document.querySelectorAll('.checkbox-item input').forEach(cb => {
+    cb.addEventListener('change', () => {
+      cb.closest('.checkbox-item').classList.toggle('checked', cb.checked);
+    });
+  });
+
+  // Enter key on inputs triggers search
+  ['lvrInput', 'minLoanInput'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('keydown', e => {
+      if (e.key === 'Enter') runSearch();
+    });
+  });
+
+  // Close overlay on background click
+  document.getElementById('compareOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('compareOverlay')) closeCompare();
+  });
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ═══ TAB SWITCHING ══════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
+let activeTab = 'residential';
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('tabResi').classList.toggle('active', tab === 'residential');
+  document.getElementById('tabComm').classList.toggle('active', tab === 'commercial');
+
+  document.getElementById('residentialFilters').style.display = tab === 'residential' ? '' : 'none';
+  document.getElementById('commercialFilters').style.display = tab === 'commercial' ? '' : 'none';
+
+  document.getElementById('lenderGrid').style.display = tab === 'residential' ? '' : 'none';
+  document.getElementById('commLenderGrid').style.display = tab === 'commercial' ? '' : 'none';
+
+  document.getElementById('scenarioBar').classList.add('hidden');
+
+  if (tab === 'residential') {
+    render([...LENDERS]);
+    document.getElementById('resultsCount').textContent = LENDERS.length + ' lenders';
+  } else {
+    renderComm([...COMM_LENDERS]);
+    document.getElementById('resultsCount').textContent = COMM_LENDERS.length + ' lenders';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// ═══ COMMERCIAL LENDER DATA ════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════════════════
+let COMM_LENDERS = [
+  {
+    id: "macquarie_comm", name: "Macquarie Bank", tier: "tier2", type: "non_major_bank",
+    completeness: "full", source: "Commercial Lending Guide v13.1 · Verified Mar 2026",
+    lvr: { standard: 0.80, retail: 0.70, industrial: 0.75, office: 0.80, medical: 0.90, rural: 0.65, development: 0.70, vacant_land: 0.50, mixed_use: 0.75 },
+    lvr_inv: { standard: 0.70, retail: 0.65, industrial: 0.70, office: 0.70, medical: 0.80, rural: 0.60, development: 0.65, vacant_land: 0.45, mixed_use: 0.70 },
+    loan: { min: 500000, max: 30000000, max_term: 25, max_io: 5 },
+    purpose: { purchase: true, refinance: true, equity_release: true, development: true, working_capital: false },
+    entity: { individual: true, company: false, trust: false, unit_trust: false, smsf: false, partnership: true, note: "Paused company/trust brokered lending Oct 2025" },
+    servicing: { buffer: "3.00%", dscr_min: 1.20, rental_income: "80%", assessment_floor: "5.30%" },
+    special: { medico: true, medico_note: "+10% LVR for medical practitioners with fellowship", rural: true, development: true, alt_doc: false, smsf: false },
+    docs: { full_doc: true, alt_doc: false, low_doc: false },
+    leasehold: { accepted: true, lvr_reduction: 0.10, min_remaining_lease: 30, note: "LVR reduced 10% for leasehold; min 30yr remaining lease at loan maturity" }
+  },
+  {
+    id: "cba_comm", name: "Commonwealth Bank (CBA)", tier: "tier1", type: "major_bank",
+    completeness: "full", source: "CBA Business Lending · Verified Apr 2026",
+    lvr: { standard: 0.75, retail: 0.65, industrial: 0.70, office: 0.75, medical: 0.80, rural: 0.60, development: 0.65, vacant_land: 0.50, mixed_use: 0.70 },
+    lvr_inv: { standard: 0.70, retail: 0.60, industrial: 0.65, office: 0.70, medical: 0.75, rural: 0.55, development: 0.60, vacant_land: 0.45, mixed_use: 0.65 },
+    loan: { min: 250000, max: 50000000, max_term: 25, max_io: 5 },
+    purpose: { purchase: true, refinance: true, equity_release: true, development: true, working_capital: true },
+    entity: { individual: true, company: true, trust: true, unit_trust: true, smsf: false, partnership: true, note: "Restricted — requires existing CBA relationship" },
+    servicing: { buffer: "3.00%", dscr_min: 1.20, rental_income: "80%", assessment_floor: "5.40%" },
+    special: { medico: true, medico_note: "Healthcare professionals up to 80% LVR", rural: false, development: true, alt_doc: false, smsf: false },
+    docs: { full_doc: true, alt_doc: false, low_doc: false },
+    leasehold: { accepted: true, lvr_reduction: 0.10, min_remaining_lease: 25, note: "Max 65% LVR for leasehold; min 25yr remaining at maturity" }
+  },
+  {
+    id: "anz_comm", name: "ANZ Bank", tier: "tier1", type: "major_bank",
+    completeness: "full", source: "ANZ Business Banking · Verified Apr 2026",
+    lvr: { standard: 0.75, retail: 0.65, industrial: 0.70, office: 0.75, medical: 0.80, rural: 0.60, development: 0.65, vacant_land: 0.50, mixed_use: 0.70 },
+    lvr_inv: { standard: 0.70, retail: 0.60, industrial: 0.65, office: 0.70, medical: 0.75, rural: 0.55, development: 0.60, vacant_land: 0.45, mixed_use: 0.65 },
+    loan: { min: 250000, max: 30000000, max_term: 25, max_io: 5 },
+    purpose: { purchase: true, refinance: true, equity_release: true, development: false, working_capital: true },
+    entity: { individual: true, company: true, trust: true, unit_trust: true, smsf: false, partnership: true, note: "Tightened Jan 2026 — 70% max LVR for entities" },
+    servicing: { buffer: "3.00%", dscr_min: 1.20, rental_income: "80%", assessment_floor: "5.40%" },
+    special: { medico: true, medico_note: "Medical centre up to 80%", rural: false, development: false, alt_doc: false, smsf: false },
+    docs: { full_doc: true, alt_doc: false, low_doc: false },
+    leasehold: { accepted: true, lvr_reduction: 0.10, min_remaining_lease: 25, note: "LVR reduced 10%; min 25yr remaining lease" }
+  },
+  {
+    id: "nab_comm", name: "NAB", tier: "tier1", type: "major_bank",
+    completeness: "full", source: "NAB Business Banking · Verified Apr 2026",
+    lvr: { standard: 0.75, retail: 0.70, industrial: 0.70, office: 0.75, medical: 0.80, rural: 0.65, development: 0.65, vacant_land: 0.50, mixed_use: 0.70 },
+    lvr_inv: { standard: 0.70, retail: 0.65, industrial: 0.65, office: 0.70, medical: 0.75, rural: 0.60, development: 0.60, vacant_land: 0.45, mixed_use: 0.65 },
+    loan: { min: 250000, max: 50000000, max_term: 25, max_io: 5 },
+    purpose: { purchase: true, refinance: true, equity_release: true, development: true, working_capital: true },
+    entity: { individual: true, company: true, trust: true, unit_trust: true, smsf: false, partnership: true, note: "Reviewing entity risk — cautious" },
+    servicing: { buffer: "3.00%", dscr_min: 1.20, rental_income: "80%", assessment_floor: "5.40%" },
+    special: { medico: true, medico_note: "NAB Health specialists", rural: true, development: true, alt_doc: false, smsf: false },
+    docs: { full_doc: true, alt_doc: false, low_doc: false },
+    leasehold: { accepted: true, lvr_reduction: 0.10, min_remaining_lease: 25, note: "LVR capped at 65% for leasehold; must have 25yr+ remaining" }
+  },
+  {
+    id: "westpac_comm", name: "Westpac", tier: "tier1", type: "major_bank",
+    completeness: "partial", source: "Westpac Business Banking · Verified Apr 2026",
+    lvr: { standard: 0.70, retail: 0.65, industrial: 0.65, office: 0.70, medical: 0.75, rural: 0.55, development: 0.65, vacant_land: 0.45, mixed_use: 0.65 },
+    lvr_inv: { standard: 0.65, retail: 0.60, industrial: 0.60, office: 0.65, medical: 0.70, rural: 0.50, development: 0.60, vacant_land: 0.40, mixed_use: 0.60 },
+    loan: { min: 250000, max: 30000000, max_term: 25, max_io: 5 },
+    purpose: { purchase: true, refinance: true, equity_release: true, development: true, working_capital: true },
+    entity: { individual: true, company: false, trust: false, unit_trust: false, smsf: false, partnership: true, note: "Company/trust shifted to Business Banking channel" },
+    servicing: { buffer: "3.00%", dscr_min: 1.15, rental_income: "80%", assessment_floor: "5.40%" },
+    special: { medico: false, rural: false, development: true, alt_doc: false, smsf: false },
+    docs: { full_doc: true, alt_doc: false, low_doc: false },
+    leasehold: { accepted: true, lvr_reduction: 0.10, min_remaining_lease: 25, note: "Westpac Group policy — 10% LVR haircut on leasehold" }
+  },
+  {
+    id: "stgeorge_comm", name: "St.George Bank", tier: "tier1", type: "major_bank",
+    completeness: "partial", source: "St.George Business Banking · Verified Apr 2026",
+    lvr: { standard: 0.70, retail: 0.65, industrial: 0.65, office: 0.70, medical: 0.75, rural: 0.55, development: 0.65, vacant_land: 0.45, mixed_use: 0.65 },
+    lvr_inv: { standard: 0.65, retail: 0.60, industrial: 0.60, office: 0.65, medical: 0.70, rural: 0.50, development: 0.60, vacant_land: 0.40, mixed_use: 0.60 },
+    loan: { min: 250000, max: 20000000, max_term: 25, max_io: 5 },
+    purpose: { purchase: true, refinance: true, equity_release: true, development: true, working_capital: false },
+    entity: { individual: true, company: true, trust: true, unit_trust: true, smsf: false, partnership: true, note: "Westpac Group" },
+    servicing: { buffer: "3.00%", dscr_min: 1.15, rental_income: "80%", assessment_floor: "5.40%" },
+    special: { medico: true, medico_note: "Industry specialist program", rural: false, development: true, alt_doc: true, smsf: false },
+    docs: { full_doc: true, alt_doc: true, low_doc: false },
+    leasehold: { accepted: true, lvr_reduction: 0.10, min_remaining_lease: 25, note: "Same as Westpac Group; 10% LVR reduction" }
+  },
+  {
+    id: "thinktank_comm", name: "Thinktank", tier: "tier2", type: "non_bank",
+    completeness: "full", source: "Thinktank Product Guide · Verified Apr 2026",
+    lvr: { standard: 0.75, retail: 0.70, industrial: 0.75, office: 0.75, medical: 0.75, rural: 0.65, development: null, vacant_land: 0.50, mixed_use: 0.70 },
+    lvr_inv: { standard: 0.70, retail: 0.65, industrial: 0.70, office: 0.70, medical: 0.70, rural: 0.60, development: null, vacant_land: 0.45, mixed_use: 0.65 },
+    loan: { min: 100000, max: 5000000, max_term: 30, max_io: 10 },
+    purpose: { purchase: true, refinance: true, equity_release: true, development: false, working_capital: false },
+    entity: { individual: true, company: true, trust: true, unit_trust: true, smsf: true, partnership: true, note: "SMSF specialist — up to 30yr terms" },
+    servicing: { buffer: "3.00%", dscr_min: 1.15, rental_income: "80%", assessment_floor: null },
+    special: { medico: false, rural: true, development: false, alt_doc: true, smsf: true },
+    docs: { full_doc: true, alt_doc: true, low_doc: true },
+    leasehold: { accepted: true, lvr_reduction: 0.05, min_remaining_lease: 20, note: "Flexible on leasehold — 5% LVR reduction; min 20yr remaining" }
+  },
+  {
+    id: "pepper_comm", name: "Pepper Money", tier: "tier2", type: "non_bank",
+    completeness: "full", source: "Pepper Commercial Product Guide · Verified Apr 2026",
+    lvr: { standard: 0.75, retail: 0.70, industrial: 0.70, office: 0.75, medical: 0.75, rural: 0.60, development: 0.65, vacant_land: 0.50, mixed_use: 0.70 },
+    lvr_inv: { standard: 0.70, retail: 0.65, industrial: 0.65, office: 0.70, medical: 0.70, rural: 0.55, development: 0.60, vacant_land: 0.45, mixed_use: 0.65 },
+    loan: { min: 100000, max: 5000000, max_term: 30, max_io: 5 },
+    purpose: { purchase: true, refinance: true, equity_release: true, development: true, working_capital: true },
+    entity: { individual: true, company: true, trust: true, unit_trust: true, smsf: false, partnership: true, note: "Flexible — accepts most entity types" },
+    servicing: { buffer: "3.00%", dscr_min: 1.15, rental_income: "80%", assessment_floor: null },
+    special: { medico: false, rural: true, development: true, alt_doc: true, smsf: false },
+    docs: { full_doc: true, alt_doc: true, low_doc: true },
+    leasehold: { accepted: true, lvr_reduction: 0.05, min_remaining_lease: 15, note: "Non-bank flexibility — 5% LVR reduction; min 15yr remaining" }
+  },
+  {
+    id: "liberty_comm", name: "Liberty Financial", tier: "tier2", type: "non_bank",
+    completeness: "full", source: "Liberty Commercial Solutions · Verified Apr 2026",
+    lvr: { standard: 0.80, retail: 0.70, industrial: 0.75, office: 0.80, medical: 0.80, rural: 0.65, development: 0.70, vacant_land: 0.50, mixed_use: 0.75 },
+    lvr_inv: { standard: 0.75, retail: 0.65, industrial: 0.70, office: 0.75, medical: 0.75, rural: 0.60, development: 0.65, vacant_land: 0.45, mixed_use: 0.70 },
+    loan: { min: 50000, max: 5000000, max_term: 30, max_io: 10 },
+    purpose: { purchase: true, refinance: true, equity_release: true, development: true, working_capital: true },
+    entity: { individual: true, company: true, trust: true, unit_trust: true, smsf: true, partnership: true, note: "Flexible for SMSF and qualified borrowers" },
+    servicing: { buffer: "3.00%", dscr_min: 1.15, rental_income: "80%", assessment_floor: null },
+    special: { medico: false, rural: true, development: true, alt_doc: true, smsf: true },
+    docs: { full_doc: true, alt_doc: true, low_doc: true },
+    leasehold: { accepted: true, lvr_reduction: 0.05, min_remaining_lease: 15, note: "Flexible — 5% reduction; min 15yr remaining lease" }
+  },
+  {
+    id: "latrobe_comm", name: "La Trobe Financial", tier: "tier2", type: "non_bank",
+    completeness: "full", source: "La Trobe Commercial Solutions · Verified Apr 2026",
+    lvr: { standard: 0.75, retail: 0.65, industrial: 0.70, office: 0.75, medical: 0.75, rural: 0.60, development: 0.65, vacant_land: 0.50, mixed_use: 0.70 },
+    lvr_inv: { standard: 0.70, retail: 0.60, industrial: 0.65, office: 0.70, medical: 0.70, rural: 0.55, development: 0.60, vacant_land: 0.45, mixed_use: 0.65 },
+    loan: { min: 100000, max: 10000000, max_term: 30, max_io: 10 },
+    purpose: { purchase: true, refinance: true, equity_release: true, development: true, working_capital: false },
+    entity: { individual: true, company: true, trust: true, unit_trust: true, smsf: true, partnership: true, note: "SMSF specialist — 15-30yr terms" },
+    servicing: { buffer: "3.00%", dscr_min: 1.15, rental_income: "80%", assessment_floor: null },
+    special: { medico: false, rural: true, development: true, alt_doc: true, smsf: true },
+    docs: { full_doc: true, alt_doc: true, low_doc: true },
+    leasehold: { accepted: true, lvr_reduction: 0.05, min_remaining_lease: 20, note: "Flexible — 5% reduction; min 20yr remaining" }
+  },
+  {
+    id: "bluestone_comm", name: "Bluestone Home Loans", tier: "tier2", type: "non_bank",
+    completeness: "partial", source: "Bluestone Commercial · Verified Apr 2026",
+    lvr: { standard: 0.75, retail: 0.65, industrial: 0.70, office: 0.75, medical: 0.75, rural: null, development: null, vacant_land: null, mixed_use: 0.70 },
+    lvr_inv: { standard: 0.70, retail: 0.60, industrial: 0.65, office: 0.70, medical: 0.70, rural: null, development: null, vacant_land: null, mixed_use: 0.65 },
+    loan: { min: 100000, max: 3000000, max_term: 30, max_io: 5 },
+    purpose: { purchase: true, refinance: true, equity_release: true, development: false, working_capital: false },
+    entity: { individual: true, company: true, trust: true, unit_trust: true, smsf: false, partnership: true, note: "Directors must guarantee" },
+    servicing: { buffer: "3.00%", dscr_min: 1.20, rental_income: "80%", assessment_floor: null },
+    special: { medico: false, rural: false, development: false, alt_doc: true, smsf: false },
+    docs: { full_doc: true, alt_doc: true, low_doc: false },
+    leasehold: { accepted: false, note: "Bluestone does not accept leasehold commercial properties" }
+  },
+  {
+    id: "suncorp_comm", name: "Suncorp Bank", tier: "tier2", type: "non_major_bank",
+    completeness: "partial", source: "Suncorp Business · Verified Apr 2026",
+    lvr: { standard: 0.70, retail: 0.65, industrial: 0.65, office: 0.70, medical: 0.75, rural: 0.55, development: 0.60, vacant_land: 0.45, mixed_use: 0.65 },
+    lvr_inv: { standard: 0.65, retail: 0.60, industrial: 0.60, office: 0.65, medical: 0.70, rural: 0.50, development: 0.55, vacant_land: 0.40, mixed_use: 0.60 },
+    loan: { min: 250000, max: 10000000, max_term: 25, max_io: 5 },
+    purpose: { purchase: true, refinance: true, equity_release: true, development: true, working_capital: true },
+    entity: { individual: true, company: true, trust: true, unit_trust: true, smsf: false, partnership: true, note: "" },
+    servicing: { buffer: "3.00%", dscr_min: 1.20, rental_income: "80%", assessment_floor: "5.40%" },
+    special: { medico: true, medico_note: "Healthcare lender program", rural: true, development: true, alt_doc: false, smsf: false },
+    docs: { full_doc: true, alt_doc: false, low_doc: false },
+    leasehold: { accepted: true, lvr_reduction: 0.10, min_remaining_lease: 25, note: "10% LVR reduction; min 25yr remaining at maturity" }
+  }
+];
+
+let commResults = [...COMM_LENDERS];
+
+// ── COMMERCIAL FILTERS ────────────────────────────────────────────────────
+function setCommTier(el) {
+  document.querySelectorAll('#commTierPills .pill-option').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+function setCommOcc(el) {
+  document.querySelectorAll('#commOccupancy .pill-option').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function getCommFilters() {
+  const activeTier = document.querySelector('#commTierPills .pill-option.active');
+  const activeOcc = document.querySelector('#commOccupancy .pill-option.active');
+  return {
+    propertyType: document.getElementById('commPropertyType').value,
+    loanPurpose: document.getElementById('commLoanPurpose').value,
+    lvr: parseFloat(document.getElementById('commLvrInput').value) || null,
+    loanAmount: parseFloat(document.getElementById('commLoanAmount').value) || null,
+    entityType: document.getElementById('commEntityType').value,
+    tier: activeTier ? activeTier.dataset.tier : '',
+    occupancy: activeOcc ? activeOcc.dataset.occ : '',
+    altdoc: document.getElementById('chk-comm-altdoc').checked,
+    smsf: document.getElementById('chk-comm-smsf').checked,
+    medico: document.getElementById('chk-comm-medico').checked,
+    rural: document.getElementById('chk-comm-rural').checked,
+    dev: document.getElementById('chk-comm-dev').checked,
+    leasehold: document.getElementById('chk-comm-leasehold').checked,
+  };
+}
+
+function getCommLvr(lender, filters) {
+  const prop = filters.propertyType || 'standard';
+  const lvrSet = filters.occupancy === 'investment' ? lender.lvr_inv : lender.lvr;
+  let lvr = lvrSet[prop] || lvrSet.standard || null;
+  // Apply leasehold LVR reduction
+  if (lvr && filters.leasehold && lender.leasehold && lender.leasehold.accepted && lender.leasehold.lvr_reduction) {
+    lvr = lvr - lender.leasehold.lvr_reduction;
+  }
+  return lvr;
+}
+
+function runCommSearch() {
+  const f = getCommFilters();
+  let results = [...COMM_LENDERS];
+
+  // Tier
+  if (f.tier) {
+    if (f.tier === 'non_bank') results = results.filter(l => l.type === 'non_bank');
+    else results = results.filter(l => l.tier === f.tier);
+  }
+  // Entity
+  if (f.entityType) {
+    results = results.filter(l => l.entity[f.entityType] === true);
+  }
+  // Purpose
+  if (f.loanPurpose) {
+    results = results.filter(l => l.purpose[f.loanPurpose] === true);
+  }
+  // Loan amount
+  if (f.loanAmount) {
+    results = results.filter(l => {
+      if (f.loanAmount < l.loan.min) return false;
+      if (f.loanAmount > l.loan.max) return false;
+      return true;
+    });
+  }
+  // LVR
+  if (f.lvr) {
+    results = results.filter(l => {
+      const maxLvr = getCommLvr(l, f);
+      return maxLvr !== null && maxLvr * 100 >= f.lvr;
+    });
+  }
+  // Special toggles
+  if (f.altdoc) results = results.filter(l => l.docs.alt_doc);
+  if (f.smsf) results = results.filter(l => l.special.smsf);
+  if (f.medico) results = results.filter(l => l.special.medico);
+  if (f.rural) results = results.filter(l => l.special.rural);
+  if (f.dev) results = results.filter(l => l.special.development);
+  // Leasehold
+  if (f.leasehold) {
+    results = results.filter(l => l.leasehold && l.leasehold.accepted === true);
+  }
+
+  // Sort by LVR
+  if (f.lvr || f.propertyType) {
+    results.sort((a, b) => {
+      const aL = getCommLvr(a, f) || 0;
+      const bL = getCommLvr(b, f) || 0;
+      return bL - aL;
+    });
+  }
+
+  // Update scenario bar
+  updateCommScenarioBar(f);
+  renderComm(results);
+}
+
+function updateCommScenarioBar(f) {
+  const bar = document.getElementById('scenarioBar');
+  const tags = [];
+  if (f.propertyType) {
+    const labels = {office:'Office',retail:'Retail',industrial:'Industrial',mixed_use:'Mixed Use',medical:'Medical',childcare:'Childcare',hotel:'Hotel',rural:'Rural',vacant_land:'Vacant Land',development:'Development'};
+    tags.push(labels[f.propertyType] || f.propertyType);
+  }
+  if (f.loanPurpose) {
+    const labels = {purchase:'Purchase',refinance:'Refinance',equity_release:'Equity Release',development:'Development',working_capital:'Working Capital'};
+    tags.push(labels[f.loanPurpose] || f.loanPurpose);
+  }
+  if (f.lvr) tags.push('LVR ' + f.lvr + '%');
+  if (f.loanAmount) tags.push('$' + (f.loanAmount/1000000).toFixed(1) + 'M');
+  if (f.entityType) tags.push(f.entityType.charAt(0).toUpperCase() + f.entityType.slice(1));
+  if (f.occupancy === 'owner_occ') tags.push('Owner Occupied');
+  if (f.occupancy === 'investment') tags.push('Investment');
+  if (f.altdoc) tags.push('Alt Doc');
+  if (f.smsf) tags.push('SMSF');
+  if (f.medico) tags.push('Medical');
+  if (f.rural) tags.push('Rural');
+  if (f.dev) tags.push('Development');
+  if (f.leasehold) tags.push('Leasehold');
+  if (tags.length) {
+    bar.classList.remove('hidden');
+    bar.innerHTML = '<span style="color:var(--muted);font-size:12px;">Scenario:</span> ' + tags.map(t => '<span class="tag">'+t+'</span>').join('');
+  } else bar.classList.add('hidden');
+}
+
+// ── COMMERCIAL RENDER ───────────────────────────────────────────────────────
+function renderComm(results) {
+  commResults = results;
+  const grid = document.getElementById('commLenderGrid');
+  document.getElementById('resultsCount').textContent = results.length + ' lender' + (results.length !== 1 ? 's' : '');
+  document.getElementById('tabCommCount').textContent = COMM_LENDERS.length;
+
+  if (results.length === 0) {
+    const f = getCommFilters();
+    let suggestion = '';
+    if (f.smsf) {
+      suggestion = '<div class="empty-suggestion"><strong>💡 Tip:</strong> SMSF commercial lending is a specialist area. Consider <span class="green">Thinktank</span>, <span class="green">La Trobe Financial</span>, or <span class="green">Liberty Financial</span> — they offer SMSF terms up to 30 years.</div>';
+    } else if (f.rural) {
+      suggestion = '<div class="empty-suggestion"><strong>💡 Tip:</strong> Rural commercial property is restrictive. <span class="green">NAB</span> and <span class="green">Thinktank</span> have the strongest rural programs. <span class="green">La Trobe</span> and <span class="green">Pepper Money</span> also accept rural security.</div>';
+    } else {
+      suggestion = '<div class="empty-suggestion"><strong>💡 Tip:</strong> Try relaxing some filters. Non-bank lenders like <span class="green">Thinktank</span>, <span class="green">Pepper Money</span>, and <span class="green">Liberty</span> offer more flexibility on commercial deals. <a href="https://oneyco.com.au" target="_blank" style="color:var(--green);">Contact Oney & Co</a> for specialist advice.</div>';
+    }
+    grid.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><h3>No lenders match this scenario</h3><p>Your current filter combination returned zero results.</p>' + suggestion + '</div>';
+    return;
+  }
+
+  grid.innerHTML = results.map(l => renderCommTile(l)).join('');
+}
+
+function renderCommTile(l) {
+  const f = getCommFilters();
+  const maxLvr = getCommLvr(l, f);
+  const lvrStr = maxLvr ? (maxLvr * 100).toFixed(0) + '%' : '—';
+
+  const pills = [];
+  if (l.special.medico) pills.push('Medical');
+  if (l.special.smsf) pills.push('SMSF');
+  if (l.special.rural) pills.push('Rural');
+  if (l.special.development) pills.push('Dev Finance');
+  if (l.docs.alt_doc) pills.push('Alt Doc');
+  if (l.docs.low_doc) pills.push('Low Doc');
+  const visiblePills = pills.slice(0, 2);
+  const extraCount = pills.length - 2;
+
+  const tierClass = l.type === 'non_bank' ? 'nonbank' : l.tier;
+  const tierLabel = l.tier === 'tier1' ? 'Major' : l.type === 'non_bank' ? 'Non-Bank' : 'Non-Major';
+
+  return `
+  <div class="lender-tile ${l.completeness === 'partial' ? 'partial' : ''}" id="comm-tile-${l.id}" onclick="openCommDetail('${l.id}')">
+    <div class="tile-logo">${getLenderLogo(l.id.replace('_comm',''), l.name)}</div>
+    <div class="tile-name">${l.name}</div>
+    <span class="tile-tier ${tierClass}">${tierLabel}</span>
+    <div class="tile-lvr">${lvrStr}</div>
+    ${visiblePills.length ? '<div class="tile-pills">' + visiblePills.map(p => '<span class="mini-pill">'+p+'</span>').join('') + (extraCount > 0 ? '<span class="tile-pill-count">+'+extraCount+'</span>' : '') + '</div>' : ''}
+  </div>`;
+}
+
+let commOpenPanelId = null;
+
+function openCommDetail(id) {
+  const grid = document.getElementById('commLenderGrid');
+  const existing = document.getElementById('commDetailPanel');
+  const prevTile = document.querySelector('#commLenderGrid .lender-tile.active');
+  if (prevTile) prevTile.classList.remove('active');
+  if (existing) {
+    const wasId = existing.dataset.lenderId;
+    existing.remove();
+    if (wasId === id) { commOpenPanelId = null; return; }
+  }
+
+  const l = commResults.find(x => x.id === id);
+  if (!l) return;
+  commOpenPanelId = id;
+
+  const tile = document.getElementById('comm-tile-' + id);
+  if (tile) tile.classList.add('active');
+
+  const f = getCommFilters();
+  const pills = [];
+  if (l.special.medico) pills.push('Medical');
+  if (l.special.smsf) pills.push('SMSF');
+  if (l.special.rural) pills.push('Rural');
+  if (l.special.development) pills.push('Dev Finance');
+  if (l.docs.alt_doc) pills.push('Alt Doc');
+  if (l.docs.low_doc) pills.push('Low Doc');
+
+  const tierClass = l.type === 'non_bank' ? 'nonbank' : l.tier;
+  const tierLabel = l.tier === 'tier1' ? 'Major' : l.type === 'non_bank' ? 'Non-Bank' : 'Non-Major';
+  const lvrTypes = ['standard','retail','industrial','office','medical','mixed_use','rural','development','vacant_land'];
+  const lvrLabels = {standard:'Standard',retail:'Retail',industrial:'Industrial',office:'Office',medical:'Medical',mixed_use:'Mixed Use',rural:'Rural',development:'Development',vacant_land:'Vacant Land'};
+
+  const panelHTML = `
+  <div class="detail-panel open" id="commDetailPanel" data-lender-id="${l.id}">
+    <button class="detail-panel-close" onclick="event.stopPropagation();closeCommDetail()">✕</button>
+    <div class="detail-panel-header">
+      ${getLenderLogo(l.id.replace('_comm',''), l.name)}
+      <div>
+        <div class="detail-panel-name">${l.name}</div>
+        <span class="meta-tag ${tierClass}" style="margin-top:4px;display:inline-block;">${tierLabel}</span>
+      </div>
+    </div>
+    ${pills.length ? '<div class="detail-pills">' + pills.map(p => '<span class="mini-pill">'+p+'</span>').join('') + '</div>' : ''}
+
+    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;margin-top:4px;">Max LVR by Property Type (OO / Inv)</div>
+    <div class="policy-grid" style="grid-template-columns:repeat(3,1fr);">
+      ${lvrTypes.map(t => {
+        const oo = l.lvr[t]; const inv = l.lvr_inv[t];
+        return '<div class="policy-cell"><div class="cell-label">' + lvrLabels[t] + '</div><div class="cell-value">' +
+          (oo ? '<span class="green">'+(oo*100).toFixed(0)+'%</span>' : '<span class="muted">—</span>') +
+          ' / ' + (inv ? (inv*100).toFixed(0)+'%' : '<span class="muted">—</span>') + '</div></div>';
+      }).join('')}
+    </div>
+
+    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px;">Loan & Servicing</div>
+    <div class="policy-grid">
+      <div class="policy-cell"><div class="cell-label">Min Loan</div><div class="cell-value green">$${(l.loan.min/1000).toFixed(0)}K</div></div>
+      <div class="policy-cell"><div class="cell-label">Max Loan</div><div class="cell-value green">$${l.loan.max >= 1000000 ? (l.loan.max/1000000).toFixed(0)+'M' : (l.loan.max/1000).toFixed(0)+'K'}</div></div>
+      <div class="policy-cell"><div class="cell-label">Max Term</div><div class="cell-value">${l.loan.max_term}yr</div></div>
+      <div class="policy-cell"><div class="cell-label">Max IO</div><div class="cell-value">${l.loan.max_io}yr</div></div>
+      <div class="policy-cell"><div class="cell-label">Buffer</div><div class="cell-value">${l.servicing.buffer}</div></div>
+      <div class="policy-cell"><div class="cell-label">Min DSCR</div><div class="cell-value green">${l.servicing.dscr_min}×</div></div>
+      <div class="policy-cell"><div class="cell-label">Floor Rate</div><div class="cell-value">${l.servicing.assessment_floor || '<span class="muted">—</span>'}</div></div>
+      <div class="policy-cell"><div class="cell-label">Rental Income</div><div class="cell-value">${l.servicing.rental_income}</div></div>
+    </div>
+
+    <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px;">Entity & Docs</div>
+    <div class="policy-grid">
+      <div class="policy-cell"><div class="cell-label">Company</div><div class="cell-value">${l.entity.company ? '<span class="green">Yes</span>' : '<span class="muted">No</span>'}</div></div>
+      <div class="policy-cell"><div class="cell-label">Trust</div><div class="cell-value">${l.entity.trust ? '<span class="green">Yes</span>' : '<span class="muted">No</span>'}</div></div>
+      <div class="policy-cell"><div class="cell-label">SMSF</div><div class="cell-value">${l.entity.smsf ? '<span class="green">Yes</span>' : '<span class="muted">No</span>'}</div></div>
+      <div class="policy-cell"><div class="cell-label">Alt Doc</div><div class="cell-value">${l.docs.alt_doc ? '<span class="green">Yes</span>' : 'No'}</div></div>
+      <div class="policy-cell"><div class="cell-label">Low Doc</div><div class="cell-value">${l.docs.low_doc ? '<span class="green">Yes</span>' : 'No'}</div></div>
+      <div class="policy-cell"><div class="cell-label">Full Doc</div><div class="cell-value">${l.docs.full_doc ? '<span class="green">Yes</span>' : 'No'}</div></div>
+      <div class="policy-cell"><div class="cell-label">Leasehold</div><div class="cell-value">${l.leasehold && l.leasehold.accepted ? '<span class="green">Yes</span> (−'+Math.round(l.leasehold.lvr_reduction*100)+'% LVR, min '+l.leasehold.min_remaining_lease+'yr)' : '<span class="muted">No</span>'}</div></div>
+    </div>
+
+    ${l.entity.note ? '<div style="margin-top:10px;font-size:12px;color:var(--muted);"><em>⚠ '+l.entity.note+'</em></div>' : ''}
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
+      <div class="data-note" style="border:none;padding:0;margin:0;">
+        <span class="data-dot ${l.completeness}"></span>
+        ${l.completeness === 'full' ? 'Full data' : 'Partial data'} · Updated Apr 2026
+      </div>
+    </div>
+  </div>`;
+
+  tile.insertAdjacentHTML('afterend', panelHTML);
+  setTimeout(() => {
+    const panel = document.getElementById('commDetailPanel');
+    if (panel) panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 50);
+}
+
+function closeCommDetail() {
+  const panel = document.getElementById('commDetailPanel');
+  const prevTile = document.querySelector('#commLenderGrid .lender-tile.active');
+  if (prevTile) prevTile.classList.remove('active');
+  if (panel) panel.remove();
+  commOpenPanelId = null;
+}
+
+function resetCommFilters() {
+  document.getElementById('commPropertyType').value = '';
+  document.getElementById('commLoanPurpose').value = '';
+  document.getElementById('commLvrInput').value = '';
+  document.getElementById('commLoanAmount').value = '';
+  document.getElementById('commEntityType').value = '';
+  document.querySelectorAll('#commTierPills .pill-option').forEach(p => p.classList.remove('active'));
+  document.querySelector('#commTierPills .pill-option[data-tier=""]').classList.add('active');
+  document.querySelectorAll('#commOccupancy .pill-option').forEach(p => p.classList.remove('active'));
+  document.querySelector('#commOccupancy .pill-option[data-occ=""]').classList.add('active');
+  ['chk-comm-altdoc','chk-comm-smsf','chk-comm-medico','chk-comm-rural','chk-comm-dev','chk-comm-leasehold'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.checked = false; const w = el.closest('.toggle-item'); if (w) w.classList.remove('active'); }
+  });
+  document.getElementById('scenarioBar').classList.add('hidden');
+  renderComm([...COMM_LENDERS]);
+}
+
+// Update tab counts on load
+document.getElementById('tabResiCount').textContent = LENDERS.length;
+document.getElementById('tabCommCount').textContent = COMM_LENDERS.length;
+</script>
+</body>
+</html>
