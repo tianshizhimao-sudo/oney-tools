@@ -3,382 +3,508 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#1A1A2E">
+  <meta name="theme-color" content="#0a0a0a">
   <title>Free Mortgage & Business Finance Calculators | Oney & Co Tools</title>
   <meta name="description" content="Free Australian mortgage and business finance calculators. LMI calculator, equipment finance, RBA rate tracker, borrowing power estimator and more. Built by an experienced banker.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='fg' x1='0%25' y1='100%25' x2='0%25' y2='0%25'><stop offset='0%25' stop-color='%231FAD73'/><stop offset='60%25' stop-color='%232ECC85'/><stop offset='60%25' stop-color='transparent'/><stop offset='100%25' stop-color='transparent'/></linearGradient><linearGradient id='sg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><circle r='38' fill='none' stroke='url(%23sg)' stroke-width='10' stroke-linecap='round'/><circle r='28' fill='url(%23fg)'/></g></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #1A1A2E;
-      --bg-secondary: #16162A;
-      --card: #252540;
-      --border: #3D3D5C;
+      --bg: #0a0a0a;
+      --bg-secondary: #0f0f1a;
+      --card: rgba(37,37,64,0.92);
+      --card-solid: #252540;
+      --border: rgba(255,255,255,0.10);
+      --border-solid: #3D3D5C;
       --accent: #1FAD73;
       --accent-light: #2ECC85;
       --accent-lighter: #4ADE94;
-      --accent-glow: rgba(31, 173, 115, 0.15);
+      --accent-glow: rgba(46,204,133,0.15);
+      --purple: #6B4C9A;
+      --purple-light: #9B59B6;
+      --purple-glow: rgba(107,76,154,0.18);
       --text: #ffffff;
-      --text-muted: #a3a3b8;
+      --text-muted: rgba(255,255,255,0.55);
+      --text-secondary: rgba(255,255,255,0.70);
+      --text-faint: rgba(255,255,255,0.40);
+      --max-w: 1280px;
     }
-    
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    
+    html { scroll-behavior: smooth; }
+
     body {
-      font-family: 'Inter', -apple-system, sans-serif;
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
       background: var(--bg);
       color: var(--text);
       line-height: 1.6;
-    }
-    
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 32px; }
-    
-    nav {
-      padding: 20px 0;
-      border-bottom: 1px solid var(--border);
-      background: rgba(26, 26, 46, 0.95);
-      backdrop-filter: blur(20px);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-    
-    .nav-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 32px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    
-    .nav-logo svg { height: 48px; }
-    
-    .nav-links { display: flex; gap: 8px; align-items: center; }
-    
-    .nav-link {
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-      padding: 8px 16px;
-      border-radius: 100px;
-      transition: all 0.2s;
-    }
-    .nav-link:hover { color: var(--text); background: var(--card); }
-    .nav-link.active { color: var(--accent-light); }
-    
-    .hero {
-      padding: 100px 32px 60px;
-      text-align: center;
-    }
-    
-    .hero h1 {
-      font-size: 48px;
-      font-weight: 800;
-      margin-bottom: 16px;
-    }
-    
-    .hero p {
-      font-size: 18px;
-      color: var(--text-muted);
-      max-width: 600px;
-      margin: 0 auto;
-    }
-    
-    .tools-section {
-      padding: 40px 32px 100px;
-    }
-    
-    .section-title {
-      font-size: 13px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--accent-light);
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid var(--border);
-    }
-    
-    .tools-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: 20px;
-      margin-bottom: 64px;
-    }
-    
-    .tool-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 24px;
-      transition: all 0.2s;
-      text-decoration: none;
-      color: var(--text);
-      display: block;
-    }
-    
-    .tool-card:hover {
-      border-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-    
-    .tool-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 16px;
-    }
-    
-    .tool-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-light));
-    }
-    
-    .tool-badge {
-      font-size: 11px;
-      font-weight: 600;
-      padding: 4px 12px;
-      border-radius: 100px;
-      text-transform: uppercase;
-      background: var(--accent-glow);
-      color: var(--accent-light);
-    }
-    
-    .tool-badge.pro {
-      background: rgba(139, 92, 246, 0.15);
-      color: #a78bfa;
-    }
-    
-    .featured-card {
-      border-color: rgba(46, 204, 133, 0.4);
-      background: linear-gradient(135deg, rgba(46, 204, 133, 0.08), rgba(31, 173, 115, 0.04));
-    }
-    .featured-card:hover {
-      border-color: var(--accent-light);
-      box-shadow: 0 10px 40px rgba(46, 204, 133, 0.2);
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+      position: relative;
     }
 
-    .pro-card {
-      border-color: rgba(107, 76, 154, 0.3);
+    /* Ambient bg */
+    .ambient-bg {
+      position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background:
+        radial-gradient(circle at top right, var(--purple-glow), transparent 28%),
+        radial-gradient(circle at top left, rgba(46,204,133,0.12), transparent 24%);
     }
-    .pro-card:hover {
-      border-color: var(--purple, #6B4C9A);
-      box-shadow: 0 10px 30px rgba(107, 76, 154, 0.2);
+
+    /* Nav */
+    .oney-nav {
+      position: sticky; top: 0; z-index: 1000;
+      background: rgba(10,10,10,0.80);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
     }
-    .pro-icon {
-      background: linear-gradient(135deg, #6B4C9A, #9B59B6) !important;
+    .nav-inner {
+      max-width: var(--max-w); margin: 0 auto; padding: 0 24px;
+      height: 64px; display: flex; align-items: center; justify-content: space-between;
     }
-    
-    .tool-title {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 8px;
+    .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+    .nav-logo-icon {
+      width: 32px; height: 32px; border-radius: 50%; padding: 3px;
+      background: conic-gradient(from 180deg at 50% 50%, #2ECC85 0deg, #6B4C9A 220deg, #2ECC85 360deg);
     }
-    
-    .tool-desc {
-      font-size: 14px;
-      color: var(--text-muted);
-      line-height: 1.6;
+    .nav-logo-icon-inner { width: 100%; height: 100%; border-radius: 50%; background: var(--bg); }
+    .nav-logo-text { font-size: 20px; font-weight: 600; color: #fff; letter-spacing: -0.5px; }
+    .nav-logo-text .amp {
+      background: linear-gradient(135deg, #2ECC85, #6B4C9A);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-    
-    footer {
-      padding: 40px 32px;
-      border-top: 1px solid var(--border);
-      text-align: center;
-      font-size: 14px;
-      color: var(--text-muted);
+    .nav-links { display: flex; gap: 8px; align-items: center; list-style: none; }
+    .nav-link {
+      color: var(--text-secondary); text-decoration: none; font-size: 14px; font-weight: 500;
+      padding: 8px 14px; border-radius: 8px; transition: color 0.2s;
     }
-  
-    /* === 3-Theme Switcher === */
-    .theme-switcher { display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:100px;padding:4px 6px;margin-left:8px; }
-    .theme-dot { width:18px;height:18px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all 0.2s ease;position:relative; }
-    .theme-dot:hover { transform:scale(1.15); }
-    .theme-dot[data-theme="dark"] { background:#1A1A2E;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.2); }
-    .theme-dot[data-theme="purple"] { background:#9B59B6; }
-    .theme-dot[data-theme="light"] { background:#F8F9FC;box-shadow:inset 0 0 0 1px rgba(0,0,0,0.1); }
-    .theme-dot.active { border-color:var(--accent, #2ECC85);transform:scale(1.15); }
-    .theme-dot::after { content:attr(data-tooltip);position:absolute;bottom:-28px;left:50%;transform:translateX(-50%);font-size:11px;color:var(--text-muted, #a3a3b8);background:var(--card, #252540);border:1px solid var(--border, #3D3D5C);padding:2px 8px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity 0.2s; }
-    .theme-dot:hover::after { opacity:1; }
-    html, html * { transition:background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; }
-    html.no-transition, html.no-transition * { transition:none !important; }
-    .theme-float { position:fixed;top:12px;right:12px;z-index:9999; }
+    .nav-link:hover { color: #fff; }
+    .nav-link.active { color: #fff; }
+
+    .nav-hamburger {
+      display: none; background: none; border: none; cursor: pointer;
+      flex-direction: column; gap: 5px; padding: 8px;
+    }
+    .nav-hamburger span { display: block; width: 22px; height: 2px; background: #fff; transition: all 0.3s; border-radius: 2px; }
+
+    /* Container */
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+    @media (min-width: 1024px) { .container { padding: 0 32px; } }
+
+    /* Hero */
+    .hero {
+      position: relative; overflow: hidden;
+      padding: 80px 24px 48px; text-align: center;
+    }
+    .hero-glow-1 {
+      position: absolute; left: -80px; top: -100px;
+      width: 380px; height: 380px; border-radius: 50%;
+      background: rgba(46,204,133,0.10); filter: blur(120px); pointer-events: none;
+    }
+    .hero-glow-2 {
+      position: absolute; right: -60px; top: 0;
+      width: 440px; height: 440px; border-radius: 50%;
+      background: rgba(107,76,154,0.14); filter: blur(140px); pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 1; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 100px;
+      border: 1px solid var(--border); background: rgba(255,255,255,0.05);
+      backdrop-filter: blur(12px); font-size: 12px; color: var(--text-secondary);
+      margin-bottom: 20px;
+    }
+    .hero-badge-dot { width: 8px; height: 8px; border-radius: 50%; background: #2ECC85; }
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 52px); font-weight: 700;
+      letter-spacing: -0.04em; line-height: 1.05; margin-bottom: 16px;
+    }
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, #2ECC85, #6B4C9A);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero p {
+      font-size: 18px; color: var(--text-secondary); max-width: 560px;
+      margin: 0 auto; line-height: 1.7;
+    }
+
+    /* Tool sections */
+    .tools-section {
+      position: relative; z-index: 1;
+      padding: 24px 0 80px;
+    }
+
+    .section-label {
+      font-size: 12px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.15em; margin-bottom: 20px; padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-label.green { color: #2ECC85; }
+    .section-label.purple { color: #B59BD6; }
+    .section-label.neutral { color: var(--text-faint); }
+
+    .tools-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px; margin-bottom: 56px;
+    }
+
+    /* Tool cards */
+    .tool-card {
+      position: relative; overflow: hidden;
+      background: linear-gradient(180deg, rgba(37,37,64,0.92), rgba(18,18,30,0.94));
+      border: 1px solid var(--border); border-radius: 20px;
+      padding: 24px; text-decoration: none; color: var(--text); display: block;
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .tool-card::before {
+      content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: 20px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.04), transparent 40%);
+    }
+    .tool-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .tool-card.featured {
+      border-color: rgba(46,204,133,0.30);
+      background: linear-gradient(180deg, rgba(37,37,64,0.92), rgba(18,30,24,0.94));
+    }
+    .tool-card.featured:hover {
+      border-color: rgba(46,204,133,0.50);
+      box-shadow: 0 20px 60px rgba(46,204,133,0.12);
+    }
+    .tool-card.pro { border-color: rgba(107,76,154,0.25); }
+    .tool-card.pro:hover {
+      border-color: rgba(155,89,182,0.50);
+      box-shadow: 0 20px 60px rgba(107,76,154,0.15);
+    }
+
+    .tool-header {
+      display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;
+    }
+    .tool-icon {
+      width: 48px; height: 48px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center; font-size: 24px;
+      background: linear-gradient(135deg, #2ECC85, #1FAD73);
+      box-shadow: 0 4px 16px rgba(46,204,133,0.2);
+    }
+    .tool-icon.pro-icon {
+      background: linear-gradient(135deg, #6B4C9A, #9B59B6);
+      box-shadow: 0 4px 16px rgba(107,76,154,0.2);
+    }
+
+    .tool-badge {
+      font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 100px; text-transform: uppercase;
+    }
+    .tool-badge.green { background: rgba(46,204,133,0.12); color: #9be7c1; }
+    .tool-badge.new {
+      background: linear-gradient(135deg, #2ECC85, #1FAD73); color: #fff;
+      box-shadow: 0 2px 8px rgba(46,204,133,0.3);
+    }
+    .tool-badge.count { background: rgba(255,255,255,0.08); color: var(--text-secondary); }
+    .tool-badge.pro-badge { background: rgba(107,76,154,0.15); color: #d0c2ea; }
+    .tool-badge.suite { background: rgba(107,76,154,0.15); color: #d0c2ea; }
+
+    .tool-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.3px; }
+    .tool-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.6; }
+
+    /* Footer */
+    .oney-footer {
+      border-top: 1px solid var(--border-solid); padding: 40px 24px; text-align: center;
+      position: relative; z-index: 1;
+    }
+    .oney-footer p { color: var(--text-muted); font-size: 13px; margin: 4px 0; }
+    .oney-footer a { color: #2ECC85; text-decoration: none; }
+    .oney-footer a:hover { text-decoration: underline; }
+
+    /* Fade-in */
+    .fade-up {
+      opacity: 0; transform: translateY(24px);
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+    .fade-up-d1 { transition-delay: 0.08s; }
+    .fade-up-d2 { transition-delay: 0.16s; }
+    .fade-up-d3 { transition-delay: 0.24s; }
+
+    /* Theme switcher */
+    .theme-switcher {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 100px; padding: 4px 6px; margin-left: 8px;
+    }
+    .theme-dot {
+      width: 18px; height: 18px; border-radius: 50%; border: 2px solid transparent;
+      cursor: pointer; transition: all 0.2s ease; position: relative;
+    }
+    .theme-dot:hover { transform: scale(1.15); }
+    .theme-dot[data-theme="dark"] { background: #0a0a0a; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.2); }
+    .theme-dot[data-theme="purple"] { background: #9B59B6; }
+    .theme-dot[data-theme="light"] { background: #F8F9FC; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.1); }
+    .theme-dot.active { border-color: var(--accent, #2ECC85); transform: scale(1.15); }
+    .theme-dot::after {
+      content: attr(data-tooltip); position: absolute; bottom: -28px; left: 50%; transform: translateX(-50%);
+      font-size: 11px; color: var(--text-muted); background: var(--card-solid);
+      border: 1px solid var(--border-solid); padding: 2px 8px; border-radius: 6px;
+      white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .theme-dot:hover::after { opacity: 1; }
+
+    html, html * { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; }
+    html.no-transition, html.no-transition * { transition: none !important; }
+
     /* Purple theme */
-    html[data-theme="purple"] { --bg:#0D0D1A;--bg-secondary:#0A0A15;--card:#1A1228;--border:#3D2D5C;--accent:#9B59B6;--accent-light:#9B59B6;--accent-glow:rgba(155,89,182,0.1);--green:#9B59B6;--green-dark:#6B4C9A;--text:#ffffff;--text-muted:#b8a9c9;--accent-lighter:#C4A3F0;--green-gradient:linear-gradient(135deg,#9B59B6,#6B4C9A);--purple-gradient:linear-gradient(135deg,#9B59B6,#6B4C9A);--purple:#9B59B6;--purple-light:#B08AE0;--purple-glow:rgba(155,89,182,0.15);--primary:#9B59B6;--primary-light:#B08AE0;--primary-glow:rgba(155,89,182,0.15);--success:#22c55e;--warning:#f59e0b;--danger:#ef4444;--info:#8b5cf6; }
-    html[data-theme="purple"] nav, html[data-theme="purple"] .top-bar, html[data-theme="purple"] .header, html[data-theme="purple"] header { background:rgba(13,13,26,0.95)!important; }
-    html[data-theme="purple"] .theme-switcher { background:rgba(155,89,182,0.08);border-color:rgba(155,89,182,0.15); }
+    html[data-theme="purple"] {
+      --bg: #0D0D1A; --bg-secondary: #0A0A15; --card: rgba(26,18,40,0.92); --card-solid: #1A1228;
+      --border: rgba(61,45,92,0.5); --border-solid: #3D2D5C;
+      --accent: #9B59B6; --accent-light: #9B59B6; --accent-glow: rgba(155,89,182,0.1);
+      --purple: #9B59B6; --purple-light: #B08AE0; --purple-glow: rgba(155,89,182,0.15);
+      --text: #ffffff; --text-muted: rgba(184,169,201,0.7); --text-secondary: rgba(184,169,201,0.85);
+    }
+    html[data-theme="purple"] .oney-nav { background: rgba(13,13,26,0.85) !important; }
+    html[data-theme="purple"] .ambient-bg {
+      background: radial-gradient(circle at top right, rgba(155,89,182,0.18), transparent 28%),
+                  radial-gradient(circle at top left, rgba(155,89,182,0.10), transparent 24%);
+    }
+    html[data-theme="purple"] .theme-switcher { background: rgba(155,89,182,0.08); border-color: rgba(155,89,182,0.15); }
+    html[data-theme="purple"] .tool-icon { background: linear-gradient(135deg, #9B59B6, #6B4C9A); }
+    html[data-theme="purple"] .nav-logo-icon-inner { background: var(--bg); }
+
     /* Light theme */
-    html[data-theme="light"] { --bg:#F8F9FC;--bg-secondary:#EFF1F5;--card:#FFFFFF;--border:#E2E8F0;--accent:#1FAD73;--accent-light:#1FAD73;--accent-glow:rgba(31,173,115,0.1);--green:#1FAD73;--green-dark:#178A5C;--text:#1A1A2E;--text-muted:#6B7280;--accent-lighter:#4ADE94;--green-gradient:linear-gradient(135deg,#1FAD73,#178A5C);--purple-gradient:linear-gradient(135deg,#6B4C9A,#9B59B6);--purple:#6B4C9A;--purple-light:#9B59B6;--purple-glow:rgba(107,76,154,0.1);--primary:#1FAD73;--primary-light:#2ECC85;--primary-glow:rgba(31,173,115,0.1);--success:#22c55e;--warning:#f59e0b;--danger:#ef4444;--info:#3b82f6; }
-    html[data-theme="light"] nav, html[data-theme="light"] .top-bar, html[data-theme="light"] .header, html[data-theme="light"] header { background:rgba(255,255,255,0.95)!important;box-shadow:0 1px 8px rgba(0,0,0,0.06); }
-    html[data-theme="light"] .theme-switcher { background:rgba(0,0,0,0.04);border-color:rgba(0,0,0,0.08); }
-    html[data-theme="light"] .nav-logo text[fill="#ffffff"], html[data-theme="light"] .top-bar-logo text[fill="#ffffff"], html[data-theme="light"] .logo text[fill="#f0f0f5"], html[data-theme="light"] .logo text[fill="#ffffff"] { fill:#1A1A2E; }
+    html[data-theme="light"] {
+      --bg: #F8F9FC; --bg-secondary: #EFF1F5; --card: rgba(255,255,255,0.95); --card-solid: #FFFFFF;
+      --border: rgba(0,0,0,0.08); --border-solid: #E2E8F0;
+      --accent: #1FAD73; --accent-light: #1FAD73; --accent-glow: rgba(31,173,115,0.1);
+      --purple: #6B4C9A; --purple-light: #9B59B6; --purple-glow: rgba(107,76,154,0.1);
+      --text: #1A1A2E; --text-muted: rgba(107,114,128,0.8); --text-secondary: rgba(75,85,99,0.9);
+      --text-faint: rgba(107,114,128,0.5);
+    }
+    html[data-theme="light"] .oney-nav { background: rgba(255,255,255,0.90) !important; box-shadow: 0 1px 8px rgba(0,0,0,0.06); }
+    html[data-theme="light"] .ambient-bg {
+      background: radial-gradient(circle at top right, rgba(107,76,154,0.06), transparent 28%),
+                  radial-gradient(circle at top left, rgba(46,204,133,0.05), transparent 24%);
+    }
+    html[data-theme="light"] .theme-switcher { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.08); }
+    html[data-theme="light"] .nav-logo-text { color: #1A1A2E; }
+    html[data-theme="light"] .nav-logo-icon-inner { background: var(--bg); }
+    html[data-theme="light"] .tool-card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(245,246,250,0.98));
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    }
+    html[data-theme="light"] .oney-footer { border-color: #E2E8F0; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .nav-hamburger { display: flex; }
+      .nav-links {
+        display: none; position: absolute; top: 64px; left: 0; right: 0;
+        background: var(--bg); flex-direction: column; padding: 16px 24px;
+        border-bottom: 1px solid var(--border-solid); gap: 4px;
+      }
+      .oney-nav.nav-open .nav-links { display: flex; }
+      .oney-nav.nav-open .nav-hamburger span:nth-child(1) { transform: rotate(45deg) translate(5px,5px); }
+      .oney-nav.nav-open .nav-hamburger span:nth-child(2) { opacity: 0; }
+      .oney-nav.nav-open .nav-hamburger span:nth-child(3) { transform: rotate(-45deg) translate(5px,-5px); }
+      .hero { padding: 48px 20px 32px; }
+      .hero h1 { font-size: 28px; }
+      .hero p { font-size: 16px; }
+      .tools-grid { grid-template-columns: 1fr; }
+      .theme-switcher { margin-left: 0; margin-top: 8px; align-self: flex-start; }
+      .hero-glow-1, .hero-glow-2 { display: none; }
+    }
   </style>
-  <meta property="og:title" content="Pro Tools — Oney & Co Tools">
-  <meta property="og:description" content="Free Pro Tools for Australian mortgage brokers — by Oney & Co">
+  <meta property="og:title" content="Free Mortgage & Business Finance Tools | Oney & Co">
+  <meta property="og:description" content="Free Australian mortgage and business finance calculators — by Oney & Co">
   <meta property="og:image" content="https://tools.oneyco.com.au/assets/og-image.png">
-  <meta property="og:url" content="https://tools.oneyco.com.au/tools.html">
+  <meta property="og:url" content="https://tools.oneyco.com.au/">
   <meta property="og:type" content="website">
   <link rel="canonical" href="https://tools.oneyco.com.au/">
 </head>
 <body>
-  <nav>
+  <div class="ambient-bg"></div>
+
+  <nav class="oney-nav">
     <div class="nav-inner">
-      <a href="index.html" class="nav-logo">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 190 90">
-          <defs>
-            <linearGradient id="fillGradL1" x1="0%" y1="100%" x2="0%" y2="0%">
-              <stop offset="0%" style="stop-color:#1FAD73"/>
-              <stop offset="55%" style="stop-color:#2ECC85"/>
-              <stop offset="55%" style="stop-color:transparent"/>
-              <stop offset="100%" style="stop-color:transparent"/>
-            </linearGradient>
-            <linearGradient id="strokeGradL1" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:#2ECC85"/>
-              <stop offset="100%" style="stop-color:#1FAD73"/>
-            </linearGradient>
-          </defs>
-          <g transform="translate(40, 45)">
-            <circle cx="0" cy="0" r="32" fill="none" stroke="url(#strokeGradL1)" stroke-width="7"/>
-            <circle cx="0" cy="0" r="24" fill="url(#fillGradL1)"/>
-          </g>
-          <text x="82" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">ney</text>
-          <text x="129" y="52" font-family="Inter, system-ui, sans-serif" font-size="21" font-weight="500" fill="url(#strokeGradL1)">&amp;</text>
-          <text x="148" y="52" font-family="Inter, system-ui, sans-serif" font-size="28" font-weight="600" fill="#ffffff" letter-spacing="-0.5">co</text>
-          <circle cx="182" cy="48" r="4" fill="#6B4C9A"/>
-        </svg>
+      <a href="https://oneyco.com.au" class="nav-logo">
+        <div class="nav-logo-icon"><div class="nav-logo-icon-inner"></div></div>
+        <span class="nav-logo-text">Oney <span class="amp">&amp;</span> Co</span>
       </a>
+      <button class="nav-hamburger" aria-label="Menu" onclick="document.querySelector('.oney-nav').classList.toggle('nav-open')">
+        <span></span><span></span><span></span>
+      </button>
       <div class="nav-links">
-        <a href="index.html" class="nav-link">Home</a>
-        <a href="tools.html" class="nav-link active">Pro Tools</a>
-        <a href="about.html" class="nav-link">About</a>
+        <a href="https://oneyco.com.au" class="nav-link">Home</a>
+        <a href="index.html" class="nav-link active">Tools</a>
+        <a href="https://oneyco.com.au/about.html" class="nav-link">About</a>
       </div>
-        <div class="theme-switcher" role="radiogroup" aria-label="Theme"><div class="theme-dot active" data-theme="dark" data-tooltip="Dark" role="radio" aria-checked="true" tabindex="0"></div><div class="theme-dot" data-theme="purple" data-tooltip="Purple" role="radio" aria-checked="false" tabindex="0"></div><div class="theme-dot" data-theme="light" data-tooltip="Light" role="radio" aria-checked="false" tabindex="0"></div></div>
+      <div class="theme-switcher" role="radiogroup" aria-label="Theme">
+        <div class="theme-dot active" data-theme="dark" data-tooltip="Dark" role="radio" aria-checked="true" tabindex="0"></div>
+        <div class="theme-dot" data-theme="purple" data-tooltip="Purple" role="radio" aria-checked="false" tabindex="0"></div>
+        <div class="theme-dot" data-theme="light" data-tooltip="Light" role="radio" aria-checked="false" tabindex="0"></div>
+      </div>
     </div>
   </nav>
 
   <section class="hero">
-    <h1>⚙️ Pro Tools</h1>
-    <p>Professional-grade calculators and templates for mortgage brokers and commercial lending specialists.</p>
+    <div class="hero-glow-1"></div>
+    <div class="hero-glow-2"></div>
+    <div class="hero-content fade-up">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        Built by a banker. Free to use.
+      </div>
+      <h1>Professional-grade <span class="gradient">finance tools</span></h1>
+      <p>Calculators, assessments, and specialist utilities for mortgage brokers and anyone navigating Australian lending.</p>
+    </div>
   </section>
 
   <section class="tools-section">
     <div class="container">
-      <h2 class="section-title">⚡ Featured — Free Tools</h2>
+
+      <div class="section-label green fade-up">Featured &mdash; Free Tools</div>
       <div class="tools-grid">
-        <a href="dti-router.html" class="tool-card featured-card">
+        <a href="dti-router.html" class="tool-card featured fade-up">
           <div class="tool-header">
             <div class="tool-icon">🏦</div>
-            <span class="tool-badge" style="background: linear-gradient(135deg, #2ECC85, #1FAD73); color: #fff;">New</span>
+            <span class="tool-badge new">New</span>
           </div>
           <h3 class="tool-title">DTI Router</h3>
           <p class="tool-desc">Check your Debt-to-Income ratio and find out if you should go bank or non-bank.</p>
         </a>
 
-        <a href="sme-score.html" class="tool-card featured-card">
+        <a href="sme-score.html" class="tool-card featured fade-up fade-up-d1">
           <div class="tool-header">
             <div class="tool-icon">📊</div>
-            <span class="tool-badge" style="background: linear-gradient(135deg, #2ECC85, #1FAD73); color: #fff;">New</span>
+            <span class="tool-badge new">New</span>
           </div>
           <h3 class="tool-title">SME Bank-Ready Score</h3>
           <p class="tool-desc">Self-assess your business loan readiness across 8 key dimensions banks actually care about.</p>
         </a>
       </div>
 
-      <h2 class="section-title">📦 Free Tool Suites</h2>
+      <div class="section-label neutral fade-up">Free Tool Suites</div>
       <div class="tools-grid">
-        <a href="calculators/" class="tool-card">
+        <a href="calculators/" class="tool-card fade-up">
           <div class="tool-header">
             <div class="tool-icon">🧮</div>
-            <span class="tool-badge">8 tools</span>
+            <span class="tool-badge count">8 tools</span>
           </div>
           <h3 class="tool-title">Loan Calculators</h3>
           <p class="tool-desc">Borrowing power, repayments, offset, LMI, stamp duty, refinance breakeven, and more.</p>
         </a>
 
-        <a href="investment/" class="tool-card">
+        <a href="investment/" class="tool-card fade-up fade-up-d1">
           <div class="tool-header">
             <div class="tool-icon">🏢</div>
-            <span class="tool-badge">8 tools</span>
+            <span class="tool-badge count">8 tools</span>
           </div>
           <h3 class="tool-title">Investment Toolkit</h3>
           <p class="tool-desc">Commercial investment analysis, yield calculators, servicing, and tenancy schedules.</p>
         </a>
 
-        <!-- Client Manager hidden from public — internal tool -->
-        <!-- <a href="clients/" class="tool-card">
-          <div class="tool-header">
-            <div class="tool-icon">👥</div>
-            <span class="tool-badge">8 tools</span>
-          </div>
-          <h3 class="tool-title">Client Manager</h3>
-          <p class="tool-desc">Pipeline, tracker, lead capture, follow-ups, birthdays, and referral sources.</p>
-        </a> -->
-
-        <a href="broker/" class="tool-card">
+        <a href="broker/" class="tool-card fade-up fade-up-d2">
           <div class="tool-header">
             <div class="tool-icon">📋</div>
-            <span class="tool-badge">8 tools</span>
+            <span class="tool-badge count">8 tools</span>
           </div>
           <h3 class="tool-title">Broker Toolkit</h3>
           <p class="tool-desc">Rate trackers, commissions, settlements, document checklists, credit sheets, and more.</p>
         </a>
 
-        <a href="comms/" class="tool-card">
+        <a href="comms/" class="tool-card fade-up fade-up-d3">
           <div class="tool-header">
             <div class="tool-icon">✏️</div>
-            <span class="tool-badge">7 tools</span>
+            <span class="tool-badge count">7 tools</span>
           </div>
-          <h3 class="tool-title">Content & Comms</h3>
+          <h3 class="tool-title">Content &amp; Comms</h3>
           <p class="tool-desc">Email templates, meeting notes, and task prioritizer.</p>
         </a>
       </div>
 
-      <h2 class="section-title">🔐 Pro Tools</h2>
+      <div class="section-label purple fade-up">Pro Tools</div>
       <div class="tools-grid">
-        <a href="oney-security/index.html" class="tool-card pro-card">
+        <a href="oney-security/index.html" class="tool-card pro fade-up">
           <div class="tool-header">
             <div class="tool-icon pro-icon">🔒</div>
-            <span class="tool-badge pro">Pro</span>
+            <span class="tool-badge pro-badge">Pro</span>
           </div>
           <h3 class="tool-title">Oney Security</h3>
-          <p class="tool-desc">Property security & collateral risk assessment. Zoning, LVR, environmental checks, lender matrix.</p>
+          <p class="tool-desc">Property security &amp; collateral risk assessment. Zoning, LVR, environmental checks, lender matrix.</p>
         </a>
 
-        <a href="credit-paper-pro.html" class="tool-card pro-card">
+        <a href="credit-paper-pro.html" class="tool-card pro fade-up fade-up-d1">
           <div class="tool-header">
             <div class="tool-icon pro-icon">📝</div>
-            <span class="tool-badge pro">Pro</span>
+            <span class="tool-badge pro-badge">Pro</span>
           </div>
           <h3 class="tool-title">Credit Paper Pro</h3>
           <p class="tool-desc">Professional credit memo builder with facility structuring, servicing analysis, and risk assessment.</p>
         </a>
 
-        <a href="suite/" class="tool-card pro-card">
+        <a href="suite/" class="tool-card pro fade-up fade-up-d2">
           <div class="tool-header">
             <div class="tool-icon pro-icon">⚡</div>
-            <span class="tool-badge pro">Suite</span>
+            <span class="tool-badge suite">Suite</span>
           </div>
           <h3 class="tool-title">Oney Pro</h3>
           <p class="tool-desc">Complete credit assessment platform — all tools unified in one workspace with shared data flow.</p>
         </a>
       </div>
+
     </div>
   </section>
 
-  <footer>
-    <p>Oney & Co — Clarity in every deal</p>
-    
+  <footer class="oney-footer">
+    <p>Oney &amp; Co — Clarity in every deal</p>
+    <p><a href="https://oneyco.com.au">oneyco.com.au</a></p>
   </footer>
-<script>
-(function(){var s=localStorage.getItem('oney-theme')||'dark';document.documentElement.classList.add('no-transition');document.documentElement.setAttribute('data-theme',s);requestAnimationFrame(function(){requestAnimationFrame(function(){document.documentElement.classList.remove('no-transition')})});document.querySelectorAll('.theme-dot').forEach(function(d){d.classList.toggle('active',d.dataset.theme===s);d.setAttribute('aria-checked',String(d.dataset.theme===s))});var sw=document.querySelector('.theme-switcher');if(sw){sw.addEventListener('click',function(e){var dot=e.target.closest('.theme-dot');if(!dot)return;var t=dot.dataset.theme;document.documentElement.setAttribute('data-theme',t);localStorage.setItem('oney-theme',t);document.querySelectorAll('.theme-dot').forEach(function(d){d.classList.toggle('active',d.dataset.theme===t);d.setAttribute('aria-checked',String(d.dataset.theme===t))})});sw.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();e.target.click()}})}})();
-</script>
+
+  <script>
+  // Theme switcher
+  (function(){
+    var s = localStorage.getItem('oney-theme') || 'dark';
+    document.documentElement.classList.add('no-transition');
+    document.documentElement.setAttribute('data-theme', s);
+    requestAnimationFrame(function(){ requestAnimationFrame(function(){
+      document.documentElement.classList.remove('no-transition');
+    })});
+    document.querySelectorAll('.theme-dot').forEach(function(d){
+      d.classList.toggle('active', d.dataset.theme === s);
+      d.setAttribute('aria-checked', String(d.dataset.theme === s));
+    });
+    var sw = document.querySelector('.theme-switcher');
+    if(sw){
+      sw.addEventListener('click', function(e){
+        var dot = e.target.closest('.theme-dot');
+        if(!dot) return;
+        var t = dot.dataset.theme;
+        document.documentElement.setAttribute('data-theme', t);
+        localStorage.setItem('oney-theme', t);
+        document.querySelectorAll('.theme-dot').forEach(function(d){
+          d.classList.toggle('active', d.dataset.theme === t);
+          d.setAttribute('aria-checked', String(d.dataset.theme === t));
+        });
+      });
+      sw.addEventListener('keydown', function(e){
+        if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); e.target.click(); }
+      });
+    }
+  })();
+
+  // Fade-in
+  (function(){
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -30px 0px' });
+    document.querySelectorAll('.fade-up').forEach(function(el){ observer.observe(el); });
+  })();
+  </script>
 </body>
 </html>
