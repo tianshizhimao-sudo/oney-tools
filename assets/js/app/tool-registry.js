@@ -97,7 +97,8 @@ export const TOOL_REGISTRY = [
     priority: 'core',
     icon: '⚡',
     slug: '/tools/repayments.html',
-    legacySlug: 'quick-quote-calculator.html',
+    legacySlug: '/quick-quote-calculator.html',
+    migrated: true,
     inputs: ['loanAmount', 'rate', 'term'],
     outputs: ['monthlyRepayment', 'interestTotal'],
   },
@@ -110,7 +111,8 @@ export const TOOL_REGISTRY = [
     priority: 'core',
     icon: '💪',
     slug: '/tools/borrowing-power.html',
-    legacySlug: 'borrowing-power-estimator.html',
+    legacySlug: '/borrowing-power-estimator.html',
+    migrated: true,
     inputs: ['income', 'expenses', 'debt', 'rate'],
     outputs: ['indicativeCapacity'],
   },
@@ -283,7 +285,21 @@ export function getToolById(id) {
 
 export function resolveToolHref(tool) {
   if (!tool) return '#';
-  // Phase 1: schema-driven `slug` pages don't exist yet.
-  // Use the legacy slug while migration is in progress.
+  // Migrated tools live at the new schema-driven slug.
+  // Unmigrated tools still link to their legacy file.
+  if (tool.migrated) return tool.slug;
   return tool.legacySlug || tool.slug || '#';
+}
+
+const NEXT_STEP_MAP = {
+  assess: 'calculate',
+  calculate: 'analyse',
+  analyse: 'pro',
+};
+
+export function getNextStepLink(tool) {
+  if (!tool) return null;
+  const nextId = NEXT_STEP_MAP[tool.group];
+  if (!nextId) return null;
+  return GROUPS[nextId];
 }
