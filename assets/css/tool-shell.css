@@ -1,0 +1,165 @@
+/* =========================================================
+   Oney & Co — Tool shell (Phase 1 scaffolding)
+   For schema-driven tool pages built on form-engine + result-engine.
+   Pairs with brand.css. Hubs do NOT need this file.
+   ========================================================= */
+
+.tool-page { background: var(--bg); }
+
+.tool-shell {
+  position: relative; z-index: 1;
+  max-width: var(--max-w);
+  margin: 0 auto; padding: 40px 24px 80px;
+}
+
+/* ---------- Tool header ---------- */
+.tool-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 24px; padding-bottom: 28px; margin-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+.tool-header .eyebrow {
+  font-size: 12px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.16em; color: var(--green); margin-bottom: 8px;
+}
+.tool-header h1 {
+  font-size: clamp(28px, 3.4vw, 38px); font-weight: 700;
+  letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 8px;
+}
+.tool-header p { color: var(--text-soft); max-width: 560px; }
+
+.header-chip-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip {
+  display: inline-flex; align-items: center; padding: 5px 12px;
+  border-radius: 999px; font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  background: rgba(255, 255, 255, 0.06); color: var(--text-soft);
+  border: 1px solid var(--border);
+}
+.chip.is-free { background: var(--green-soft); color: #9be7c1; border-color: transparent; }
+.chip.is-pro { background: rgba(107, 76, 154, 0.20); color: #d0c2ea; border-color: transparent; }
+
+/* ---------- Layout ---------- */
+.tool-layout {
+  display: grid; gap: 24px;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  align-items: start;
+}
+@media (max-width: 1000px) { .tool-layout { grid-template-columns: 1fr; } }
+
+.tool-main {
+  background: linear-gradient(180deg, rgba(37, 37, 64, 0.92), rgba(18, 18, 30, 0.94));
+  border: 1px solid var(--border); border-radius: var(--radius-xl);
+  padding: 28px;
+  box-shadow: var(--shadow-card);
+}
+
+/* ---------- Side / assist ---------- */
+.tool-side { display: flex; flex-direction: column; gap: 16px; position: sticky; top: 88px; }
+.assist-card {
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  background: var(--surface-2); padding: 20px;
+}
+.assist-card h2 {
+  font-size: 13px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.12em; color: var(--text-soft); margin-bottom: 12px;
+}
+.assist-card p { color: var(--text-soft); font-size: 14px; }
+.assist-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.assist-card a { color: var(--green); font-size: 14px; }
+.assist-card a:hover { text-decoration: underline; }
+
+/* ---------- Progress rail ---------- */
+.progress-rail {
+  display: flex; gap: 6px; margin-bottom: 24px;
+}
+.progress-rail span {
+  flex: 1; height: 4px; border-radius: 2px;
+  background: var(--surface-2); transition: background 0.3s ease;
+}
+.progress-rail span.is-done { background: var(--green); }
+.progress-rail span.is-current { background: var(--green); opacity: 0.6; }
+
+/* ---------- Step form ---------- */
+.step-form { display: flex; flex-direction: column; gap: 18px; }
+.step-form .step-title {
+  font-size: 18px; font-weight: 600; margin-bottom: 4px;
+}
+.step-form .step-desc { color: var(--text-soft); font-size: 14px; margin-bottom: 12px; }
+
+.field-row {
+  display: grid; gap: 6px; margin-bottom: 4px;
+}
+.field-row label {
+  font-size: 13px; font-weight: 500; color: var(--text-soft);
+}
+.field-row input, .field-row select, .field-row textarea {
+  width: 100%; padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.04); color: var(--text);
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  font-size: 15px; font-family: inherit;
+  transition: border-color 0.2s, background 0.2s;
+}
+.field-row input:focus, .field-row select:focus, .field-row textarea:focus {
+  outline: none; border-color: var(--green);
+  background: rgba(46, 204, 133, 0.06);
+}
+.field-row .field-help { font-size: 12px; color: var(--text-muted); }
+.field-row.is-invalid input, .field-row.is-invalid select { border-color: var(--danger); }
+
+.choice-grid {
+  display: grid; gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+}
+.choice-card {
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: var(--surface-2); padding: 14px;
+  cursor: pointer; transition: border-color 0.2s, background 0.2s;
+}
+.choice-card:hover { border-color: rgba(46, 204, 133, 0.40); }
+.choice-card.is-selected {
+  border-color: var(--green);
+  background: var(--green-soft);
+}
+
+.step-actions {
+  display: flex; justify-content: space-between; gap: 12px;
+  margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border);
+}
+
+/* ---------- Result hero / metrics ---------- */
+.result-hero {
+  text-align: center; padding: 28px 20px;
+  border: 1px solid var(--green-soft); border-radius: var(--radius-xl);
+  background: linear-gradient(135deg, rgba(46, 204, 133, 0.10), rgba(107, 76, 154, 0.06));
+  margin-bottom: 24px;
+}
+.result-hero .label {
+  font-size: 12px; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--text-soft); margin-bottom: 8px;
+}
+.result-hero .value {
+  font-size: clamp(32px, 5vw, 48px); font-weight: 700; letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #2ECC85, #6B4C9A);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+}
+
+.metric-grid {
+  display: grid; gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  margin-bottom: 20px;
+}
+.metric {
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: var(--surface-2); padding: 14px;
+}
+.metric .label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--text-muted);
+}
+.metric .value { font-size: 20px; font-weight: 600; margin-top: 6px; }
+
+.result-actions {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  padding-top: 20px; border-top: 1px solid var(--border);
+}

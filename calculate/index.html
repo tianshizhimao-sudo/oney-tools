@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Calculate — Run the numbers | Oney & Co Tools</title>
+  <meta name="description" content="Fast Australian finance calculators — repayments, borrowing power, refinance breakeven, LMI, stamp duty. Built on a single shared math engine.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='fg' x1='0%25' y1='100%25' x2='0%25' y2='0%25'><stop offset='0%25' stop-color='%231FAD73'/><stop offset='60%25' stop-color='%232ECC85'/><stop offset='60%25' stop-color='transparent'/><stop offset='100%25' stop-color='transparent'/></linearGradient><linearGradient id='sg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><circle r='38' fill='none' stroke='url(%23sg)' stroke-width='10' stroke-linecap='round'/><circle r='28' fill='url(%23fg)'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/brand.css">
+  <link rel="canonical" href="https://tools.oneyco.com.au/calculate/">
+</head>
+<body>
+  <div class="ambient-bg"></div>
+
+  <nav class="brand-nav">
+    <div class="brand-nav-inner">
+      <a href="https://oneyco.com.au" class="brand-logo">
+        <div class="brand-logo-mark"><span></span></div>
+        <span class="brand-logo-text">Oney <span class="amp">&amp;</span> Co</span>
+      </a>
+      <button class="brand-nav-hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="brand-nav-links">
+        <a href="/" class="brand-nav-link">Home</a>
+        <a href="/assess/" class="brand-nav-link">Assess</a>
+        <a href="/calculate/" class="brand-nav-link active">Calculate</a>
+        <a href="/analyse/" class="brand-nav-link">Analyse</a>
+        <a href="/suite/" class="brand-nav-link">Pro</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hub-hero">
+    <div class="hub-hero-glow-1"></div>
+    <div class="hub-hero-glow-2"></div>
+    <div class="hub-hero-inner container">
+      <div class="fade-up">
+        <span class="hub-hero-eyebrow">Step 2 — Run the numbers</span>
+        <h1>Fast math for the <span class="gradient">decisions you make every day.</span></h1>
+        <p class="hub-hero-text">
+          Repayments, borrowing power, refinance breakeven, LMI, stamp duty.
+          Short inputs, instant answers, a shared math engine so the numbers always agree.
+        </p>
+        <div class="hub-hero-actions">
+          <a class="btn btn-secondary" href="/assess/">← Diagnose first</a>
+          <a class="btn btn-secondary" href="/analyse/">Go deeper →</a>
+        </div>
+      </div>
+      <aside class="hub-hero-panel fade-up fade-up-d1">
+        <div class="mini-metric"><span id="m-count">6</span><label>Calculators</label></div>
+        <div class="mini-metric"><span>Free</span><label>No signup</label></div>
+        <div class="mini-metric"><span>1</span><label>Shared engine</label></div>
+      </aside>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top:24px;padding-bottom:80px;">
+    <section>
+      <div class="section-label green fade-up">
+        <span>Calculators</span>
+        <small>Built on shared finance-math.js — no calc drift.</small>
+      </div>
+      <div class="tool-grid" id="group-tools"></div>
+    </section>
+
+    <section>
+      <div class="section-label neutral fade-up">
+        <span>Next step</span>
+        <small>Once you have the headline number.</small>
+      </div>
+      <div class="quick-start-grid">
+        <a class="entry-card fade-up" href="/analyse/" data-group="analyse">
+          <div class="entry-meta">Go deeper</div>
+          <h3>Analyse</h3>
+          <p>Yield, servicing, security and structure for deal-level decisions.</p>
+          <span class="tool-link">Open analysis tools</span>
+        </a>
+        <a class="entry-card fade-up fade-up-d1" href="/assess/" data-group="assess">
+          <div class="entry-meta">Diagnose first</div>
+          <h3>Assess</h3>
+          <p>Confirm DTI, business readiness or pathway before borrowing capacity matters.</p>
+          <span class="tool-link">Open diagnostics</span>
+        </a>
+        <a class="entry-card fade-up fade-up-d2" href="/suite/" data-group="pro">
+          <div class="entry-meta">Full case workspace</div>
+          <h3>Oney Pro</h3>
+          <p>Take the same inputs into a credit-paper-ready workspace.</p>
+          <span class="tool-link">Open Oney Pro</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="brand-footer">
+    <p>Oney &amp; Co — Clarity in every deal</p>
+    <p><a href="https://oneyco.com.au">oneyco.com.au</a></p>
+  </footer>
+
+  <script type="module">
+    import { renderGroupPage } from '/assets/js/app/route-map.js';
+    import { getToolsByGroup } from '/assets/js/app/tool-registry.js';
+    import { initAll } from '/assets/js/ui/motion.js';
+    renderGroupPage('calculate', document.getElementById('group-tools'));
+    document.getElementById('m-count').textContent = getToolsByGroup('calculate').length;
+    initAll();
+  </script>
+</body>
+</html>
