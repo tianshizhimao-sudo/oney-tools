@@ -4,13 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0a0a0a">
-  <title>Bank-Ready Score — SME Loan Readiness | Oney & Co Tools</title>
-  <meta name="description" content="Self-assess SME loan readiness across the eight criteria banks actually care about. Free, no signup, instant score and pathway.">
+  <title>Security Assessment — Oney & Co Tools</title>
+  <meta name="description" content="Property collateral risk across zoning, LVR, environmental and tenancy. Same engine in free and Oney Pro — Pro reveals the full lender matrix.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='fg' x1='0%25' y1='100%25' x2='0%25' y2='0%25'><stop offset='0%25' stop-color='%231FAD73'/><stop offset='60%25' stop-color='%232ECC85'/><stop offset='60%25' stop-color='transparent'/><stop offset='100%25' stop-color='transparent'/></linearGradient><linearGradient id='sg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><circle r='38' fill='none' stroke='url(%23sg)' stroke-width='10' stroke-linecap='round'/><circle r='28' fill='url(%23fg)'/></g></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/brand.css">
   <link rel="stylesheet" href="/assets/css/tool-shell.css">
-  <link rel="canonical" href="https://tools.oneyco.com.au/tools/bank-ready-score.html">
+  <link rel="canonical" href="https://tools.oneyco.com.au/tools/security-assessment.html">
 </head>
 <body class="tool-page">
   <div class="ambient-bg"></div>
@@ -26,9 +26,9 @@
       </button>
       <div class="brand-nav-links">
         <a href="/" class="brand-nav-link">Home</a>
-        <a href="/assess/" class="brand-nav-link active">Assess</a>
+        <a href="/assess/" class="brand-nav-link">Assess</a>
         <a href="/calculate/" class="brand-nav-link">Calculate</a>
-        <a href="/analyse/" class="brand-nav-link">Analyse</a>
+        <a href="/analyse/" class="brand-nav-link active">Analyse</a>
         <a href="/pro/" class="brand-nav-link">Pro</a>
       </div>
     </div>
@@ -44,14 +44,14 @@
   <script type="module">
     import { mountToolPage } from '/assets/js/ui/shell.js';
     import { initAll } from '/assets/js/ui/motion.js';
-    import { bankReadyScoreConfig } from '/assets/js/tools/bank-ready-score.config.js';
+    import { securityAssessmentConfig } from '/assets/js/tools/security-assessment.config.js';
 
     mountToolPage({
-      config: bankReadyScoreConfig,
+      config: securityAssessmentConfig,
       assistCards: [
         {
-          title: 'How the score works',
-          body: 'Eight weighted dimensions: trading history, ATO standing, industry risk, and director credit each carry the most weight (20% each).',
+          title: 'Free vs Pro',
+          body: 'Free gives the overall band and headline LVR check. Pro reveals each module score plus lender appetite. Same engine.',
         },
       ],
     });

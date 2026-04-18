@@ -9,6 +9,7 @@ import { resolveResult } from '../core/result-engine.js';
 import { renderField, readFieldValue } from './fields.js';
 import { storage, SCOPES } from '../app/storage.js';
 import { GROUPS, getNextStepLink, getToolById } from '../app/tool-registry.js';
+import { isPro, gatedTeaserHTML } from '../app/gating.js';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -68,23 +69,25 @@ function renderStepActions(engine, opts) {
   `;
 }
 
-function renderResultBlock(result, tool) {
-  if (!result) return '';
-
-  const metrics = result.metrics.length ? `
+function renderMetrics(list) {
+  if (!list || !list.length) return '';
+  return `
     <div class="metric-grid">
-      ${result.metrics.map((m) => `
+      ${list.map((m) => `
         <div class="metric">
           <div class="label">${escapeHtml(m.label)}</div>
           <div class="value">${escapeHtml(m.value)}</div>
         </div>
       `).join('')}
     </div>
-  ` : '';
+  `;
+}
 
-  const insights = result.insights.length ? `
+function renderInsights(list) {
+  if (!list || !list.length) return '';
+  return `
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
-      ${result.insights.map((it) => {
+      ${list.map((it) => {
         const tone = it.tone || 'info';
         const colour = tone === 'pass' ? 'var(--green)'
           : tone === 'warn' ? 'var(--gold)'
@@ -99,6 +102,24 @@ function renderResultBlock(result, tool) {
         `;
       }).join('')}
     </div>
+  `;
+}
+
+function renderResultBlock(result, tool) {
+  if (!result) return '';
+  const pro = isPro();
+
+  // If a `gated` block is present, Pro users see it merged; free users see a teaser.
+  const baseMetrics = result.metrics || [];
+  const baseInsights = result.insights || [];
+  const gated = result.gated;
+  const mergedMetrics = pro && gated && gated.metrics ? [...baseMetrics, ...gated.metrics] : baseMetrics;
+  const mergedInsights = pro && gated && gated.insights ? [...baseInsights, ...gated.insights] : baseInsights;
+
+  const metrics = renderMetrics(mergedMetrics);
+  const insights = renderInsights(mergedInsights);
+  const gatedBlock = (!pro && gated) ? `
+    <div style="margin:0 0 20px">${gatedTeaserHTML({ label: gated.label || 'Pro view' })}</div>
   ` : '';
 
   const actions = (result.actions || []).map((a) => `
@@ -107,6 +128,15 @@ function renderResultBlock(result, tool) {
 
   const nextStepBlock = renderNextStep(tool);
 
+  const narrative = result.narrative ? `
+    <div style="border:1px solid var(--border);border-radius:14px;
+                background:var(--surface-2);padding:18px 20px;margin-bottom:20px">
+      <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.12em;
+                  color:var(--text-muted);margin-bottom:8px">Credit narrative</div>
+      <p style="font-size:14px;line-height:1.65;color:var(--text-soft)">${escapeHtml(result.narrative)}</p>
+    </div>
+  ` : '';
+
   return `
     <div class="result-hero" id="result-hero">
       <div class="label">${escapeHtml(result.heroLabel)}</div>
@@ -114,6 +144,8 @@ function renderResultBlock(result, tool) {
     </div>
     ${metrics}
     ${insights}
+    ${gatedBlock}
+    ${narrative}
     ${actions || nextStepBlock ? `
       <div class="result-actions">
         ${actions}
@@ -315,6 +347,65 @@ export function mountToolPage({ mainSelector = 'main', config, assistCards = [] 
   `;
 
   return mountTool(document.getElementById('tool-root'), config);
+}
+
+/**
+ * Same chrome as mountToolPage but does not mount a form engine.
+ * Use for canvas/non-form tools (Flow Visualiser, Pro workspace).
+ * Returns the main slot element so the caller can populate it.
+ */
+export function mountCanvasPage({
+  mainSelector = 'main',
+  group,
+  eyebrow,
+  title,
+  subtitle,
+  tier = 'free',
+  nextStepGroup, // override which next-step CTA to show
+  assistCards = [],
+}) {
+  const mainEl = document.querySelector(mainSelector);
+  if (!mainEl) throw new Error(`mountCanvasPage: ${mainSelector} not found`);
+
+  const groupCfg = GROUPS[group] || {};
+  const next = getNextStepLink({ group: nextStepGroup || group });
+  const chips = [`<span class="chip is-${tier}">${escapeHtml(tier)}</span>`];
+
+  const allAssist = [...assistCards];
+  if (next) {
+    allAssist.push({
+      title: 'Next best step',
+      bodyHtml: `<p style="margin-bottom:12px">${escapeHtml(next.intro)}</p>
+        <a href="${escapeHtml(next.cta.href)}" style="color:var(--green);font-weight:600">${escapeHtml(next.cta.label)} →</a>`,
+    });
+  }
+
+  mainEl.innerHTML = `
+    <div class="tool-shell">
+      <section class="tool-header">
+        <div>
+          <p class="eyebrow">${escapeHtml(eyebrow || groupCfg.title || '')}</p>
+          <h1>${escapeHtml(title || '')}</h1>
+          ${subtitle ? `<p>${escapeHtml(subtitle)}</p>` : ''}
+        </div>
+        <div class="header-chip-row">${chips.join('')}</div>
+      </section>
+
+      <section class="tool-layout">
+        <div class="tool-main" id="tool-root"></div>
+        <aside class="tool-side">
+          ${allAssist.map((card) => `
+            <div class="assist-card">
+              <h2>${escapeHtml(card.title)}</h2>
+              ${card.bodyHtml || (card.body ? `<p>${escapeHtml(card.body)}</p>` : '')}
+            </div>
+          `).join('')}
+        </aside>
+      </section>
+    </div>
+  `;
+
+  return document.getElementById('tool-root');
 }
 
 export { GROUPS };

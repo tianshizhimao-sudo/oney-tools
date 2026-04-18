@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Oney Pro Workspace — Unified case workspace</title>
+  <meta name="description" content="One workspace, one shared dataset, one credit summary. Built on the same finance engine as every free Oney tool.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='fg' x1='0%25' y1='100%25' x2='0%25' y2='0%25'><stop offset='0%25' stop-color='%231FAD73'/><stop offset='60%25' stop-color='%232ECC85'/><stop offset='60%25' stop-color='transparent'/><stop offset='100%25' stop-color='transparent'/></linearGradient><linearGradient id='sg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><circle r='38' fill='none' stroke='url(%23sg)' stroke-width='10' stroke-linecap='round'/><circle r='28' fill='url(%23fg)'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/brand.css">
+  <link rel="stylesheet" href="/assets/css/tool-shell.css">
+  <link rel="canonical" href="https://tools.oneyco.com.au/pro/">
+</head>
+<body class="tool-page">
+  <div class="ambient-bg"></div>
+
+  <nav class="brand-nav">
+    <div class="brand-nav-inner">
+      <a href="https://oneyco.com.au" class="brand-logo">
+        <div class="brand-logo-mark"><span></span></div>
+        <span class="brand-logo-text">Oney <span class="amp">&amp;</span> Co</span>
+      </a>
+      <button class="brand-nav-hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="brand-nav-links">
+        <a href="/" class="brand-nav-link">Home</a>
+        <a href="/assess/" class="brand-nav-link">Assess</a>
+        <a href="/calculate/" class="brand-nav-link">Calculate</a>
+        <a href="/analyse/" class="brand-nav-link">Analyse</a>
+        <a href="/pro/" class="brand-nav-link active">Pro</a>
+      </div>
+    </div>
+  </nav>
+
+  <main></main>
+
+  <div class="container" style="padding-bottom:40px;position:relative;z-index:1;">
+    <div id="pro-actions" style="display:flex;gap:10px;flex-wrap:wrap;margin-top:-16px;"></div>
+  </div>
+
+  <footer class="brand-footer">
+    <p>Oney &amp; Co — Clarity in every deal</p>
+    <p><a href="https://oneyco.com.au">oneyco.com.au</a></p>
+  </footer>
+
+  <script type="module">
+    import { mountToolPage } from '/assets/js/ui/shell.js';
+    import { initAll } from '/assets/js/ui/motion.js';
+    import { proWorkspaceConfig } from '/assets/js/tools/pro-workspace.config.js';
+    import { isPro, setPro } from '/assets/js/app/gating.js';
+    import { storage, SCOPES } from '/assets/js/app/storage.js';
+
+    mountToolPage({
+      config: proWorkspaceConfig,
+      assistCards: [
+        {
+          title: 'One dataset, every tool',
+          bodyHtml: '<p>Servicing, security, DTI and credit summary all read the same inputs. Change a value here and the downstream calcs update.</p>',
+        },
+        {
+          title: 'Pro gating',
+          bodyHtml: `<p style="margin-bottom:10px">Pro view reveals lender matrix detail inside /tools/ pages.</p>
+            <button type="button" id="pro-toggle" class="btn btn-secondary" style="width:100%">Checking…</button>`,
+        },
+      ],
+    });
+
+    // Pro-specific action bar: export / reset
+    const actions = document.getElementById('pro-actions');
+    actions.innerHTML = `
+      <button type="button" class="btn btn-secondary" id="pro-export">Export case (JSON)</button>
+      <button type="button" class="btn btn-ghost" id="pro-reset">Reset workspace</button>
+    `;
+    document.getElementById('pro-export').addEventListener('click', () => {
+      const values = storage.get(SCOPES.PRO, proWorkspaceConfig.id) || proWorkspaceConfig.defaults;
+      const blob = new Blob([JSON.stringify({ tool: 'oney-pro', values }, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'oney-pro-case.json'; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+    document.getElementById('pro-reset').addEventListener('click', () => {
+      if (!confirm('Clear all workspace inputs?')) return;
+      storage.remove(SCOPES.PRO, proWorkspaceConfig.id);
+      window.location.reload();
+    });
+
+    // Pro-mode toggle (controls gated result blocks on /tools/ pages)
+    const toggle = document.getElementById('pro-toggle');
+    function syncToggle() {
+      const pro = isPro();
+      toggle.textContent = pro ? 'Pro mode: ON — click to turn off' : 'Pro mode: OFF — click to enable';
+    }
+    syncToggle();
+    toggle.addEventListener('click', () => {
+      setPro(!isPro());
+      syncToggle();
+    });
+
+    initAll();
+  </script>
+</body>
+</html>

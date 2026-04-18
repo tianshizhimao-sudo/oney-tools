@@ -105,6 +105,47 @@ export function formatRatio(value, { fractionDigits = 2 } = {}) {
   return `${n.toFixed(fractionDigits)}x`;
 }
 
+/* ---------- Commercial helpers ---------- */
+
+/**
+ * LVR caps by property class. Used by Servicing and Security.
+ * Single source of truth so free + Pro never diverge.
+ */
+export const LVR_CAPS = {
+  residential: 0.80,
+  'residential-investment': 0.80,
+  'commercial-standard': 0.65,
+  'commercial-office': 0.65,
+  'commercial-retail': 0.65,
+  'commercial-industrial': 0.65,
+  'specialised': 0.50,
+  'rural': 0.50,
+  'development': 0.65,
+};
+
+export function lvrCapFor(propertyType) {
+  return LVR_CAPS[propertyType] ?? 0.65;
+}
+
+/**
+ * Net Operating Income from passing rent and outgoings.
+ */
+export function calcNOI({ grossAnnualRent, annualOutgoings }) {
+  return Math.max(0, toNumber(grossAnnualRent) - toNumber(annualOutgoings));
+}
+
+/**
+ * Weighted Average Lease Expiry (years) from a tenant schedule.
+ * tenants: [{ annualRent, leaseExpiryYears }]
+ */
+export function calcWALE(tenants) {
+  if (!Array.isArray(tenants) || !tenants.length) return 0;
+  const totalRent = tenants.reduce((sum, t) => sum + toNumber(t.annualRent), 0);
+  if (!totalRent) return 0;
+  const weighted = tenants.reduce((sum, t) => sum + toNumber(t.annualRent) * toNumber(t.leaseExpiryYears), 0);
+  return weighted / totalRent;
+}
+
 /* ---------- Status helper ---------- */
 
 /**

@@ -10,6 +10,8 @@ const DEFAULT_SHAPE = {
   metrics: [],
   actions: [],
   insights: [],
+  narrative: null,
+  gated: null,
 };
 
 export function resolveResult(config, values) {
