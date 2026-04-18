@@ -8,7 +8,7 @@ import {
   toNumber,
   calcMonthlyRepayment,
   formatCurrency,
-} from '/assets/js/core/finance-math.js';
+} from '../core/finance-math.js';
 
 // Conservative monthly living expense baseline used when expenses are missing.
 const HEM_FLOOR_PER_DEPENDANT = 600;

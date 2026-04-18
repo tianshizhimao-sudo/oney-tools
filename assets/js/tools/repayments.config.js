@@ -9,7 +9,7 @@ import {
   calcInterestOnly,
   calcTotalInterest,
   formatCurrency,
-} from '/assets/js/core/finance-math.js';
+} from '../core/finance-math.js';
 
 export const repaymentsConfig = {
   id: 'repayments',

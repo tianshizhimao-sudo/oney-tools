@@ -4,11 +4,11 @@
    Tools provide: { id, group, title, eyebrow, defaults, steps[], resolveResult }.
    ========================================================= */
 
-import { createFormEngine } from '/assets/js/core/form-engine.js';
-import { resolveResult } from '/assets/js/core/result-engine.js';
+import { createFormEngine } from '../core/form-engine.js';
+import { resolveResult } from '../core/result-engine.js';
 import { renderField, readFieldValue } from './fields.js';
-import { storage, SCOPES } from '/assets/js/app/storage.js';
-import { GROUPS, getNextStepLink, getToolById } from '/assets/js/app/tool-registry.js';
+import { storage, SCOPES } from '../app/storage.js';
+import { GROUPS, getNextStepLink, getToolById } from '../app/tool-registry.js';
 
 function escapeHtml(value) {
   return String(value ?? '')
