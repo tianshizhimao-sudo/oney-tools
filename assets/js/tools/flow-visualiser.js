@@ -5,6 +5,7 @@
    ========================================================= */
 
 import { storage, SCOPES } from '../app/storage.js';
+import { sendFlowToPro } from '../app/pro-bridge.js';
 
 const STORE_KEY = 'flow-visualiser';
 const NODE_W = 160;
@@ -48,6 +49,7 @@ export function mountFlowEditor(rootEl) {
         <button type="button" class="btn btn-secondary" data-action="rename">Rename</button>
         <button type="button" class="btn btn-secondary" data-action="delete">Delete</button>
         <span style="flex:1"></span>
+        <button type="button" class="btn btn-pro" data-action="send-to-pro">Send to Oney Pro →</button>
         <button type="button" class="btn btn-ghost" data-action="export">Export JSON</button>
         <button type="button" class="btn btn-ghost" data-action="import">Import</button>
         <button type="button" class="btn btn-ghost" data-action="reset">Reset</button>
@@ -261,6 +263,10 @@ export function mountFlowEditor(rootEl) {
         state = defaultState();
         selected = null; connectFrom = null;
         persist(); render();
+        break;
+      }
+      case 'send-to-pro': {
+        sendFlowToPro(state);
         break;
       }
     }

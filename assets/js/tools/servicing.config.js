@@ -39,6 +39,11 @@ export const servicingConfig = {
   eyebrow: 'Analyse',
   subtitle: 'LVR, ICR, DSCR and WALE — the four numbers every commercial credit assessor checks first.',
   scenarioReady: true,
+  proImport: true,
+  urlAlias: {
+    rent: 'grossAnnualRent', // commercial deals quote annual
+    value: 'propertyValue',
+  },
   defaults: {
     loanAmount: 2_000_000,
     rate: 7.25,

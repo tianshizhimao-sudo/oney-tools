@@ -97,6 +97,7 @@ export const securityAssessmentConfig = {
   title: 'Security Assessment',
   eyebrow: 'Analyse',
   subtitle: 'Property collateral risk across zoning, LVR, environmental and tenancy. Same engine free and Pro — Pro reveals the full lender matrix.',
+  proImport: true,
   defaults: {
     propertyClass: 'commercial-office',
     purchasePrice: 3_500_000,

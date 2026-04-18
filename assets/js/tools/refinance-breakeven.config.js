@@ -23,6 +23,12 @@ export const refinanceBreakevenConfig = {
   eyebrow: 'Calculate',
   subtitle: 'See how many months of savings it takes to recover the cost of switching.',
   scenarioReady: true,
+  urlAlias: {
+    // Refinance has two rates — be explicit so generic ?rate=… doesn't ambiguously resolve.
+    rate: 'newRate',
+    loan: 'balance',
+    cost: 'switchCost',
+  },
   defaults: {
     balance: 500000,
     currentRate: 6.50,

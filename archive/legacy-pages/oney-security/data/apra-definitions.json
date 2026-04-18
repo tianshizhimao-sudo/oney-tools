@@ -1,0 +1,515 @@
+{
+  "_meta": {
+    "source": "APRA Commercial Property Definitions",
+    "version": "1.0.0",
+    "lastUpdated": "2026-02-15",
+    "description": "APRA CRE property categories, sub-classifications, and general definitions. Authoritative reference for all Oney tools.",
+    "usage": "Import via <script src='data/apra-definitions.json'> or fetch(). Access via window.APRA_DATA or OneyData.apra"
+  },
+
+  "propertyCategories": [
+    {
+      "code": "OFC",
+      "name": "Office",
+      "description": "Commercial office space, typically used for professional/service providers.",
+      "examples": ["Financial institutions", "Legal firms", "Accountancy firms", "Real estate agents"],
+      "subClassifications": "officeGrades",
+      "riskProfile": "standard",
+      "notes": []
+    },
+    {
+      "code": "RTL",
+      "name": "Retail",
+      "description": "All retail property.",
+      "examples": ["Shopping centres", "Free standing shops", "Restaurants/cafes", "Petrol stations"],
+      "subClassifications": "retailCentreDefinitions",
+      "riskProfile": "standard",
+      "notes": ["Gyms should be treated as retail"]
+    },
+    {
+      "code": "IDL",
+      "name": "Industrial",
+      "description": "Properties used for manufacturing and/or storage and distribution. A building used predominately for industrial purposes, whether or not part of the building is used for ancillary purposes.",
+      "examples": ["Warehouses", "Factories"],
+      "subClassifications": null,
+      "riskProfile": "standard",
+      "notes": ["Car/truck dealerships fall under 'Retail'", "Car/truck parking areas fall under 'Other'"]
+    },
+    {
+      "code": "TL",
+      "name": "Tourism & Leisure",
+      "description": "Properties associated with the tourism and leisure industry.",
+      "examples": [],
+      "subClassifications": null,
+      "riskProfile": "elevated",
+      "subTypes": [
+        {
+          "name": "Accommodation - Hotels",
+          "examples": ["Hotel developments", "Hotels"]
+        },
+        {
+          "name": "Accommodation - Other",
+          "examples": ["Motels and Lodgings", "Serviced Apartments", "Time-share developments"]
+        },
+        {
+          "name": "Pubs and Licensed Premises",
+          "examples": ["Pubs and Licensed Premises"]
+        },
+        {
+          "name": "Recreational, Leisure and Sporting Facilities",
+          "examples": ["Caravan parks", "Golf courses", "Social clubs", "Swimming pools"]
+        }
+      ],
+      "notes": [
+        "For a T&L property to be considered CRE, the entire building should be rented under third party agreement with servicing of the debt reliant on a fixed annual rent rather than performance of the business.",
+        "Gyms should be treated as retail"
+      ]
+    },
+    {
+      "code": "OTH",
+      "name": "Other",
+      "description": "Property not associated with any other property type.",
+      "examples": [
+        "Car parks",
+        "Child Care Centres",
+        "Education related properties (including schools and universities)",
+        "Hospitals",
+        "Medical Facilities (including Medical Centres, doctor surgeries, day surgeries)",
+        "Nursing Homes",
+        "Places of Worship",
+        "Retirement villages",
+        "Rural Property (where the rural property was specifically acquired for lease or resale)",
+        "Special Accommodation Homes",
+        "Student Accommodation",
+        "Welfare and Charitable Homes",
+        "Other"
+      ],
+      "subClassifications": null,
+      "riskProfile": "elevated",
+      "notes": ["Where a property is mixed use, the property type should be selected based on the predominant portion on the basis of MV or market rent."]
+    },
+    {
+      "code": "OR",
+      "name": "Other Residential",
+      "description": "Residential properties comprising four or more units on one site.",
+      "examples": [
+        "Townhouses",
+        "Apartment blocks less than or equal to 3 storeys",
+        "Apartment blocks greater than 3 storeys"
+      ],
+      "subClassifications": "residentialDevelopmentDefinitions",
+      "riskProfile": "standard",
+      "notes": ["The number of storeys does not include basement levels."]
+    },
+    {
+      "code": "LDS",
+      "name": "Land Development & Subdivision",
+      "description": "Land or sites acquired for the purpose of subdivision or development.",
+      "examples": [],
+      "subClassifications": null,
+      "riskProfile": "high",
+      "subTypes": [
+        {
+          "name": "Englobo Land / Land Banking",
+          "description": "Land that is undeveloped, largely unserviced, zoned/unzoned but held with the intent for future subdivision into smaller lots for residential, commercial or industrial use, and is typically subject to elongated holding or selling periods.",
+          "propertyUse": "Investment",
+          "notes": ["No funding commitment to subdivide into individual lots – debt servicing from other revenue sources"]
+        },
+        {
+          "name": "Pre-Development Sites",
+          "description": "Land held with the intent of building construction with/without Development Approval.",
+          "propertyUse": "Investment",
+          "notes": ["No funding commitment for development – debt servicing from other sources"]
+        },
+        {
+          "name": "Land Sub-Division - Single Stage",
+          "description": "Funding commitment to sub-divide / land currently being sub-divided in a single stage with < 50 lots.",
+          "propertyUse": "Development",
+          "notes": []
+        },
+        {
+          "name": "Land Sub-Division - Multi Stage",
+          "description": "Funding commitment to sub-divide / land currently being sub-divided in multiple stages. Also includes single stage subdivisions >= 50 lots.",
+          "propertyUse": "Development",
+          "notes": []
+        }
+      ],
+      "notes": [
+        "In the case of Pre-development sites where development/construction finance has been approved then the property category must reflect the property category applicable at the completion of building/development – e.g. Office, Industrial etc. Property Use in eBL = Development."
+      ]
+    }
+  ],
+
+  "importantRules": [
+    {
+      "rule": "multiPropertyFacility",
+      "description": "If an investment facility is secured by more than one property, the property type in the commercial property tab in eBL should reflect the predominant property type of all direct and indirect commercial securities."
+    },
+    {
+      "rule": "mixedUseProperty",
+      "description": "Where a property is mixed use, the property type should be selected based on the predominant portion on the basis of MV or market rent."
+    }
+  ],
+
+  "residentialDevelopmentDefinitions": [
+    {
+      "code": "RD_TRAD",
+      "name": "Traditional Developments",
+      "definition": "A professional developer, selling sufficient product to clear debt.",
+      "developerType": "professional",
+      "riskProfile": "standard",
+      "notes": []
+    },
+    {
+      "code": "RD_SPEC",
+      "name": "Speculative Developments",
+      "definition": "A professional developer who can't, or does not want to, get pre-sales and is backing themselves to sell the product at a later stage.",
+      "developerType": "professional",
+      "riskProfile": "elevated",
+      "notes": ["These should only be considered for our well established and experienced developers."]
+    },
+    {
+      "code": "RD_BTR",
+      "name": "Build to Rent",
+      "definition": "Significant scale (400 units+) mainly used by IB customers which are essentially un-serviced apartments (i.e. they have one site management, dry cleaning services, maintenance etc.).",
+      "developerType": "institutional",
+      "riskProfile": "elevated",
+      "notes": ["Minimum 400 units", "Single site management model"]
+    },
+    {
+      "code": "RD_BTH",
+      "name": "Build to Hold",
+      "definition": "A non-professional developer who wants to hold 100% of the stock as a passive long-term investment.",
+      "developerType": "non-professional",
+      "riskProfile": "elevated",
+      "characteristics": [
+        "Lower levels of gearing",
+        "Inability to claim GST on construction",
+        "In-one-line ex-GST valuation on completion",
+        "Need to use income to service the investment transaction",
+        "Possible recourse to alternate income streams"
+      ],
+      "notes": []
+    },
+    {
+      "code": "RD_WG",
+      "name": "Wealth Generation",
+      "definition": "A non-professional developer doing a smaller size development which is not their core business, don't want pre-sales, but will sell at the right price.",
+      "developerType": "non-professional",
+      "riskProfile": "elevated",
+      "characteristics": [
+        "Have recourse to alternate income streams",
+        "Form an integral part of the Bank's portfolio"
+      ],
+      "notes": []
+    }
+  ],
+
+  "officeGrades": {
+    "source": "Property Council of Australia (PCA) office buildings classifications",
+    "grades": [
+      {
+        "code": "PREMIUM",
+        "name": "Premium Grade",
+        "description": "Landmark office buildings with expansive views or outlook, ample natural lighting, prestige lobby and finishes, high quality access from an attractive street setting and premium maintenance.",
+        "criteria": {
+          "totalGLA": {"majorCBD": "30,000+ sqm", "otherCBD": "20,000+ sqm"},
+          "floorplate": {"majorCBD": "1,500+ sqm", "otherCBD": "1,200+ sqm"},
+          "bcms": true,
+          "lifts": "Specific performance requirements apply to all classifications with different service requirements",
+          "managementOnsite": "For buildings >30,000 sqm",
+          "security": "CCTV systems",
+          "amenities": ["Change rooms and showers", "Carpark with loading docks or delivery bays"],
+          "sustainability": "5 Star Green Star Design Rating including 5 Star NABERS Office Energy rating commitment"
+        },
+        "riskProfile": "standard",
+        "lenderAppetite": "strong"
+      },
+      {
+        "code": "A_GRADE",
+        "name": "A-Grade",
+        "description": "High quality with good views, outlook and natural light, good quality access from an attractive street setting and high quality maintenance.",
+        "criteria": {
+          "totalGLA": {"majorCBD": "10,000+ sqm", "otherCBD": "5,000+ sqm"},
+          "floorplate": {"majorCBD": "1,000+ sqm", "otherCBD": "800+ sqm"},
+          "bcms": true,
+          "lifts": true,
+          "managementOnsite": "For buildings >30,000 sqm",
+          "security": "CCTV systems",
+          "amenities": ["Change rooms and showers", "Carpark with loading docks or delivery bays"],
+          "sustainability": "4 Star Green Star Design Rating including 4.5 Star NABERS Office Energy rating commitment"
+        },
+        "riskProfile": "standard",
+        "lenderAppetite": "strong"
+      },
+      {
+        "code": "B_GRADE",
+        "name": "B-Grade",
+        "description": "Quality office space with a good standard of finish and maintenance.",
+        "criteria": {
+          "totalGLA": {"majorCBD": "6,000+ sqm", "otherCBD": "3,000+ sqm"},
+          "floorplate": {"majorCBD": "700+ sqm", "otherCBD": "600+ sqm"},
+          "bcms": false,
+          "lifts": false,
+          "managementOnsite": "Building management",
+          "security": "CCTV systems",
+          "amenities": ["Electrical and mechanical minimum requirements"],
+          "sustainability": "4 Star Green Star Design Rating including 4 Star NABERS Office Energy rating commitment"
+        },
+        "riskProfile": "standard",
+        "lenderAppetite": "moderate"
+      },
+      {
+        "code": "C_GRADE",
+        "name": "C-Grade",
+        "description": "Office assets that do not meet Premium, A or B-Grade definitions, generally of average quality space with lifts.",
+        "criteria": {},
+        "riskProfile": "elevated",
+        "lenderAppetite": "selective"
+      },
+      {
+        "code": "D_GRADE",
+        "name": "D-Grade",
+        "description": "Office assets that are not accommodated in the other categories, of lesser quality and no lift.",
+        "criteria": {},
+        "riskProfile": "elevated",
+        "lenderAppetite": "limited"
+      }
+    ],
+    "notes": [
+      "Strata Office: where a strata office encompasses an entire floor plate, the building grade for the underlying building may be adopted. Where this is not the case, the grading should be assessed solely on the characteristics of the area being taken as security.",
+      "Major CBDs: Sydney, Melbourne, Brisbane, Perth"
+    ]
+  },
+
+  "retailCentreDefinitions": [
+    {
+      "code": "RTL_STRIP",
+      "name": "Strips / Shops",
+      "description": "Strip shops which do not meet Bulky assets/Large Format centres, Neighbourhood Retail or Focus asset criteria.",
+      "examples": ["Shopping strips", "Free Standing Shops", "Petrol Stations", "Restaurants (including cafes & fast food outlets etc.)", "Markets", "Themed centres", "Car/Truck Dealerships", "Auto Service Centre (tyres, service, repairs etc.)"],
+      "riskProfile": "standard"
+    },
+    {
+      "code": "RTL_BULKY",
+      "name": "Bulky Goods",
+      "description": "Bulky good retailers occupying large areas (generally >1,500 sqm) to display merchandise, e.g. furniture, electrical, whitegoods, homewares etc.",
+      "minArea": 1500,
+      "riskProfile": "standard"
+    },
+    {
+      "code": "RTL_LARGE",
+      "name": "Large Format Centres",
+      "description": "A medium to large sized shopping centre dominated by bulky goods retailers.",
+      "criteria": [
+        "Generally located adjacent to large regional centre or in non-traditional retail locations (e.g. greenfield sites and industrial areas)",
+        "Generally greater than 5,000 square metres"
+      ],
+      "minArea": 5000,
+      "riskProfile": "standard"
+    },
+    {
+      "code": "RTL_REGIONAL",
+      "name": "Regional Shopping Centre",
+      "description": "Major integrated centre under a single management.",
+      "criteria": [
+        "At least one department store or discount department store (DDS) of a min. 10,000 sqm GLA, AND the centre contains total GLA in excess of 25,000 sqm",
+        "OR three full line DDSs or equivalent each of min. 5,000 sqm GLA, AND the centre contains total reporting GLA in excess of 50,000 sqm"
+      ],
+      "riskProfile": "standard",
+      "lenderAppetite": "strong"
+    },
+    {
+      "code": "RTL_SUBREGIONAL",
+      "name": "Sub Regional Shopping Centre",
+      "description": "Centre built around one or two major DDSs, one or more supermarkets, and includes speciality shops.",
+      "riskProfile": "standard",
+      "lenderAppetite": "strong"
+    },
+    {
+      "code": "RTL_NEIGHBOURHOOD",
+      "name": "Neighbourhood Centre",
+      "description": "Centre less than 10,000 sqm in size.",
+      "criteria": [
+        "Comprises one or two supermarkets",
+        "A collection of food and non-food speciality shops and services",
+        "Under single management",
+        "Typically includes at least one Food and Grocery anchor tenant of >400 sqm or only one DDS which is smaller than 4,000 sqm"
+      ],
+      "maxArea": 10000,
+      "riskProfile": "standard"
+    }
+  ],
+
+  "specialisedPropertyDefinitions": {
+    "description": "Specialised property is property that is purpose-built or used for a specific purpose. When considering specialised asset class transactions, a deeper understanding of the risk profile needs to be contemplated before presenting structures to your clients.",
+    "riskProfile": "high",
+    "categories": [
+      {
+        "parentCategory": "Tourism & Leisure",
+        "subTypes": [
+          {"name": "Accommodation - Hotels", "examples": ["Hotels", "Tourist Resorts"]},
+          {"name": "Accommodation - Other", "examples": ["Motels", "Serviced Apartments", "Boarding Houses"]},
+          {"name": "Pubs and Licensed Premises", "examples": ["Licensed clubs", "Gaming venues", "Nightclubs"]},
+          {"name": "Recreational, Leisure and Sporting Facilities", "examples": ["Caravan parks", "Golf courses", "Theme parks", "Stadiums", "Recreational and sporting facilities", "Swimming pools"]}
+        ]
+      },
+      {
+        "parentCategory": "Retail",
+        "subTypes": [
+          {"name": "Service Stations (car)", "examples": ["Service Stations"]},
+          {"name": "Purpose built restaurants", "examples": ["McDonalds", "Purpose-built fast food"]}
+        ]
+      },
+      {
+        "parentCategory": "Other",
+        "subTypes": [
+          {"name": "Aged Care & Health", "examples": ["Nursing homes", "Residential care facilities", "Retirement villages", "Supported residential service homes", "Private hospitals", "Day procedure centres"]},
+          {"name": "Medical Clinics", "examples": ["Medical or general practice clinics"], "notes": [
+            "A Medical Clinic is a collection of Medical Services on the same site (e.g. GP, Pharmacist, Pathology, Radiation). Generally housed in purpose built premises with limited alternative use. Treated as 'Specialised - Commercial'.",
+            "A General Practice Clinic provides healthcare to local community outpatients only. Operates from commercial offices/units or renovated residential. Where zoning allows mixed use and conversion at minimal cost, bankers may seek DCA Level 3 approval to treat as normal 'Commercial' property."
+          ]},
+          {"name": "Education", "examples": ["Education related properties (including schools and universities)"]},
+          {"name": "Accommodation", "examples": ["Student accommodation", "Places of worship"]},
+          {"name": "Storage & Industrial", "examples": ["Self-storage", "Car parks", "Landfills", "Waste transfer stations", "Quarries"]},
+          {"name": "Entertainment", "examples": ["Cinema complexes", "Bowling alleys"]},
+          {"name": "Childcare", "examples": ["Childcare centres"]},
+          {"name": "Marine", "examples": ["Marinas"]},
+          {"name": "Corrections", "examples": ["Prisons"]}
+        ]
+      },
+      {
+        "parentCategory": "Specialised Rural Property",
+        "subTypes": [
+          {
+            "name": "Type 1 - Permanent plantings and horticulture",
+            "examples": ["Vineyards", "Nuts (almonds, cashews, chestnuts, macadamia, pecans, walnuts)", "Orchards"]
+          },
+          {
+            "name": "Type 2 - Intensive production and/or processing",
+            "examples": ["Abattoirs", "Aquaculture", "Feedlots", "Forests and plantations", "Hothouses", "Hydroponics", "Mushrooms", "Olives", "Piggeries", "Poultry or egg production", "Wineries"]
+          }
+        ]
+      }
+    ]
+  },
+
+  "pendingSections": [
+    "ABS Metro/Non-Metro Land Classifications"
+  ],
+
+  "generalDefinitions": [
+    {
+      "term": "Certain Property Income",
+      "definition": "Certain property income means pre-tax rental from the current term of committed leases (excluding lease term extension options) less non-recoverable outgoings (excluding capital expenditure).",
+      "category": "income",
+      "relevantModules": ["tenancy", "valuation"]
+    },
+    {
+      "term": "Certificate of Classification or Occupancy",
+      "definition": "Is issued by the local council or builder surveyor to a developer to confirm that a commercial or residential building is at a stage where it is safe to occupy.",
+      "category": "compliance",
+      "relevantModules": ["zoning"],
+      "notes": ["Must be presented with the final progressive payment request of a construction/development loan."]
+    },
+    {
+      "term": "Certificate of Practical Completion (Residential)",
+      "definition": "A certificate the builder gets the customer to sign before handing over the completed house. The certificate is the customer's acceptance that all identified problems have been fixed and the building works have been completed.",
+      "category": "compliance",
+      "relevantModules": ["zoning"]
+    },
+    {
+      "term": "Certificate of Practical Completion (Commercial)",
+      "definition": "Issued to the builder by the project architect, engineer, etc. to confirm that the works under the construction or development contract have reached the stage of completion.",
+      "category": "compliance",
+      "relevantModules": ["zoning"],
+      "notes": ["Care: The certificate does not mean that the building is compliant with relevant Commonwealth, state and local government legislation (e.g. a residential aged care facility might not have passed fire safety standards as part of their accreditation)."]
+    },
+    {
+      "term": "Construction Cost",
+      "definition": "Construction cost is calculated as construction / development cost of the physical construction.",
+      "category": "valuation",
+      "relevantModules": ["valuation"]
+    },
+    {
+      "term": "Cost to Complete",
+      "definition": "Cost to complete is the amount to be spent on a project (including financing costs) to bring it to practical completion.",
+      "category": "valuation",
+      "relevantModules": ["valuation"]
+    },
+    {
+      "term": "Debt Servicing Group",
+      "definition": "The debt servicing group includes the borrowing entities within an aggregation group that are linked because of a common reliance on cash flows for debt servicing and/or repayment.",
+      "category": "serviceability",
+      "relevantModules": ["valuation", "tenancy"]
+    },
+    {
+      "term": "Deposit Bond",
+      "definition": "A written guarantee issued by a financial institution that substitutes the 10% cash deposit traditionally required to purchase a property.",
+      "category": "finance",
+      "relevantModules": ["valuation"]
+    },
+    {
+      "term": "Ground Lease (or Land Lease)",
+      "definition": "The lease of land alone, sometimes secured by improvements built on the land. A means used to separate the ownership of the land from the ownership of the buildings and improvements constructed on the land.",
+      "category": "tenancy",
+      "relevantModules": ["tenancy", "zoning"],
+      "riskFlag": true,
+      "riskNote": "Ground leases add complexity — lender must assess both land lease terms and building ownership structure."
+    },
+    {
+      "term": "Heritage Overlays",
+      "definition": "Contained within local council planning schemes and assist in protecting the heritage of a municipality. May not apply to the whole of a heritage place (i.e. it could apply to the external paint controls of a building only). Are listed in each state or territory's Heritage Register and could include a diverse range of places, buildings and objects (including Aboriginal places, buildings, objects, monuments, gardens, natural landscapes, archaeological sites, shipwrecks, relics, streets, industrial structures, public buildings, shops, factories, houses, religious buildings, schools, conservation precincts, jetties, bridges and movable items such as church organs and ferries).",
+      "category": "compliance",
+      "relevantModules": ["zoning", "environmental"],
+      "riskFlag": true,
+      "riskNote": "Heritage overlays restrict modification and development potential. Automatic amber flag in security assessment."
+    },
+    {
+      "term": "Point of Practical Completion",
+      "definition": "The point in time when: (1) work for the building construction or development has been completed; all equipment has been installed, tested and found to be in running order; and the project is deemed safe for occupation by the issuer of the Certificate of Practical Completion / Certificate of Occupancy; AND (2) builder seeks the final progress payment claim.",
+      "category": "compliance",
+      "relevantModules": ["zoning", "valuation"]
+    },
+    {
+      "term": "Project or Development Costs",
+      "definition": "Calculated as the lower of: the payout of the existing financier; OR purchase price of the property site on the contract of sale; PLUS stamp duty costs and legal fees, council contributions, consultation and professional fees, project manager fees, demolition cost, construction/development costs, advertising and marketing fees, holding costs, project contingency costs, fit-out costs, builders margin allowance, interest using the Bank's calculated estimate, and any other costs.",
+      "category": "valuation",
+      "relevantModules": ["valuation"],
+      "notes": ["Loan to cost ratio is calculated at a project level."],
+      "components": [
+        "Stamp duty costs and legal fees",
+        "Council contributions",
+        "Consultation and professional fees",
+        "Project manager fees",
+        "Demolition cost",
+        "Construction/development costs",
+        "Advertising and marketing fees",
+        "Holding costs",
+        "Project contingency costs",
+        "Fit-out costs",
+        "Builders margin allowance",
+        "Interest (Bank's calculated estimate)",
+        "Any other costs"
+      ]
+    }
+  ],
+
+  "riskProfiles": {
+    "standard": {
+      "label": "Standard",
+      "lenderAppetite": "broad",
+      "description": "Most lenders comfortable with this property type"
+    },
+    "elevated": {
+      "label": "Elevated",
+      "lenderAppetite": "selective",
+      "description": "Fewer lenders, stricter conditions, specialist assessment required"
+    },
+    "high": {
+      "label": "High",
+      "lenderAppetite": "limited",
+      "description": "Limited lender appetite, typically requires development finance specialist"
+    }
+  }
+}

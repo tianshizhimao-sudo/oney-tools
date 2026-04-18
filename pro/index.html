@@ -34,6 +34,8 @@
     </div>
   </nav>
 
+  <div id="pro-import-banner" class="container" style="padding-top:16px;position:relative;z-index:1"></div>
+
   <main></main>
 
   <div class="container" style="padding-bottom:40px;position:relative;z-index:1;">
@@ -51,6 +53,39 @@
     import { proWorkspaceConfig } from '/assets/js/tools/pro-workspace.config.js';
     import { isPro, setPro } from '/assets/js/app/gating.js';
     import { storage, SCOPES } from '/assets/js/app/storage.js';
+    import { consumePendingImports, getProFlow } from '/assets/js/app/pro-bridge.js';
+
+    /* ---------- Import banner ---------- */
+    const SOURCE_LABEL = {
+      servicing: 'Commercial Servicing',
+      'security-assessment': 'Security Assessment',
+      'investment-yield': 'Investment Yield',
+      'commercial-investment': 'Commercial Investment',
+      'flow-visualiser': 'Flow Visualiser',
+    };
+    function renderImportBanner() {
+      const params = new URLSearchParams(window.location.search);
+      const from = params.get('from');
+      const pending = consumePendingImports();
+      if (!from && !pending.length) return;
+      const sources = new Set(pending.map((p) => p.sourceToolId));
+      if (from) sources.add(from);
+      const labels = [...sources].map((s) => SOURCE_LABEL[s] || s).join(', ');
+      const banner = document.getElementById('pro-import-banner');
+      banner.innerHTML = `
+        <div style="border:1px solid rgba(46,204,133,0.30);
+                    background:linear-gradient(90deg,rgba(46,204,133,0.10),rgba(107,76,154,0.06));
+                    border-radius:14px;padding:14px 18px;display:flex;
+                    align-items:center;gap:12px;flex-wrap:wrap;font-size:14px">
+          <strong style="color:#9be7c1">Imported</strong>
+          <span style="color:var(--text-soft)">Case context loaded from <strong>${labels}</strong>.</span>
+          <span style="flex:1"></span>
+          <button type="button" id="banner-dismiss" style="background:transparent;border:0;
+                  color:var(--text-muted);cursor:pointer;font-size:18px;line-height:1">×</button>
+        </div>`;
+      document.getElementById('banner-dismiss').addEventListener('click', () => banner.innerHTML = '');
+    }
+    renderImportBanner();
 
     mountToolPage({
       config: proWorkspaceConfig,
@@ -68,18 +103,21 @@
     });
 
     // Pro-specific action bar: export / reset
+    const { exportProJSON, exportProPDF } = await import('/assets/js/tools/pro-export.js');
     const actions = document.getElementById('pro-actions');
     actions.innerHTML = `
-      <button type="button" class="btn btn-secondary" id="pro-export">Export case (JSON)</button>
+      <button type="button" class="btn btn-pro" id="pro-export-pdf">Export PDF</button>
+      <button type="button" class="btn btn-secondary" id="pro-export-json">Export JSON</button>
       <button type="button" class="btn btn-ghost" id="pro-reset">Reset workspace</button>
     `;
-    document.getElementById('pro-export').addEventListener('click', () => {
-      const values = storage.get(SCOPES.PRO, proWorkspaceConfig.id) || proWorkspaceConfig.defaults;
-      const blob = new Blob([JSON.stringify({ tool: 'oney-pro', values }, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'oney-pro-case.json'; a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    document.getElementById('pro-export-json').addEventListener('click', exportProJSON);
+    document.getElementById('pro-export-pdf').addEventListener('click', async (e) => {
+      const btn = e.currentTarget;
+      const original = btn.textContent;
+      btn.textContent = 'Generating…'; btn.disabled = true;
+      try { await exportProPDF(); }
+      catch (err) { alert('PDF export failed: ' + (err && err.message ? err.message : err)); }
+      finally { btn.textContent = original; btn.disabled = false; }
     });
     document.getElementById('pro-reset').addEventListener('click', () => {
       if (!confirm('Clear all workspace inputs?')) return;

@@ -30,6 +30,11 @@ export const proWorkspaceConfig = {
   title: 'Oney Pro Workspace',
   eyebrow: 'Pro · Case workspace',
   subtitle: 'One shared dataset feeds borrower, loan, security, servicing, risk and the credit summary.',
+  urlAlias: {
+    rent: 'grossAnnualRent',
+    value: 'propertyValue',
+    income: 'grossAnnualIncome',
+  },
   defaults: {
     /* borrower */
     borrowerName: '',

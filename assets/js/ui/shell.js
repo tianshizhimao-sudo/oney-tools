@@ -10,6 +10,8 @@ import { renderField, readFieldValue } from './fields.js';
 import { storage, SCOPES } from '../app/storage.js';
 import { GROUPS, getNextStepLink, getToolById } from '../app/tool-registry.js';
 import { isPro, gatedTeaserHTML } from '../app/gating.js';
+import { applyUrlPrefill } from '../app/url-prefill.js';
+import { sendToPro } from '../app/pro-bridge.js';
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -126,6 +128,12 @@ function renderResultBlock(result, tool) {
     <a class="btn btn-secondary" href="${escapeHtml(a.href)}">${escapeHtml(a.label)}</a>
   `).join('');
 
+  // Auto-inject Send-to-Pro button when the tool config opts in.
+  // (Pro itself shouldn't show the button.)
+  const proImportBtn = (tool && tool.group !== 'pro' && currentConfigOpts.proImport) ? `
+    <button type="button" class="btn btn-pro" data-action="send-to-pro">Send to Oney Pro →</button>
+  ` : '';
+
   const nextStepBlock = renderNextStep(tool);
 
   const narrative = result.narrative ? `
@@ -146,14 +154,19 @@ function renderResultBlock(result, tool) {
     ${insights}
     ${gatedBlock}
     ${narrative}
-    ${actions || nextStepBlock ? `
+    ${actions || nextStepBlock || proImportBtn ? `
       <div class="result-actions">
         ${actions}
+        ${proImportBtn}
         ${nextStepBlock}
       </div>
     ` : ''}
   `;
 }
+
+// Set by mountTool before rendering so renderResultBlock can read tool-level flags
+// without expanding its signature.
+let currentConfigOpts = {};
 
 function renderNextStep(tool) {
   if (!tool) return '';
@@ -173,14 +186,15 @@ export function mountTool(rootEl, config, opts = {}) {
   const persistKey = config.id;
   const persistScope = scopeFor(config.group);
 
-  // Restore saved values
+  // Order: defaults (already in engine) → storage → URL params (URL wins)
   const saved = storage.get(persistScope, persistKey);
   if (saved && typeof saved === 'object') {
-    Object.keys(saved).forEach((k) => {
-      if (k in engine.state.values || config.defaults && k in config.defaults || true) {
-        engine.state.values[k] = saved[k];
-      }
-    });
+    Object.keys(saved).forEach((k) => { engine.state.values[k] = saved[k]; });
+  }
+  const prefilled = applyUrlPrefill(engine, config);
+  if (prefilled.length) {
+    // URL is the user's stated intent — persist it so links keep their state.
+    try { storage.set(persistScope, persistKey, engine.state.values); } catch {}
   }
 
   function persist() {
@@ -201,6 +215,7 @@ export function mountTool(rootEl, config, opts = {}) {
   }
 
   function render() {
+    currentConfigOpts = config; // expose proImport / scenarioReady to the result renderer
     const result = currentResult();
     rootEl.innerHTML = `
       <form class="step-form" id="tool-form" autocomplete="off" novalidate>
@@ -259,7 +274,7 @@ export function mountTool(rootEl, config, opts = {}) {
       const a = action.dataset.action;
       if (a === 'next') {
         if (engine.next()) render();
-        else render(); // re-render to show errors
+        else render();
       } else if (a === 'prev') {
         engine.prev();
         render();
@@ -270,11 +285,14 @@ export function mountTool(rootEl, config, opts = {}) {
         } else {
           render();
         }
+      } else if (a === 'send-to-pro') {
+        sendToPro(config.id, engine.state.values);
       }
     });
   }
 
   function updateResult() {
+    currentConfigOpts = config;
     const result = currentResult();
     const slot = rootEl.querySelector('#tool-result');
     if (slot) slot.innerHTML = renderResultBlock(result, tool);

@@ -21,6 +21,11 @@ export const investmentYieldConfig = {
   eyebrow: 'Analyse',
   subtitle: 'Gross yield, net yield, and indicative weekly cash flow on a residential investment.',
   scenarioReady: true,
+  proImport: true,
+  urlAlias: {
+    rent: 'weeklyRent', // weekly is the primary input; ?rent= is interpreted weekly
+    deposit: 'depositPct',
+  },
   defaults: {
     purchasePrice: 800000,
     weeklyRent: 550,
