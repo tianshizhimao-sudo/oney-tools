@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Assess — Diagnose first | Oney & Co Tools</title>
+  <meta name="description" content="Free diagnostic tools — DTI router, Financial Health Check and Bank-Ready Score. Find out where you stand before you apply.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='fg' x1='0%25' y1='100%25' x2='0%25' y2='0%25'><stop offset='0%25' stop-color='%231FAD73'/><stop offset='60%25' stop-color='%232ECC85'/><stop offset='60%25' stop-color='transparent'/><stop offset='100%25' stop-color='transparent'/></linearGradient><linearGradient id='sg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><circle r='38' fill='none' stroke='url(%23sg)' stroke-width='10' stroke-linecap='round'/><circle r='28' fill='url(%23fg)'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/brand.css">
+  <link rel="canonical" href="https://tools.oneyco.com.au/assess/">
+</head>
+<body>
+  <div class="ambient-bg"></div>
+
+  <nav class="brand-nav">
+    <div class="brand-nav-inner">
+      <a href="https://oneyco.com.au" class="brand-logo">
+        <div class="brand-logo-mark"><span></span></div>
+        <span class="brand-logo-text">Oney <span class="amp">&amp;</span> Co</span>
+      </a>
+      <button class="brand-nav-hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="brand-nav-links">
+        <a href="/" class="brand-nav-link">Home</a>
+        <a href="/assess/" class="brand-nav-link active">Assess</a>
+        <a href="/calculate/" class="brand-nav-link">Calculate</a>
+        <a href="/analyse/" class="brand-nav-link">Analyse</a>
+        <a href="/pro/" class="brand-nav-link">Pro</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hub-hero">
+    <div class="hub-hero-glow-1"></div>
+    <div class="hub-hero-glow-2"></div>
+    <div class="hub-hero-inner container">
+      <div class="fade-up">
+        <span class="hub-hero-eyebrow">Step 1 — Diagnose first</span>
+        <h1>Find out <span class="gradient">where you stand</span> before you apply.</h1>
+        <p class="hub-hero-text">
+          Three short diagnostics that route you to the right calculator, the right lender path,
+          or directly into Oney Pro. Each takes about five minutes.
+        </p>
+        <div class="hub-hero-actions">
+          <a class="btn btn-secondary" href="/calculate/">Skip to calculators →</a>
+        </div>
+      </div>
+      <aside class="hub-hero-panel fade-up fade-up-d1">
+        <div class="mini-metric"><span>5m</span><label>Per tool</label></div>
+        <div class="mini-metric"><span>Free</span><label>No signup</label></div>
+        <div class="mini-metric"><span>3</span><label>Tools</label></div>
+      </aside>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top:24px;padding-bottom:80px;">
+    <section>
+      <div class="section-label green fade-up">
+        <span>Diagnostics</span>
+        <small>All free. No login required.</small>
+      </div>
+      <div class="tool-grid" id="group-tools"></div>
+    </section>
+
+    <section>
+      <div class="section-label neutral fade-up">
+        <span>Next step</span>
+        <small>Once you know where you stand.</small>
+      </div>
+      <div class="quick-start-grid">
+        <a class="entry-card fade-up" href="/calculate/" data-group="calculate">
+          <div class="entry-meta">Run the numbers</div>
+          <h3>Calculate</h3>
+          <p>Repayments, borrowing power, refinance breakeven, LMI, stamp duty.</p>
+          <span class="tool-link">Open calculators</span>
+        </a>
+        <a class="entry-card fade-up fade-up-d1" href="/analyse/" data-group="analyse">
+          <div class="entry-meta">Go deeper</div>
+          <h3>Analyse</h3>
+          <p>Yield, servicing, security and structure tools for deal-level work.</p>
+          <span class="tool-link">Open analysis tools</span>
+        </a>
+        <a class="entry-card fade-up fade-up-d2" href="/pro/" data-group="pro">
+          <div class="entry-meta">Full case workspace</div>
+          <h3>Oney Pro</h3>
+          <p>Shared inputs across servicing, security, risk and credit summary.</p>
+          <span class="tool-link">Open Oney Pro</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="brand-footer">
+    <p>Oney &amp; Co — Clarity in every deal</p>
+    <p><a href="https://oneyco.com.au">oneyco.com.au</a></p>
+  </footer>
+
+  <script type="module">
+    import { renderGroupPage } from '/assets/js/app/route-map.js';
+    import { initAll } from '/assets/js/ui/motion.js';
+    renderGroupPage('assess', document.getElementById('group-tools'));
+    initAll();
+  </script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Borrowing Power Estimator — Oney & Co Tools</title>
+  <meta name="description" content="Estimate Australian home loan borrowing capacity from income, expenses and existing liabilities. HEM floor + 3% serviceability buffer.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='fg' x1='0%25' y1='100%25' x2='0%25' y2='0%25'><stop offset='0%25' stop-color='%231FAD73'/><stop offset='60%25' stop-color='%232ECC85'/><stop offset='60%25' stop-color='transparent'/><stop offset='100%25' stop-color='transparent'/></linearGradient><linearGradient id='sg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><circle r='38' fill='none' stroke='url(%23sg)' stroke-width='10' stroke-linecap='round'/><circle r='28' fill='url(%23fg)'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/brand.css">
+  <link rel="stylesheet" href="/assets/css/tool-shell.css">
+  <link rel="canonical" href="https://tools.oneyco.com.au/tools/borrowing-power.html">
+</head>
+<body class="tool-page">
+  <div class="ambient-bg"></div>
+
+  <nav class="brand-nav">
+    <div class="brand-nav-inner">
+      <a href="https://oneyco.com.au" class="brand-logo">
+        <div class="brand-logo-mark"><span></span></div>
+        <span class="brand-logo-text">Oney <span class="amp">&amp;</span> Co</span>
+      </a>
+      <button class="brand-nav-hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="brand-nav-links">
+        <a href="/" class="brand-nav-link">Home</a>
+        <a href="/assess/" class="brand-nav-link">Assess</a>
+        <a href="/calculate/" class="brand-nav-link active">Calculate</a>
+        <a href="/analyse/" class="brand-nav-link">Analyse</a>
+        <a href="/pro/" class="brand-nav-link">Pro</a>
+      </div>
+    </div>
+  </nav>
+
+  <main></main>
+
+  <footer class="brand-footer">
+    <p>Oney &amp; Co — Clarity in every deal</p>
+    <p><a href="https://oneyco.com.au">oneyco.com.au</a></p>
+  </footer>
+
+  <script type="module">
+    import { mountToolPage } from '/assets/js/ui/shell.js';
+    import { initAll } from '/assets/js/ui/motion.js';
+    import { borrowingPowerConfig } from '/assets/js/tools/borrowing-power.config.js';
+
+    mountToolPage({
+      config: borrowingPowerConfig,
+      assistCards: [
+        {
+          title: 'How this is calculated',
+          body: 'Net income minus expenses (or HEM floor) and existing debt service, then reverse-solved for principal at your rate plus a 3% buffer over 30 years.',
+        },
+      ],
+    });
+    initAll();
+  </script>
+</body>
+</html>

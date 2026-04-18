@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Analyse — Go deeper | Oney & Co Tools</title>
+  <meta name="description" content="Deal-level analysis tools — investment yield, commercial servicing, security assessment, and flow visualisation.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='fg' x1='0%25' y1='100%25' x2='0%25' y2='0%25'><stop offset='0%25' stop-color='%231FAD73'/><stop offset='60%25' stop-color='%232ECC85'/><stop offset='60%25' stop-color='transparent'/><stop offset='100%25' stop-color='transparent'/></linearGradient><linearGradient id='sg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><circle r='38' fill='none' stroke='url(%23sg)' stroke-width='10' stroke-linecap='round'/><circle r='28' fill='url(%23fg)'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/brand.css">
+  <link rel="canonical" href="https://tools.oneyco.com.au/analyse/">
+</head>
+<body>
+  <div class="ambient-bg"></div>
+
+  <nav class="brand-nav">
+    <div class="brand-nav-inner">
+      <a href="https://oneyco.com.au" class="brand-logo">
+        <div class="brand-logo-mark"><span></span></div>
+        <span class="brand-logo-text">Oney <span class="amp">&amp;</span> Co</span>
+      </a>
+      <button class="brand-nav-hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="brand-nav-links">
+        <a href="/" class="brand-nav-link">Home</a>
+        <a href="/assess/" class="brand-nav-link">Assess</a>
+        <a href="/calculate/" class="brand-nav-link">Calculate</a>
+        <a href="/analyse/" class="brand-nav-link active">Analyse</a>
+        <a href="/pro/" class="brand-nav-link">Pro</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hub-hero">
+    <div class="hub-hero-glow-1"></div>
+    <div class="hub-hero-glow-2"></div>
+    <div class="hub-hero-inner container">
+      <div class="fade-up">
+        <span class="hub-hero-eyebrow">Step 3 — Go deeper</span>
+        <h1>Deal-level analysis when <span class="gradient">a number isn&rsquo;t enough.</span></h1>
+        <p class="hub-hero-text">
+          Yield, servicing, security and structure tools for the moments before you commit.
+          Save scenarios, compare, export — and take any of them straight into Oney Pro.
+        </p>
+        <div class="hub-hero-actions">
+          <a class="btn btn-secondary" href="/calculate/">← Back to calculators</a>
+          <a class="btn btn-pro" href="/pro/">Open Oney Pro →</a>
+        </div>
+      </div>
+      <aside class="hub-hero-panel fade-up fade-up-d1">
+        <div class="mini-metric"><span id="m-count">5</span><label>Analysis tools</label></div>
+        <div class="mini-metric"><span>Save</span><label>Per case</label></div>
+        <div class="mini-metric"><span>Pro</span><label>Optional upgrade</label></div>
+      </aside>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top:24px;padding-bottom:80px;">
+    <section>
+      <div class="section-label purple fade-up">
+        <span>Analysis tools</span>
+        <small>Some are free; some unlock more in Pro.</small>
+      </div>
+      <div class="tool-grid" id="group-tools"></div>
+    </section>
+
+    <section class="upgrade-band fade-up">
+      <div>
+        <h2>Pull all of these into one workspace.</h2>
+        <p>Oney Pro shares one input across servicing, security, risk and credit summary — with PDF export.</p>
+      </div>
+      <a class="btn btn-pro" href="/pro/">Open Oney Pro →</a>
+    </section>
+  </main>
+
+  <footer class="brand-footer">
+    <p>Oney &amp; Co — Clarity in every deal</p>
+    <p><a href="https://oneyco.com.au">oneyco.com.au</a></p>
+  </footer>
+
+  <script type="module">
+    import { renderGroupPage } from '/assets/js/app/route-map.js';
+    import { getToolsByGroup } from '/assets/js/app/tool-registry.js';
+    import { initAll } from '/assets/js/ui/motion.js';
+    renderGroupPage('analyse', document.getElementById('group-tools'));
+    document.getElementById('m-count').textContent = getToolsByGroup('analyse').length;
+    initAll();
+  </script>
+</body>
+</html>
