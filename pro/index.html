@@ -11,8 +11,50 @@
   <link rel="stylesheet" href="/assets/css/brand.css">
   <link rel="stylesheet" href="/assets/css/tool-shell.css">
   <link rel="canonical" href="https://tools.oneyco.com.au/pro/">
+  <style id="pro-gate-style">
+    #pro-password-gate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:#1A1A2E;font-family:Inter,system-ui,sans-serif}
+    #pro-password-gate .box{text-align:center;padding:40px;border-radius:12px;background:#252540;border:1px solid #3D3D5C;max-width:340px;width:90%}
+    #pro-password-gate h2{color:#2ECC85;margin:0 0 8px;font-size:20px}
+    #pro-password-gate p{color:#a3a3b8;font-size:13px;margin:0 0 20px}
+    #pro-password-gate input{width:100%;padding:10px 14px;border-radius:6px;border:1px solid #3D3D5C;background:#1A1A2E;color:#e0e0e0;font-size:14px;outline:none;box-sizing:border-box}
+    #pro-password-gate input:focus{border-color:#2ECC85}
+    #pro-password-gate button{margin-top:12px;width:100%;padding:10px;border:none;border-radius:6px;background:linear-gradient(135deg,#2ECC85,#1FAD73);color:#fff;font-weight:600;font-size:14px;cursor:pointer}
+    #pro-password-gate .err{color:#e74c3c;font-size:12px;margin-top:8px;display:none}
+    body > *:not(#pro-password-gate){visibility:hidden}
+  </style>
 </head>
 <body class="tool-page">
+  <div id="pro-password-gate">
+    <div class="box">
+      <h2>🔒 Oney Pro Workspace</h2>
+      <p>Testing access only</p>
+      <input type="password" id="pro-gate-pw" placeholder="Enter password" autofocus />
+      <button type="button" id="pro-gate-enter">Enter</button>
+      <div class="err" id="pro-gate-err">Incorrect password</div>
+    </div>
+  </div>
+  <script>
+    (function(){
+      function sha256(s){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)).then(b=>Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join(''))}
+      var HASH='593d6f478211fa2ca31f3c8cef009f7f2342db24d1bf3ba1c1bd27c8edb9fedb';
+      function unlock(){
+        var g=document.getElementById('pro-password-gate');
+        var s=document.getElementById('pro-gate-style');
+        if(g)g.remove();
+        if(s)s.remove();
+      }
+      function checkPw(){
+        var v=document.getElementById('pro-gate-pw').value;
+        sha256(v).then(function(h){
+          if(h===HASH){sessionStorage.setItem('ps-auth','1');unlock()}
+          else{document.getElementById('pro-gate-err').style.display='block'}
+        });
+      }
+      document.getElementById('pro-gate-enter').addEventListener('click',checkPw);
+      document.getElementById('pro-gate-pw').addEventListener('keydown',function(e){if(e.key==='Enter')checkPw()});
+      if(sessionStorage.getItem('ps-auth')==='1')unlock();
+    })();
+  </script>
   <div class="ambient-bg"></div>
 
   <nav class="brand-nav">

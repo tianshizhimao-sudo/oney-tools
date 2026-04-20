@@ -445,13 +445,13 @@
 <script>
 (function(){
   if(new URLSearchParams(location.search).has('embed')){document.getElementById('oney-gate')?.remove();return}
-  if(sessionStorage.getItem('oney-auth')==='1'){document.getElementById('oney-gate')?.remove();return}
+  if(sessionStorage.getItem('ps-auth')==='1'){document.getElementById('oney-gate')?.remove();return}
   document.getElementById('oney-pw')?.addEventListener('keydown',e=>{if(e.key==='Enter')oneyGateCheck()});
 })();
 async function oneyGateCheck(){
   const p=document.getElementById('oney-pw').value;
   const h=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p)))).map(x=>x.toString(16).padStart(2,'0')).join('');
-  if(h==='593d6f478211fa2ca31f3c8cef009f7f2342db24d1bf3ba1c1bd27c8edb9fedb'){document.getElementById('oney-gate').remove();sessionStorage.setItem('oney-auth','1')}
+  if(h==='593d6f478211fa2ca31f3c8cef009f7f2342db24d1bf3ba1c1bd27c8edb9fedb'){document.getElementById('oney-gate').remove();sessionStorage.setItem('ps-auth','1')}
   else{document.getElementById('gate-err').style.display='block';document.getElementById('oney-pw').value=''}
 }
 </script>
