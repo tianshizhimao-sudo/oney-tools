@@ -589,6 +589,75 @@
         </div>
       </div>
 
+      <!-- TIER 2: Super / Payroll Compliance -->
+      <div class="form-section">
+        <h2 class="form-section-title">🧾 Super / Payroll Compliance Timing</h2>
+
+        <div class="form-group">
+          <label>Pay Cycle</label>
+          <select name="payCycle">
+            <option value="">Select pay cycle...</option>
+            <option value="Weekly">Weekly</option>
+            <option value="Fortnightly">Fortnightly</option>
+            <option value="Monthly">Monthly</option>
+            <option value="Ad hoc / varies">Ad hoc / varies</option>
+            <option value="No employees">No employees</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>SG Payment Method</label>
+          <select name="sgPaymentMethod">
+            <option value="">Select method...</option>
+            <option value="Payroll software / clearing house">Payroll software / clearing house</option>
+            <option value="Super fund portal">Super fund portal</option>
+            <option value="Accountant / bookkeeper manages">Accountant / bookkeeper manages</option>
+            <option value="Not sure">Not sure</option>
+            <option value="No employees">No employees</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Clearing Provider</label>
+          <input type="text" name="clearingProvider" placeholder="e.g., Xero, MYOB, QuickBooks, fund portal, accountant...">
+        </div>
+
+        <div class="form-group">
+          <label>Last SG Paid Date</label>
+          <input type="text" name="lastSgPaidDate" placeholder="e.g., 15 July 2026 / not sure / no employees">
+        </div>
+
+        <div class="form-group">
+          <label>June Quarter SG Status</label>
+          <select name="juneQuarterSgStatus">
+            <option value="">Select status...</option>
+            <option value="Paid and confirmed received by fund">Paid and confirmed received by fund</option>
+            <option value="Paid, waiting for fund receipt">Paid, waiting for fund receipt</option>
+            <option value="Not yet paid">Not yet paid</option>
+            <option value="Partially paid">Partially paid</option>
+            <option value="Not sure">Not sure</option>
+            <option value="No employees / not applicable">No employees / not applicable</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Any SGC Statement or Super Arrears Risk?</label>
+          <select name="sgcStatementRisk">
+            <option value="">Select...</option>
+            <option value="No known risk">No known risk</option>
+            <option value="Possible timing issue">Possible timing issue</option>
+            <option value="SGC statement may be required">SGC statement may be required</option>
+            <option value="Existing super arrears">Existing super arrears</option>
+            <option value="Not sure">Not sure</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Payroll / Super Notes</label>
+          <textarea name="payrollComplianceNotes" placeholder="Anything we should know about Payday Super, SBSCH transition, payroll timing, or SG arrears..."></textarea>
+        </div>
+      </div>
+
       <!-- TIER 2: Security -->
       <div class="form-section">
         <h2 class="form-section-title">🏠 Security</h2>
@@ -940,6 +1009,13 @@
           financials_prepared_by: formData.get('financialsPreparedBy'),
           addbacks: formData.get('addbacks'),
           outstanding_debts: formData.get('outstandingDebts'),
+          pay_cycle: formData.get('payCycle'),
+          sg_payment_method: formData.get('sgPaymentMethod'),
+          clearing_provider: formData.get('clearingProvider'),
+          last_sg_paid_date: formData.get('lastSgPaidDate'),
+          june_quarter_sg_status: formData.get('juneQuarterSgStatus'),
+          sgc_statement_risk: formData.get('sgcStatementRisk'),
+          payroll_compliance_notes: formData.get('payrollComplianceNotes'),
           real_property_owned: formData.get('realPropertyOwned'),
           property_address: formData.get('propertyAddress'),
           property_value: formData.get('realPropertyOwned') === 'Yes' ? parseDollar(formData.get('propertyValue')) : null,
@@ -962,6 +1038,19 @@
         };
 
         // Step 1: Save to Supabase (non-blocking — table may not exist yet)
+        // Keep the existing DB schema stable. Newer payroll/super fields are included
+        // in the Telegram notification and confirmation email until the table schema is expanded.
+        const supabasePayload = { ...payload };
+        [
+          'pay_cycle',
+          'sg_payment_method',
+          'clearing_provider',
+          'last_sg_paid_date',
+          'june_quarter_sg_status',
+          'sgc_statement_risk',
+          'payroll_compliance_notes'
+        ].forEach(key => delete supabasePayload[key]);
+
         try {
           const supabaseResponse = await fetch(`${SUPABASE_URL}/rest/v1/commercial_leads`, {
             method: 'POST',
@@ -971,7 +1060,7 @@
               'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
               'Prefer': 'return=minimal'
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(supabasePayload)
           });
           // Silently ignore Supabase errors — Telegram notification is the source of truth
         } catch (supabaseErr) {
@@ -1014,6 +1103,15 @@ Net Profit: ${fmt(payload.last_year_profit)} / ${fmt(payload.prev_year_profit)}
 Financials by: ${payload.financials_prepared_by || 'N/A'}
 Addbacks: ${payload.addbacks || 'None'}
 Outstanding debts: ${payload.outstanding_debts || 'None'}
+
+🧾 SUPER / PAYROLL
+Pay cycle: ${payload.pay_cycle || 'N/A'}
+SG method: ${payload.sg_payment_method || 'N/A'}
+Clearing provider: ${payload.clearing_provider || 'N/A'}
+Last SG paid date: ${payload.last_sg_paid_date || 'N/A'}
+June quarter SG status: ${payload.june_quarter_sg_status || 'N/A'}
+SGC / arrears risk: ${payload.sgc_statement_risk || 'N/A'}
+Payroll notes: ${payload.payroll_compliance_notes || 'None'}
 
 ⚠️ RISK
 Other lenders approached: ${payload.approached_other_lenders || 'N/A'}${payload.other_lenders_details ? ' — ' + payload.other_lenders_details : ''}
@@ -1100,6 +1198,10 @@ Referral: ${payload.hear_about_us || 'N/A'}${payload.referring_advisor ? ' — '
                         <tr><td style="padding:4px 0;color:#888;">Term</td><td style="padding:4px 0;color:#1a1a2e;">${payload.preferred_term || 'N/A'}</td></tr>
                         <tr><td style="padding:4px 0;color:#888;">ATO Debt</td><td style="padding:4px 0;color:#1a1a2e;">${payload.ato_debt || 'N/A'}</td></tr>
                         <tr><td style="padding:4px 0;color:#888;">Security</td><td style="padding:4px 0;color:#1a1a2e;">${payload.security_available || 'N/A'}</td></tr>
+                        <tr><td colspan="2" style="padding:8px 0 4px;border-top:1px solid #e5e5e5;"></td></tr>
+                        <tr><td style="padding:4px 0;color:#888;">Pay Cycle</td><td style="padding:4px 0;color:#1a1a2e;">${payload.pay_cycle || 'N/A'}</td></tr>
+                        <tr><td style="padding:4px 0;color:#888;">SG Method</td><td style="padding:4px 0;color:#1a1a2e;">${payload.sg_payment_method || 'N/A'}</td></tr>
+                        <tr><td style="padding:4px 0;color:#888;">June Quarter SG</td><td style="padding:4px 0;color:#1a1a2e;">${payload.june_quarter_sg_status || 'N/A'}</td></tr>
                         <tr><td colspan="2" style="padding:8px 0 4px;border-top:1px solid #e5e5e5;"></td></tr>
                         <tr><td style="padding:4px 0;color:#888;">Revenue (Last Yr)</td><td style="padding:4px 0;color:#1a1a2e;">${fmt(payload.last_year_revenue)}</td></tr>
                         <tr><td style="padding:4px 0;color:#888;">Net Profit (Last Yr)</td><td style="padding:4px 0;color:#1a1a2e;">${fmt(payload.last_year_profit)}</td></tr>
