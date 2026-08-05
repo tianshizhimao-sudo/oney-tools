@@ -891,6 +891,109 @@
       }
     }
 
+    // ── Payroll/Super readiness classification (INTERNAL, non-decisioning) ──
+    // Follows the Commercial Intake Payroll/Super Follow-up SOP v0.1.
+    // This computes an internal follow-up readiness status only. It is NOT a credit
+    // decision: it never approves or declines a client, and never uses bank-ready /
+    // not-bank-ready language. Use it only to route internal follow-up.
+    //
+    // Field mapping to the existing form payload (payload shape preserved):
+    //   super_payment_channel    -> sg_payment_method
+    //   last_sg_payment_date     -> last_sg_paid_date
+    //   sbsch_transition_status  -> derived from notes (no standalone field in form)
+    //   sgc_statement_risk       -> sgc_statement_risk
+    //   payroll_compliance_notes -> payroll_compliance_notes
+    function classifyPayrollSuperReadiness(payload) {
+      const channel = (payload.sg_payment_method || '').toString().trim();
+      const channelSet = channel.length > 0 && channel !== 'Not sure';
+      const lastSgDate = (payload.last_sg_paid_date || '').toString().trim();
+      const sgcRisk = (payload.sgc_statement_risk || '').toString().trim();
+      const notes = (payload.payroll_compliance_notes || '').toString().toLowerCase();
+      const atoDebt = (payload.ato_debt || '').toString().trim();
+
+      // Manual-review keywords from the SOP error handling: if any appear in the notes,
+      // require human eyes before any client-facing wording.
+      const manualReviewKeywords = ['returned', 'sbsch', 'arrears', 'late', 'sgc', 'default'];
+      const hasManualReviewKeyword = manualReviewKeywords.some(kw => notes.includes(kw));
+
+      const green = (function () {
+        // Green: non-SBSCH payment channel confirmed + SG date provided + no SGC/arrears risk
+        if (!channelSet) return false;
+        if (!lastSgDate) return false;
+        if (sgcRisk && sgcRisk !== 'No known risk' && sgcRisk !== 'Not sure') return false;
+        return true;
+      })();
+
+      const red = (function () {
+        // Red: serious signals needing accountant/bookkeeper clean-up before lender positioning
+        if (/returned sbsch|sbsch.*returned|returned.*sbsch/.test(notes)) return true; // returned SBSCH payment
+        if (/arrears|late sg|late super/.test(notes)) return true;                    // known late SG / super arrears
+        if (sgcRisk && /required|arrears/.test(sgcRisk)) return true;                 // SGC statement may be required / lodged
+        if (/default|payment plan.*fail|plan.*default/.test(notes)) return true;      // ATO / payment plan default history
+        if (/cannot evidence|cannot confirm.*process/.test(notes)) return true;       // cannot evidence payroll/super process
+        return false;
+      })();
+
+      const amber = (function () {
+        // Amber: any missing/unclear signal, needs clarification before lender-style positioning
+        if (!channelSet) return true;                        // required payroll/super field blank -> default Amber
+        if (!lastSgDate || /not sure|unknown/i.test(lastSgDate)) return true; // last SG date missing/unclear
+        if (sgcRisk === 'Possible timing issue') return true;
+        if (!sgcRisk || sgcRisk === 'Not sure') return true;
+        if (atoDebt === 'Yes' && !/plan|schedule|arrangement/.test(notes)) return true; // ATO debt w/o payment plan detail
+        if (/timing pressure|rushed|we are behind/.test(notes)) return true;            // timing pressure, no arrears confirmed
+        return false;
+      })();
+
+      // Resolve final status: Red > Amber > Green. If notes contain manual-review keywords
+      // but nothing red is detected, still escalate to Amber for human eyes.
+      let status;
+      if (red) {
+        status = 'red';
+      } else if (amber || hasManualReviewKeyword) {
+        status = 'amber';
+      } else {
+        status = 'green';
+      }
+
+      const tag = 'payroll_super_ready_' + status;
+
+      const strip = (v) => (v || '').toString().trim();
+
+      // Broker-facing / internal note — non-decisioning.
+      let note = 'Payroll/Super readiness flag: ' + status.toUpperCase() + '. ';
+      note += '\n> This is a readiness/compliance follow-up flag, not a credit decision. Confirm with accountant/bookkeeper where needed.\n';
+      note += '\nWHAT IS KNOWN:';
+      note += '\n- SUPER channel: ' + (strip(channel) || 'Not provided');
+      note += '\n- Last SG paid date: ' + (strip(lastSgDate) || 'Not provided');
+      note += '\n- June quarter SG status: ' + (strip(payload.june_quarter_sg_status) || 'Not provided');
+      note += '\n- SGC statement risk: ' + (strip(sgcRisk) || 'Not provided');
+      note += '\nWHAT IS MISSING/UNCLEAR:\n';
+      if (!channelSet) note += '  - Current super payment channel not confirmed\n';
+      if (!lastSgDate) note += '  - Last SG payment date missing\n';
+      if (sgcRisk && /required/.test(sgcRisk)) note += '  - SGC statement may be required / lodgment status unresolved\n';
+      if (/not sure/i.test(channel + lastSgDate + sgcRisk)) note += '  - One or more payroll/super responses marked \'Not sure\'\n';
+      note += '\nWHAT NEEDS EVIDENCE:\n';
+      if (status === 'green') note += '  - Last payroll run summary\n  - Proof of latest SG payment / clearing confirmation\n  - BAS/ATO account summary if tax debt disclosed\n';
+      if (status === 'amber') note += '  - Confirm current super payment channel\n  - Proof of first successful post-SBSCH payment\n  - Confirm latest SG due/paid dates\n  - Explain any ATO / payment plan status\n';
+      if (status === 'red') note += '  - Speak with accountant/bookkeeper before lender submission\n  - Confirm SGC exposure and lodgment/payment status\n  - Provide ATO payment plan / default history\n  - Prepare cash-flow explanation and remediation timeline\n';
+      if (hasManualReviewKeyword) note += '\n⚠ MANUAL REVIEW REQUIRED: notes contain a flagged keyword (returned/SBSCH/arrears/late/SGC/default).';
+
+      const checklist = [];
+      if (status === 'green') checklist.push('Last payroll run summary', 'Proof of latest SG payment / clearing confirmation', 'BAS/ATO account summary if tax debt disclosed');
+      if (status === 'amber') checklist.push('Confirm current super payment channel', 'Provide proof of first successful post-SBSCH payment', 'Confirm latest SG due/paid dates', 'Explain any ATO / payment plan status');
+      if (status === 'red') checklist.push('Speak with accountant/bookkeeper before lender submission', 'Confirm SGC exposure and lodgment/payment status', 'Provide ATO payment plan / default history', 'Prepare cash-flow explanation and remediation timeline');
+
+      return {
+        status: status,
+        tag: tag,
+        boundary: 'This is a readiness/compliance follow-up flag, not a credit decision.',
+        note: note,
+        checklist: checklist,
+        manual_review_required: hasManualReviewKeyword
+      };
+    }
+
     // Conditional field visibility
     function updateConditionals() {
       const realPropertyYes = document.getElementById('propYes').checked;
@@ -1037,6 +1140,17 @@
           submitted_at: new Date().toISOString()
         };
 
+        // ── Payroll/Super readiness classification (INTERNAL, non-decisioning) ──
+        // This is a readiness/compliance follow-up helper based on the Commercial Intake
+        // Payroll/Super SOP. It classifies the submission into Green/Amber/Red to guide
+        // internal follow-up ONLY. It is NOT a credit decision and never implies a client
+        // is approved, declined, bank-ready, or not bank-ready.
+        const payrollSuperReadiness = classifyPayrollSuperReadiness(payload);
+        // Attach internal tag + note + follow-up checklist to the payload (available for
+        // Telegram/any internal consumer). DB schema is unchanged — this object is only
+        // used in-memory for the internal notification.
+        payload.payroll_super_readiness = payrollSuperReadiness;
+
         // Step 1: Save to Supabase (non-blocking — table may not exist yet)
         // Keep the existing DB schema stable. Newer payroll/super fields are included
         // in the Telegram notification and confirmation email until the table schema is expanded.
@@ -1048,7 +1162,8 @@
           'last_sg_paid_date',
           'june_quarter_sg_status',
           'sgc_statement_risk',
-          'payroll_compliance_notes'
+          'payroll_compliance_notes',
+          'payroll_super_readiness'
         ].forEach(key => delete supabasePayload[key]);
 
         try {
@@ -1112,6 +1227,14 @@ Last SG paid date: ${payload.last_sg_paid_date || 'N/A'}
 June quarter SG status: ${payload.june_quarter_sg_status || 'N/A'}
 SGC / arrears risk: ${payload.sgc_statement_risk || 'N/A'}
 Payroll notes: ${payload.payroll_compliance_notes || 'None'}
+
+🟢🔴 PAYROLL/SUPER READINESS (internal, non-decisioning)
+Status: ${(payrollSuperReadiness.status || 'unknown').toUpperCase()}
+Tag: ${payrollSuperReadiness.tag || 'N/A'}
+> ${payrollSuperReadiness.boundary || 'Readiness/compliance follow-up flag only — not a credit decision.'}
+
+Follow-up checklist:
+${(payrollSuperReadiness.checklist || []).map((item, i) => `  ${i + 1}. ${item}`).join('\n') || '  (none)'}${payrollSuperReadiness.manual_review_required ? '\n\n⚠ MANUAL REVIEW REQUIRED — flagged keyword in notes.' : ''}
 
 ⚠️ RISK
 Other lenders approached: ${payload.approached_other_lenders || 'N/A'}${payload.other_lenders_details ? ' — ' + payload.other_lenders_details : ''}
