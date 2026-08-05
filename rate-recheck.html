@@ -4,8 +4,7 @@
 <script>if(new URLSearchParams(location.search).has("embed"))document.documentElement.classList.add("embed-mode")</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="robots" content="noindex">
-    <meta name="description" content="Free tools from Oney &amp; Co. A quick, general-information recheck signal for buyers relying on a pre-approval that may be stale. Not credit advice; no personal data submitted.">
+    <meta name="description" content="Free tools from Oney &amp; Co. A quick, general-information recheck signal for buyers relying on a pre-approval that may be stale. Not credit advice; optional checklist request available.">
     <title>Rate Recheck | Oney &amp; Co</title>
     <style>
 .embed-mode .header,.embed-mode header,.embed-mode .disclaimer-footer,.embed-mode [class*="disclaimer"],.embed-mode [class*="header-back"],.embed-mode nav.top-nav,.embed-mode .sidebar-toggle,.embed-mode .footer,.embed-mode .hero-section{display:none!important}.embed-mode body,.embed-mode .main,.embed-mode .container{padding-top:8px!important}
@@ -133,7 +132,7 @@
         .result p { color: var(--text); font-size: 0.95rem; }
         .result ul { margin: 12px 0 0; padding-left: 20px; color: #d9d9eb; font-size: 0.92rem; }
 
-        /* === Lead capture (early access / review only, non-submitting) === */
+        /* === Lead capture === */
         .capture {
             margin-top: 16px;
             padding-top: 16px;
@@ -160,20 +159,25 @@
             font: inherit;
             font-size: 0.95rem;
             outline: none;
-            opacity: .85;
         }
+        .capture-grid input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(46,204,133,.12); }
         .capture-btn {
             margin-top: 12px;
-            border: 1px solid var(--border);
-            background: #1f1f36;
-            color: var(--muted);
+            border: 0;
+            background: var(--green-gradient);
+            color: #07150f;
             border-radius: 10px;
             padding: 12px 18px;
             font: inherit;
-            font-weight: 600;
+            font-weight: 700;
             width: 100%;
-            cursor: not-allowed;
+            cursor: pointer;
         }
+        .capture-btn:disabled { opacity: .7; cursor: wait; }
+        .capture-success { display:none; margin-top:12px; padding:12px; border-radius:10px; background:rgba(46,204,133,.12); border:1px solid rgba(46,204,133,.35); color:#dff8ea; font-size:.9rem; }
+        .capture-success.visible { display:block; }
+        .capture-error { display:none; margin-top:12px; padding:12px; border-radius:10px; background:rgba(231,76,60,.12); border:1px solid rgba(231,76,60,.35); color:#ffd8d2; font-size:.9rem; }
+        .capture-error.visible { display:block; }
 
         .fineprint {
             font-size: 0.72rem;
@@ -277,7 +281,7 @@
         <p style="margin-top:6px;color:var(--muted);font-size:0.9rem;">A pre-approval is not a permanent borrowing limit. Even when the cash rate is unchanged, lenders can still reassess your income, debts, expenses, deposit, DTI position and policy fit.</p>
       </div>
 
-      <p class="sub">This is not a borrowing calculator and it is not credit advice. It simply helps flag whether your numbers may need a fresh broker-style recheck before you make an offer. No personal data is submitted.</p>
+      <p class="sub">This is not a borrowing calculator and it is not credit advice. It simply helps flag whether your numbers may need a fresh broker-style recheck before you make an offer. You can use the tool without submitting contact details.</p>
 
       <div class="trust">
         <div class="mini"><strong>Pre-approval</strong>Was it issued more than 60–90 days ago, or before your situation changed?</div>
@@ -315,14 +319,16 @@
 
         <div class="capture" id="capture">
           <strong>Want the broker-style recheck checklist?</strong>
-          <p class="sub" style="margin-top:6px;margin-bottom:0;">Early access / review only. This form is not connected to anything — nothing is submitted or stored.</p>
+          <p class="sub" style="margin-top:6px;margin-bottom:0;">Leave your details and Oney &amp; Co can send a practical checklist for refreshing your borrowing numbers. No approval promise; general-information follow-up only. By submitting, you agree we may contact you about this checklist request.</p>
           <div class="capture-grid">
-            <input placeholder="Name (review only)" disabled />
-            <input placeholder="Email (review only)" disabled />
-            <input placeholder="State (review only)" disabled />
-            <input placeholder="Mobile (optional, review only)" disabled />
+            <input id="leadName" name="name" placeholder="Name" autocomplete="name" />
+            <input id="leadEmail" name="email" type="email" placeholder="Email" autocomplete="email" required />
+            <input id="leadState" name="state" placeholder="State, e.g. NSW" autocomplete="address-level1" />
+            <input id="leadMobile" name="mobile" type="tel" placeholder="Mobile (optional)" autocomplete="tel" />
           </div>
-          <button type="button" class="capture-btn" disabled>🔒 Early access — not yet accepting submissions</button>
+          <button type="button" class="capture-btn" id="captureSubmit">Send me the checklist →</button>
+          <div class="capture-success" id="captureSuccess">✅ Thanks — your request has been received. We’ll follow up with a recheck checklist.</div>
+          <div class="capture-error" id="captureError">Something went wrong. Please check your email and try again.</div>
         </div>
 
         <p class="fineprint">This tool provides general information only. It is not credit advice, does not assess your eligibility for credit, and does not estimate your borrowing capacity. Personalised guidance requires a broker or lender assessment.</p>
@@ -352,12 +358,18 @@
 </div>
 
 <script>
+  const SUPABASE_URL = 'https://syhwaeloljdswsmqkzrx.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_kQrtxdvnex0ObqoI0UXNLQ_-1FVABOM';
+
   const form = document.getElementById('recheckForm');
   const result = document.getElementById('result');
   const resultTitle = document.getElementById('resultTitle');
   const resultText = document.getElementById('resultText');
   const resultList = document.getElementById('resultList');
   const capture = document.getElementById('capture');
+  const captureSubmit = document.getElementById('captureSubmit');
+  const captureSuccess = document.getElementById('captureSuccess');
+  const captureError = document.getElementById('captureError');
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -427,6 +439,72 @@
     resultTitle.textContent = title;
     resultText.textContent = text;
     resultList.innerHTML = bullets.map(item => `<li>${item}</li>`).join('');
+    window._rateRecheckResult = {
+      score,
+      state,
+      title,
+      approval: value('approval'),
+      timing: value('timing'),
+      loan: value('loan'),
+      incomeChanged: value('income'),
+      debtsChanged: value('debts'),
+      dtiReference: value('dtiref'),
+      comfort: value('comfort'),
+      search: value('search'),
+    };
+  });
+
+  captureSubmit.addEventListener('click', async () => {
+    const email = document.getElementById('leadEmail').value.trim();
+    const name = document.getElementById('leadName').value.trim();
+    const state = document.getElementById('leadState').value.trim();
+    const mobile = document.getElementById('leadMobile').value.trim();
+    captureSuccess.classList.remove('visible');
+    captureError.classList.remove('visible');
+
+    if (!email || !email.includes('@')) {
+      captureError.textContent = 'Please enter a valid email so we can send the checklist.';
+      captureError.classList.add('visible');
+      return;
+    }
+
+    captureSubmit.disabled = true;
+    captureSubmit.textContent = 'Sending...';
+    const recheck = window._rateRecheckResult || {};
+    const payload = {
+      name: name || null,
+      email,
+      source: 'rate-recheck',
+      loan_purpose: 'pre-approval-recheck',
+      dti_category: recheck.state || null,
+      notes: JSON.stringify({
+        mobile: mobile || null,
+        state: state || null,
+        rateRecheck: recheck,
+        source_note: 'Rate Recheck capture — general-information checklist request, not credit advice.'
+      }),
+    };
+
+    try {
+      const res = await fetch(SUPABASE_URL + '/rest/v1/leads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('Lead capture failed');
+      captureSuccess.classList.add('visible');
+      captureSubmit.textContent = 'Checklist requested ✅';
+    } catch (err) {
+      captureError.textContent = 'Something went wrong. Please try again or contact Oney & Co directly.';
+      captureError.classList.add('visible');
+      captureSubmit.disabled = false;
+      captureSubmit.textContent = 'Send me the checklist →';
+    }
   });
 </script>
 
