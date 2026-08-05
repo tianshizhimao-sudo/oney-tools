@@ -1233,6 +1233,9 @@ Status: ${(payrollSuperReadiness.status || 'unknown').toUpperCase()}
 Tag: ${payrollSuperReadiness.tag || 'N/A'}
 > ${payrollSuperReadiness.boundary || 'Readiness/compliance follow-up flag only — not a credit decision.'}
 
+Internal note:
+${payrollSuperReadiness.note || 'N/A'}
+
 Follow-up checklist:
 ${(payrollSuperReadiness.checklist || []).map((item, i) => `  ${i + 1}. ${item}`).join('\n') || '  (none)'}${payrollSuperReadiness.manual_review_required ? '\n\n⚠ MANUAL REVIEW REQUIRED — flagged keyword in notes.' : ''}
 
