@@ -545,8 +545,24 @@
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error('Lead capture failed');
+
+      const emailRes = await fetch(SUPABASE_URL + '/functions/v1/rate-recheck-checklist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({ email }),
+      });
+      if (!emailRes.ok) {
+        const detail = await emailRes.json().catch(() => ({}));
+        throw new Error(detail.error || 'Checklist email failed');
+      }
+
+      captureSuccess.textContent = '✅ Thanks — your request has been received. The checklist email has been sent.';
       captureSuccess.classList.add('visible');
-      captureSubmit.textContent = 'Checklist requested ✅';
+      captureSubmit.textContent = 'Checklist emailed ✅';
     } catch (err) {
       captureError.textContent = 'Something went wrong. Please try again or contact Oney & Co directly.';
       captureError.classList.add('visible');
