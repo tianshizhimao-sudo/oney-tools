@@ -161,6 +161,20 @@
             outline: none;
         }
         .capture-grid input:focus { border-color: var(--green); box-shadow: 0 0 0 3px rgba(46,204,133,.12); }
+        .consent-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-top: 12px;
+            padding: 12px;
+            border: 1px solid rgba(46,204,133,.22);
+            border-radius: 10px;
+            background: rgba(46,204,133,.07);
+            color: #d9d9eb;
+            font-size: 0.82rem;
+            line-height: 1.45;
+        }
+        .consent-row input { margin-top: 3px; accent-color: var(--green); }
         .capture-btn {
             margin-top: 12px;
             border: 0;
@@ -326,6 +340,10 @@
             <input id="leadState" name="state" placeholder="State, e.g. NSW" autocomplete="address-level1" />
             <input id="leadMobile" name="mobile" type="tel" placeholder="Mobile (optional)" autocomplete="tel" />
           </div>
+          <label class="consent-row" for="marketingConsent">
+            <input id="marketingConsent" name="marketingConsent" type="checkbox" required />
+            <span>I agree Oney &amp; Co may email me the Rate Recheck checklist and related general-information follow-up. I can manage preferences or unsubscribe at any time. This is not credit advice or an approval assessment.</span>
+          </label>
           <button type="button" class="capture-btn" id="captureSubmit">Send me the checklist →</button>
           <div class="capture-success" id="captureSuccess">✅ Thanks — your request has been received. We’ll follow up with a recheck checklist.</div>
           <div class="capture-error" id="captureError">Something went wrong. Please check your email and try again.</div>
@@ -370,6 +388,8 @@
   const captureSubmit = document.getElementById('captureSubmit');
   const captureSuccess = document.getElementById('captureSuccess');
   const captureError = document.getElementById('captureError');
+  const marketingConsent = document.getElementById('marketingConsent');
+  const SOURCE_FACT_VERSION = 'rba-2026-08-07__apra-buffer-2026-08-07';
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -468,9 +488,16 @@
       return;
     }
 
+    if (!marketingConsent.checked) {
+      captureError.textContent = 'Please tick the consent box so we can send the checklist and related follow-up.';
+      captureError.classList.add('visible');
+      return;
+    }
+
     captureSubmit.disabled = true;
     captureSubmit.textContent = 'Sending...';
     const recheck = window._rateRecheckResult || {};
+    const consentCapturedAt = new Date().toISOString();
     const payload = {
       name: name || null,
       email,
@@ -481,6 +508,17 @@
         mobile: mobile || null,
         state: state || null,
         rateRecheck: recheck,
+        consent: {
+          consent_type: 'express',
+          consent_captured_at: consentCapturedAt,
+          consent_capture_method: 'form',
+          consent_capture_source: 'rate-recheck',
+          marketing_consent: true,
+          manage_preferences_url: 'mailto:hello@oneyco.com.au?subject=Manage%20Rate%20Recheck%20email%20preferences',
+          unsubscribe_url: 'mailto:hello@oneyco.com.au?subject=Unsubscribe%20from%20Rate%20Recheck%20emails',
+          last_source_check_at: '2026-08-07T00:00:00+10:00',
+          source_fact_version: SOURCE_FACT_VERSION
+        },
         source_note: 'Rate Recheck capture — general-information checklist request, not credit advice.'
       }),
     };
