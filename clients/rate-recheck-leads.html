@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rate Recheck Leads | Oney & Co</title>
+  <style>
+    :root {
+      --green: #2ECC85;
+      --green-dark: #1FAD73;
+      --purple: #6B4C9A;
+      --bg: #1A1A2E;
+      --card: #252540;
+      --border: #3D3D5C;
+      --muted: #a3a3b8;
+      --text: #f6f7fb;
+      --danger: #ff6b6b;
+      --amber: #f6c85f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, rgba(46, 204, 133, .16), transparent 34%), var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 28px;
+    }
+    .wrap { max-width: 1180px; margin: 0 auto; }
+    header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 22px; }
+    .brand { color: var(--green); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: 13px; }
+    h1 { margin: 8px 0 6px; font-size: clamp(28px, 5vw, 44px); line-height: 1.05; }
+    .sub { color: var(--muted); margin: 0; line-height: 1.5; }
+    .panel { background: rgba(37, 37, 64, .88); border: 1px solid var(--border); border-radius: 18px; padding: 18px; box-shadow: 0 18px 50px rgba(0,0,0,.22); }
+    .auth { display: grid; grid-template-columns: 1fr auto; gap: 10px; margin: 22px 0; }
+    input, button, select {
+      border: 1px solid var(--border); border-radius: 12px; background: #151529; color: var(--text); padding: 12px 14px; font: inherit;
+    }
+    button { cursor: pointer; background: linear-gradient(135deg, var(--green), var(--green-dark)); color: #101827; font-weight: 800; border: 0; }
+    button.secondary { background: #313150; color: var(--text); border: 1px solid var(--border); }
+    .toolbar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin-bottom: 14px; }
+    .toolbar-left, .toolbar-right { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .stat { color: var(--muted); font-size: 13px; }
+    .cards { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin: 14px 0 18px; }
+    .statcard { background:#202039; border:1px solid var(--border); border-radius:14px; padding:14px; }
+    .statcard b { display:block; font-size:24px; margin-bottom:4px; }
+    .statcard span { color:var(--muted); font-size:13px; }
+    .table-wrap { overflow:auto; border:1px solid var(--border); border-radius:16px; }
+    table { width:100%; border-collapse:collapse; min-width: 1040px; background:#202039; }
+    th, td { text-align:left; padding:12px 14px; border-bottom:1px solid var(--border); vertical-align:top; font-size: 13px; }
+    th { position:sticky; top:0; background:#2b2b49; color:#d9d9e8; z-index:1; }
+    tr:hover td { background:rgba(46,204,133,.05); }
+    .pill { display:inline-flex; align-items:center; border-radius:999px; padding:4px 8px; font-size:12px; font-weight:800; white-space:nowrap; }
+    .red { background:rgba(255,107,107,.15); color:#ff9b9b; }
+    .amber { background:rgba(246,200,95,.16); color:#f8d884; }
+    .green { background:rgba(46,204,133,.15); color:#70e7ad; }
+    .purple { background:rgba(107,76,154,.22); color:#d9c9ff; }
+    .muted { color:var(--muted); }
+    .small { font-size:12px; color:var(--muted); line-height:1.4; }
+    .error { color:#ffc4c4; background:rgba(255,107,107,.12); border:1px solid rgba(255,107,107,.3); padding:12px; border-radius:12px; margin:12px 0; display:none; }
+    .empty { color:var(--muted); padding:30px; text-align:center; }
+    @media (max-width: 700px) { body { padding:18px; } header, .auth { display:block; } .auth button { margin-top:10px; width:100%; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <div class="brand">Oney & Co</div>
+        <h1>Rate Recheck Leads</h1>
+        <p class="sub">Admin-only viewer for captured Rate Recheck requests, consent proof, and checklist email status.</p>
+      </div>
+      <button class="secondary" id="clearToken">Clear token</button>
+    </header>
+
+    <section class="panel">
+      <div class="auth">
+        <input id="token" type="password" placeholder="Admin token" autocomplete="current-password" />
+        <button id="load">Load leads</button>
+      </div>
+      <div class="error" id="error"></div>
+
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <input id="search" placeholder="Search name, email, mobile, state…" />
+          <select id="resultFilter">
+            <option value="">All results</option>
+            <option value="red">Red</option>
+            <option value="amber">Amber</option>
+            <option value="green">Green</option>
+          </select>
+        </div>
+        <div class="toolbar-right">
+          <span class="stat" id="fetched">Not loaded</span>
+          <button class="secondary" id="exportCsv">Export CSV</button>
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="statcard"><b id="total">—</b><span>Total leads</span></div>
+        <div class="statcard"><b id="emailsSent">—</b><span>Checklist emails sent</span></div>
+        <div class="statcard"><b id="expressConsent">—</b><span>Express consent</span></div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Created</th><th>Lead</th><th>Result</th><th>Scenario</th><th>Consent</th><th>Email</th><th>Source</th>
+            </tr>
+          </thead>
+          <tbody id="rows"><tr><td colspan="7" class="empty">Enter admin token and load leads.</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+<script>
+const ENDPOINT = 'https://syhwaeloljdswsmqkzrx.supabase.co/functions/v1/rate-recheck-leads-admin';
+const $ = (id) => document.getElementById(id);
+let allRows = [];
+
+function fmtDate(value) {
+  if (!value) return '—';
+  return new Intl.DateTimeFormat('en-AU', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Australia/Sydney' }).format(new Date(value));
+}
+function safe(value) { return value == null || value === '' ? '—' : String(value); }
+function pill(value) {
+  const v = String(value || '').toLowerCase();
+  const cls = v === 'red' ? 'red' : v === 'amber' ? 'amber' : v === 'green' ? 'green' : 'purple';
+  return `<span class="pill ${cls}">${safe(value)}</span>`;
+}
+function textBlob(row) {
+  return [row.name,row.email,row.mobile,row.state,row.result_state,row.title,row.approval,row.timing,row.loan,row.dti_reference,row.comfort,row.search,row.latest_email_status].join(' ').toLowerCase();
+}
+
+async function loadLeads() {
+  const token = $('token').value.trim();
+  if (!token) return showError('Enter admin token first.');
+  sessionStorage.setItem('rateRecheckAdminToken', token);
+  showError('');
+  $('load').textContent = 'Loading…';
+  $('load').disabled = true;
+  try {
+    const res = await fetch(ENDPOINT + '?limit=100', { headers: { 'x-admin-token': token } });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || 'Failed to load leads');
+    allRows = data.rows || [];
+    $('fetched').textContent = `Fetched ${fmtDate(data.fetched_at)}`;
+    render();
+  } catch (err) {
+    showError(err.message || String(err));
+  } finally {
+    $('load').textContent = 'Load leads';
+    $('load').disabled = false;
+  }
+}
+
+function render() {
+  const q = $('search').value.trim().toLowerCase();
+  const result = $('resultFilter').value;
+  const rows = allRows.filter(row => (!q || textBlob(row).includes(q)) && (!result || row.result_state === result));
+  $('total').textContent = rows.length;
+  $('emailsSent').textContent = rows.filter(r => r.latest_email_status === 'sent').length;
+  $('expressConsent').textContent = rows.filter(r => r.consent_type === 'express' && r.marketing_consent === true).length;
+  if (!rows.length) {
+    $('rows').innerHTML = '<tr><td colspan="7" class="empty">No matching leads.</td></tr>';
+    return;
+  }
+  $('rows').innerHTML = rows.map(row => `
+    <tr>
+      <td>${fmtDate(row.created_at)}</td>
+      <td><strong>${safe(row.name)}</strong><br><span class="small">${safe(row.email)}<br>${safe(row.mobile)} · ${safe(row.state)}</span></td>
+      <td>${pill(row.result_state)}<br><span class="small">Score: ${safe(row.score)}<br>${safe(row.title)}</span></td>
+      <td><span class="small">Approval: ${safe(row.approval)}<br>Timing: ${safe(row.timing)} · Loan: ${safe(row.loan)}<br>DTI: ${safe(row.dti_reference)} · Comfort: ${safe(row.comfort)}<br>Search: ${safe(row.search)}</span></td>
+      <td>${row.marketing_consent ? '<span class="pill green">express</span>' : '<span class="pill red">missing</span>'}<br><span class="small">${fmtDate(row.consent_captured_at)}</span></td>
+      <td>${pill(row.latest_email_status || 'not sent')}<br><span class="small">${safe(row.latest_email_type)}<br>${fmtDate(row.latest_email_sent_at)}</span></td>
+      <td><span class="small">${safe(row.source_fact_version)}</span></td>
+    </tr>`).join('');
+}
+
+function exportCsv() {
+  const headers = ['created_at','name','email','mobile','state','result_state','score','title','approval','timing','loan','dti_reference','comfort','search','consent_type','marketing_consent','latest_email_status','latest_email_sent_at','source_fact_version'];
+  const csv = [headers.join(',')].concat(allRows.map(row => headers.map(h => `"${String(row[h] ?? '').replaceAll('"','""')}"`).join(','))).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `rate-recheck-leads-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+  URL.revokeObjectURL(url);
+}
+function showError(message) { $('error').style.display = message ? 'block' : 'none'; $('error').textContent = message; }
+
+$('load').addEventListener('click', loadLeads);
+$('search').addEventListener('input', render);
+$('resultFilter').addEventListener('change', render);
+$('exportCsv').addEventListener('click', exportCsv);
+$('clearToken').addEventListener('click', () => { sessionStorage.removeItem('rateRecheckAdminToken'); $('token').value = ''; allRows = []; render(); $('fetched').textContent = 'Not loaded'; });
+$('token').value = sessionStorage.getItem('rateRecheckAdminToken') || '';
+</script>
+</body>
+</html>
