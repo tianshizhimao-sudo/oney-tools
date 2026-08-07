@@ -498,28 +498,38 @@
     captureSubmit.textContent = 'Sending...';
     const recheck = window._rateRecheckResult || {};
     const consentCapturedAt = new Date().toISOString();
+    const managePreferencesUrl = 'mailto:hello@oneyco.com.au?subject=Manage%20Rate%20Recheck%20email%20preferences';
+    const unsubscribeUrl = 'mailto:hello@oneyco.com.au?subject=Unsubscribe%20from%20Rate%20Recheck%20emails';
+    const lastSourceCheckAt = '2026-08-07T00:00:00+10:00';
     const payload = {
       name: name || null,
       email,
       source: 'rate-recheck',
       loan_purpose: 'pre-approval-recheck',
       dti_category: recheck.state || null,
+      consent_type: 'express',
+      consent_captured_at: consentCapturedAt,
+      consent_capture_method: 'form',
+      consent_capture_source: 'rate-recheck',
+      marketing_consent: true,
+      manage_preferences_url: managePreferencesUrl,
+      unsubscribe_url: unsubscribeUrl,
+      last_source_check_at: lastSourceCheckAt,
+      source_fact_version: SOURCE_FACT_VERSION,
       notes: JSON.stringify({
         mobile: mobile || null,
         state: state || null,
         rateRecheck: recheck,
-        consent: {
+        source_note: 'Rate Recheck capture — general-information checklist request, not credit advice.',
+        consent_audit: {
           consent_type: 'express',
           consent_captured_at: consentCapturedAt,
           consent_capture_method: 'form',
           consent_capture_source: 'rate-recheck',
           marketing_consent: true,
-          manage_preferences_url: 'mailto:hello@oneyco.com.au?subject=Manage%20Rate%20Recheck%20email%20preferences',
-          unsubscribe_url: 'mailto:hello@oneyco.com.au?subject=Unsubscribe%20from%20Rate%20Recheck%20emails',
-          last_source_check_at: '2026-08-07T00:00:00+10:00',
+          last_source_check_at: lastSourceCheckAt,
           source_fact_version: SOURCE_FACT_VERSION
-        },
-        source_note: 'Rate Recheck capture — general-information checklist request, not credit advice.'
+        }
       }),
     };
 
