@@ -858,6 +858,7 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_kQrtxdvnex0ObqoI0UXNLQ_-1FVABOM';
     const TELEGRAM_BOT_TOKEN = '8676787397:AAG90cuLT0zH0yxLUPe6_UXg8avmu4naJAU'; // Oneykimiops_bot (Ops)
     const TELEGRAM_CHAT_ID = '777287927';
+    const COMMERCIAL_ATO_EVIDENCE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/commercial-ato-evidence-pack`;
 
     const form = document.getElementById('intakeForm');
     const submitBtn = document.getElementById('submitBtn');
@@ -992,6 +993,19 @@
         checklist: checklist,
         manual_review_required: hasManualReviewKeyword
       };
+    }
+
+    function shouldTriggerAtoEvidencePack(payload) {
+      const haystack = [
+        payload.ato_debt,
+        payload.loan_purpose,
+        payload.outstanding_debts,
+        payload.payroll_compliance_notes
+      ].map(v => (v || '').toString().toLowerCase()).join(' | ');
+
+      if (/\bato\b|tax debt|payment plan|payment arrangement|overdue bas|overdue payg|overdue gst|sgc|super guarantee charge/.test(haystack)) return true;
+      if (/yes|unknown|not sure/i.test(payload.ato_debt || '')) return true;
+      return false;
     }
 
     // Conditional field visibility
@@ -1152,19 +1166,10 @@
         payload.payroll_super_readiness = payrollSuperReadiness;
 
         // Step 1: Save to Supabase (non-blocking — table may not exist yet)
-        // Keep the existing DB schema stable. Newer payroll/super fields are included
-        // in the Telegram notification and confirmation email until the table schema is expanded.
+        // The 2026-08-12 migration expands commercial_leads to store payroll/super
+        // readiness and ATO evidence-pack tracking fields. If production migration is
+        // not yet applied, this can fail without blocking Telegram/client confirmation.
         const supabasePayload = { ...payload };
-        [
-          'pay_cycle',
-          'sg_payment_method',
-          'clearing_provider',
-          'last_sg_paid_date',
-          'june_quarter_sg_status',
-          'sgc_statement_risk',
-          'payroll_compliance_notes',
-          'payroll_super_readiness'
-        ].forEach(key => delete supabasePayload[key]);
 
         try {
           const supabaseResponse = await fetch(`${SUPABASE_URL}/rest/v1/commercial_leads`, {
@@ -1182,7 +1187,30 @@
           console.warn('Supabase save failed (non-fatal):', supabaseErr);
         }
 
-        // Step 2: Send Telegram notification
+        // Step 2: Trigger ATO Evidence Pack follow-up when ATO/tax/payment-plan signals appear.
+        // The Edge Function owns sourceFreshDate/sourceFactVersion checks, template linting,
+        // Resend sending, and email_sequence_log tracking. This front-end call is best-effort:
+        // a failure must not block the Commercial Intake submission.
+        if (shouldTriggerAtoEvidencePack(payload)) {
+          try {
+            await fetch(COMMERCIAL_ATO_EVIDENCE_FUNCTION_URL, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'apikey': SUPABASE_ANON_KEY,
+                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+              },
+              body: JSON.stringify({
+                email: payload.contact_email,
+                businessName: payload.business_name
+              })
+            });
+          } catch (atoEvidenceErr) {
+            console.warn('ATO Evidence Pack trigger failed (non-fatal):', atoEvidenceErr);
+          }
+        }
+
+        // Step 3: Send Telegram notification
         const aestTime = new Date(payload.submitted_at).toLocaleString('en-AU', {
           timeZone: 'Australia/Sydney',
           year: 'numeric',
