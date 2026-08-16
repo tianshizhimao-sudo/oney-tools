@@ -35,6 +35,24 @@
     "new": false
   },
   {
+    "id": "mortgage-stress-check",
+    "name": "Mortgage Stress Check",
+    "desc": "Free mortgage stress diagnostic: repayment pressure, 3% buffer sensitivity, refinance saving and equity headroom.",
+    "tags": [
+      "mortgage",
+      "stress-test",
+      "refinance",
+      "repayment",
+      "assessment"
+    ],
+    "url": "mortgage-stress-check.html",
+    "icon": "🩺",
+    "category": "Health Check",
+    "free": true,
+    "featured": true,
+    "new": true
+  },
+  {
     "id": "ef-tool",
     "name": "Equipment Finance Calculator",
     "desc": "Calculate equipment finance repayments, balloon payments, and compare lease vs buy.",

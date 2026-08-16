@@ -315,7 +315,7 @@ export function mountTool(rootEl, config, opts = {}) {
  * Render the full tool layout (header + main + side rail) into `mainSelector`,
  * then mount the form engine into the root.
  */
-export function mountToolPage({ mainSelector = 'main', config, assistCards = [] }) {
+export function mountToolPage({ mainSelector = 'main', config, assistCards = [], submitLabel }) {
   const mainEl = document.querySelector(mainSelector);
   if (!mainEl) throw new Error(`mountToolPage: ${mainSelector} not found`);
 
@@ -364,7 +364,7 @@ export function mountToolPage({ mainSelector = 'main', config, assistCards = [] 
     </div>
   `;
 
-  return mountTool(document.getElementById('tool-root'), config);
+  return mountTool(document.getElementById('tool-root'), config, { submitLabel });
 }
 
 /**
