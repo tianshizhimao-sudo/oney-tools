@@ -904,6 +904,57 @@
     //   sbsch_transition_status  -> derived from notes (no standalone field in form)
     //   sgc_statement_risk       -> sgc_statement_risk
     //   payroll_compliance_notes -> payroll_compliance_notes
+    function classifyTaxDebtReadiness(payload) {
+      const haystack = [
+        payload.ato_debt,
+        payload.loan_purpose,
+        payload.outstanding_debts,
+        payload.payroll_compliance_notes
+      ].map(v => (v || '').toString().toLowerCase()).join(' | ');
+
+      const atoDebt = (payload.ato_debt || '').toString().trim();
+      const notes = (payload.payroll_compliance_notes || '').toString().trim();
+      const hasTaxSignal = /\bato\b|tax debt|bas|gst|payg|ias|sgc|super guarantee charge|payment plan|payment arrangement|gic|director penalty|\bdpn\b|garnishee|legal action/.test(haystack) || /yes|unknown|not sure/i.test(atoDebt);
+      const forceRed = /\bdpn\b|director penalty|sgc|super guarantee charge|default|garnishee|ato chasing|legal action|payment plan.*default|defaulted.*payment plan|overdue no plan|no payment plan/.test(haystack);
+      const amber = hasTaxSignal && (
+        /unknown|not sure/i.test(atoDebt) ||
+        !/payment plan|payment arrangement|schedule|instalment|current|paid|receipt|accountant|bookkeeper|bas lodged|ias lodged/.test(haystack)
+      );
+
+      let status = 'green';
+      if (forceRed) status = 'red';
+      else if (amber) status = 'amber';
+      else if (!hasTaxSignal) status = 'green';
+
+      const tag = status === 'green' ? 'ato_ready_green' : (status === 'amber' ? 'ato_needs_clarification_amber' : 'ato_clean_up_first_red');
+      const checklist = [];
+      if (status === 'green') checklist.push('Latest ATO account summary', 'Payment plan schedule if applicable', 'Latest payment receipt', 'Latest BAS/IAS lodgment confirmation');
+      if (status === 'amber') checklist.push('Confirm tax account type: BAS/GST, PAYG, income tax, SGC, mixed or unknown', 'Confirm current payment plan/status and next obligation due', 'Confirm whether next BAS/PAYG/SG can be paid without missing the payment plan', 'Ask accountant/bookkeeper for confirmation if unclear');
+      if (status === 'red') checklist.push('Accountant/bookkeeper confirmation before lender positioning', 'Quantify PAYG/GST/SGC exposure and any director-risk/DPN issue', 'Confirm default/garnishee/legal-action status', 'Prepare cash-flow remediation timeline before packaging');
+
+      let note = 'ATO/BAS/PAYG readiness flag: ' + status.toUpperCase() + '. ';
+      note += '\n> This is a readiness/evidence flag, not credit advice, tax advice, or a credit decision. Confirm tax details with accountant/bookkeeper.\n';
+      note += '\nWHAT IS KNOWN:';
+      note += '\n- ATO debt field: ' + (atoDebt || 'Not provided');
+      note += '\n- Tax/payment-plan signals in notes: ' + (notes || 'None provided');
+      note += '\nWHAT IS MISSING/UNCLEAR:\n';
+      if (!hasTaxSignal) note += '  - No ATO/BAS/PAYG/payment-plan signal detected\n';
+      if (amber) note += '  - Tax account type, current status, next obligation and future-obligation buffer need clarification\n';
+      if (forceRed) note += '  - Red-flag wording detected: possible default, SGC, DPN, garnishee, ATO chasing or legal action\n';
+      note += '\nWHAT NEEDS EVIDENCE:\n';
+      checklist.forEach(item => { note += '  - ' + item + '\n'; });
+
+      return {
+        status: status,
+        tag: tag,
+        boundary: 'This is a readiness/evidence flag only — not tax advice, credit advice, a credit decision or approval assessment.',
+        note: note,
+        checklist: checklist,
+        manual_review_required: forceRed,
+        source_fact_version: 'commercial-tax-debt-readiness-taxonomy-2026-08-19'
+      };
+    }
+
     function classifyPayrollSuperReadiness(payload) {
       const channel = (payload.sg_payment_method || '').toString().trim();
       const channelSet = channel.length > 0 && channel !== 'Not sure';
@@ -1160,10 +1211,11 @@
         // internal follow-up ONLY. It is NOT a credit decision and never implies a client
         // is approved, declined, bank-ready, or not bank-ready.
         const payrollSuperReadiness = classifyPayrollSuperReadiness(payload);
-        // Attach internal tag + note + follow-up checklist to the payload (available for
-        // Telegram/any internal consumer). DB schema is unchanged — this object is only
-        // used in-memory for the internal notification.
+        const taxDebtReadiness = classifyTaxDebtReadiness(payload);
+        // Attach internal tags + notes + follow-up checklists to the payload (available for
+        // Telegram/any internal consumer). DB schema is preserved via JSONB readiness fields.
         payload.payroll_super_readiness = payrollSuperReadiness;
+        payload.tax_debt_readiness = taxDebtReadiness;
 
         // Step 1: Save to Supabase (non-blocking — table may not exist yet)
         // The 2026-08-12 migration expands commercial_leads to store payroll/super
@@ -1255,6 +1307,17 @@ Last SG paid date: ${payload.last_sg_paid_date || 'N/A'}
 June quarter SG status: ${payload.june_quarter_sg_status || 'N/A'}
 SGC / arrears risk: ${payload.sgc_statement_risk || 'N/A'}
 Payroll notes: ${payload.payroll_compliance_notes || 'None'}
+
+🧾 ATO/BAS/PAYG READINESS (internal, non-decisioning)
+Status: ${(taxDebtReadiness.status || 'unknown').toUpperCase()}
+Tag: ${taxDebtReadiness.tag || 'N/A'}
+> ${taxDebtReadiness.boundary || 'Readiness/evidence flag only — not tax advice, credit advice or a credit decision.'}
+
+Internal note:
+${taxDebtReadiness.note || 'N/A'}
+
+Follow-up checklist:
+${(taxDebtReadiness.checklist || []).map((item, i) => `  ${i + 1}. ${item}`).join('\n') || '  (none)'}${taxDebtReadiness.manual_review_required ? '\n\n⚠ MANUAL REVIEW REQUIRED — ATO/DPN/SGC/default/legal-action signal.' : ''}
 
 🟢🔴 PAYROLL/SUPER READINESS (internal, non-decisioning)
 Status: ${(payrollSuperReadiness.status || 'unknown').toUpperCase()}
