@@ -107,6 +107,49 @@ function renderInsights(list) {
   `;
 }
 
+function renderLeadCapture(capture) {
+  if (!capture) return '';
+  const consentText = capture.consentText || 'Send me the checklist and related follow-up from Oney & Co. I understand I can unsubscribe at any time.';
+  return `
+    <div class="lead-capture-card" data-lead-capture="${escapeHtml(capture.id || 'lead-capture')}">
+      <div class="lead-capture-kicker">${escapeHtml(capture.kicker || 'Optional checklist')}</div>
+      <h2>${escapeHtml(capture.title || 'Get the checklist by email')}</h2>
+      ${capture.body ? `<p>${escapeHtml(capture.body)}</p>` : ''}
+      <div class="lead-capture-grid">
+        <label>
+          <span>Name</span>
+          <input type="text" data-lead-field="name" placeholder="Your name">
+        </label>
+        <label>
+          <span>Email <strong>*</strong></span>
+          <input type="email" data-lead-field="email" placeholder="you@example.com" required>
+        </label>
+      </div>
+      <label class="lead-consent-row">
+        <input type="checkbox" data-lead-field="consent" value="true">
+        <span>${escapeHtml(consentText)}</span>
+      </label>
+      ${capture.privacyText ? `<p class="lead-capture-privacy">${escapeHtml(capture.privacyText)}</p>` : ''}
+      <button type="button" class="btn btn-primary" data-action="lead-capture-submit">${escapeHtml(capture.submitLabel || 'Send checklist')}</button>
+      <div class="lead-capture-message" data-lead-message aria-live="polite"></div>
+    </div>
+  `;
+}
+
+function resultForLeadCapture(result, values) {
+  if (!result) return null;
+  return {
+    heroLabel: result.heroLabel,
+    heroValue: result.heroValue,
+    metrics: result.metrics || [],
+    insights: result.insights || [],
+    narrative: result.narrative || null,
+    metadata: result.metadata || null,
+    values: { ...values },
+    leadCapture: result.leadCapture || null,
+  };
+}
+
 function renderResultBlock(result, tool) {
   if (!result) return '';
   const pro = isPro();
@@ -161,6 +204,7 @@ function renderResultBlock(result, tool) {
         ${nextStepBlock}
       </div>
     ` : ''}
+    ${renderLeadCapture(result.leadCapture)}
   `;
 }
 
@@ -287,6 +331,8 @@ export function mountTool(rootEl, config, opts = {}) {
         }
       } else if (a === 'send-to-pro') {
         sendToPro(config.id, engine.state.values);
+      } else if (a === 'lead-capture-submit') {
+        submitLeadCapture(action, currentResult(), engine.state.values);
       }
     });
   }
@@ -303,6 +349,68 @@ export function mountTool(rootEl, config, opts = {}) {
     const map = {};
     (step.fields || []).forEach((f) => { map[f.id] = f; });
     return map;
+  }
+
+  async function submitLeadCapture(button, result, values) {
+    const capture = result && result.leadCapture;
+    if (!capture || !capture.endpoint) return;
+    const card = button.closest('[data-lead-capture]');
+    const message = card && card.querySelector('[data-lead-message]');
+    const email = card?.querySelector('[data-lead-field="email"]')?.value?.trim() || '';
+    const name = card?.querySelector('[data-lead-field="name"]')?.value?.trim() || '';
+    const consent = card?.querySelector('[data-lead-field="consent"]')?.checked === true;
+
+    function setMessage(text, tone = 'info') {
+      if (!message) return;
+      message.textContent = text;
+      message.dataset.tone = tone;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setMessage('Please enter a valid email address.', 'fail');
+      return;
+    }
+    if (!consent) {
+      setMessage('Please tick the consent box so we can send the checklist and related follow-up.', 'fail');
+      return;
+    }
+
+    const originalLabel = button.textContent;
+    button.disabled = true;
+    button.textContent = 'Sending...';
+    setMessage('', 'info');
+
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (capture.anonKey) {
+        headers.apikey = capture.anonKey;
+        headers.Authorization = `Bearer ${capture.anonKey}`;
+      }
+      const response = await fetch(capture.endpoint, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          name: name || null,
+          email,
+          consentChecklist: true,
+          consentMarketing: capture.consentMarketing === true,
+          consentTextVersion: capture.consentTextVersion || null,
+          privacyNoticeVersion: capture.privacyNoticeVersion || null,
+          source: config.id,
+          sourceUrl: window.location.href,
+          result: resultForLeadCapture(result, values),
+        }),
+      });
+      const detail = await response.json().catch(() => ({}));
+      if (!response.ok || detail.error) throw new Error(detail.error || 'Checklist request failed');
+      setMessage(capture.successText || 'Done — your checklist has been sent.', 'pass');
+      button.textContent = 'Checklist sent ✅';
+    } catch (err) {
+      console.error('lead capture error:', err);
+      setMessage('Something went wrong. Please try again or contact Oney & Co directly.', 'fail');
+      button.disabled = false;
+      button.textContent = originalLabel;
+    }
   }
 
   render();

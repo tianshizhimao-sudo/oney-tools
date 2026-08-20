@@ -29,6 +29,26 @@ const DOCUMENT_INTEGRITY_TONES = {
   red: 'fail',
 };
 
+const SUPABASE_URL = 'https://syhwaeloljdswsmqkzrx.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_kQrtxdvnex0ObqoI0UXNLQ_-1FVABOM';
+const BRS_CONSENT_TEXT_VERSION = 'brs-document-integrity-v0.1-2026-08-21';
+const BRS_PRIVACY_NOTICE_VERSION = 'oney-tools-privacy-v0.1-2026-08-21';
+
+const DOCUMENT_FIELD_LABELS = {
+  incomeDeclared: 'Income is fully declared and explainable',
+  otherDebtsDeclared: 'All other debts and limits are declared',
+  expensesRealistic: 'Living and business expenses look realistic',
+  giftedDepositEvidence: 'Gifted deposit / private funds are evidenced',
+  selfEmployedIncomeEvidence: 'Self-employed income can be evidenced',
+  coApplicantDisclosure: 'Co-applicant details are complete',
+};
+
+function documentIntegrityFlags(values) {
+  return Object.keys(DOCUMENT_FIELD_LABELS)
+    .filter((id) => values[id] === 'review' || values[id] === 'risk')
+    .map((id) => ({ id, label: DOCUMENT_FIELD_LABELS[id], severity: values[id] }));
+}
+
 function documentIntegrity(values) {
   const checks = [
     values.incomeDeclared,
@@ -325,6 +345,7 @@ export const bankReadyScoreConfig = {
     let weighted = 0;
     Object.keys(WEIGHTS).forEach((k) => { weighted += dims[k] * WEIGHTS[k]; });
     const integrity = documentIntegrity(values);
+    const integrityFlags = documentIntegrityFlags(values);
     const score = Math.min(Math.round(weighted), integrity.cap);
     const grade = gradeBand(score);
 
@@ -357,6 +378,29 @@ export const bankReadyScoreConfig = {
         { tone: 'info', text: `Strongest: ${labelMap[best[0]]} (${best[1]}/100). Focus area: ${labelMap[worst[0]]} (${worst[1]}/100).` },
       ],
       narrative: `Document integrity is a front-door check, not a credit decision. If it is amber or red, the practical move is to fix disclosure and evidence gaps before approaching a lender. Current document signal: ${integrity.label}.`,
+      leadCapture: {
+        id: 'brs-document-integrity-checklist',
+        endpoint: `${SUPABASE_URL}/functions/v1/brs-document-integrity-checklist`,
+        anonKey: SUPABASE_ANON_KEY,
+        kicker: 'Document Integrity follow-up',
+        title: 'Email me the evidence checklist',
+        body: 'Get a practical checklist based on your document integrity result. This is general information only — not a credit decision, approval assessment, tax advice or legal advice.',
+        consentText: 'Send me the Bank-Ready Score document checklist and related follow-up from Oney & Co. I understand I can unsubscribe at any time.',
+        privacyText: 'We use your email and score result to send this checklist and keep a consent record. No lender submission is made from this tool.',
+        submitLabel: 'Send my checklist →',
+        successText: '✅ Thanks — your document checklist has been emailed.',
+        consentTextVersion: BRS_CONSENT_TEXT_VERSION,
+        privacyNoticeVersion: BRS_PRIVACY_NOTICE_VERSION,
+        consentMarketing: true,
+      },
+      metadata: {
+        score,
+        scoreBand: grade.label,
+        documentIntegrityStatus: integrity.status,
+        documentIntegrityLabel: integrity.label,
+        documentIntegrityFlags: integrityFlags,
+        dimensionScores: dims,
+      },
       actions: [
         { label: 'DTI router', href: '/tools/dti-router.html' },
         { label: 'Borrowing power', href: '/tools/borrowing-power.html' },
