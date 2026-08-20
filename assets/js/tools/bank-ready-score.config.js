@@ -17,6 +17,54 @@ const WEIGHTS = {
   cashflow: 0.05,
 };
 
+const DOCUMENT_INTEGRITY_LABELS = {
+  green: 'Green — evidence looks consistent',
+  amber: 'Amber — clarify before applying',
+  red: 'Red — fix disclosure gaps first',
+};
+
+const DOCUMENT_INTEGRITY_TONES = {
+  green: 'pass',
+  amber: 'warn',
+  red: 'fail',
+};
+
+function documentIntegrity(values) {
+  const checks = [
+    values.incomeDeclared,
+    values.otherDebtsDeclared,
+    values.expensesRealistic,
+    values.giftedDepositEvidence,
+    values.selfEmployedIncomeEvidence,
+    values.coApplicantDisclosure,
+  ];
+  const redFlags = checks.filter((v) => v === 'risk').length;
+  const amberFlags = checks.filter((v) => v === 'review').length;
+
+  if (redFlags >= 1 || amberFlags >= 3) {
+    return {
+      status: 'red',
+      label: DOCUMENT_INTEGRITY_LABELS.red,
+      text: 'There are disclosure or evidence gaps a lender may treat as material. Fix these before relying on the score.',
+      cap: 49,
+    };
+  }
+  if (amberFlags >= 1) {
+    return {
+      status: 'amber',
+      label: DOCUMENT_INTEGRITY_LABELS.amber,
+      text: 'The profile is not broken, but one or more evidence points should be clarified before a bank reviews the file.',
+      cap: 69,
+    };
+  }
+  return {
+    status: 'green',
+    label: DOCUMENT_INTEGRITY_LABELS.green,
+    text: 'The core disclosure checks look consistent. The score can now be read as a cleaner readiness signal.',
+    cap: 100,
+  };
+}
+
 function bandTurnover(tc) {
   if (tc >= 10_000_000) return 100;
   if (tc >= 2_000_000) return 80;
@@ -86,6 +134,12 @@ export const bankReadyScoreConfig = {
   eyebrow: 'Assess',
   subtitle: 'Self-assess business loan readiness across the eight criteria banks actually care about.',
   defaults: {
+    incomeDeclared: 'clear',
+    otherDebtsDeclared: 'clear',
+    expensesRealistic: 'clear',
+    giftedDepositEvidence: 'na',
+    selfEmployedIncomeEvidence: 'clear',
+    coApplicantDisclosure: 'na',
     turnover: 1_500_000,
     profit: 150_000,
     yearsInBusiness: 3,
@@ -97,6 +151,81 @@ export const bankReadyScoreConfig = {
     cashflowStability: 'stable',
   },
   steps: [
+    {
+      id: 'document-integrity',
+      title: 'Document Integrity Check',
+      desc: 'Six quick disclosure checks before the score. Banks do not just read numbers — they test whether the file is complete and consistent.',
+      fields: [
+        {
+          id: 'incomeDeclared',
+          label: 'Income is fully declared and explainable',
+          type: 'choice',
+          required: true,
+          options: [
+            { value: 'clear', label: 'Yes — income sources match documents', desc: 'Payslips, BAS, financials or bank statements tell the same story' },
+            { value: 'review', label: 'Needs review', desc: 'Some income needs explanation or add-back support' },
+            { value: 'risk', label: 'No / uncertain', desc: 'Income is incomplete, inconsistent or hard to evidence' },
+          ],
+        },
+        {
+          id: 'otherDebtsDeclared',
+          label: 'All other debts and limits are declared',
+          type: 'choice',
+          required: true,
+          options: [
+            { value: 'clear', label: 'Yes — all debts and limits included', desc: 'Credit cards, overdrafts, ATO, BNPL, car loans and guarantees' },
+            { value: 'review', label: 'Needs review', desc: 'Some facilities or limits may need confirming' },
+            { value: 'risk', label: 'No / uncertain', desc: 'Known debts or limits may be missing' },
+          ],
+        },
+        {
+          id: 'expensesRealistic',
+          label: 'Living and business expenses look realistic',
+          type: 'choice',
+          required: true,
+          options: [
+            { value: 'clear', label: 'Yes — expenses are realistic', desc: 'Declared expenses broadly match account conduct' },
+            { value: 'review', label: 'Needs review', desc: 'Some categories may look low or need explanation' },
+            { value: 'risk', label: 'No / uncertain', desc: 'Expenses are likely understated or inconsistent' },
+          ],
+        },
+        {
+          id: 'giftedDepositEvidence',
+          label: 'Gifted deposit / private funds are evidenced',
+          type: 'choice',
+          required: true,
+          options: [
+            { value: 'na', label: 'Not applicable', desc: 'No gifted deposit or private funds involved' },
+            { value: 'clear', label: 'Yes — evidence is ready', desc: 'Gift letter, bank trail or source of funds is available' },
+            { value: 'review', label: 'Needs review', desc: 'Source of funds is explainable but not packaged yet' },
+            { value: 'risk', label: 'No / uncertain', desc: 'Source of funds may be unclear' },
+          ],
+        },
+        {
+          id: 'selfEmployedIncomeEvidence',
+          label: 'Self-employed income can be evidenced',
+          type: 'choice',
+          required: true,
+          options: [
+            { value: 'clear', label: 'Yes — tax returns / BAS / financials support it', desc: 'Income can be reconciled across documents' },
+            { value: 'review', label: 'Needs review', desc: 'Recent changes, add-backs or one-off items need explanation' },
+            { value: 'risk', label: 'No / uncertain', desc: 'Income relies on unsupported estimates or stale documents' },
+          ],
+        },
+        {
+          id: 'coApplicantDisclosure',
+          label: 'Co-applicant details are complete',
+          type: 'choice',
+          required: true,
+          options: [
+            { value: 'na', label: 'Not applicable', desc: 'Single applicant / single borrower file' },
+            { value: 'clear', label: 'Yes — income, debts and expenses included', desc: 'Both applicants are fully disclosed' },
+            { value: 'review', label: 'Needs review', desc: 'Some joint or individual liabilities need confirming' },
+            { value: 'risk', label: 'No / uncertain', desc: 'A co-applicant may materially change serviceability' },
+          ],
+        },
+      ],
+    },
     {
       id: 'size',
       title: 'Size and profitability',
@@ -195,7 +324,8 @@ export const bankReadyScoreConfig = {
 
     let weighted = 0;
     Object.keys(WEIGHTS).forEach((k) => { weighted += dims[k] * WEIGHTS[k]; });
-    const score = Math.round(weighted);
+    const integrity = documentIntegrity(values);
+    const score = Math.min(Math.round(weighted), integrity.cap);
     const grade = gradeBand(score);
 
     const entries = Object.entries(dims);
@@ -215,15 +345,18 @@ export const bankReadyScoreConfig = {
       heroLabel: grade.label,
       heroValue: `${score}/100`,
       metrics: [
+        { label: 'Document integrity', value: integrity.label.replace(' — ', ': ') },
         { label: 'Turnover', value: formatCurrency(values.turnover) },
         { label: 'Profit margin', value: `${margin.toFixed(1)}%` },
         { label: 'Strongest', value: labelMap[best[0]] },
         { label: 'Weakest', value: labelMap[worst[0]] },
       ],
       insights: [
+        { tone: DOCUMENT_INTEGRITY_TONES[integrity.status], text: `Document Integrity Check: ${integrity.text}` },
         { tone: grade.tone, text: grade.text },
         { tone: 'info', text: `Strongest: ${labelMap[best[0]]} (${best[1]}/100). Focus area: ${labelMap[worst[0]]} (${worst[1]}/100).` },
       ],
+      narrative: `Document integrity is a front-door check, not a credit decision. If it is amber or red, the practical move is to fix disclosure and evidence gaps before approaching a lender. Current document signal: ${integrity.label}.`,
       actions: [
         { label: 'DTI router', href: '/tools/dti-router.html' },
         { label: 'Borrowing power', href: '/tools/borrowing-power.html' },
