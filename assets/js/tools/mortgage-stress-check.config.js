@@ -62,7 +62,7 @@ export const mortgageStressCheckConfig = {
   group: 'assess',
   title: 'Mortgage Stress Check',
   eyebrow: 'Free diagnostic',
-  subtitle: 'Check repayment pressure, rate-buffer stress and refinance space before you decide what to do next.',
+  subtitle: 'Check repayment pressure, rate-buffer stress and refinance space before you make your next mortgage move.',
   scenarioReady: true,
   urlAlias: {
     loan: 'balance',
@@ -119,7 +119,7 @@ export const mortgageStressCheckConfig = {
     {
       id: 'refinance',
       title: 'Refinance space',
-      desc: 'Compare against a realistic refinance rate. This does not mean a lender will approve it.',
+      desc: 'Compare against a realistic refinance rate. This is a decision prompt, not a lender approval signal.',
       fields: [
         { id: 'refinanceRate', label: 'Possible refinance rate', type: 'percent', required: true, min: 0, max: 25 },
         { id: 'refinanceTerm', label: 'New refinance term', type: 'number', suffix: 'years', required: true, min: 1, max: 40 },
@@ -171,9 +171,9 @@ export const mortgageStressCheckConfig = {
       {
         tone: toneFor(resultBand),
         text: resultBand === 'High stress signal'
-          ? 'Repayment pressure is elevated. The next step is not guessing rates — it is a full Financial Health Check to understand income, expenses, debts and lender fit.'
+          ? 'Repayment pressure is elevated. The next step is not guessing rates — it is checking whether your income, expenses, debts and loan structure still make sense.'
           : resultBand === 'Watch zone'
-            ? 'You are not automatically in trouble, but the numbers deserve a proper recheck before relying on your current loan position.'
+            ? 'You are not automatically in trouble, but the numbers deserve a proper recheck before relying on your current loan position or refinance assumptions.'
             : 'The first-pass signal looks manageable. Still, lender assessment can differ once debts, living expenses and buffers are applied.',
       },
     ];
@@ -208,10 +208,10 @@ export const mortgageStressCheckConfig = {
         { label: '80% LVR headroom', value: formatCurrency(equitySpace) },
       ],
       insights,
-      narrative: 'This is a general-information diagnostic only. It estimates repayment pressure, rough buffer sensitivity and refinance space. It does not consider full lender policy, credit conduct, tax treatment, valuation outcome, comprehensive living expense benchmarks, or whether credit is suitable for you.',
+      narrative: 'This is a general-information diagnostic only. It estimates repayment pressure, rough buffer sensitivity and refinance space. It does not consider full lender policy, credit conduct, tax treatment, valuation outcome, comprehensive living expense benchmarks, or whether credit is suitable for you. Use it as an early warning signal before you refinance, purchase again, or rely on an old loan position.',
       actions: [
-        { label: 'Start Financial Health Check', href: 'https://fhc.oneyco.com.au' },
-        { label: 'Check Bank-Ready Score', href: '/tools/bank-ready-score.html' },
+        { label: 'Run Rate Recheck', href: '/rate-recheck.html' },
+        { label: 'Review commercial position', href: '/commercial-intake.html' },
         { label: 'Run Refinance Breakeven', href: '/tools/refinance-breakeven.html' },
       ],
     };
