@@ -622,6 +622,29 @@
     }
     .empty-suggestion .green { color: var(--green); font-weight: 600; }
 
+
+    /* NON-BANK PATHWAY PANEL */
+    .pathway-panel {
+      margin: 18px 32px 0 352px;
+      background: linear-gradient(135deg, rgba(46,204,133,0.08), rgba(107,76,154,0.08));
+      border: 1px solid rgba(46,204,133,0.22);
+      border-radius: 18px;
+      padding: 18px;
+    }
+    .pathway-head { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; margin-bottom:14px; }
+    .pathway-kicker { color:var(--green); font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
+    .pathway-head h2 { font-size:20px; margin:0 0 6px; }
+    .pathway-head p { color:var(--muted); font-size:13px; line-height:1.6; max-width:720px; }
+    .pathway-pill { border:1px solid rgba(46,204,133,0.28); color:var(--green); border-radius:999px; padding:7px 12px; font-size:12px; font-weight:700; white-space:nowrap; }
+    .pathway-grid { display:grid; grid-template-columns:repeat(5, minmax(0,1fr)); gap:10px; }
+    .pathway-card { background:rgba(10,10,20,0.52); border:1px solid var(--border); border-radius:12px; padding:12px; }
+    .pathway-card strong { display:block; color:var(--text); font-size:13px; margin-bottom:6px; }
+    .pathway-card span { display:block; color:var(--muted); font-size:12px; line-height:1.45; }
+    .pathway-card.pepper { border-color:rgba(46,204,133,0.45); box-shadow:0 0 0 1px rgba(46,204,133,0.08) inset; }
+    .pathway-card.pepper strong { color:var(--green); }
+    .pathway-note { margin-top:12px; color:var(--muted); font-size:12px; line-height:1.6; }
+    @media (max-width: 768px) { .pathway-panel { margin:14px 16px 0; } .pathway-head { flex-direction:column; } .pathway-grid { grid-template-columns:1fr; } }
+
     /* ADD TO COMPARE checkbox on card */
     .compare-checkbox-wrap {
       display: flex; align-items: center; gap: 6px;
@@ -717,6 +740,26 @@
     🏢 Commercial <span class="tab-count" id="tabCommCount">12</span>
   </button>
 </div>
+
+<section class="pathway-panel" id="nonBankPathwayPanel">
+  <div class="pathway-head">
+    <div>
+      <div class="pathway-kicker">Bank said no? Compare the next channel.</div>
+      <h2>Non-bank pathway view</h2>
+      <p>Major-bank rejection does not always mean the deal is dead. It usually means the file needs a different evidence standard, pricing expectation, LVR limit, or exit story. Pepper is shown first because it is often the practical near-prime / specialist benchmark before testing other non-bank options.</p>
+    </div>
+    <button class="pathway-pill" onclick="showNonBankPathway()">Show non-bank options</button>
+  </div>
+  <div class="pathway-grid">
+    <div class="pathway-card pepper"><strong>Pepper Money</strong><span>First specialist benchmark for near-prime, alt-doc, credit impairment, complex income and commercial scenarios. Still evidence-led; not an approval shortcut.</span></div>
+    <div class="pathway-card"><strong>Bluestone</strong><span>Useful where bank policy is tight on company/trust, genuine savings, self-employed or near-prime residential files.</span></div>
+    <div class="pathway-card"><strong>La Trobe Financial</strong><span>Specialist pathway for SMSF, commercial, construction/private-style complexity and flexible documentation cases.</span></div>
+    <div class="pathway-card"><strong>Thinktank</strong><span>Strong commercial/SMSF/property specialist; useful when security and DSCR story matter more than vanilla bank fit.</span></div>
+    <div class="pathway-card"><strong>Liberty Financial</strong><span>Broad non-bank fallback for complex borrower profiles, alt-doc and non-standard credit stories.</span></div>
+  </div>
+  <div class="pathway-note">Boundary: this view is a policy navigation aid only. It does not recommend a product, promise lender appetite, or replace a broker/lender assessment.</div>
+</section>
+
 
 <div class="app">
   <!-- SIDEBAR TOGGLE (Desktop) -->
@@ -1534,6 +1577,27 @@ let LENDERS = [
     second_mortgage: { allowed: false, note: "Not available" },
     docs: { payslips: 2, payslip_max_age: "30 days", self_emp: "2yr financials", alt_doc: false },
     leasehold: { accepted: false, note: "ING does not accept leasehold residential properties" }
+  },
+  {
+    id: "pepper",
+    name: "Pepper Money",
+    icon: "PM",
+    type: "non_bank",
+    tier: "tier2",
+    completeness: "partial",
+    source: "Public data · Specialist lender · Verify current policy before submission",
+    lvr: {
+      oo_pi: 0.90, oo_io: 0.80, inv_pi: 0.85, inv_io: 0.75,
+      construction: null, lmi_required_above: 0.80, lmi_waiver: false
+    },
+    modifiers: [{ id: "dti_above_6x", label: "DTI > 6×", max_lvr: 0.80 }],
+    servicing: { assessment_floor: null, buffer: "3.00%", dti_max: "See product guide", min_surplus: null },
+    income: { payg_base: "100%", casual: "Flexible", overtime_other: "Case-by-case", commission: "Case-by-case", self_employed_yrs: 1, rental: "80%" },
+    special: { medico: false, bridging: false, construction: false, family_guarantee: false, smsf: false, foreign_income: true, no_genuine_savings: true, note: "Near-prime / specialist benchmark; good first non-bank comparison after major-bank policy knockback." },
+    entity: { company: true, trust: true, max_lvr: 0.85, note: "Accepts more complex borrower structures subject to product, documentation and credit profile." },
+    second_mortgage: { allowed: false, note: "Not a default residential pathway; test specific specialist appetite where relevant." },
+    docs: { payslips: 2, self_emp: "Alt-doc / full-doc pathways depending on product", alt_doc: true },
+    leasehold: { accepted: true, lvr_reduction: 0.05, min_remaining_lease: 15, note: "Policy to be verified case-by-case." }
   },
   {
     id: "thinktank",
@@ -2705,7 +2769,7 @@ function buildCompareTable() {
   const table = document.getElementById('compareTable');
 
   const rows = [
-    { label: 'Type', fn: l => l.tier === 'tier1' ? 'Major Bank' : 'Non-Major Bank' },
+    { label: 'Type', fn: l => l.type === 'non_bank' ? 'Non-Bank / Specialist' : (l.tier === 'tier1' ? 'Major Bank' : 'Non-Major Bank') },
     { label: 'OO P&I Max LVR', fn: l => l.lvr.oo_pi ? `<span class="val-good">${(l.lvr.oo_pi*100).toFixed(0)}%</span>` : '<span class="val-na">—</span>' },
     { label: 'OO IO Max LVR', fn: l => l.lvr.oo_io ? `${(l.lvr.oo_io*100).toFixed(0)}%` : '<span class="val-na">—</span>' },
     { label: 'Investor P&I Max LVR', fn: l => l.lvr.inv_pi ? `<span class="val-good">${(l.lvr.inv_pi*100).toFixed(0)}%</span>` : '<span class="val-na">—</span>' },
@@ -2731,6 +2795,21 @@ function buildCompareTable() {
   }).join('');
 
   table.innerHTML = `<thead>${headerRow}</thead><tbody>${bodyRows}</tbody>`;
+}
+
+
+
+function showNonBankPathway() {
+  const nonBanks = LENDERS.filter(l => l.type === 'non_bank');
+  const pepper = nonBanks.find(l => /pepper/i.test(l.name));
+  const ordered = pepper ? [pepper, ...nonBanks.filter(l => l.id !== pepper.id)] : nonBanks;
+  render(ordered);
+  document.querySelectorAll('#tierPills .pill-option').forEach(p => p.classList.toggle('active', p.dataset.tier === 'non_bank'));
+  document.getElementById('resultsCount').textContent = ordered.length + ' non-bank pathway' + (ordered.length !== 1 ? 's' : '');
+  const bar = document.getElementById('scenarioBar');
+  bar.classList.remove('hidden');
+  bar.innerHTML = '<span style="color:var(--muted);font-size:12px;">Bank declined / outside appetite → showing specialist non-bank alternatives, Pepper first.</span>';
+  document.getElementById('lenderGrid').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────────

@@ -508,7 +508,7 @@ body {
 
   <!-- STEP 2: QUIZ -->
   <div id="step-quiz" class="step quiz">
-    <p class="progress-label"><span id="q-counter">1</span> of 10</p>
+    <p class="progress-label"><span id="q-counter">1</span> of <span id="q-total">11</span></p>
     <div class="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
     <div class="question-card fade-in" id="question-card">
       <h2 id="q-title"></h2>
@@ -776,6 +776,16 @@ const questions = [
       { label: 'Refinancing', value: 3 },
       { label: 'Other', value: 4 }
     ]
+  },
+  {
+    id: 'q11', title: 'How resilient is your income if unemployment rises to around 4.5%?',
+    hint: "Banks do not just look at today's income — they stress whether it is stable, repeatable, and defendable.",
+    options: [
+      { label: 'Very resilient — essential sector, stable contracts, low customer concentration', value: 0 },
+      { label: 'Reasonably stable — steady clients or employment, but some cycle exposure', value: 1 },
+      { label: 'Variable — relies on overtime, bonuses, casual shifts, or a few customers', value: 2 },
+      { label: 'Exposed — recent income drop, reduced hours, shrinking pipeline, or weak cash buffer', value: 3 }
+    ]
   }
 ];
 
@@ -789,7 +799,8 @@ const scoreMap = {
   q6: [10, 7, 4, 1],          // debt load
   q7: [15, 10, 3, 0],         // industry risk
   q8: [5, 12, 8, 3, 0],       // credit score
-  q9: [6, 4, 1]               // cash flow
+  q9: [6, 4, 1],              // cash flow
+  q11: [5, 3, -4, -8]           // employment + income resilience modifier
   // q10 is not scored — used for personalisation only
 };
 
@@ -802,11 +813,12 @@ const dimensionNames = {
   q6: 'Debt Load',
   q7: 'Industry Risk',
   q8: 'Personal Credit',
-  q9: 'Cash Flow'
+  q9: 'Cash Flow',
+  q11: 'Employment & Income Resilience'
 };
 
 const dimensionMax = {
-  q1: 10, q3: 12, q4: 15, q5: 20, q6: 10, q7: 15, q8: 12, q9: 6
+  q1: 10, q3: 12, q4: 15, q5: 20, q6: 10, q7: 15, q8: 12, q9: 6, q11: 5
 };
 
 const tipMessages = {
@@ -817,7 +829,8 @@ const tipMessages = {
   q6: "Hold off on taking on new debt or gearing up further. Focus on reducing your existing debt-to-income ratio before applying.",
   q9: "Six months or more of clean bank statements is your strongest evidence. Keep account balances healthy and avoid irregular large withdrawals.",
   q7: "Some banks have hard policy restrictions on your industry. A specialist broker can match you with lenders who are open to your sector.",
-  q1: "Growing your revenue above $250K opens up significantly more lending options. Focus on consistent, documentable income."
+  q1: "Growing your revenue above $250K opens up significantly more lending options. Focus on consistent, documentable income.",
+  q11: "With unemployment around 4.5%, lenders will pay closer attention to whether income is stable, repeatable and supported by a cash buffer. Prepare contracts, pipeline evidence, payslips or management accounts before applying."
 };
 
 // ─── STATE ───────────────────────────────────────────────
@@ -1110,6 +1123,12 @@ function calculateScore() {
   score += q9Score;
   dimScores.q9 = q9Score / dimensionMax.q9;
 
+  // Q11: employment + income resilience — 4.5% unemployment narrative
+  const q11Score = scoreMap.q11[answers.q11];
+  score += q11Score;
+  dimScores.q11 = Math.max(0, q11Score) / dimensionMax.q11;
+  if (answers.q11 === 3) hardCap = Math.min(hardCap, 69);
+
   const finalScore = Math.min(Math.max(score, 0), hardCap);
   return { finalScore, dimScores, hardCap };
 }
@@ -1183,9 +1202,25 @@ function showResults() {
     item.innerHTML = `<div class="tip-num">${i + 1}</div><div class="tip-text"><strong>${tip.dim}:</strong> ${tip.msg}</div>`;
     listEl.appendChild(item);
   });
+  renderIncomeResilienceModule(finalScore);
 
   // Store for submission
   window._scoreData = { score: finalScore, tier: tier.name, dimScores, answers: { ...answers } };
+}
+
+function renderIncomeResilienceModule(finalScore) {
+  const wrap = document.getElementById('tips-list');
+  const selected = questions.find(q => q.id === 'q11').options[answers.q11]?.label || 'Not answered';
+  const tone = answers.q11 <= 1 ? '✅ Resilient' : answers.q11 === 2 ? '⚠️ Watch' : '🚩 Exposed';
+  const msg = answers.q11 <= 1
+    ? 'Your income story should be easier to defend if unemployment stays around 4.5%, provided the documents match the story.'
+    : answers.q11 === 2
+      ? 'Variable income needs evidence: payslip history, signed contracts, customer pipeline, bank statements, and a clear buffer.'
+      : 'Treat income resilience as a blocker before applying. Stabilise hours, rebuild cash buffer, or collect stronger evidence before lender submission.';
+  const card = document.createElement('div');
+  card.className = 'tip-item';
+  card.innerHTML = `<div class="tip-num">IR</div><div class="tip-text"><strong>Employment & income resilience (${tone}):</strong> ${msg}<br><span style="color:#777;font-size:13px">Selected: ${selected}. Narrative anchor: a 4.5% unemployment environment makes stable, repeatable income more valuable to lenders.</span></div>`;
+  wrap.appendChild(card);
 }
 
 // ─── SUPABASE SUBMIT ─────────────────────────────────────
@@ -1216,7 +1251,8 @@ async function submitLead() {
     q7: "Industry",
     q8: "Personal Credit Score",
     q9: "Cash Flow Stability",
-    q10: "Loan Type(s) Seeking"
+    q10: "Loan Type(s) Seeking",
+    q11: "Employment & Income Resilience"
   };
 
   const answers_summary = {};
