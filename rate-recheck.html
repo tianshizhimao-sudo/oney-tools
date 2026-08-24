@@ -201,6 +201,19 @@
         }
         .fineprint a { color: var(--green); }
 
+        /* === Post-RBA checklist helper === */
+        .checklist-helper {
+            margin-top: 16px;
+            padding: 16px;
+            border: 1px solid rgba(46,204,133,.26);
+            border-radius: 12px;
+            background: rgba(46,204,133,.07);
+        }
+        .checklist-helper strong { color: var(--green); display: block; margin-bottom: 8px; }
+        .checklist-helper p { color: #d9d9eb; font-size: 0.9rem; margin: 0 0 10px; }
+        .checklist-helper ul { margin: 0; padding-left: 20px; color: #d9d9eb; font-size: 0.88rem; }
+        .checklist-helper li { margin: 5px 0; }
+
         /* === Trust mini-cards === */
         .trust { margin-top: 26px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
         .mini { border: 1px solid var(--border); background: rgba(37,37,64,.55); border-radius: 14px; padding: 14px; color: #dcdcec; font-size: 0.9rem; }
@@ -331,6 +344,12 @@
         <p id="resultText"></p>
         <ul id="resultList"></ul>
 
+        <div class="checklist-helper" id="checklistHelper">
+          <strong>Your cash rate didn’t move. Your borrowing confidence still might have.</strong>
+          <p>Before relying on an older pre-approval, check whether the snapshot behind it still matches your current file.</p>
+          <ul id="checklistHelperList"></ul>
+        </div>
+
         <div class="capture" id="capture">
           <strong>Want the broker-style recheck checklist?</strong>
           <p class="sub" style="margin-top:6px;margin-bottom:0;">Leave your details and Oney &amp; Co can send a practical checklist for refreshing your borrowing numbers. No approval promise; general-information follow-up only. By submitting, you agree we may contact you about this checklist request.</p>
@@ -357,7 +376,7 @@
   </div>
 
   <div class="source-note">
-    <strong>Source note (general information):</strong> RBA cash rate target 4.35%; latest official RBA cash-rate table effective date checked 2026-08-12 after the 2026-08-11 decision. Next RBA Monetary Policy Board meeting is scheduled for 28–29 September 2026, with the next decision expected 2026-09-29. APRA serviceability buffer remains 3 percentage points; APRA high-DTI guardrail applies to DTI at or above 6x, allowing up to 20% of new owner-occupied and investment lending separately. Source facts last checked 2026-08-17. This page does not predict future rate movements and does not guarantee approval. Recheck official RBA/APRA sources before making any decision.
+    <strong>Source note (general information):</strong> RBA cash rate target 4.35%; latest official RBA cash-rate table effective date checked 2026-08-12 after the August Monetary Policy Board decision. Next RBA Monetary Policy Board meeting is scheduled for 28–29 September 2026, with the next decision expected 2026-09-29. APRA serviceability buffer remains 3 percentage points; APRA high-DTI guardrail applies to DTI at or above 6x, allowing up to 20% of new owner-occupied and investment lending separately. Source facts last checked 2026-08-24. This page does not predict future rate movements and does not guarantee approval. Recheck official RBA/APRA sources before making any decision.
   </div>
 
   <div class="watermark">
@@ -384,12 +403,14 @@
   const resultTitle = document.getElementById('resultTitle');
   const resultText = document.getElementById('resultText');
   const resultList = document.getElementById('resultList');
+  const checklistHelperList = document.getElementById('checklistHelperList');
   const capture = document.getElementById('capture');
   const captureSubmit = document.getElementById('captureSubmit');
   const captureSuccess = document.getElementById('captureSuccess');
   const captureError = document.getElementById('captureError');
   const marketingConsent = document.getElementById('marketingConsent');
-  const SOURCE_FACT_VERSION = 'rba-2026-08-17__apra-buffer-2026-05-28';
+  const SOURCE_FACT_VERSION = 'rba-2026-08-24__apra-buffer-2026-05-28';
+  const SOURCE_FRESH_DATE = '2026-08-24';
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -431,6 +452,11 @@
       'Avoid treating maximum approval as your maximum offer price.',
       'Recheck if income, debt, expenses, deposit or DTI change.'
     ];
+    let helperItems = [
+      '0–1 triggers usually means the file may still be current, but documents still need to stay fresh.',
+      'Recheck immediately if income, debts, expenses, deposit, property target or repayment comfort changes.',
+      'Confirm before signing or bidding near your ceiling.'
+    ];
 
     if (score >= 6 && score < 11) {
       state = 'amber';
@@ -440,6 +466,11 @@
         'Ask whether your pre-approval assumptions are still current.',
         'Re-run your purchase ceiling before bidding.',
         'Check whether your buffer still feels real after settlement costs.'
+      ];
+      helperItems = [
+        '2–3 material triggers usually means the file is policy-sensitive, not automatically unsafe.',
+        'Focus on changed income/employment, new credit limits, higher expenses, lower deposit or a higher target property price.',
+        'A broker or lender recheck is sensible before relying on the old number.'
       ];
     }
     if (score >= 11) {
@@ -451,6 +482,11 @@
         'Avoid stretching above your old budget or old ceiling.',
         'Review repayment comfort, debt position, cash buffer and DTI first.'
       ];
+      helperItems = [
+        '4+ triggers, DTI pressure or tight repayment comfort means the old snapshot may no longer be reliable.',
+        'Do not rely on an old pre-approval without a fresh review before committing to an offer or contract path.',
+        'Bring updated income, debt, deposit, expenses and target-property details to the recheck.'
+      ];
     }
 
     result.className = 'result ' + state;
@@ -459,6 +495,7 @@
     resultTitle.textContent = title;
     resultText.textContent = text;
     resultList.innerHTML = bullets.map(item => `<li>${item}</li>`).join('');
+    checklistHelperList.innerHTML = helperItems.map(item => `<li>${item}</li>`).join('');
     window._rateRecheckResult = {
       score,
       state,
@@ -500,7 +537,7 @@
     const consentCapturedAt = new Date().toISOString();
     const managePreferencesUrl = 'mailto:hello@oneyco.com.au?subject=Manage%20Rate%20Recheck%20email%20preferences';
     const unsubscribeUrl = 'mailto:hello@oneyco.com.au?subject=Unsubscribe%20from%20Rate%20Recheck%20emails';
-    const lastSourceCheckAt = '2026-08-07T00:00:00+10:00';
+    const lastSourceCheckAt = SOURCE_FRESH_DATE + 'T00:00:00+10:00';
     const payload = {
       name: name || null,
       email,
