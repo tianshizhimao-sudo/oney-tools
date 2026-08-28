@@ -322,6 +322,40 @@
       border-color: var(--error) !important;
     }
 
+    .consent-notice {
+      margin-top: 24px;
+      padding: 18px;
+      border: 1px solid rgba(46, 204, 133, 0.24);
+      border-radius: 12px;
+      background: rgba(46, 204, 133, 0.06);
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+
+    .consent-notice strong {
+      color: var(--text-primary);
+    }
+
+    .consent-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-top: 12px;
+    }
+
+    .consent-row input {
+      flex: 0 0 auto;
+      margin-top: 2px;
+    }
+
+    .consent-row label {
+      margin: 0;
+      font-weight: 400;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
     /* Loading State */
     .loading-spinner {
       display: inline-block;
@@ -842,6 +876,16 @@
         </div>
       </div>
 
+        <div class="consent-notice" id="collectionNotice">
+          <strong>Collection notice &amp; follow-up consent</strong>
+          <p>Oney &amp; Co uses this information to review your enquiry, organise missing information, send requested commercial lending checklists/evidence requests, and follow up about this enquiry. This is general information only — not credit advice, tax advice, legal advice or an approval assessment. No lender submission is made from this form.</p>
+          <div class="consent-row">
+            <input type="checkbox" id="followUpConsent" name="followUpConsent" value="yes" required>
+            <label for="followUpConsent">I agree Oney &amp; Co may contact me about this commercial enquiry and send directly related general-information follow-up. I can manage preferences or unsubscribe at any time by replying to hello@oneyco.com.au with “unsubscribe”.</label>
+          </div>
+          <span class="error-message" id="consentError">Please tick the consent box so we can send the enquiry confirmation and related follow-up.</span>
+        </div>
+
       <!-- Button Group -->
       <div class="button-group">
         <button type="reset" class="btn-reset">Clear Form</button>
@@ -859,6 +903,8 @@
     const TELEGRAM_BOT_TOKEN = '8676787397:AAG90cuLT0zH0yxLUPe6_UXg8avmu4naJAU'; // Oneykimiops_bot (Ops)
     const TELEGRAM_CHAT_ID = '777287927';
     const COMMERCIAL_ATO_EVIDENCE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/commercial-ato-evidence-pack`;
+    const COMMERCIAL_CONSENT_TEXT_VERSION = 'commercial-intake-consent-v0.1-2026-08-28';
+    const COMMERCIAL_PRIVACY_NOTICE_VERSION = 'commercial-intake-privacy-v0.1-2026-08-28';
 
     const form = document.getElementById('intakeForm');
     const submitBtn = document.getElementById('submitBtn');
@@ -1149,6 +1195,16 @@
         return;
       }
 
+      const consentCheckbox = document.getElementById('followUpConsent');
+      const consentError = document.getElementById('consentError');
+      if (!consentCheckbox.checked) {
+        consentError.classList.add('show');
+        consentCheckbox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        alert('Please tick the consent box so we can send the enquiry confirmation and related follow-up.');
+        return;
+      }
+      consentError.classList.remove('show');
+
       // Disable submit button
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<span class="loading-spinner"></span>Submitting...';
@@ -1202,7 +1258,17 @@
           contact_name: formData.get('contactName'),
           contact_email: formData.get('contactEmail'),
           contact_phone: formData.get('contactPhone'),
-          submitted_at: new Date().toISOString()
+          submitted_at: new Date().toISOString(),
+          consent_type: 'express',
+          marketing_consent: true,
+          consent_scope: 'commercial_intake_follow_up',
+          consent_captured_at: new Date().toISOString(),
+          consent_capture_method: 'form',
+          consent_capture_source: 'commercial-intake',
+          consent_text_version: COMMERCIAL_CONSENT_TEXT_VERSION,
+          privacy_notice_version: COMMERCIAL_PRIVACY_NOTICE_VERSION,
+          manage_preferences_url: 'mailto:hello@oneyco.com.au?subject=Manage%20Commercial%20Intake%20email%20preferences',
+          unsubscribe_url: 'mailto:hello@oneyco.com.au?subject=Unsubscribe%20from%20Commercial%20Intake%20emails'
         };
 
         // ── Payroll/Super readiness classification (INTERNAL, non-decisioning) ──
@@ -1341,6 +1407,12 @@ Email: ${payload.contact_email || 'N/A'}
 Phone: ${payload.contact_phone || 'N/A'}
 Referral: ${payload.hear_about_us || 'N/A'}${payload.referring_advisor ? ' — ' + payload.referring_advisor : ''}
 
+✅ CONSENT AUDIT
+Type: ${payload.consent_type || 'N/A'} | Scope: ${payload.consent_scope || 'N/A'}
+Captured: ${payload.consent_captured_at || 'N/A'} via ${payload.consent_capture_method || 'N/A'} / ${payload.consent_capture_source || 'N/A'}
+Text version: ${payload.consent_text_version || 'N/A'}
+Manage/unsubscribe: ${payload.manage_preferences_url || payload.unsubscribe_url || 'N/A'}
+
 ⏰ ${aestTime} AEST`;
 
         // Send Telegram notification (best effort)
@@ -1432,7 +1504,8 @@ Referral: ${payload.hear_about_us || 'N/A'}${payload.referring_advisor ? ' — '
                       <span style="color:#666;">Oney & Co | <a href="https://oneyco.com.au" style="color:#1FAD73;">oneyco.com.au</a></span>
                     </p>
                     <hr style="margin:32px 0;border:none;border-top:1px solid #eee;">
-                    <p style="font-size:12px;color:#aaa;margin:0;">General information only. Not financial advice. Oney & Co is not yet a licensed credit representative.</p>
+                    <p style="font-size:12px;line-height:1.5;color:#888;margin:0 0 8px;">You’re receiving this because you submitted a Commercial Deal Enquiry to Oney &amp; Co. This email is general information only and is not credit advice, tax advice, legal advice or an approval assessment. No lender submission has been made from this form.</p>
+                    <p style="font-size:12px;line-height:1.5;color:#aaa;margin:0;">To manage preferences or unsubscribe, reply to <a href="mailto:hello@oneyco.com.au?subject=Unsubscribe%20from%20Commercial%20Intake%20emails" style="color:#1FAD73;">hello@oneyco.com.au</a> with “unsubscribe”. Oney &amp; Co is not yet a licensed credit representative.</p>
                   </div>
                 `
               })

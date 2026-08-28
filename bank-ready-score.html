@@ -350,6 +350,18 @@ body {
   display: none;
 }
 
+.consent-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 10px 0;
+}
+.consent-row input { margin-top: 3px; accent-color: var(--green); }
+.privacy-note { color: var(--muted); font-size: 12px; line-height: 1.5; margin: 6px 0 12px; }
+
 /* ========== THANK YOU ========== */
 .thankyou { align-items: center; justify-content: center; text-align: center; }
 .thankyou .check-icon {
@@ -538,6 +550,11 @@ body {
       <p class="sub">We'll email you a detailed breakdown with next steps.</p>
       <div class="form-group"><input type="text" id="input-name" placeholder="Your name"></div>
       <div class="form-group"><input type="email" id="input-email" placeholder="Email address"></div>
+      <label class="consent-row" for="input-consent">
+        <input type="checkbox" id="input-consent" required>
+        <span>Send me the Bank-Ready Score report/checklist and related general-information follow-up from Oney &amp; Co. I understand I can unsubscribe at any time. This is not credit advice, tax advice or an approval assessment.</span>
+      </label>
+      <p class="privacy-note">We use your email, score result and answers to send the requested report/checklist and keep a consent record. No lender submission is made from this tool.</p>
       <button class="btn-submit" id="btn-submit" onclick="submitLead()">Send My Report</button>
       <p class="form-error" id="form-error"></p>
     </div>
@@ -1227,6 +1244,7 @@ function renderIncomeResilienceModule(finalScore) {
 async function submitLead() {
   const name = document.getElementById('input-name').value.trim();
   const email = document.getElementById('input-email').value.trim();
+  const consent = document.getElementById('input-consent');
   const errEl = document.getElementById('form-error');
   const btn = document.getElementById('btn-submit');
 
@@ -1236,6 +1254,15 @@ async function submitLead() {
     errEl.style.display = 'block';
     return;
   }
+  if (!consent.checked) {
+    errEl.textContent = 'Please tick the consent box so we can send the report/checklist and related follow-up.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const consentCapturedAt = new Date().toISOString();
+  const unsubscribeUrl = 'mailto:hello@oneyco.com.au?subject=Unsubscribe%20from%20Bank-Ready%20Score%20emails';
+  const managePreferencesUrl = 'mailto:hello@oneyco.com.au?subject=Manage%20Bank-Ready%20Score%20email%20preferences';
 
   btn.disabled = true;
   btn.textContent = 'Sending...';
@@ -1275,7 +1302,29 @@ async function submitLead() {
     answers_summary,
     industry: answers.q7 ? answers.q7.name : null,
     industry_risk: answers.q7 ? answers.q7.risk : null,
-    loan_types: Array.isArray(answers.q10) ? answers.q10 : []
+    loan_types: Array.isArray(answers.q10) ? answers.q10 : [],
+    consent_type: 'express',
+    marketing_consent: true,
+    consent_scope: 'brs_report',
+    consent_captured_at: consentCapturedAt,
+    consent_capture_method: 'form',
+    consent_capture_source: 'bank-ready-score-legacy',
+    consent_text_version: 'brs-report-consent-v0.1-2026-08-28',
+    privacy_notice_version: 'brs-report-privacy-v0.1-2026-08-28',
+    manage_preferences_url: managePreferencesUrl,
+    unsubscribe_url: unsubscribeUrl,
+    consent_audit: {
+      consent_type: 'express',
+      marketing_consent: true,
+      consent_scope: 'brs_report',
+      consent_captured_at: consentCapturedAt,
+      consent_capture_method: 'form',
+      consent_capture_source: 'bank-ready-score-legacy',
+      consent_text_version: 'brs-report-consent-v0.1-2026-08-28',
+      privacy_notice_version: 'brs-report-privacy-v0.1-2026-08-28',
+      manage_preferences_url: managePreferencesUrl,
+      unsubscribe_url: unsubscribeUrl
+    }
   };
 
   try {
