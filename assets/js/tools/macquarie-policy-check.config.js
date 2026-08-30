@@ -121,7 +121,7 @@ function classify(values) {
   }
 
   if (values.entity === 'company' || values.entity === 'trust') {
-    fail.push('Company/trust borrower scenarios are not treated as Macquarie-first in the current Policy Radar public dataset; check broker channel before relying on this path.');
+    fail.push('Company/trust borrower scenarios require current Macquarie broker-channel confirmation and should not be treated as Macquarie-first based on public Policy Radar data.');
   }
   if (values.entity === 'smsf') fail.push('SMSF lending is not shown as available in the Macquarie residential policy dataset.');
   if (values.entity === 'non_resident') warn.push('Non-resident / temporary resident policy is not confirmed in the public dataset. Treat as manual-policy-check required.');
@@ -245,8 +245,8 @@ export const macquariePolicyCheckConfig = {
           id: 'entity', label: 'Borrower type', type: 'choice',
           options: [
             { value: 'individual', label: 'Individual / joint individuals', desc: 'Standard PAYG or self-employed borrowers' },
-            { value: 'company', label: 'Company', desc: 'Not Macquarie-first in current public Policy Radar dataset' },
-            { value: 'trust', label: 'Trust', desc: 'Not Macquarie-first in current public Policy Radar dataset' },
+            { value: 'company', label: 'Company', desc: 'Requires current broker-channel confirmation' },
+            { value: 'trust', label: 'Trust', desc: 'Requires current broker-channel confirmation' },
             { value: 'smsf', label: 'SMSF', desc: 'Not shown as available' },
             { value: 'non_resident', label: 'Temporary / non-resident', desc: 'Manual policy check' },
           ],

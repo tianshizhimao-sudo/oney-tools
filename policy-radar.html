@@ -1263,7 +1263,7 @@ let LENDERS = [
       medico: true, medico_lvr: "95% (Tier 1)", lmi_waiver: false,
       bridging: false, construction: true, family_guarantee: false, smsf: false
     },
-    entity: { company: false, trust: false, note: "Paused all company/trust applications since Oct 2025" },
+    entity: { company: false, trust: false, note: "Company/trust requires current broker-channel confirmation; not Macquarie-first on public data" },
     second_mortgage: { allowed: false, note: "Not available" },
     docs: { payslips: 2, self_emp: "2yr financials or ATO NOA", alt_doc: false },
     leasehold: { accepted: true, lvr_reduction: 0.10, min_remaining_lease: 30, note: "LVR reduced 10%; min 30yr remaining lease at maturity" }
@@ -2313,7 +2313,7 @@ function render(results) {
       </div>`;
     } else if (filters.borrower === 'company' || filters.borrower === 'trust') {
       suggestion = `<div class="empty-suggestion">
-        <strong>💡 Tip:</strong> Major banks have been tightening company/trust lending since late 2025 (Macquarie paused entirely, ANZ capped at 70% LVR).
+        <strong>💡 Tip:</strong> Major banks have been tightening company/trust lending since late 2025 (Macquarie requires current broker-channel confirmation for company/trust, ANZ capped at 70% LVR).
         <strong>Non-bank lenders</strong> like <span class="green">Bluestone</span> (up to 90%), <span class="green">Thinktank</span>, and <span class="green">Columbus Capital</span> still accept company/trust borrowers. Try selecting "Non-Bank" in the Lender Tier filter.
       </div>`;
     } else if (filters.leasehold) {
@@ -2904,7 +2904,7 @@ let COMM_LENDERS = [
     lvr_inv: { standard: 0.70, retail: 0.65, industrial: 0.70, office: 0.70, medical: 0.80, rural: 0.60, development: 0.65, vacant_land: 0.45, mixed_use: 0.70 },
     loan: { min: 500000, max: 30000000, max_term: 25, max_io: 5 },
     purpose: { purchase: true, refinance: true, equity_release: true, development: true, working_capital: false },
-    entity: { individual: true, company: false, trust: false, unit_trust: false, smsf: false, partnership: true, note: "Paused company/trust brokered lending Oct 2025" },
+    entity: { individual: true, company: false, trust: false, unit_trust: false, smsf: false, partnership: true, note: "Company/trust requires current broker-channel confirmation; not Macquarie-first on public data" },
     servicing: { buffer: "3.00%", dscr_min: 1.20, rental_income: "80%", assessment_floor: "5.30%" },
     special: { medico: true, medico_note: "+10% LVR for medical practitioners with fellowship", rural: true, development: true, alt_doc: false, smsf: false },
     docs: { full_doc: true, alt_doc: false, low_doc: false },
