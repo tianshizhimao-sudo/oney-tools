@@ -53,6 +53,25 @@
     "new": true
   },
   {
+    "id": "macquarie-policy-check",
+    "name": "Macquarie Policy Check",
+    "desc": "Free Macquarie policy-fit diagnostic: LVR, DTI, purpose, borrower/entity, income pathway, genuine savings and security watch points.",
+    "tags": [
+      "mortgage",
+      "policy",
+      "macquarie",
+      "lvr",
+      "dti",
+      "assessment"
+    ],
+    "url": "macquarie-policy-check.html",
+    "icon": "🏦",
+    "category": "Health Check",
+    "free": true,
+    "featured": true,
+    "new": true
+  },
+  {
     "id": "ef-tool",
     "name": "Equipment Finance Calculator",
     "desc": "Calculate equipment finance repayments, balloon payments, and compare lease vs buy.",

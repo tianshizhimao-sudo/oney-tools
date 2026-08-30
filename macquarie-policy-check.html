@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0a0a">
+  <title>Macquarie 能不能批我？ Policy Fit Check Australia | Oney & Co</title>
+  <meta name="description" content="Free Macquarie home-loan policy diagnostic from Oney & Co. Check headline LVR, DTI, borrower type, purpose, genuine savings and security fit. General information only; not approval advice.">
+  <meta property="og:title" content="Macquarie 能不能批我？ — Oney & Co Policy Radar">
+  <meta property="og:description" content="A public first-pass Macquarie policy-fit diagnostic based on Policy Radar's Macquarie dataset.">
+  <meta property="og:url" content="https://tools.oneyco.com.au/macquarie-policy-check.html">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://tools.oneyco.com.au/macquarie-policy-check.html">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='fg' x1='0%25' y1='100%25' x2='0%25' y2='0%25'><stop offset='0%25' stop-color='%231FAD73'/><stop offset='60%25' stop-color='%232ECC85'/><stop offset='60%25' stop-color='transparent'/><stop offset='100%25' stop-color='transparent'/></linearGradient><linearGradient id='sg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><circle r='38' fill='none' stroke='url(%23sg)' stroke-width='10' stroke-linecap='round'/><circle r='28' fill='url(%23fg)'/></g></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/brand.css">
+  <link rel="stylesheet" href="/assets/css/tool-shell.css">
+</head>
+<body class="tool-page">
+  <div class="ambient-bg"></div>
+
+  <nav class="brand-nav">
+    <div class="brand-nav-inner">
+      <a href="https://oneyco.com.au" class="brand-logo">
+        <div class="brand-logo-mark"><span></span></div>
+        <span class="brand-logo-text">Oney <span class="amp">&amp;</span> Co</span>
+      </a>
+      <button class="brand-nav-hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="brand-nav-links">
+        <a href="/" class="brand-nav-link">Home</a>
+        <a href="/assess/" class="brand-nav-link active">Assess</a>
+        <a href="/calculate/" class="brand-nav-link">Calculate</a>
+        <a href="/analyse/" class="brand-nav-link">Analyse</a>
+        <a href="/pro/" class="brand-nav-link">Pro</a>
+        <a href="/ai-use-disclaimer.html" class="brand-nav-link">AI & Disclaimer</a>
+      </div>
+    </div>
+  </nav>
+
+  <main></main>
+
+  <footer class="brand-footer">
+    <p>Oney &amp; Co — Clarity in every deal</p>
+    <p><a href="https://oneyco.com.au">oneyco.com.au</a> · <a href="/ai-use-disclaimer.html">AI Use & Disclaimer</a></p>
+  </footer>
+
+  <script type="module">
+    import { mountToolPage } from '/assets/js/ui/shell.js';
+    import { initAll } from '/assets/js/ui/motion.js';
+    import { macquariePolicyCheckConfig } from '/assets/js/tools/macquarie-policy-check.config.js';
+
+    mountToolPage({
+      config: macquariePolicyCheckConfig,
+      submitLabel: 'Check Macquarie signal',
+      assistCards: [
+        {
+          title: 'What this checks',
+          body: 'Purpose, loan type, LVR caps, DTI trigger, entity type, income pathway, genuine savings and selected property restrictions from the Macquarie Policy Radar dataset.',
+        },
+        {
+          title: 'What it does not check',
+          body: 'It does not calculate full borrowing capacity, apply all LMI rules, assess suitability, quote a rate or predict approval.',
+        },
+        {
+          title: 'Safe interpretation',
+          body: 'Green means policy fit looks plausible. Amber means package carefully. Red means Macquarie should not be the first pathway without manual policy confirmation.',
+        },
+      ],
+    });
+    initAll();
+  </script>
+</body>
+</html>
