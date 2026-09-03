@@ -168,6 +168,29 @@
     .checkbox-group a:hover {
       text-decoration: underline;
     }
+
+    .notice-box {
+      background: #f0fdf6;
+      border: 1px solid rgba(46, 204, 133, 0.35);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 18px;
+      color: var(--text-light);
+      font-size: 0.84rem;
+      line-height: 1.55;
+    }
+
+    .notice-box strong { color: var(--text); }
+    .crm-badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(46,204,133,0.12);
+      color: var(--primary-dark);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
     
     .submit-btn {
       width: 100%;
@@ -518,6 +541,10 @@
     </div>
     
     <form id="leadForm" class="form-body">
+      <div class="notice-box">
+        <strong>Collection notice:</strong> We use this information to respond to your enquiry, organise a readiness file, and decide whether a checklist or broker review is the next appropriate step. This form does not provide credit approval or personal credit advice.
+        <span class="crm-badge">Privacy notice version: 2026-09-04-lead-file-crm-v0.1</span>
+      </div>
       <div class="form-group">
         <label for="fullName">Full Name <span class="required">*</span></label>
         <input type="text" id="fullName" name="fullName" placeholder="John Smith" required>
@@ -568,7 +595,7 @@
         <div class="checkbox-group">
           <input type="checkbox" id="privacy" name="privacy" required>
           <label for="privacy">
-            I agree to the <a href="#" onclick="alert('Privacy Policy: We collect your information solely to assist with your loan enquiry. Your data is stored securely and will never be shared with third parties without your consent. You may request deletion at any time by contacting us.')">Privacy Policy</a> and consent to being contacted about my enquiry. <span class="required">*</span>
+            I agree to the <a href="#" onclick="alert('Privacy Policy: We collect your information to respond to your enquiry, organise a readiness file, and provide operational follow-up. This is not a credit approval or personal credit advice. Your information is stored securely and is not shared without a lawful reason or your consent.')">Privacy Policy</a> and consent to being contacted about my enquiry. <span class="required">*</span>
           </label>
         </div>
         <div class="error-message" id="privacyError">Please accept the privacy policy</div>
@@ -584,7 +611,7 @@
         </svg>
       </div>
       <h2>Thank You!</h2>
-      <p>We've received your enquiry and will be in touch within 24 hours.</p>
+      <p>We've received your enquiry and logged it as a readiness file. Next step: separate what we know from what still needs evidence before any broker review.</p>
       <button class="reset-btn" onclick="resetForm()">Submit Another Enquiry</button>
     </div>
   </div>
@@ -614,6 +641,8 @@
               <th>Loan Type</th>
               <th>Amount</th>
               <th>Message</th>
+              <th>CRM Stage</th>
+              <th>Consent</th>
             </tr>
           </thead>
           <tbody id="leadsBody"></tbody>
@@ -625,6 +654,9 @@
   
   <script>
     const STORAGE_KEY = 'oney_leads';
+    const CRM_STORAGE_KEY = 'oney-client-pipeline-v3';
+    const NOTICE_VERSION = '2026-09-04-lead-file-crm-v0.1';
+    const PROTOCOL_VERSION = 'lead-file-crm-handoff-v0.1';
     
     // Form validation & submission
     document.getElementById('leadForm').addEventListener('submit', function(e) {
@@ -663,27 +695,92 @@
       if (!valid) return;
       
       // Collect data
+      const submittedAt = new Date().toISOString();
       const lead = {
         id: Date.now(),
-        date: new Date().toISOString(),
+        date: submittedAt,
         fullName: document.getElementById('fullName').value.trim(),
         email: document.getElementById('email').value.trim(),
         phone: document.getElementById('phone').value.trim(),
         loanType: document.getElementById('loanType').value,
         loanAmount: document.getElementById('loanAmount').value,
-        message: document.getElementById('message').value.trim()
+        message: document.getElementById('message').value.trim(),
+        source: 'lead_capture',
+        crmStage: 'new_intake',
+        readinessSignal: 'unclassified',
+        nextAction: 'send checklist',
+        consentScope: 'operational_follow_up',
+        privacyNoticeVersion: NOTICE_VERSION,
+        consentCapturedAt: submittedAt,
+        protocolVersion: PROTOCOL_VERSION,
+        nonDecisioningBoundary: true
       };
       
       // Save to localStorage
       const leads = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
       leads.push(lead);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(leads));
+      saveToCRM(lead);
       
       // Show thank you
       document.getElementById('leadForm').style.display = 'none';
       document.getElementById('thankYou').classList.add('show');
     });
     
+    function loanTypeToScenario(loanType) {
+      if (loanType === 'Commercial Loan') return 'commercial';
+      if (loanType === 'Refinance') return 'refinance';
+      if (loanType === 'Investment Loan' || loanType === 'Home Loan') return 'purchase';
+      return 'other';
+    }
+
+    function amountRangeToNumber(range) {
+      if (range === '<$500k') return 500000;
+      if (range === '$500k-$1M') return 750000;
+      if (range === '$1M-$2M') return 1500000;
+      if (range === '$2M+') return 2000000;
+      return 0;
+    }
+
+    function saveToCRM(lead) {
+      const crmFiles = JSON.parse(localStorage.getItem(CRM_STORAGE_KEY) || '[]');
+      const duplicate = crmFiles.find(file => {
+        const sameEmail = (file.contact || '').toLowerCase().includes((lead.email || '').toLowerCase());
+        const sameSource = file.source === 'lead_capture';
+        const within14Days = file.createdAt && (new Date(lead.date) - new Date(file.createdAt)) < 14 * 24 * 60 * 60 * 1000;
+        return sameEmail && sameSource && within14Days;
+      });
+
+      if (duplicate) {
+        duplicate.notes = [duplicate.notes, `Follow-up enquiry received ${new Date(lead.date).toLocaleString('en-AU')}: ${lead.message || 'No message supplied.'}`].filter(Boolean).join('\n');
+        duplicate.stageHistory = duplicate.stageHistory || [];
+        duplicate.stageHistory.push({ from: duplicate.stage || 'new_intake', to: duplicate.stage || 'new_intake', date: lead.date, note: 'Duplicate lead capture appended as interaction.' });
+      } else {
+        crmFiles.push({
+          id: lead.id,
+          name: lead.fullName,
+          contact: [lead.phone, lead.email].filter(Boolean).join(' / '),
+          amount: amountRangeToNumber(lead.loanAmount),
+          purpose: loanTypeToScenario(lead.loanType),
+          source: 'lead_capture',
+          readinessSignal: 'unclassified',
+          stage: 'new_intake',
+          nextAction: 'send checklist',
+          nextActionDue: '',
+          consentScope: lead.consentScope,
+          privacyNoticeVersion: lead.privacyNoticeVersion,
+          sourceFactVersion: 'n/a',
+          protocolVersion: PROTOCOL_VERSION,
+          nonDecisioningBoundary: true,
+          notes: lead.message || 'Lead capture submitted. Readiness/file-note workflow only; no credit decision made.',
+          createdAt: lead.date,
+          stageDate: lead.date,
+          stageHistory: []
+        });
+      }
+      localStorage.setItem(CRM_STORAGE_KEY, JSON.stringify(crmFiles));
+    }
+
     // Reset form
     function resetForm() {
       document.getElementById('leadForm').reset();
@@ -727,6 +824,8 @@
           <td>${escapeHtml(lead.loanType) || '-'}</td>
           <td>${escapeHtml(lead.loanAmount) || '-'}</td>
           <td>${escapeHtml(lead.message).substring(0, 80) || '-'}${lead.message && lead.message.length > 80 ? '...' : ''}</td>
+          <td>${escapeHtml(lead.crmStage || 'new_intake')}</td>
+          <td>${escapeHtml(lead.consentScope || 'operational_follow_up')}</td>
         </tr>
       `).join('');
     }
@@ -743,7 +842,7 @@
         return;
       }
       
-      const headers = ['Date', 'Full Name', 'Email', 'Phone', 'Loan Type', 'Loan Amount', 'Message'];
+      const headers = ['Date', 'Full Name', 'Email', 'Phone', 'Loan Type', 'Loan Amount', 'Message', 'CRM Stage', 'Consent Scope', 'Privacy Notice Version'];
       const rows = leads.map(l => [
         new Date(l.date).toLocaleString('en-AU'),
         l.fullName,
@@ -751,7 +850,10 @@
         l.phone,
         l.loanType,
         l.loanAmount,
-        l.message.replace(/"/g, '""')
+        (l.message || '').replace(/"/g, '""'),
+        l.crmStage || 'new_intake',
+        l.consentScope || 'operational_follow_up',
+        l.privacyNoticeVersion || NOTICE_VERSION
       ].map(v => `"${v || ''}"`).join(','));
       
       const csv = [headers.join(','), ...rows].join('\n');

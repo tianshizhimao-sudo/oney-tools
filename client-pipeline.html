@@ -56,6 +56,7 @@
       background: var(--bg);
       padding: 4px;
       border-radius: 8px;
+      flex-wrap: wrap;
     }
     .view-btn {
       padding: 6px 12px;
@@ -175,6 +176,12 @@
       border-radius: 4px;
     }
     .client-date { color: var(--warning); }
+    .client-gate { color: var(--oney-green); }
+    .protocol-note { background: rgba(46,204,133,0.08); border: 1px solid rgba(46,204,133,0.28); color: var(--muted); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; font-size: 12px; line-height: 1.55; }
+    .protocol-note strong { color: var(--text); }
+    .export-row { display:flex; gap:8px; flex-wrap:wrap; margin: -4px 0 16px; }
+    .export-btn { padding: 9px 12px; border: 1px solid var(--border); background: var(--card); color: var(--text); border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: 600; }
+    .export-btn:hover { border-color: var(--oney-green); color: var(--oney-green); }
     
     .add-btn {
       width: 100%;
@@ -369,28 +376,38 @@
   <a href="index.html" class="header-back">← Back to Tools</a>
 </div>
     <div class="view-toggle">
-      <button class="view-btn active" onclick="setView('kanban')">📋 Board</button>
+      <button class="view-btn active" onclick="setView('kanban')">📋 CRM Board</button>
       <button class="view-btn" onclick="setView('list')">📱 List</button>
     </div>
   </div>
 
   <div class="container">
+    <div class="protocol-note">
+      <strong>Lead File CRM Handoff v0.1:</strong> This board is a readiness/file-note workflow, not a credit decision system. Use neutral stages, keep consent/notice metadata, and move any personalised lender recommendation or credit assistance to <strong>Broker review</strong>.
+    </div>
+    <div class="export-row">
+      <button class="export-btn" onclick="exportCRM('contacts')">Export contacts.ndjson</button>
+      <button class="export-btn" onclick="exportCRM('pipeline')">Export pipeline.ndjson</button>
+      <button class="export-btn" onclick="exportCRM('interactions')">Export interactions.ndjson</button>
+      <button class="export-btn" onclick="exportCRM('bundle')">Export CRM bundle</button>
+    </div>
+
     <div class="stats">
       <div class="stat">
         <div class="stat-value" id="totalClients">0</div>
-        <div class="stat-label">Total Clients</div>
+        <div class="stat-label">Lead Files</div>
       </div>
       <div class="stat">
         <div class="stat-value" id="activeDeals">0</div>
-        <div class="stat-label">Active Deals</div>
+        <div class="stat-label">Needs Action</div>
       </div>
       <div class="stat">
         <div class="stat-value" id="totalValue">$0</div>
-        <div class="stat-label">Pipeline Value</div>
+        <div class="stat-label">Indicative Exposure</div>
       </div>
       <div class="stat">
         <div class="stat-value" id="settledCount">0</div>
-        <div class="stat-label">Settled</div>
+        <div class="stat-label">Human Review</div>
       </div>
     </div>
 
@@ -409,7 +426,7 @@
       <input type="hidden" id="editId">
       
       <div class="form-group">
-        <label class="form-label">Client Name *</label>
+        <label class="form-label">Client / Lead Name *</label>
         <input type="text" class="form-input" id="clientName" placeholder="e.g., John Smith">
       </div>
       
@@ -419,36 +436,94 @@
       </div>
       
       <div class="form-group">
-        <label class="form-label">Loan Amount ($)</label>
+        <label class="form-label">Source</label>
+        <select class="form-select" id="leadSource">
+          <option value="lead_capture">Lead Capture</option>
+          <option value="rate_recheck">Rate Recheck</option>
+          <option value="brs">Bank-Ready Score</option>
+          <option value="commercial_intake">Commercial Intake</option>
+          <option value="mortgage_stress_check">Mortgage Stress Check</option>
+          <option value="policy_check">Policy Check</option>
+          <option value="referral">Referral</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Loan Amount / Exposure ($)</label>
         <input type="text" class="form-input" id="loanAmount" placeholder="e.g., 500000" oninput="updateAmountPreview()">
         <div class="amount-preview" id="amountPreview"></div>
       </div>
       
       <div class="form-group">
-        <label class="form-label">Funding Purpose</label>
+        <label class="form-label">Scenario</label>
         <select class="form-select" id="fundingPurpose">
           <option value="purchase">🏠 Purchase</option>
-          <option value="refinance">🔄 Refinancing</option>
-          <option value="topup">💰 Top Up</option>
+          <option value="refinance">🔄 Refinance</option>
+          <option value="commercial">🏢 Commercial</option>
+          <option value="policy_check">🧭 Policy Check</option>
+          <option value="stress_check">📊 Stress Check</option>
           <option value="other">📋 Other</option>
         </select>
       </div>
-      
+
       <div class="form-group">
-        <label class="form-label">Stage</label>
-        <select class="form-select" id="clientStage">
-          <option value="inquiry">📞 Inquiry</option>
-          <option value="preapproval">📋 Pre-approval</option>
-          <option value="application">📝 Application</option>
-          <option value="assessment">🔍 Assessment</option>
-          <option value="approved">✅ Approved</option>
-          <option value="settled">🎉 Settled</option>
+        <label class="form-label">Readiness Signal</label>
+        <select class="form-select" id="readinessSignal">
+          <option value="unclassified">Unclassified</option>
+          <option value="green">Green — appears evidence-ready</option>
+          <option value="amber">Amber — clarify/evidence needed</option>
+          <option value="red">Red — likely needs review or no action</option>
         </select>
       </div>
       
       <div class="form-group">
-        <label class="form-label">Notes</label>
-        <textarea class="form-textarea" id="clientNotes" placeholder="Any notes..."></textarea>
+        <label class="form-label">Neutral Stage</label>
+        <select class="form-select" id="clientStage">
+          <option value="new_intake">🆕 New intake</option>
+          <option value="triage_needed">🧭 Triage needed</option>
+          <option value="clarification_needed">❓ Clarification needed</option>
+          <option value="evidence_ready">📁 Evidence ready</option>
+          <option value="broker_review">👤 Broker review</option>
+          <option value="lodged">📨 Lodged / human process</option>
+          <option value="closed_no_action">⏸️ Closed — no action</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Next Action</label>
+        <select class="form-select" id="nextAction">
+          <option value="send checklist">Send checklist</option>
+          <option value="request docs">Request docs</option>
+          <option value="book call">Book call</option>
+          <option value="broker review">Broker review</option>
+          <option value="no action">No action</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Next Action Due</label>
+        <input type="date" class="form-input" id="nextActionDue">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Consent Scope</label>
+        <select class="form-select" id="consentScope">
+          <option value="operational_follow_up">Operational follow-up</option>
+          <option value="requested_report">Requested report</option>
+          <option value="checklist">Checklist</option>
+          <option value="marketing_optional">Marketing optional</option>
+          <option value="missing">Missing / needs triage</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Privacy Notice Version</label>
+        <input type="text" class="form-input" id="privacyNoticeVersion" value="2026-09-04-lead-file-crm-v0.1">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">File Note</label>
+        <textarea class="form-textarea" id="clientNotes" placeholder="Neutral factual note. No approval/decline language."></textarea>
       </div>
       
       <div class="history-section hidden" id="historySection">
@@ -458,7 +533,7 @@
       
       <div class="btn-row">
         <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-        <button class="btn btn-danger hidden" id="deleteBtn" onclick="deleteClient()">Delete</button>
+        <button class="btn btn-danger hidden" id="deleteBtn" onclick="closeNoAction()">Close No Action</button>
         <button class="btn btn-primary" onclick="saveClient()">Save</button>
       </div>
     </div>
@@ -467,332 +542,72 @@
   <div class="toast" id="toast"></div>
 
   <script>
+    const STORAGE_KEY_V3 = 'oney-client-pipeline-v3';
+    const STORAGE_KEY_V2 = 'oney-client-pipeline-v2';
+    const PROTOCOL_VERSION = 'lead-file-crm-handoff-v0.1';
+    const DEFAULT_NOTICE_VERSION = '2026-09-04-lead-file-crm-v0.1';
+
     const stages = [
-      { id: 'inquiry', name: '📞 Inquiry', color: '#94a3b8' },
-      { id: 'preapproval', name: '📋 Pre-approval', color: '#60a5fa' },
-      { id: 'application', name: '📝 Application', color: '#f59e0b' },
-      { id: 'assessment', name: '🔍 Assessment', color: '#a78bfa' },
-      { id: 'approved', name: '✅ Approved', color: '#22c55e' },
-      { id: 'settled', name: '🎉 Settled', color: '#2ECC85' }
+      { id: 'new_intake', name: '🆕 New intake', color: '#94a3b8' },
+      { id: 'triage_needed', name: '🧭 Triage needed', color: '#60a5fa' },
+      { id: 'clarification_needed', name: '❓ Clarification needed', color: '#f59e0b' },
+      { id: 'evidence_ready', name: '📁 Evidence ready', color: '#22c55e' },
+      { id: 'broker_review', name: '👤 Broker review', color: '#a78bfa' },
+      { id: 'lodged', name: '📨 Lodged', color: '#2ECC85' },
+      { id: 'closed_no_action', name: '⏸️ Closed — no action', color: '#64748b' }
     ];
-    
-    const purposeLabels = {
-      purchase: '🏠 Purchase',
-      refinance: '🔄 Refinance',
-      topup: '💰 Top Up',
-      other: '📋 Other'
-    };
-    
+    const legacyStageMap = { inquiry: 'new_intake', preapproval: 'triage_needed', application: 'clarification_needed', assessment: 'broker_review', approved: 'broker_review', settled: 'lodged' };
+    const purposeLabels = { purchase: '🏠 Purchase', refinance: '🔄 Refinance', topup: '💰 Top Up', commercial: '🏢 Commercial', policy_check: '🧭 Policy Check', stress_check: '📊 Stress Check', other: '📋 Other' };
+    const sourceLabels = { lead_capture: 'Lead Capture', rate_recheck: 'Rate Recheck', brs: 'Bank-Ready Score', commercial_intake: 'Commercial Intake', mortgage_stress_check: 'Mortgage Stress Check', policy_check: 'Policy Check', referral: 'Referral' };
     let clients = [];
     let currentView = 'kanban';
     let draggedClient = null;
-    
+
     function loadData() {
-      const saved = localStorage.getItem('oney-client-pipeline-v2');
-      if (saved) clients = JSON.parse(saved);
+      const savedV3 = localStorage.getItem(STORAGE_KEY_V3);
+      if (savedV3) { clients = JSON.parse(savedV3).map(normaliseClient); return; }
+      const savedV2 = localStorage.getItem(STORAGE_KEY_V2);
+      if (savedV2) { clients = JSON.parse(savedV2).map(normaliseClient); localStorage.setItem(STORAGE_KEY_V3, JSON.stringify(clients)); }
     }
-    
-    function saveData() {
-      localStorage.setItem('oney-client-pipeline-v2', JSON.stringify(clients));
-      showToast('✅ Saved');
+    function normaliseClient(client) {
+      const now = new Date().toISOString();
+      const stage = legacyStageMap[client.stage] || client.stage || 'new_intake';
+      return { id: client.id || Date.now(), name: client.name || '', contact: client.contact || '', amount: client.amount || 0, purpose: client.purpose === 'topup' ? 'other' : (client.purpose || 'other'), source: client.source || 'lead_capture', readinessSignal: client.readinessSignal || 'unclassified', stage, notes: client.notes || '', nextAction: client.nextAction || defaultNextAction(stage), nextActionDue: client.nextActionDue || '', consentScope: client.consentScope || 'operational_follow_up', privacyNoticeVersion: client.privacyNoticeVersion || DEFAULT_NOTICE_VERSION, sourceFactVersion: client.sourceFactVersion || 'n/a', protocolVersion: client.protocolVersion || PROTOCOL_VERSION, nonDecisioningBoundary: true, createdAt: client.createdAt || now, stageDate: client.stageDate || client.createdAt || now, stageHistory: (client.stageHistory || []).map(h => ({ from: legacyStageMap[h.from] || h.from, to: legacyStageMap[h.to] || h.to, date: h.date || now })) };
     }
-    
-    function formatAmount(num) {
-      if (!num) return '$0';
-      return '$' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    }
-    
-    function amountToWords(num) {
-      if (!num) return '';
-      if (num >= 1000000) {
-        return (num / 1000000).toFixed(1).replace(/\.0$/, '') + ' million';
-      } else if (num >= 1000) {
-        return (num / 1000).toFixed(0) + ' thousand';
-      }
-      return num.toString();
-    }
-    
-    function updateAmountPreview() {
-      const input = document.getElementById('loanAmount').value.replace(/[^0-9]/g, '');
-      const preview = document.getElementById('amountPreview');
-      if (input) {
-        const num = parseInt(input);
-        preview.textContent = formatAmount(num) + ' (' + amountToWords(num) + ')';
-      } else {
-        preview.textContent = '';
-      }
-    }
-    
-    function formatDate(dateStr) {
-      if (!dateStr) return '';
-      const d = new Date(dateStr);
-      return d.toLocaleDateString('en-AU', { day: 'numeric', month: 'short' });
-    }
-    
-    function daysSince(dateStr) {
-      if (!dateStr) return 0;
-      const d = new Date(dateStr);
-      const now = new Date();
-      return Math.floor((now - d) / (1000 * 60 * 60 * 24));
-    }
-    
-    function setView(view) {
-      currentView = view;
-      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-      document.querySelector(`.view-btn[onclick="setView('${view}')"]`).classList.add('active');
-      
-      if (view === 'kanban') {
-        document.getElementById('kanban').classList.remove('hidden');
-        document.getElementById('listView').classList.remove('active');
-      } else {
-        document.getElementById('kanban').classList.add('hidden');
-        document.getElementById('listView').classList.add('active');
-      }
-      render();
-    }
-    
-    function render() {
-      if (currentView === 'kanban') {
-        renderKanban();
-      } else {
-        renderList();
-      }
-      updateStats();
-    }
-    
-    function renderKanban() {
-      const kanban = document.getElementById('kanban');
-      kanban.innerHTML = stages.map(stage => {
-        const stageClients = clients.filter(c => c.stage === stage.id);
-        return `
-          <div class="stage" data-stage="${stage.id}">
-            <div class="stage-header">
-              <span class="stage-title">${stage.name}</span>
-              <span class="stage-count">${stageClients.length}</span>
-            </div>
-            <div class="stage-clients" 
-                 ondragover="handleDragOver(event)" 
-                 ondragleave="handleDragLeave(event)"
-                 ondrop="handleDrop(event, '${stage.id}')">
-              ${stageClients.map(c => renderClientCard(c)).join('')}
-            </div>
-            <button class="add-btn" onclick="openModal('${stage.id}')">+ Add Client</button>
-          </div>
-        `;
-      }).join('');
-    }
-    
-    function renderList() {
-      const listView = document.getElementById('listView');
-      listView.innerHTML = stages.map(stage => {
-        const stageClients = clients.filter(c => c.stage === stage.id);
-        if (stageClients.length === 0) return '';
-        return `
-          <div class="list-section">
-            <div class="list-section-header">
-              <span class="list-section-title">${stage.name}</span>
-              <span>${stageClients.length}</span>
-            </div>
-            ${stageClients.map(c => renderClientCard(c, true)).join('')}
-          </div>
-        `;
-      }).join('');
-    }
-    
-    function renderClientCard(client, isList = false) {
-      const days = daysSince(client.stageDate || client.createdAt);
-      const daysText = days === 0 ? 'Today' : days === 1 ? '1 day' : days + ' days';
-      
-      return `
-        <div class="client-card" 
-             draggable="true"
-             ondragstart="handleDragStart(event, ${client.id})"
-             ondragend="handleDragEnd(event)"
-             onclick="editClient(${client.id})">
-          <div class="client-name">${client.name}</div>
-          <div class="client-amount">${formatAmount(client.amount)}</div>
-          <div class="client-amount-text">${amountToWords(client.amount)}</div>
-          <div class="client-meta">
-            <span class="client-tag">${purposeLabels[client.purpose] || '📋 Other'}</span>
-            <span class="client-date">📅 ${daysText} in stage</span>
-          </div>
-        </div>
-      `;
-    }
-    
-    function updateStats() {
-      document.getElementById('totalClients').textContent = clients.length;
-      document.getElementById('activeDeals').textContent = clients.filter(c => c.stage !== 'settled').length;
-      const total = clients.reduce((sum, c) => sum + (c.amount || 0), 0);
-      document.getElementById('totalValue').textContent = formatAmount(total);
-      document.getElementById('settledCount').textContent = clients.filter(c => c.stage === 'settled').length;
-    }
-    
-    // Drag & Drop
-    function handleDragStart(e, id) {
-      draggedClient = id;
-      e.target.classList.add('dragging');
-      e.dataTransfer.effectAllowed = 'move';
-    }
-    
-    function handleDragEnd(e) {
-      e.target.classList.remove('dragging');
-      document.querySelectorAll('.stage-clients').forEach(el => el.classList.remove('drag-over'));
-    }
-    
-    function handleDragOver(e) {
-      e.preventDefault();
-      e.currentTarget.classList.add('drag-over');
-    }
-    
-    function handleDragLeave(e) {
-      e.currentTarget.classList.remove('drag-over');
-    }
-    
-    function handleDrop(e, newStage) {
-      e.preventDefault();
-      e.currentTarget.classList.remove('drag-over');
-      
-      if (draggedClient !== null) {
-        const client = clients.find(c => c.id === draggedClient);
-        if (client && client.stage !== newStage) {
-          // Record stage change in history
-          if (!client.stageHistory) client.stageHistory = [];
-          client.stageHistory.push({
-            from: client.stage,
-            to: newStage,
-            date: new Date().toISOString()
-          });
-          
-          // Update stage
-          client.stage = newStage;
-          client.stageDate = new Date().toISOString();
-          
-          saveData();
-          render();
-          showToast(`Moved to ${stages.find(s => s.id === newStage)?.name}`);
-        }
-        draggedClient = null;
-      }
-    }
-    
-    function openModal(stage = 'inquiry') {
-      document.getElementById('editId').value = '';
-      document.getElementById('clientName').value = '';
-      document.getElementById('clientContact').value = '';
-      document.getElementById('loanAmount').value = '';
-      document.getElementById('amountPreview').textContent = '';
-      document.getElementById('fundingPurpose').value = 'purchase';
-      document.getElementById('clientStage').value = stage;
-      document.getElementById('clientNotes').value = '';
-      document.getElementById('modalTitle').textContent = 'Add Client';
-      document.getElementById('deleteBtn').classList.add('hidden');
-      document.getElementById('historySection').classList.add('hidden');
-      document.getElementById('modal').classList.remove('hidden');
-    }
-    
-    function editClient(id) {
-      const client = clients.find(c => c.id === id);
-      if (!client) return;
-      
-      document.getElementById('editId').value = id;
-      document.getElementById('clientName').value = client.name;
-      document.getElementById('clientContact').value = client.contact || '';
-      document.getElementById('loanAmount').value = client.amount || '';
-      document.getElementById('fundingPurpose').value = client.purpose || 'purchase';
-      document.getElementById('clientStage').value = client.stage;
-      document.getElementById('clientNotes').value = client.notes || '';
-      document.getElementById('modalTitle').textContent = 'Edit Client';
-      document.getElementById('deleteBtn').classList.remove('hidden');
-      
-      updateAmountPreview();
-      
-      // Show history
-      if (client.stageHistory && client.stageHistory.length > 0) {
-        document.getElementById('historySection').classList.remove('hidden');
-        document.getElementById('stageHistory').innerHTML = 
-          `<div class="history-item">📅 Created: ${formatDate(client.createdAt)}</div>` +
-          client.stageHistory.map(h => 
-            `<div class="history-item">➡️ ${stages.find(s=>s.id===h.from)?.name} → ${stages.find(s=>s.id===h.to)?.name} (${formatDate(h.date)})</div>`
-          ).join('');
-      } else {
-        document.getElementById('historySection').classList.add('hidden');
-      }
-      
-      document.getElementById('modal').classList.remove('hidden');
-    }
-    
-    function closeModal() {
-      document.getElementById('modal').classList.add('hidden');
-    }
-    
-    function saveClient() {
-      const id = document.getElementById('editId').value;
-      const name = document.getElementById('clientName').value.trim();
-      if (!name) {
-        showToast('Please enter client name', 'warning');
-        return;
-      }
-      
-      const amountStr = document.getElementById('loanAmount').value.replace(/[^0-9]/g, '');
-      
-      const data = {
-        name,
-        contact: document.getElementById('clientContact').value.trim(),
-        amount: parseInt(amountStr) || 0,
-        purpose: document.getElementById('fundingPurpose').value,
-        stage: document.getElementById('clientStage').value,
-        notes: document.getElementById('clientNotes').value
-      };
-      
-      if (id) {
-        const idx = clients.findIndex(c => c.id === parseInt(id));
-        if (idx >= 0) {
-          const oldStage = clients[idx].stage;
-          if (oldStage !== data.stage) {
-            if (!clients[idx].stageHistory) clients[idx].stageHistory = [];
-            clients[idx].stageHistory.push({
-              from: oldStage,
-              to: data.stage,
-              date: new Date().toISOString()
-            });
-            data.stageDate = new Date().toISOString();
-          }
-          clients[idx] = { ...clients[idx], ...data };
-        }
-      } else {
-        clients.push({
-          id: Date.now(),
-          ...data,
-          createdAt: new Date().toISOString(),
-          stageDate: new Date().toISOString(),
-          stageHistory: []
-        });
-      }
-      
-      saveData();
-      render();
-      closeModal();
-    }
-    
-    function deleteClient() {
-      const id = parseInt(document.getElementById('editId').value);
-      if (confirm('Delete this client?')) {
-        clients = clients.filter(c => c.id !== id);
-        saveData();
-        render();
-        closeModal();
-        showToast('Client deleted');
-      }
-    }
-    
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      toast.textContent = msg;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 2000);
-    }
-    
+    function defaultNextAction(stage) { if (stage === 'broker_review') return 'broker review'; if (stage === 'clarification_needed') return 'request docs'; if (stage === 'closed_no_action') return 'no action'; return 'send checklist'; }
+    function saveData(showSaved = true) { localStorage.setItem(STORAGE_KEY_V3, JSON.stringify(clients)); if (showSaved) showToast('✅ Saved'); }
+    function formatAmount(num) { if (!num) return '$0'; return '$' + num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+    function amountToWords(num) { if (!num) return ''; if (num >= 1000000) return (num/1000000).toFixed(1).replace(/\.0$/,'') + ' million'; if (num >= 1000) return (num/1000).toFixed(0) + ' thousand'; return num.toString(); }
+    function updateAmountPreview() { const input = document.getElementById('loanAmount').value.replace(/[^0-9]/g, ''); const preview = document.getElementById('amountPreview'); preview.textContent = input ? formatAmount(parseInt(input)) + ' (' + amountToWords(parseInt(input)) + ')' : ''; }
+    function formatDate(dateStr) { if (!dateStr) return ''; return new Date(dateStr).toLocaleDateString('en-AU', { day:'numeric', month:'short' }); }
+    function daysSince(dateStr) { if (!dateStr) return 0; return Math.floor((new Date() - new Date(dateStr)) / (1000*60*60*24)); }
+    function setView(view) { currentView = view; document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active')); document.querySelector(`.view-btn[onclick="setView('${view}')"]`).classList.add('active'); document.getElementById('kanban').classList.toggle('hidden', view !== 'kanban'); document.getElementById('listView').classList.toggle('active', view === 'list'); render(); }
+    function render() { currentView === 'kanban' ? renderKanban() : renderList(); updateStats(); }
+    function renderKanban() { const kanban = document.getElementById('kanban'); kanban.innerHTML = stages.map(stage => { const stageClients = clients.filter(c => c.stage === stage.id); return `<div class="stage" data-stage="${stage.id}"><div class="stage-header"><span class="stage-title">${stage.name}</span><span class="stage-count">${stageClients.length}</span></div><div class="stage-clients" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, '${stage.id}')">${stageClients.map(c => renderClientCard(c)).join('')}</div><button class="add-btn" onclick="openModal('${stage.id}')">+ Add Lead File</button></div>`; }).join(''); }
+    function renderList() { const listView = document.getElementById('listView'); listView.innerHTML = stages.map(stage => { const stageClients = clients.filter(c => c.stage === stage.id); if (!stageClients.length) return ''; return `<div class="list-section"><div class="list-section-header"><span class="list-section-title">${stage.name}</span><span>${stageClients.length}</span></div>${stageClients.map(c => renderClientCard(c, true)).join('')}</div>`; }).join(''); }
+    function renderClientCard(client) { const days = daysSince(client.stageDate || client.createdAt); const daysText = days === 0 ? 'Today' : days === 1 ? '1 day' : days + ' days'; const needsHuman = client.stage === 'broker_review' || client.nextAction === 'broker review'; return `<div class="client-card" draggable="true" ondragstart="handleDragStart(event, ${client.id})" ondragend="handleDragEnd(event)" onclick="editClient(${client.id})"><div class="client-name">${escapeHtml(client.name)}</div><div class="client-amount">${formatAmount(client.amount)}</div><div class="client-amount-text">${sourceLabels[client.source] || client.source || 'Lead'} • ${client.readinessSignal || 'unclassified'}</div><div class="client-meta"><span class="client-tag">${purposeLabels[client.purpose] || '📋 Other'}</span><span class="client-date">📅 ${daysText} in stage</span>${needsHuman ? '<span class="client-gate">👤 Human review</span>' : ''}</div></div>`; }
+    function updateStats() { document.getElementById('totalClients').textContent = clients.length; document.getElementById('activeDeals').textContent = clients.filter(c => !['lodged','closed_no_action'].includes(c.stage)).length; document.getElementById('totalValue').textContent = formatAmount(clients.reduce((sum,c)=>sum+(c.amount||0),0)); document.getElementById('settledCount').textContent = clients.filter(c => c.stage === 'broker_review' || c.nextAction === 'broker review').length; }
+    function handleDragStart(e, id) { draggedClient = id; e.target.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
+    function handleDragEnd(e) { e.target.classList.remove('dragging'); document.querySelectorAll('.stage-clients').forEach(el => el.classList.remove('drag-over')); }
+    function handleDragOver(e) { e.preventDefault(); e.currentTarget.classList.add('drag-over'); }
+    function handleDragLeave(e) { e.currentTarget.classList.remove('drag-over'); }
+    function handleDrop(e, newStage) { e.preventDefault(); e.currentTarget.classList.remove('drag-over'); if (draggedClient !== null) { const client = clients.find(c => c.id === draggedClient); if (client && client.stage !== newStage) { if (!client.stageHistory) client.stageHistory = []; client.stageHistory.push({ from: client.stage, to: newStage, date: new Date().toISOString() }); client.stage = newStage; client.stageDate = new Date().toISOString(); if (newStage === 'broker_review') client.nextAction = 'broker review'; if (newStage === 'closed_no_action') client.nextAction = 'no action'; saveData(); render(); showToast(`Moved to ${stageName(newStage)}`); } draggedClient = null; } }
+    function openModal(stage = 'new_intake') { document.getElementById('editId').value=''; document.getElementById('clientName').value=''; document.getElementById('clientContact').value=''; document.getElementById('leadSource').value='lead_capture'; document.getElementById('loanAmount').value=''; document.getElementById('amountPreview').textContent=''; document.getElementById('fundingPurpose').value='purchase'; document.getElementById('readinessSignal').value='unclassified'; document.getElementById('clientStage').value=stage; document.getElementById('nextAction').value=defaultNextAction(stage); document.getElementById('nextActionDue').value=''; document.getElementById('consentScope').value='operational_follow_up'; document.getElementById('privacyNoticeVersion').value=DEFAULT_NOTICE_VERSION; document.getElementById('clientNotes').value=''; document.getElementById('modalTitle').textContent='Add Lead File'; document.getElementById('deleteBtn').classList.add('hidden'); document.getElementById('historySection').classList.add('hidden'); document.getElementById('modal').classList.remove('hidden'); }
+    function editClient(id) { const client = clients.find(c => c.id === id); if (!client) return; document.getElementById('editId').value=id; document.getElementById('clientName').value=client.name; document.getElementById('clientContact').value=client.contact || ''; document.getElementById('leadSource').value=client.source || 'lead_capture'; document.getElementById('loanAmount').value=client.amount || ''; document.getElementById('fundingPurpose').value=client.purpose || 'purchase'; document.getElementById('readinessSignal').value=client.readinessSignal || 'unclassified'; document.getElementById('clientStage').value=client.stage || 'new_intake'; document.getElementById('nextAction').value=client.nextAction || defaultNextAction(client.stage); document.getElementById('nextActionDue').value=client.nextActionDue || ''; document.getElementById('consentScope').value=client.consentScope || 'operational_follow_up'; document.getElementById('privacyNoticeVersion').value=client.privacyNoticeVersion || DEFAULT_NOTICE_VERSION; document.getElementById('clientNotes').value=client.notes || ''; document.getElementById('modalTitle').textContent='Edit Lead File'; document.getElementById('deleteBtn').classList.remove('hidden'); updateAmountPreview(); if (client.stageHistory && client.stageHistory.length > 0) { document.getElementById('historySection').classList.remove('hidden'); document.getElementById('stageHistory').innerHTML = `<div class="history-item">📅 Created: ${formatDate(client.createdAt)}</div>` + client.stageHistory.map(h => `<div class="history-item">➡️ ${stageName(h.from)} → ${stageName(h.to)} (${formatDate(h.date)})</div>`).join(''); } else document.getElementById('historySection').classList.add('hidden'); document.getElementById('modal').classList.remove('hidden'); }
+    function stageName(id) { return stages.find(s => s.id === id)?.name || id; }
+    function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+    function saveClient() { const id = document.getElementById('editId').value; const name = document.getElementById('clientName').value.trim(); if (!name) { showToast('Please enter client name'); return; } const amountStr = document.getElementById('loanAmount').value.replace(/[^0-9]/g, ''); const data = { name, contact: document.getElementById('clientContact').value.trim(), source: document.getElementById('leadSource').value, amount: parseInt(amountStr) || 0, purpose: document.getElementById('fundingPurpose').value, readinessSignal: document.getElementById('readinessSignal').value, stage: document.getElementById('clientStage').value, nextAction: document.getElementById('nextAction').value, nextActionDue: document.getElementById('nextActionDue').value, consentScope: document.getElementById('consentScope').value, privacyNoticeVersion: document.getElementById('privacyNoticeVersion').value.trim() || DEFAULT_NOTICE_VERSION, sourceFactVersion: 'n/a', protocolVersion: PROTOCOL_VERSION, nonDecisioningBoundary: true, notes: document.getElementById('clientNotes').value.trim() }; if (data.stage === 'broker_review') data.nextAction = 'broker review'; if (data.stage === 'closed_no_action') data.nextAction = 'no action'; if (id) { const idx = clients.findIndex(c => c.id === parseInt(id)); if (idx >= 0) { const oldStage = clients[idx].stage; if (oldStage !== data.stage) { if (!clients[idx].stageHistory) clients[idx].stageHistory = []; clients[idx].stageHistory.push({ from: oldStage, to: data.stage, date: new Date().toISOString() }); data.stageDate = new Date().toISOString(); } clients[idx] = { ...clients[idx], ...data }; } } else clients.push(normaliseClient({ id: Date.now(), ...data, createdAt: new Date().toISOString(), stageDate: new Date().toISOString(), stageHistory: [] })); saveData(); render(); closeModal(); }
+    function closeNoAction() { const id = parseInt(document.getElementById('editId').value); const client = clients.find(c => c.id === id); if (!client) return; if (confirm('Close this lead file as no action? This keeps the record for audit/history.')) { if (!client.stageHistory) client.stageHistory = []; client.stageHistory.push({ from: client.stage, to: 'closed_no_action', date: new Date().toISOString() }); client.stage = 'closed_no_action'; client.nextAction = 'no action'; client.stageDate = new Date().toISOString(); saveData(); render(); closeModal(); showToast('Closed — no action'); } }
+    function escapeHtml(str) { if (!str) return ''; return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function slugPart(value) { return String(value || 'lead').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'').slice(0,28) || 'lead'; }
+    function contactId(c) { return `contact_${slugPart(c.source)}_${(c.createdAt || '').slice(0,10).replace(/-/g,'')}_${c.id}`; }
+    function fileId(c) { return `file_${slugPart(c.source)}_${(c.createdAt || '').slice(0,10).replace(/-/g,'')}_${c.id}`; }
+    function splitContact(contact) { const v = contact || ''; const email = (v.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i) || [''])[0]; const phone = email ? v.replace(email, '').trim().replace(/^\W+|\W+$/g, '') : v; return { email, phone }; }
+    function crmRecords() { const contacts=[], pipeline=[], interactions=[]; clients.forEach(client => { const c=normaliseClient(client), contact=splitContact(c.contact), cid=contactId(c), fid=fileId(c); contacts.push({ id:cid, name:c.name, email:contact.email, phone:contact.phone, company:'', source:c.source, labels:['inbound', c.stage==='broker_review'?'human-review':'needs-triage'], privacy_notice_version:c.privacyNoticeVersion, consent_scope:c.consentScope, created_at:c.createdAt }); pipeline.push({ id:fid, contact_id:cid, stage:c.stage, scenario:c.purpose, indicative_amount:c.amount, readiness_signal:c.readinessSignal, non_decisioning_boundary:true, next_action:c.nextAction, next_action_due:c.nextActionDue || null, protocol_version:PROTOCOL_VERSION, updated_at:c.stageDate || c.createdAt }); interactions.push({ id:`interaction_${(c.createdAt || '').slice(0,10).replace(/-/g,'')}_${c.id}_submit`, contact_id:cid, file_id:fid, type:'form_submit', summary:(c.notes || 'Lead file created. Readiness/file-note workflow only; no credit decision made.').slice(0,500), source_fact_version:c.sourceFactVersion || 'n/a', review_needed:c.stage==='broker_review' || c.nextAction==='broker review', at:c.createdAt }); (c.stageHistory || []).forEach((h,idx)=>interactions.push({ id:`interaction_${(h.date || '').slice(0,10).replace(/-/g,'')}_${c.id}_stage_${idx+1}`, contact_id:cid, file_id:fid, type:'internal_review', summary:`Stage changed from ${h.from} to ${h.to}. Neutral workflow update; no approval/decline decision made.`, source_fact_version:c.sourceFactVersion || 'n/a', review_needed:h.to==='broker_review', at:h.date })); }); return { contacts, pipeline, interactions }; }
+    function downloadText(filename, text) { const blob = new Blob([text], { type:'application/x-ndjson;charset=utf-8' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url); }
+    function exportCRM(kind) { const records=crmRecords(), date=new Date().toISOString().split('T')[0]; if (kind === 'bundle') downloadText(`oney-crm-bundle-${date}.ndjson`, ['# contacts.ndjson', ...records.contacts.map(r=>JSON.stringify(r)), '# pipeline.ndjson', ...records.pipeline.map(r=>JSON.stringify(r)), '# interactions.ndjson', ...records.interactions.map(r=>JSON.stringify(r))].join('\n')); else downloadText(`${kind}-${date}.ndjson`, records[kind].map(r=>JSON.stringify(r)).join('\n') + '\n'); showToast('CRM export ready'); }
+    function showToast(msg) { const toast = document.getElementById('toast'); toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2000); }
+
     document.getElementById('modal').addEventListener('click', (e) => {
       if (e.target.id === 'modal') closeModal();
     });
