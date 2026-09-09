@@ -485,6 +485,56 @@
               <label for="atoNo">No</label>
             </div>
           </div>
+
+          <div class="conditional-group" id="atoDisclosureGroup">
+            <p style="margin:0 0 16px;color:var(--text-secondary);line-height:1.55;">
+              These details identify urgent evidence needs only. They do not determine whether the ATO will disclose a debt or whether a lender will approve finance.
+            </p>
+
+            <div class="form-group">
+              <label>Approximate overdue ATO debt amount ($AUD)</label>
+              <input type="number" name="atoOverdueAmount" min="0" placeholder="e.g., 120000">
+            </div>
+
+            <div class="form-group">
+              <label>Age of the oldest overdue ATO amount (days)</label>
+              <input type="number" name="atoOldestOverdueDays" min="0" placeholder="e.g., 120">
+            </div>
+
+            <div class="form-group">
+              <label>Current ATO arrangement / engagement evidence</label>
+              <select name="atoEngagementEvidence">
+                <option value="">Select status...</option>
+                <option value="compliant_plan_evidenced">Compliant payment plan — current evidence available</option>
+                <option value="other_active_engagement_evidenced">Other active ATO review/engagement — evidence available</option>
+                <option value="claimed_no_evidence">Arrangement or engagement claimed — evidence not ready</option>
+                <option value="none">No current arrangement or active engagement</option>
+                <option value="unknown">Not sure</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Has the business received an ATO notice about possible credit-reporting disclosure?</label>
+              <select name="disclosureNoticeReceived" id="disclosureNoticeReceived">
+                <option value="">Select...</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+                <option value="Unknown">Not sure</option>
+              </select>
+            </div>
+
+            <div class="conditional-group" id="disclosureNoticeDateGroup">
+              <label>Date the notice was received</label>
+              <input type="date" name="disclosureNoticeReceivedDate">
+              <p style="margin:8px 0 0;color:var(--text-secondary);font-size:0.9rem;line-height:1.45;">
+                ATO guidance refers to 28 days from receipt. Confirm deadlines directly with the ATO or your tax professional.
+              </p>
+            </div>
+
+            <p style="margin:16px 0 0;color:var(--text-secondary);font-size:0.9rem;line-height:1.5;">
+              The ATO can disclose some overdue business tax debts to registered credit reporting bureaus when specific conditions are met. If a notice exists, contact the ATO or your tax professional promptly. General information only — not tax or legal advice.
+            </p>
+          </div>
         </div>
 
         <!-- Q5: Security available -->
@@ -896,6 +946,7 @@
     </form>
   </div>
 
+  <script src="assets/js/tools/ato-disclosure-alert.js"></script>
   <script>
     // Constants
     const SUPABASE_URL = 'https://syhwaeloljdswsmqkzrx.supabase.co';
@@ -1095,6 +1146,10 @@
     function shouldTriggerAtoEvidencePack(payload) {
       const haystack = [
         payload.ato_debt,
+        payload.ato_overdue_amount,
+        payload.ato_oldest_overdue_days,
+        payload.ato_engagement_evidence,
+        payload.disclosure_notice_received,
         payload.loan_purpose,
         payload.outstanding_debts,
         payload.payroll_compliance_notes
@@ -1107,6 +1162,16 @@
 
     // Conditional field visibility
     function updateConditionals() {
+      const atoDebtYes = document.getElementById('atoYes').checked;
+      const atoDisclosureGroup = document.getElementById('atoDisclosureGroup');
+      atoDisclosureGroup.classList.toggle('show', atoDebtYes);
+      atoDisclosureGroup.querySelectorAll('input, select').forEach(input => { input.disabled = !atoDebtYes; });
+
+      const noticeReceived = document.getElementById('disclosureNoticeReceived').value === 'Yes';
+      const disclosureNoticeDateGroup = document.getElementById('disclosureNoticeDateGroup');
+      disclosureNoticeDateGroup.classList.toggle('show', atoDebtYes && noticeReceived);
+      disclosureNoticeDateGroup.querySelectorAll('input').forEach(input => { input.disabled = !(atoDebtYes && noticeReceived); });
+
       const realPropertyYes = document.getElementById('propYes').checked;
       document.getElementById('propertyDetailsGroup').classList.toggle('show', realPropertyYes);
 
@@ -1219,6 +1284,11 @@
           loan_amount: parseDollar(formData.get('loanAmount')),
           loan_purpose: formData.get('loanPurpose'),
           ato_debt: formData.get('atoDebt'),
+          ato_overdue_amount: parseDollar(formData.get('atoOverdueAmount')),
+          ato_oldest_overdue_days: formData.get('atoOldestOverdueDays') === '' ? null : parseInt(formData.get('atoOldestOverdueDays'), 10),
+          ato_engagement_evidence: formData.get('atoEngagementEvidence'),
+          disclosure_notice_received: formData.get('disclosureNoticeReceived'),
+          disclosure_notice_received_date: formData.get('disclosureNoticeReceivedDate'),
           security_available: security.join(', '),
           business_name: formData.get('businessName'),
           abn: formData.get('abn'),
@@ -1278,6 +1348,8 @@
         // is approved, declined, bank-ready, or not bank-ready.
         const payrollSuperReadiness = classifyPayrollSuperReadiness(payload);
         const taxDebtReadiness = classifyTaxDebtReadiness(payload);
+        const disclosureAlert = window.OneyAtoDisclosure.classifyAtoDisclosureAlert(payload);
+        taxDebtReadiness.disclosure_alert = disclosureAlert;
         // Attach internal tags + notes + follow-up checklists to the payload (available for
         // Telegram/any internal consumer). DB schema is preserved via JSONB readiness fields.
         payload.payroll_super_readiness = payrollSuperReadiness;
@@ -1354,6 +1426,10 @@ Amount: ${fmt(payload.loan_amount)}
 Purpose: ${payload.loan_purpose || 'N/A'}
 Term: ${payload.preferred_term || 'N/A'}
 ATO Debt: ${payload.ato_debt || 'N/A'}
+ATO overdue amount: ${fmt(payload.ato_overdue_amount)}
+Oldest overdue amount: ${payload.ato_oldest_overdue_days != null ? payload.ato_oldest_overdue_days + ' days' : 'N/A'}
+ATO engagement evidence: ${payload.ato_engagement_evidence || 'N/A'}
+ATO disclosure notice: ${payload.disclosure_notice_received || 'N/A'}${payload.disclosure_notice_received_date ? ` (received ${payload.disclosure_notice_received_date})` : ''}
 Security: ${payload.security_available || 'N/A'}
 ${payload.real_property_owned === 'Yes' ? `Property: ${payload.property_address || 'N/A'} | Est. ${fmt(payload.property_value)} | Mortgage: ${fmt(payload.mortgage_balance)}` : ''}
 Urgency: ${payload.urgency || 'None'}
@@ -1384,6 +1460,14 @@ ${taxDebtReadiness.note || 'N/A'}
 
 Follow-up checklist:
 ${(taxDebtReadiness.checklist || []).map((item, i) => `  ${i + 1}. ${item}`).join('\n') || '  (none)'}${taxDebtReadiness.manual_review_required ? '\n\n⚠ MANUAL REVIEW REQUIRED — ATO/DPN/SGC/default/legal-action signal.' : ''}
+
+🚨 ATO DISCLOSURE ALERT (nested readiness module)
+Status: ${(disclosureAlert.status || 'unknown').toUpperCase()}
+Label: ${disclosureAlert.label || 'N/A'}
+Source: ${disclosureAlert.source_fact_version || 'N/A'}
+> ${disclosureAlert.boundary || 'Finance-readiness evidence flag only.'}
+Missing evidence: ${(disclosureAlert.missing_evidence || []).join('; ') || 'None identified'}
+${disclosureAlert.operational_review_by ? `Operational review date: ${disclosureAlert.operational_review_by}\n${disclosureAlert.operational_timing_note}` : ''}${disclosureAlert.urgent_manual_review ? '\n\n⚠ URGENT MANUAL REVIEW — stop automated lender-positioning copy.' : ''}
 
 🟢🔴 PAYROLL/SUPER READINESS (internal, non-decisioning)
 Status: ${(payrollSuperReadiness.status || 'unknown').toUpperCase()}
