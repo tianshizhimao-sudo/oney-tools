@@ -951,9 +951,8 @@
     // Constants
     const SUPABASE_URL = 'https://syhwaeloljdswsmqkzrx.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_kQrtxdvnex0ObqoI0UXNLQ_-1FVABOM';
-    const TELEGRAM_BOT_TOKEN = '8676787397:AAG90cuLT0zH0yxLUPe6_UXg8avmu4naJAU'; // Oneykimiops_bot (Ops)
-    const TELEGRAM_CHAT_ID = '777287927';
     const COMMERCIAL_ATO_EVIDENCE_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/commercial-ato-evidence-pack`;
+    const COMMERCIAL_NOTIFY_FUNCTION_URL = `${SUPABASE_URL}/functions/v1/commercial-intake-notify`;
     const COMMERCIAL_CONSENT_TEXT_VERSION = 'commercial-intake-consent-v0.1-2026-08-28';
     const COMMERCIAL_PRIVACY_NOTICE_VERSION = 'commercial-intake-privacy-v0.1-2026-08-28';
 
@@ -1400,117 +1399,25 @@
           }
         }
 
-        // Step 3: Send Telegram notification
-        const aestTime = new Date(payload.submitted_at).toLocaleString('en-AU', {
-          timeZone: 'Australia/Sydney',
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
-        });
-
-        const fmt = (v) => v != null ? '$' + Number(v).toLocaleString('en-AU') : 'N/A';
-
-        const telegramMessage = `🏢 New Commercial Deal Enquiry
-
-📋 DEAL
-Entity: ${payload.business_name || 'N/A'} (${payload.entity_type || 'N/A'})
-ABN: ${payload.abn || 'N/A'}
-Industry: ${payload.industry_description || 'N/A'}
-Trading: ${payload.years_in_operation || 'N/A'} yrs | ${payload.employees || 'N/A'} staff | GST: ${payload.gst_registered || 'N/A'}
-
-💰 LOAN
-Amount: ${fmt(payload.loan_amount)}
-Purpose: ${payload.loan_purpose || 'N/A'}
-Term: ${payload.preferred_term || 'N/A'}
-ATO Debt: ${payload.ato_debt || 'N/A'}
-ATO overdue amount: ${fmt(payload.ato_overdue_amount)}
-Oldest overdue amount: ${payload.ato_oldest_overdue_days != null ? payload.ato_oldest_overdue_days + ' days' : 'N/A'}
-ATO engagement evidence: ${payload.ato_engagement_evidence || 'N/A'}
-ATO disclosure notice: ${payload.disclosure_notice_received || 'N/A'}${payload.disclosure_notice_received_date ? ` (received ${payload.disclosure_notice_received_date})` : ''}
-Security: ${payload.security_available || 'N/A'}
-${payload.real_property_owned === 'Yes' ? `Property: ${payload.property_address || 'N/A'} | Est. ${fmt(payload.property_value)} | Mortgage: ${fmt(payload.mortgage_balance)}` : ''}
-Urgency: ${payload.urgency || 'None'}
-
-📊 FINANCIALS
-Revenue: ${fmt(payload.last_year_revenue)} / ${fmt(payload.prev_year_revenue)} (last/prev yr)
-Net Profit: ${fmt(payload.last_year_profit)} / ${fmt(payload.prev_year_profit)}
-Financials by: ${payload.financials_prepared_by || 'N/A'}
-Addbacks: ${payload.addbacks || 'None'}
-Outstanding debts: ${payload.outstanding_debts || 'None'}
-
-🧾 SUPER / PAYROLL
-Pay cycle: ${payload.pay_cycle || 'N/A'}
-SG method: ${payload.sg_payment_method || 'N/A'}
-Clearing provider: ${payload.clearing_provider || 'N/A'}
-Last SG paid date: ${payload.last_sg_paid_date || 'N/A'}
-June quarter SG status: ${payload.june_quarter_sg_status || 'N/A'}
-SGC / arrears risk: ${payload.sgc_statement_risk || 'N/A'}
-Payroll notes: ${payload.payroll_compliance_notes || 'None'}
-
-🧾 ATO/BAS/PAYG READINESS (internal, non-decisioning)
-Status: ${(taxDebtReadiness.status || 'unknown').toUpperCase()}
-Tag: ${taxDebtReadiness.tag || 'N/A'}
-> ${taxDebtReadiness.boundary || 'Readiness/evidence flag only — not tax advice, credit advice or a credit decision.'}
-
-Internal note:
-${taxDebtReadiness.note || 'N/A'}
-
-Follow-up checklist:
-${(taxDebtReadiness.checklist || []).map((item, i) => `  ${i + 1}. ${item}`).join('\n') || '  (none)'}${taxDebtReadiness.manual_review_required ? '\n\n⚠ MANUAL REVIEW REQUIRED — ATO/DPN/SGC/default/legal-action signal.' : ''}
-
-🚨 ATO DISCLOSURE ALERT (nested readiness module)
-Status: ${(disclosureAlert.status || 'unknown').toUpperCase()}
-Label: ${disclosureAlert.label || 'N/A'}
-Source: ${disclosureAlert.source_fact_version || 'N/A'}
-> ${disclosureAlert.boundary || 'Finance-readiness evidence flag only.'}
-Missing evidence: ${(disclosureAlert.missing_evidence || []).join('; ') || 'None identified'}
-${disclosureAlert.operational_review_by ? `Operational review date: ${disclosureAlert.operational_review_by}\n${disclosureAlert.operational_timing_note}` : ''}${disclosureAlert.urgent_manual_review ? '\n\n⚠ URGENT MANUAL REVIEW — stop automated lender-positioning copy.' : ''}
-
-🟢🔴 PAYROLL/SUPER READINESS (internal, non-decisioning)
-Status: ${(payrollSuperReadiness.status || 'unknown').toUpperCase()}
-Tag: ${payrollSuperReadiness.tag || 'N/A'}
-> ${payrollSuperReadiness.boundary || 'Readiness/compliance follow-up flag only — not a credit decision.'}
-
-Internal note:
-${payrollSuperReadiness.note || 'N/A'}
-
-Follow-up checklist:
-${(payrollSuperReadiness.checklist || []).map((item, i) => `  ${i + 1}. ${item}`).join('\n') || '  (none)'}${payrollSuperReadiness.manual_review_required ? '\n\n⚠ MANUAL REVIEW REQUIRED — flagged keyword in notes.' : ''}
-
-⚠️ RISK
-Other lenders approached: ${payload.approached_other_lenders || 'N/A'}${payload.other_lenders_details ? ' — ' + payload.other_lenders_details : ''}
-Adverse credit: ${payload.adverse_credit || 'N/A'}${payload.adverse_credit_details ? ' — ' + payload.adverse_credit_details : ''}
-Directors/Guarantors: ${payload.directors_guarantors || 'N/A'}
-
-👤 CONTACT
-Name: ${payload.contact_name || 'N/A'}
-Email: ${payload.contact_email || 'N/A'}
-Phone: ${payload.contact_phone || 'N/A'}
-Referral: ${payload.hear_about_us || 'N/A'}${payload.referring_advisor ? ' — ' + payload.referring_advisor : ''}
-
-✅ CONSENT AUDIT
-Type: ${payload.consent_type || 'N/A'} | Scope: ${payload.consent_scope || 'N/A'}
-Captured: ${payload.consent_captured_at || 'N/A'} via ${payload.consent_capture_method || 'N/A'} / ${payload.consent_capture_source || 'N/A'}
-Text version: ${payload.consent_text_version || 'N/A'}
-Manage/unsubscribe: ${payload.manage_preferences_url || payload.unsubscribe_url || 'N/A'}
-
-⏰ ${aestTime} AEST`;
-
-        // Send Telegram notification (best effort)
+        // Step 3: Notify Oney through a server-side function. Provider credentials never enter the browser.
+        // The function always sends an internal email and also sends Telegram when a rotated
+        // a rotated Telegram secret is configured in Supabase. Failure is non-fatal because the lead is saved.
         try {
-          await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+          const notifyResponse = await fetch(COMMERCIAL_NOTIFY_FUNCTION_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            },
             body: JSON.stringify({
-              chat_id: TELEGRAM_CHAT_ID,
-              text: telegramMessage
+              email: payload.contact_email,
+              submittedAt: payload.submitted_at
             })
           });
-        } catch(tgErr) {
-          console.warn('Telegram send failed:', tgErr);
+          if (!notifyResponse.ok) console.warn('Commercial Intake internal notification failed (non-fatal)');
+        } catch (notifyErr) {
+          console.warn('Commercial Intake internal notification failed (non-fatal):', notifyErr);
         }
 
         // Send confirmation email via Resend (best effort)
