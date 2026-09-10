@@ -1354,12 +1354,9 @@
         payload.payroll_super_readiness = payrollSuperReadiness;
         payload.tax_debt_readiness = taxDebtReadiness;
 
-        // Step 1: Save to Supabase (non-blocking — table may not exist yet)
-        // The 2026-08-12 migration expands commercial_leads to store payroll/super
-        // readiness and ATO evidence-pack tracking fields. If production migration is
-        // not yet applied, this can fail without blocking Telegram/client confirmation.
+        // Step 1: Persist first. Outbound actions and the success state are forbidden
+        // until the lead is durably stored.
         const supabasePayload = { ...payload };
-
         try {
           const supabaseResponse = await fetch(`${SUPABASE_URL}/rest/v1/commercial_leads`, {
             method: 'POST',
@@ -1371,9 +1368,10 @@
             },
             body: JSON.stringify(supabasePayload)
           });
-          // Silently ignore Supabase errors — Telegram notification is the source of truth
+          if (!supabaseResponse.ok) throw new Error('lead_persist_failed');
         } catch (supabaseErr) {
-          console.warn('Supabase save failed (non-fatal):', supabaseErr);
+          console.error('Commercial Intake lead persistence failed');
+          throw new Error('We could not securely save your enquiry. Please try again or contact hello@oneyco.com.au.');
         }
 
         // Step 2: Trigger ATO Evidence Pack follow-up when ATO/tax/payment-plan signals appear.
@@ -1401,7 +1399,7 @@
 
         // Step 3: Notify Oney through a server-side function. Provider credentials never enter the browser.
         // The function always sends an internal email and also sends Telegram when a rotated
-        // a rotated Telegram secret is configured in Supabase. Failure is non-fatal because the lead is saved.
+        // Telegram secret is configured in Supabase. Failure is non-fatal because the lead is saved.
         try {
           const notifyResponse = await fetch(COMMERCIAL_NOTIFY_FUNCTION_URL, {
             method: 'POST',
