@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive">
+  <meta name="theme-color" content="#10101c">
+  <title>Oney Coach — Hybrid Bank-Ready Test</title>
+  <link rel="icon" href="/assets/svg/oney-icon.svg">
+  <link rel="stylesheet" href="/assets/css/brand.css">
+  <style>
+    :root{--bg:#10101c;--panel:#1b1b2d;--panel2:#24243a;--line:#393954;--text:#f7f7fb;--muted:#a3a3b8;--green:#2ecc85;--green2:#1fad73;--purple:#8d69be;--warn:#f2b84b;--bad:#ef6a6a;--shadow:0 24px 70px rgba(0,0,0,.32)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth;overflow-x:hidden}body{margin:0;overflow-x:hidden;background:radial-gradient(circle at 10% 0%,rgba(46,204,133,.11),transparent 34%),radial-gradient(circle at 95% 10%,rgba(107,76,154,.18),transparent 32%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+    button,input,select,textarea{font:inherit}.wrap{width:min(1100px,calc(100% - 32px));margin:0 auto}.topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:22px 0}.brand{display:flex;align-items:center;gap:10px;min-width:0;font-weight:750;letter-spacing:-.4px}.brand-mark{width:34px;height:34px;flex:0 0 34px}.brand b{color:var(--green)}.test-chip{max-width:48vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:#d8c8ec;background:rgba(141,105,190,.16);border:1px solid rgba(141,105,190,.45);padding:7px 10px;border-radius:999px}
+    .hero{padding:42px 0 24px;text-align:center}.eyebrow{display:inline-flex;gap:8px;align-items:center;color:var(--green);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.eyebrow:before{content:"";width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 14px var(--green)}h1{font-size:clamp(34px,6vw,62px);line-height:1.02;letter-spacing:-2.4px;margin:18px auto 16px;max-width:820px}.hero p{color:var(--muted);font-size:17px;line-height:1.65;max-width:760px;margin:0 auto}.privacy{display:flex;gap:10px;align-items:flex-start;text-align:left;margin:24px auto 0;max-width:760px;padding:14px 16px;border:1px solid rgba(46,204,133,.32);background:rgba(46,204,133,.07);border-radius:14px;color:#c9efdd;font-size:13px;line-height:1.5}
+    .shell{display:grid;grid-template-columns:minmax(0,1fr) 280px;gap:18px;padding:18px 0 64px}.shell>*{min-width:0}.card{background:linear-gradient(180deg,rgba(36,36,58,.96),rgba(25,25,42,.96));border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}.main{padding:24px}.side{padding:20px;height:max-content;position:sticky;top:18px}.side h3{font-size:14px;margin:0 0 14px}.diag{display:grid;gap:10px}.diag-row{display:flex;justify-content:space-between;gap:16px;min-width:0;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);color:var(--muted);font-size:12px}.diag-row span,.diag-row strong{min-width:0;overflow-wrap:anywhere}.diag-row strong{color:var(--text);text-align:right}.zero{color:var(--green)!important}.side-note{font-size:12px;color:var(--muted);line-height:1.55;margin:16px 0 0}
+    .mode-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:rgba(0,0,0,.16);padding:6px;border-radius:14px;margin-bottom:24px}.mode-tab{border:0;border-radius:10px;padding:12px 14px;background:transparent;color:var(--muted);font-weight:750;cursor:pointer}.mode-tab.active{background:linear-gradient(135deg,var(--green),var(--green2));color:#08140e;box-shadow:0 8px 24px rgba(46,204,133,.18)}.panel[hidden],.section[hidden]{display:none!important}.panel h2,.section h2{font-size:24px;letter-spacing:-.6px;margin:0 0 6px}.intro{color:var(--muted);line-height:1.55;margin:0 0 20px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:grid;gap:7px}.field.full{grid-column:1/-1}.field label{font-size:13px;font-weight:750}.field small{color:var(--muted);line-height:1.4}.control{width:100%;border:1px solid var(--line);background:#151525;color:var(--text);border-radius:11px;padding:12px 13px;outline:none}.control:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(46,204,133,.10)}textarea.control{min-height:190px;resize:vertical;line-height:1.55}.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}.btn{border:0;border-radius:11px;padding:12px 16px;font-weight:800;cursor:pointer}.btn-primary{background:linear-gradient(135deg,var(--green),var(--green2));color:#06140d}.btn-secondary{background:#30304a;color:var(--text);border:1px solid #4a4a68}.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}.btn:disabled{opacity:.45;cursor:not-allowed}
+    .divider{height:1px;background:var(--line);margin:28px 0}.summary-grid{display:grid;gap:10px}.summary-row{display:grid;grid-template-columns:minmax(180px,.8fr) minmax(0,1.2fr);gap:16px;align-items:center;border:1px solid var(--line);background:rgba(0,0,0,.12);border-radius:13px;padding:13px}.summary-label strong{display:block;font-size:13px}.summary-label small{display:block;color:var(--muted);margin-top:3px}.summary-control{display:flex;align-items:center;gap:8px}.summary-control .control{min-width:0}.status{white-space:nowrap;border-radius:999px;padding:5px 8px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.status.parsed{color:#baf1d5;background:rgba(46,204,133,.12)}.status.missing{color:#ffd99a;background:rgba(242,184,75,.13)}.notice{margin-top:14px;padding:12px 14px;border-radius:12px;background:rgba(242,184,75,.08);border:1px solid rgba(242,184,75,.3);color:#f2d29a;font-size:13px;line-height:1.5}.error{color:#ffb1b1;margin-top:12px;font-size:13px}.score-card{text-align:center;padding:18px 0 6px}.score-ring{width:138px;height:138px;border-radius:50%;margin:10px auto 16px;display:grid;place-items:center;background:radial-gradient(circle,#1b1b2d 57%,transparent 59%),conic-gradient(var(--green) var(--score-angle,0deg),#393954 0);box-shadow:0 0 40px rgba(46,204,133,.12)}.score-ring strong{font-size:38px}.score-ring span{display:block;color:var(--muted);font-size:11px}.band{display:inline-block;padding:7px 11px;border-radius:999px;background:rgba(46,204,133,.12);color:#baf1d5;font-weight:800}.result-copy{color:var(--muted);line-height:1.55;max-width:650px;margin:12px auto}.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:22px 0}.metric{border:1px solid var(--line);border-radius:13px;padding:13px;background:rgba(0,0,0,.12)}.metric span{display:block;color:var(--muted);font-size:11px}.metric strong{display:block;margin-top:5px}.plan{display:grid;gap:10px;padding:0;margin:14px 0 0;list-style:none;counter-reset:plan}.plan li{counter-increment:plan;display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);padding:12px 14px;border-radius:12px;color:#dedee9;line-height:1.5}.plan li:before{content:counter(plan);display:grid;place-items:center;flex:0 0 24px;height:24px;border-radius:50%;background:rgba(46,204,133,.13);color:var(--green);font-weight:900;font-size:12px}.legal{font-size:12px;color:var(--muted);line-height:1.6;border-top:1px solid var(--line);margin-top:22px;padding-top:16px}.footer{text-align:center;color:var(--muted);font-size:12px;padding:0 0 42px}.footer img{width:26px;vertical-align:middle;margin-right:7px}
+    @media(max-width:820px){.wrap{width:calc(100% - 24px)}.shell{grid-template-columns:1fr}.side{position:static;order:-1}.grid{grid-template-columns:1fr}.summary-row{grid-template-columns:1fr}.metric-grid{grid-template-columns:1fr}.main{padding:18px}.hero{padding-top:24px}.hero p{font-size:15px}.privacy{display:grid}.mode-tabs{grid-template-columns:1fr 1fr}h1{font-size:clamp(31px,10vw,46px);letter-spacing:-1.5px;overflow-wrap:anywhere}.test-chip{font-size:10px;padding:6px 8px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <div class="brand"><svg class="brand-mark" viewBox="0 0 100 100" role="img" aria-label="Oney & Co"><defs><linearGradient id="headerFill" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#1FAD73"/><stop offset="60%" stop-color="#2ECC85"/><stop offset="60%" stop-color="transparent"/><stop offset="100%" stop-color="transparent"/></linearGradient><linearGradient id="headerStroke" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2ECC85"/><stop offset="100%" stop-color="#1FAD73"/></linearGradient></defs><g transform="translate(50 50)"><circle r="38" fill="none" stroke="url(#headerStroke)" stroke-width="10"/><circle r="28" fill="url(#headerFill)"/></g></svg><span>Oney <b>&amp;</b> Co</span></div>
+      <span class="test-chip">NOINDEX · TEST MODE</span>
+    </header>
+    <section class="hero">
+      <div class="eyebrow">Hybrid Oney Coach</div>
+      <h1>Fast rules. Natural input. One clear action plan.</h1>
+      <p>Compare a structured Quick Check with “Tell Oney in your own words.” Both paths confirm the same facts, run the same deterministic score and return the same result.</p>
+      <div class="privacy"><strong>Private test:</strong><span>Everything on this page runs locally in your browser. Nothing is uploaded, saved, emailed or submitted. The free-text parser is deliberately rule-based for this first UX test and uses zero AI tokens.</span></div>
+    </section>
+
+    <div class="shell">
+      <main class="card main">
+        <div class="mode-tabs" role="tablist" aria-label="Choose test mode">
+          <button class="mode-tab active" data-mode="quick" role="tab" aria-selected="true">Quick Check</button>
+          <button class="mode-tab" data-mode="tell" role="tab" aria-selected="false">Tell Oney</button>
+        </div>
+
+        <section id="quick-panel" class="panel">
+          <h2>Quick Check</h2>
+          <p class="intro">Structured inputs, immediate local processing. Load the sample or change any field.</p>
+          <form id="quick-form" class="grid" autocomplete="off">
+            <div class="field"><label for="q-turnover">Annual turnover</label><input class="control" id="q-turnover" name="turnover" type="number" min="0" step="1000" placeholder="1800000"></div>
+            <div class="field"><label for="q-profit">Net profit</label><input class="control" id="q-profit" name="profit" type="number" min="0" step="1000" placeholder="162000"></div>
+            <div class="field"><label for="q-years">Years in business</label><input class="control" id="q-years" name="yearsInBusiness" type="number" min="0" step="0.5" placeholder="8"></div>
+            <div class="field"><label for="q-ato">ATO status</label><select class="control" id="q-ato" name="atoStatus"><option value="">Select…</option><option value="clean">No debt, BAS lodged on time</option><option value="plan">ATO payment plan</option><option value="small">Debt under $25K, no plan</option><option value="large">Debt over $25K, no plan</option></select></div>
+            <div class="field"><label for="q-debt">Total business debt</label><input class="control" id="q-debt" name="totalDebt" type="number" min="0" step="1000" placeholder="450000"></div>
+            <div class="field"><label for="q-industry">Industry risk</label><select class="control" id="q-industry" name="industryRisk"><option value="">Select…</option><option value="low">Low risk</option><option value="medium">Medium risk</option><option value="high">High risk</option></select></div>
+            <div class="field"><label for="q-credit">Credit score</label><input class="control" id="q-credit" name="creditScore" type="number" min="0" max="1200" step="1" placeholder="715"></div>
+            <div class="field"><label for="q-cashflow">Cash-flow stability</label><select class="control" id="q-cashflow" name="cashflowStability"><option value="">Select…</option><option value="stable">Stable</option><option value="seasonal">Seasonal but predictable</option><option value="lumpy">Project-based / irregular</option><option value="volatile">Highly volatile</option></select></div>
+            <div class="field"><label for="q-purpose">Loan purpose</label><select class="control" id="q-purpose" name="loanPurpose"><option value="">Select…</option><option value="workingCapital">Working capital</option><option value="equipment">Equipment / asset finance</option><option value="property">Commercial property</option><option value="refinance">Refinancing</option><option value="other">Other</option></select></div>
+            <div class="field"><label for="q-resilience">Income resilience</label><select class="control" id="q-resilience" name="incomeResilience"><option value="">Select…</option><option value="strong">Very resilient</option><option value="moderate">Reasonably stable</option><option value="variable">Variable</option><option value="exposed">Exposed</option></select></div>
+          </form>
+          <div class="actions"><button class="btn btn-secondary" id="quick-sample" type="button">Load sample</button><button class="btn btn-primary" id="quick-review" type="button">Review what Oney understood →</button></div>
+        </section>
+
+        <section id="tell-panel" class="panel" hidden>
+          <h2>Tell Oney in your own words</h2>
+          <p class="intro">Describe the business naturally. The local parser extracts only facts it can understand confidently; unclear facts remain blank for you to confirm.</p>
+          <div class="field"><label for="tell-text">Your situation</label><textarea class="control" id="tell-text" maxlength="2500" placeholder="Example: We run a transport business with $1.8m turnover…"></textarea><small><span id="char-count">0</span>/2500 characters · Do not enter real customer data in this test.</small></div>
+          <div class="actions"><button class="btn btn-secondary" id="tell-sample" type="button">Load clear sample</button><button class="btn btn-ghost" id="tell-ambiguous" type="button">Load ambiguous sample</button><button class="btn btn-primary" id="tell-parse" type="button">Understand my situation →</button></div>
+        </section>
+
+        <div class="divider"></div>
+
+        <section id="confirmation" class="section" hidden>
+          <h2>Confirm what Oney understood</h2>
+          <p class="intro">Parsed facts are suggestions only. Edit anything that is wrong and complete every required field before calculating.</p>
+          <div id="summary-grid" class="summary-grid"></div>
+          <div id="parse-notice" class="notice" hidden></div>
+          <div id="confirm-error" class="error" role="alert"></div>
+          <div class="actions"><button class="btn btn-primary" id="calculate" type="button">Confirm &amp; generate action plan →</button><button class="btn btn-ghost" id="start-over" type="button">Start over</button></div>
+        </section>
+
+        <section id="result" class="section" hidden>
+          <h2>Your Bank-Ready Snapshot</h2>
+          <div class="score-card">
+            <div class="score-ring" id="score-ring"><div><strong id="score-value">0</strong><span>out of 100</span></div></div>
+            <span class="band" id="score-band">—</span>
+            <p class="result-copy" id="score-copy"></p>
+          </div>
+          <div class="metric-grid">
+            <div class="metric"><span>Strongest dimension</span><strong id="strongest">—</strong></div>
+            <div class="metric"><span>Priority focus</span><strong id="weakest">—</strong></div>
+            <div class="metric"><span>Processing</span><strong id="result-speed">—</strong></div>
+          </div>
+          <h3>Recommended action plan</h3>
+          <ol class="plan" id="action-plan"></ol>
+          <div class="legal" id="disclosure"></div>
+          <div class="actions"><button class="btn btn-secondary" id="edit-result" type="button">Edit confirmed facts</button><button class="btn btn-ghost" id="restart-result" type="button">Try the other path</button></div>
+        </section>
+      </main>
+
+      <aside class="card side" aria-label="Test diagnostics">
+        <h3>Live diagnostics</h3>
+        <div class="diag">
+          <div class="diag-row"><span>Entry mode</span><strong id="diag-mode">Quick Check</strong></div>
+          <div class="diag-row"><span>Parse time</span><strong id="diag-parse">—</strong></div>
+          <div class="diag-row"><span>Score time</span><strong id="diag-score">—</strong></div>
+          <div class="diag-row"><span>AI tokens</span><strong class="zero">0</strong></div>
+          <div class="diag-row"><span>Network requests</span><strong class="zero">0 data calls</strong></div>
+          <div class="diag-row"><span>Data storage</span><strong>Browser memory only</strong></div>
+        </div>
+        <p class="side-note">This version tests speed, flow and confirmation UX before adding a server-side small-model parser. The scoring result is deterministic and shared by both paths.</p>
+      </aside>
+    </div>
+    <footer class="footer">Oney &amp; Co · Internal product test · General information only</footer>
+  </div>
+
+  <script type="module">
+    import {
+      FIELD_DEFS, FIELD_ORDER, REQUIRED_FIELDS,
+      confirmationFromQuickCheck, confirmationFromTellOney,
+      confirmedValues, scoreReadiness,
+      SAMPLE_TELL_ONEY_TEXT, AMBIGUOUS_TELL_ONEY_TEXT,
+    } from '/assets/js/preview/oney-coach-scoring.js';
+
+    const $ = (s) => document.querySelector(s);
+    const $$ = (s) => [...document.querySelectorAll(s)];
+    let mode = 'quick';
+    let rows = [];
+    let lastParseMs = null;
+
+    const quickSample = {
+      turnover: 1800000, profit: 162000, yearsInBusiness: 8,
+      atoStatus: 'plan', totalDebt: 450000, industryRisk: 'medium',
+      creditScore: 715, cashflowStability: 'seasonal',
+      loanPurpose: 'workingCapital', incomeResilience: 'moderate',
+    };
+
+    function setMode(next) {
+      mode = next;
+      $$('.mode-tab').forEach((b) => {
+        const on = b.dataset.mode === next;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-selected', String(on));
+      });
+      $('#quick-panel').hidden = next !== 'quick';
+      $('#tell-panel').hidden = next !== 'tell';
+      $('#diag-mode').textContent = next === 'quick' ? 'Quick Check' : 'Tell Oney';
+      resetOutput();
+    }
+
+    function resetOutput() {
+      $('#confirmation').hidden = true;
+      $('#result').hidden = true;
+      $('#confirm-error').textContent = '';
+      $('#diag-parse').textContent = '—';
+      $('#diag-score').textContent = '—';
+      rows = [];
+    }
+
+    function setQuick(values) {
+      for (const [key, value] of Object.entries(values)) {
+        const el = document.querySelector(`[name="${key}"]`);
+        if (el) el.value = value;
+      }
+    }
+
+    function quickValues() {
+      return Object.fromEntries(new FormData($('#quick-form')).entries());
+    }
+
+    function formatValue(id, value) {
+      if (value === null || value === undefined || value === '') return '';
+      if (id === 'turnover' || id === 'totalDebt') return Number(value).toLocaleString('en-AU');
+      return value;
+    }
+
+    function inputFor(row) {
+      const def = FIELD_DEFS[row.id];
+      let el;
+      if (def.kind === 'enum') {
+        el = document.createElement('select');
+        el.className = 'control';
+        el.innerHTML = '<option value="">Not understood — select…</option>' + def.options.map((o) => `<option value="${o.value}">${o.label}</option>`).join('');
+        if (row.proposed !== null) el.value = String(row.proposed);
+      } else {
+        el = document.createElement('input');
+        el.className = 'control';
+        el.type = 'number';
+        el.min = '0';
+        el.step = def.kind === 'money' ? '1000' : def.kind === 'percent' ? '0.1' : '1';
+        el.placeholder = 'Not understood — enter value';
+        if (row.proposed !== null) el.value = row.proposed;
+      }
+      el.dataset.field = row.id;
+      return el;
+    }
+
+    function renderConfirmation(nextRows, parseMeta = null) {
+      rows = nextRows;
+      const grid = $('#summary-grid');
+      grid.innerHTML = '';
+      rows.forEach((row) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'summary-row';
+        const label = document.createElement('div');
+        label.className = 'summary-label';
+        label.innerHTML = `<strong>${row.label}${row.required ? ' *' : ''}</strong><small>${row.help || ''}</small>`;
+        const control = document.createElement('div');
+        control.className = 'summary-control';
+        const input = inputFor(row);
+        const chip = document.createElement('span');
+        chip.className = `status ${row.proposed !== null ? 'parsed' : 'missing'}`;
+        chip.textContent = row.proposed !== null ? (mode === 'tell' ? 'parsed' : 'entered') : 'confirm';
+        control.append(input, chip);
+        wrap.append(label, control);
+        grid.appendChild(wrap);
+      });
+      $('#parse-notice').hidden = !parseMeta;
+      if (parseMeta) {
+        $('#parse-notice').textContent = `${parseMeta.parsedCount} of ${FIELD_ORDER.length} fields understood locally. ${parseMeta.notUnderstoodCount} need confirmation. No value was guessed.`;
+      }
+      $('#confirmation').hidden = false;
+      $('#result').hidden = true;
+      $('#confirmation').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function gatherConfirmed() {
+      rows.forEach((row) => {
+        const el = document.querySelector(`[data-field="${row.id}"]`);
+        if (!el || el.value === '') row.confirmed = null;
+        else if (FIELD_DEFS[row.id].kind === 'enum') row.confirmed = el.value;
+        else row.confirmed = Number(String(el.value).replace(/,/g, ''));
+      });
+      return rows.filter((r) => r.required && (r.confirmed === null || r.confirmed === '' || Number.isNaN(r.confirmed))).map((r) => r.label);
+    }
+
+    function renderResult(result, scoreMs) {
+      $('#confirmation').hidden = true;
+      $('#result').hidden = false;
+      $('#score-value').textContent = result.score;
+      $('#score-ring').style.setProperty('--score-angle', `${result.score * 3.6}deg`);
+      $('#score-band').textContent = result.gradeLabel;
+      $('#score-copy').textContent = result.gradeText;
+      $('#strongest').textContent = `${result.strongest.label} (${result.strongest.value}/100)`;
+      $('#weakest').textContent = `${result.weakest.label} (${result.weakest.value}/100)`;
+      $('#result-speed').textContent = `score ${scoreMs.toFixed(2)} ms`;
+      $('#action-plan').innerHTML = result.actions.map((a) => `<li>${a}</li>`).join('');
+      $('#disclosure').textContent = result.disclosure;
+      $('#diag-score').textContent = `${scoreMs.toFixed(2)} ms`;
+      $('#result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    $$('.mode-tab').forEach((b) => b.addEventListener('click', () => setMode(b.dataset.mode)));
+    $('#quick-sample').addEventListener('click', () => setQuick(quickSample));
+    $('#quick-review').addEventListener('click', () => {
+      const started = performance.now();
+      const next = confirmationFromQuickCheck(quickValues());
+      lastParseMs = performance.now() - started;
+      $('#diag-parse').textContent = `${lastParseMs.toFixed(2)} ms`;
+      renderConfirmation(next);
+    });
+    $('#tell-sample').addEventListener('click', () => { $('#tell-text').value = SAMPLE_TELL_ONEY_TEXT; $('#char-count').textContent = $('#tell-text').value.length; });
+    $('#tell-ambiguous').addEventListener('click', () => { $('#tell-text').value = AMBIGUOUS_TELL_ONEY_TEXT; $('#char-count').textContent = $('#tell-text').value.length; });
+    $('#tell-text').addEventListener('input', (e) => { $('#char-count').textContent = e.target.value.length; });
+    $('#tell-parse').addEventListener('click', () => {
+      const text = $('#tell-text').value.trim();
+      if (!text) { $('#tell-text').focus(); return; }
+      const started = performance.now();
+      const out = confirmationFromTellOney(text);
+      lastParseMs = performance.now() - started;
+      $('#diag-parse').textContent = `${lastParseMs.toFixed(2)} ms`;
+      renderConfirmation(out.rows, out.parsed.meta);
+    });
+    $('#calculate').addEventListener('click', () => {
+      const missing = gatherConfirmed();
+      if (missing.length) { $('#confirm-error').textContent = `Please confirm: ${missing.join(', ')}.`; return; }
+      $('#confirm-error').textContent = '';
+      const values = confirmedValues(rows);
+      const started = performance.now();
+      const result = scoreReadiness(values);
+      const scoreMs = performance.now() - started;
+      renderResult(result, scoreMs);
+    });
+    $('#start-over').addEventListener('click', resetOutput);
+    $('#edit-result').addEventListener('click', () => { $('#result').hidden = true; $('#confirmation').hidden = false; $('#confirmation').scrollIntoView({behavior:'smooth'}); });
+    $('#restart-result').addEventListener('click', () => setMode(mode === 'quick' ? 'tell' : 'quick'));
+  </script>
+</body>
+</html>
