@@ -41,7 +41,13 @@ await new Promise((r) => server.listen(0, '127.0.0.1', r));
 const ORIGIN = `http://127.0.0.1:${server.address().port}`;
 const URL_PAGE = `${ORIGIN}/preview/credit-framework.html`;
 
-const EXPECT_Q = { 'CF-001': { simple: 3, comprehensive: 3 }, 'CF-002': { simple: 5, comprehensive: 7 }, 'CF-004': { simple: 4, comprehensive: 4 } };
+// CF-002 Simple = 6: every Critical question is kept (red team RT-02); Simple explains the expansion.
+const EXPECT_Q = { 'CF-001': { simple: 3, comprehensive: 3 }, 'CF-002': { simple: 6, comprehensive: 7 }, 'CF-004': { simple: 4, comprehensive: 4 } };
+// Shared re-rate matrix (red team RT-04) — same fixture the Node tests pin against engine.js.
+const MATRIX = JSON.parse(await readFile(join(ROOT, 'tests/fixtures/credit-framework/rerate-matrix.json'), 'utf8'));
+const { EVIDENCE_STATUS } = await import(new URL('../assets/js/preview/credit-framework/engine.js', import.meta.url));
+// Case buttons are addressed via #case-picker: <body data-case> mirrors the current case, so a bare
+// [data-case="X"] selector would hit <body> and silently not reload the case.
 const BOUNDARY = 'This is a lender-readiness and deal-packaging review. It does not approve credit, predict lender acceptance, or replace licensed credit assessment.';
 
 const browser = await chromium.launch();
@@ -83,7 +89,7 @@ async function runViewport(name, contextOpts) {
   await page.click('#sec-questions [data-toggle]');
   for (const id of ['CF-001', 'CF-002', 'CF-004']) {
     const c = {};
-    await page.click(`[data-case="${id}"]`);
+    await page.click(`#case-picker [data-case="${id}"]`);
     await page.click('#tier-output [data-tier="simple"]');
     c.summariesVisible = await page.locator('[data-summary]:visible').count();
     c.bodiesVisibleCollapsed = await page.locator('.sec-body:visible').count();
@@ -100,6 +106,23 @@ async function runViewport(name, contextOpts) {
     assert.equal(c.simpleGatedFields, 0, `${name} ${id} no gated fields in Simple`);
     assert.equal(c.simpleEmail, 0);
     assert.equal(await page.getAttribute('body', 'data-lint'), 'pass', `${name} ${id} simple lint`);
+    c.simpleExpandedNote = await page.locator('#simple-expanded').count();
+    assert.equal(c.simpleExpandedNote, id === 'CF-002' ? 1 : 0, `${name} ${id} Simple expansion note only on Critical overflow`);
+    if (id === 'CF-002') {
+      // RT-02: the SG Critical item is visibly part of Simple.
+      await page.click('#sec-questions [data-toggle]');
+      c.sgVisibleInSimple = await page.locator('[data-question="sg_unevidenced"]').isVisible();
+      c.sgHeading = (await page.textContent('[data-question="sg_unevidenced"] h4')).trim();
+      c.simpleExpandedText = (await page.textContent('#simple-expanded')).trim();
+      c.hiddenNote = (await page.textContent('#hidden-questions')).trim();
+      assert.equal(c.sgVisibleInSimple, true, `${name} CF-002 Simple shows SG`);
+      assert.match(c.sgHeading, /Critical/);
+      assert.match(c.simpleExpandedText, /shows all 6 here because 6 Critical items were triggered/);
+      assert.match(c.hiddenNote, /^1 further question/);
+      await page.screenshot({ path: join(OUT, `${name}-cf002-simple-sg-critical.png`), fullPage: false });
+      await page.locator('#simple-expanded').screenshot({ path: join(OUT, `${name}-cf002-simple-expanded-note.png`) });
+      await page.click('#sec-questions [data-toggle]');
+    }
 
     // copy (Simple) — clipboard read-back
     await page.click('#copy-btn');
@@ -130,7 +153,7 @@ async function runViewport(name, contextOpts) {
   }
 
   // Re-rate loop in the UI (CF-002, Comprehensive)
-  await page.click('[data-case="CF-002"]');
+  await page.click('#case-picker [data-case="CF-002"]');
   await page.click('#tier-output [data-tier="comprehensive"]');
   if ((await page.getAttribute('#expand-all', 'data-state')) !== 'open') await page.click('#expand-all');
   v.expandAll = { bodies: await page.locator('.sec-body').count(), visible: await page.locator('.sec-body:visible').count() };
@@ -145,17 +168,55 @@ async function runViewport(name, contextOpts) {
   v.rerateConfidence = await page.textContent('#rerate-confidence');
   assert.equal(v.rerateConfidence, 'Medium');
 
+  // RT-03 + RT-04: reviewed-evidence wording and the full re-rate matrix, driven through the UI.
+  v.rerateMatrix = {};
+  for (const [id, spec] of Object.entries(MATRIX.cases)) {
+    await page.click(`#case-picker [data-case="${id}"]`);
+    await page.click('#tier-output [data-tier="comprehensive"]');
+    if ((await page.getAttribute('#expand-all', 'data-state')) !== 'open') await page.click('#expand-all');
+    const labels = await page.locator(`[data-rerate="${spec.questions[0].id}"] option`).allTextContents();
+    assert.deepEqual(labels, Object.values(EVIDENCE_STATUS), `${name} ${id} reviewed-evidence labels`);
+    assert.equal(await page.locator('#rerate-evidence-rule').isVisible(), true, `${name} ${id} evidence rule visible`);
+    assert.match(await page.textContent('#rerate-guardrail'), /Improve only if reviewed evidence proves/);
+    const rows = [];
+    for (const row of spec.rows) {
+      for (const [qid, st] of Object.entries(row.evidence)) await page.selectOption(`[data-rerate="${qid}"]`, st);
+      const movement = (await page.textContent('#rerate-movement')).trim();
+      const confidence = (await page.textContent('#rerate-confidence')).trim();
+      const e = row.expect;
+      assert.equal(movement, `${e.from} → ${e.to} (${e.movement})`, `${name} ${id} ${row.scenario}`);
+      assert.equal(confidence, e.confidence, `${name} ${id} ${row.scenario} confidence`);
+      assert.equal(await page.getAttribute('body', 'data-lint'), 'pass', `${name} ${id} ${row.scenario} lint`);
+      rows.push(`${row.scenario}: ${movement} · ${confidence}`);
+      if (row.scenario === 'reply_only' && id === 'CF-002') await page.locator('#sec-rerate').screenshot({ path: join(OUT, `${name}-cf002-rerate-reply-only.png`) });
+    }
+    v.rerateMatrix[id] = rows;
+    assert.equal(await page.locator('#rerate-confidence-cap').isVisible(), true, `${name} ${id} confidence cap shown`);
+    await page.click(`#case-picker [data-case="${id}"]`); // reset evidence
+  }
+
+  // Calibration 2026-09-27: explicit pins (also rows of the shared matrix above).
+  const has = (id, line) => assert.ok(v.rerateMatrix[id].includes(line), `${name} ${id} expected "${line}"`);
+  has('CF-001', 'important_weak: green → amber (down) · Medium'); // contract_growth weak
+  has('CF-001', 'last_important_weak: green → amber (down) · Medium'); // working_capital_vague weak
+  has('CF-001', 'all_supported: green → green (unchanged) · Medium');
+  has('CF-002', 'all_supported: red → amber (up) · Medium');
+  has('CF-004', 'all_supported: amber → green (up) · Medium');
+  for (const id of Object.keys(MATRIX.cases)) assert.match(v.rerateMatrix[id].find((x) => x.startsWith('reply_only:')), /^reply_only: (\w+) → \1 \(unchanged\)/, `${name} ${id} reply-only never improves`);
+  v.mediumHighAnywhere = await page.evaluate(() => document.body.innerText.includes('Medium-High'));
+  assert.equal(v.mediumHighAnywhere, false, `${name} no Medium-High on the page`);
+
   // Edit -> judgement withdrawn
-  await page.click('[data-case="CF-004"]');
+  await page.click('#case-picker [data-case="CF-004"]');
   await page.click('details.sec >> summary:has-text("Purpose and amount")');
   await page.fill('#f-loanAmount', '1400000');
   v.editNotice = await page.locator('#custom-notice').isVisible();
   assert.equal(v.editNotice, true);
   assert.equal(await page.getAttribute('body', 'data-pristine'), 'false');
-  await page.click('[data-case="CF-004"]');
+  await page.click('#case-picker [data-case="CF-004"]');
 
   // Deferral recovery mode (CF-004): gated in Simple, plan in Comprehensive
-  await page.click('[data-case="CF-004"]');
+  await page.click('#case-picker [data-case="CF-004"]');
   await page.click('#tier-output [data-tier="simple"]');
   await page.click('details.sec >> summary:has-text("Deferral / concern reason")');
   await page.check('#d-valuation_shortfall');
@@ -183,7 +244,7 @@ async function runViewport(name, contextOpts) {
   assert.deepEqual([v.feedback.questions, v.feedback.meetsBar, v.feedback.copied], [6, 'true', true]);
 
   // Trigger suggestions on a blank custom scenario: suggested, not auto-ticked, then applied
-  await page.click('[data-case="custom"]');
+  await page.click('#case-picker [data-case="custom"]');
   await page.click('details.sec >> summary:has-text("Conduct / compliance")');
   await page.fill('#f-conduct', '3 dishonours in last 6 months; ATO debt $80k on payment plan');
   v.suggest = {
@@ -198,7 +259,7 @@ async function runViewport(name, contextOpts) {
   assert.equal(v.suggest.afterApply.ticked, true);
   assert.equal(v.suggest.afterApply.questions, 2);
   assert.equal(await page.getAttribute('body', 'data-lint'), 'pass');
-  await page.click('[data-case="CF-002"]');
+  await page.click('#case-picker [data-case="CF-002"]');
 
   // Layout
   v.layout = await page.evaluate(() => {
@@ -215,7 +276,7 @@ async function runViewport(name, contextOpts) {
   assert.ok(v.layout.tierButtonHeight >= 40);
   assert.ok(v.layout.brandVisible);
   await page.screenshot({ path: join(OUT, `${name}-cf004-simple-top.png`) });
-  await page.click('[data-case="CF-002"]');
+  await page.click('#case-picker [data-case="CF-002"]');
   await page.click('#tier-output [data-tier="comprehensive"]');
   await page.screenshot({ path: join(OUT, `${name}-cf002-comprehensive-full.png`), fullPage: true });
 

@@ -11,6 +11,8 @@ import {
   buildAssessment, buildReport, reportToPlainText, buildClientEmail, rerate, lintCompliance, summarizeSection,
   suggestTriggers, compareTriggers, DEFERRAL_REASONS, buildDeferralPlan,
   FEEDBACK_QUESTIONS, scoreFeedback, feedbackText,
+  SIMPLE_QUESTION_TARGET, simpleExpansionNote, EVIDENCE_STATUS, RERATE_GUARDRAIL, RERATE_EVIDENCE_RULE,
+  CONFIDENCE_LEVELS, RERATE_CONFIDENCE_CAP, RERATE_GREEN_IMPORTANT_RULE,
 } from '../assets/js/preview/credit-framework/engine.js';
 
 const root = new URL('../', import.meta.url);
@@ -19,7 +21,9 @@ const readJson = async (p) => JSON.parse(await read(p));
 
 const FIXTURE_CASE_FILE = { 'CF-001': 'case-green-sme-refi.json', 'CF-002': 'case-red-ato.json', 'CF-004': 'case-amber-commercial-property.json' };
 
-/* Expected output pinned from `python3 generate_followups.py <case> --tier …` (2026-09-26). */
+/* Expected output pinned from `python3 generate_followups.py <case> --tier …` (2026-09-26).
+   The Python CLI still slices Simple to the first 5; the wrapper intentionally keeps every
+   Critical question (red team RT-02), so WRAPPER_SIMPLE below overrides CF-002 Simple. */
 const PY_ORDER = {
   'CF-001': { simple: ['valuation_sensitive', 'contract_growth', 'working_capital_vague'], comprehensive: ['valuation_sensitive', 'contract_growth', 'working_capital_vague'] },
   'CF-002': {
@@ -30,6 +34,13 @@ const PY_ORDER = {
     simple: ['short_wale', 'zoning_environmental_missing', 'valuation_sensitive', 'related_party_security'],
     comprehensive: ['short_wale', 'zoning_environmental_missing', 'valuation_sensitive', 'related_party_security'],
   },
+};
+
+/* Wrapper Simple order after RT-02: CF-002 keeps all 6 Critical items (adds Critical sg_unevidenced), drops Important working_capital_vague. */
+const WRAPPER_SIMPLE = {
+  'CF-001': PY_ORDER['CF-001'].simple,
+  'CF-002': ['mca_present', 'dishonours_recent', 'high_lvr_second_mortgage', 'ato_debt', 'missed_ato_plan', 'sg_unevidenced'],
+  'CF-004': PY_ORDER['CF-004'].simple,
 };
 
 const EXPECTED = {
@@ -76,13 +87,17 @@ test('sample cases reuse the Obsidian follow-up case JSON unchanged and are synt
   }
 });
 
-test('follow-up engine port matches generate_followups.py ordering and Simple cap', () => {
+test('follow-up engine port matches generate_followups.py ordering; Simple keeps every Critical (RT-02)', () => {
   for (const { id, tier } of allStates()) {
     const out = generateFollowUps(CASES[id].followUpCase, tier);
-    assert.deepEqual(out.questions.map((q) => q.id), PY_ORDER[id][tier], `${id} ${tier}`);
-    assert.ok(out.questions.length <= (tier === 'simple' ? 5 : 99));
+    const expected = tier === 'simple' ? WRAPPER_SIMPLE[id] : PY_ORDER[id][tier];
+    assert.deepEqual(out.questions.map((q) => q.id), expected, `${id} ${tier}`);
+    const critical = out.questions.filter((q) => q.priority === 'Critical').length;
+    assert.ok(out.questions.length <= (tier === 'simple' ? Math.max(SIMPLE_QUESTION_TARGET, critical) : 99));
     assert.deepEqual(out.unknownTriggers, []);
   }
+  // Only CF-002 Simple diverges from the Python CLI, and only by the Critical overflow.
+  assert.deepEqual(WRAPPER_SIMPLE['CF-002'].slice(0, 5), PY_ORDER['CF-002'].simple);
   const unknown = generateFollowUps({ dealId: 'X', triggers: ['nope', 'ato_debt'] }, 'comprehensive');
   assert.deepEqual(unknown.unknownTriggers, ['nope']);
   assert.equal(generateFollowUps(CASES['CF-002'].followUpCase, 'simple').engineView, 'Quick readiness snapshot: identify the highest-impact questions only.');
@@ -128,7 +143,8 @@ test('Simple vs Comprehensive gating (tiered-output-pricing-logic §4)', () => {
       assert.ok(!sec(comp.r, sid).locked, `${id} comprehensive ${sid} unlocked`);
     }
     const sq = sec(simple.r, 'questions').items;
-    assert.ok(sq.length >= 3 && sq.length <= 5, `${id} simple 3-5 questions`);
+    const simpleCritical = sq.filter((q) => q.priority === 'Critical').length;
+    assert.ok(sq.length >= 3 && sq.length <= Math.max(SIMPLE_QUESTION_TARGET, simpleCritical), `${id} simple 3-5 questions (more only for Critical overflow)`);
     for (const q of sq) for (const k of ['ifStrong', 'ifWeak', 'owner', 'clientWording']) assert.equal(q[k], undefined, `${id} simple question ${k} gated`);
     for (const q of sec(comp.r, 'questions').items) for (const k of ['ifStrong', 'ifWeak', 'owner', 'clientWording']) assert.ok(q[k], `${id} comprehensive ${k}`);
     assert.ok(sec(simple.r, 'risks').items.length <= 5 && sec(simple.r, 'risks').items.every((r) => r.mitigant === undefined));
@@ -146,7 +162,57 @@ test('Simple vs Comprehensive gating (tiered-output-pricing-logic §4)', () => {
     }
     assert.match(simple.text, /\[LOCKED: Comprehensive only\]/);
   }
-  assert.match(reportFor('CF-002', 'simple').text, /2 further question\(s\) — \[LOCKED: Comprehensive only\]/);
+  assert.match(reportFor('CF-002', 'simple').text, /1 further question\(s\) — \[LOCKED: Comprehensive only\]/);
+});
+
+test('RT-02: Simple never hides a Critical trigger; overflow is explained', () => {
+  // CF-002: SG is Critical and now visible in Simple.
+  const { r, text } = reportFor('CF-002', 'simple');
+  const q = r.sections.find((s) => s.id === 'questions');
+  assert.ok(q.items.some((x) => x.id === 'sg_unevidenced'), 'CF-002 Simple includes sg_unevidenced');
+  assert.ok(text.includes(RULES.find((x) => x.id === 'sg_unevidenced').question), 'SG question in copied Simple text');
+  assert.equal(q.items.length, 6);
+  assert.ok(q.items.every((x) => x.priority === 'Critical'));
+  assert.equal(q.hiddenCount, 1, 'only the Important working-capital question is Comprehensive-only');
+  assert.equal(q.expansionNote, 'Simple normally shows up to 5 questions. It shows all 6 here because 6 Critical items were triggered — Critical items are never held back for Comprehensive.');
+  assert.match(text, /\[RULE\] Simple expanded: Simple normally shows up to 5 questions\. It shows all 6 here/);
+  assert.equal(lintCompliance(q.expansionNote).ok, true);
+  // Cases at or under the target carry no expansion note.
+  for (const id of ['CF-001', 'CF-004']) assert.equal(reportFor(id, 'simple').r.sections.find((s) => s.id === 'questions').expansionNote, null, id);
+  assert.equal(reportFor('CF-002', 'comprehensive').r.sections.find((s) => s.id === 'questions').expansionNote, null, 'Comprehensive never needs the note');
+  assert.equal(simpleExpansionNote(null), null);
+
+  // Exhaustive: every subset of the 16 rules (65,536 trigger sets).
+  const ids = RULES.map((x) => x.id);
+  const priority = Object.fromEntries(RULES.map((x) => [x.id, x.priority]));
+  let overflowSets = 0;
+  for (let mask = 0; mask < 1 << ids.length; mask++) {
+    const triggers = ids.filter((_, i) => mask & (1 << i));
+    const comp = generateFollowUps({ dealId: 'X', triggers }, 'comprehensive').questions.map((x) => x.id);
+    const simple = generateFollowUps({ dealId: 'X', triggers }, 'simple');
+    const got = simple.questions.map((x) => x.id);
+    const critical = comp.filter((x) => priority[x] === 'Critical');
+    for (const c of critical) if (!got.includes(c)) assert.fail(`mask ${mask}: Critical ${c} dropped from Simple`);
+    assert.equal(got.length, Math.min(comp.length, Math.max(SIMPLE_QUESTION_TARGET, critical.length)));
+    if (critical.length <= SIMPLE_QUESTION_TARGET) assert.deepEqual(got, comp.slice(0, SIMPLE_QUESTION_TARGET), `mask ${mask}: parity with Python slice`);
+    else { overflowSets++; assert.deepEqual(got, critical, `mask ${mask}: overflow shows Critical only`); assert.equal(simple.simpleSelection.expanded, true); }
+  }
+  assert.ok(overflowSets > 0);
+
+  // Overflow on a custom scenario: all Critical rules ticked.
+  const allCritical = RULES.filter((x) => x.priority === 'Critical').map((x) => x.id);
+  const s = blankState('simple'); s.triggers = [...ids];
+  const custom = buildReport(buildAssessment(s), 'simple');
+  const cq = custom.sections.find((x) => x.id === 'questions');
+  assert.deepEqual(cq.items.map((x) => x.id).sort(), [...allCritical].sort());
+  assert.equal(cq.hiddenCount, ids.length - allCritical.length);
+  assert.match(cq.expansionNote, new RegExp(`shows all ${allCritical.length} here because ${allCritical.length} Critical items`));
+
+  // Simple missing-evidence list discloses Critical items beyond its top five.
+  const miss = r.sections.find((x) => x.id === 'missing');
+  assert.equal(miss.moreCritical, CASES['CF-002'].judgement.missingEvidence.critical.length - 5);
+  assert.match(text, /5 further Critical evidence item\(s\) — full list in Comprehensive; not resolved by this snapshot\./);
+  assert.equal(reportFor('CF-004', 'simple').r.sections.find((x) => x.id === 'missing').moreCritical, 0);
 });
 
 test('expected risk, missing-evidence and follow-up output per case', () => {
@@ -193,7 +259,7 @@ test('re-rate loop: evidence-driven movement and the client-reply guardrail', ()
   assert.equal(r.to, 'red'); assert.equal(r.confidence, 'Low'); assert.match(r.strategy, /Pause \/ refer/);
 
   r = run('CF-004', (q) => (q.priority === 'Critical' ? 'supports' : 'outstanding'));
-  assert.equal(r.to, 'green'); assert.equal(r.confidence, 'Medium-High');
+  assert.equal(r.to, 'green'); assert.equal(r.confidence, 'Medium', 'beta cap: never above Medium (2026-09-27)');
   assert.deepEqual(r.stillMissing, ['Related-party security or property-owning entity']);
 
   r = run('CF-004', (q) => (q.id === 'short_wale' ? 'weak' : 'supports'));
@@ -207,6 +273,139 @@ test('re-rate loop: evidence-driven movement and the client-reply guardrail', ()
 
   const black = rerate({ questions: [], rating: 'Black — Do Not Proceed', tags: [], evidence: {} });
   assert.equal(black.to, 'black', 'Black never moves automatically');
+});
+
+test('RT-03: supports means reviewed evidence; a client reply can never improve readiness', () => {
+  assert.deepEqual(EVIDENCE_STATUS, {
+    outstanding: 'Not received / not yet reviewed',
+    reply_only: 'Client reply only — does not count',
+    supports: 'Reviewed evidence — supports',
+    weak: 'Reviewed evidence — weak/contradicts',
+  });
+  assert.match(RERATE_GUARDRAIL, /Improve only if reviewed evidence proves/);
+  assert.match(RERATE_EVIDENCE_RULE, /only after you have read the actual document/);
+  assert.match(RERATE_EVIDENCE_RULE, /cannot improve readiness/);
+  for (const l of Object.values(EVIDENCE_STATUS)) assert.ok(l.length <= 38, `label fits a 390px select: ${l}`);
+  for (const t of [RERATE_GUARDRAIL, RERATE_EVIDENCE_RULE, ...Object.values(EVIDENCE_STATUS)]) assert.equal(lintCompliance(t).ok, true, t);
+  const comp = reportFor('CF-002', 'comprehensive').text;
+  assert.ok(comp.includes(`Evidence rule: ${RERATE_EVIDENCE_RULE}`));
+  assert.ok(!reportFor('CF-002', 'simple').text.includes('Evidence rule:'), 'rule sits in the Comprehensive re-rate tracker');
+
+  // Exhaustive over every status combination for every shipped case.
+  const statuses = Object.keys(EVIDENCE_STATUS);
+  const better = (a, b) => ['green', 'amber', 'red', 'black'].indexOf(a) < ['green', 'amber', 'red', 'black'].indexOf(b);
+  let combos = 0;
+  for (const id of CASE_ORDER) {
+    const a = buildAssessment(initialState(id, 'comprehensive'));
+    const qs = a.engine.comprehensive.questions;
+    const run = (ev) => rerate({ questions: qs, rating: a.rating.text, tags: a.tags, evidence: ev });
+    for (let n = 0; n < statuses.length ** qs.length; n++) {
+      const ev = Object.fromEntries(qs.map((q, i) => [q.id, statuses[Math.floor(n / statuses.length ** i) % statuses.length]]));
+      const r = run(ev);
+      combos++;
+      if (r.movement === 'up' || better(r.to, r.from)) {
+        for (const q of qs.filter((x) => x.priority === 'Critical')) assert.equal(ev[q.id], 'supports', `${id} ${JSON.stringify(ev)} moved up without reviewed evidence on ${q.id}`);
+      }
+      // A reply-only item is treated exactly like an unreviewed one (except the guardrail note).
+      const asOutstanding = run(Object.fromEntries(Object.entries(ev).map(([k, v]) => [k, v === 'reply_only' ? 'outstanding' : v])));
+      assert.deepEqual([r.to, r.movement, r.confidence, r.stillMissing], [asOutstanding.to, asOutstanding.movement, asOutstanding.confidence, asOutstanding.stillMissing], `${id} reply_only ≡ outstanding`);
+      if (r.replyOnly.length) assert.ok(r.reasons.some((x) => /without reviewed evidence treated as still missing/.test(x)));
+    }
+  }
+  assert.equal(combos, 4 ** 3 + 4 ** 7 + 4 ** 4);
+});
+
+test('calibration 2026-09-27: confidence is High/Medium/Low only, capped at Medium after evidence; Important weak moves Green to Amber', async () => {
+  assert.deepEqual([...CONFIDENCE_LEVELS], ['Low', 'Medium', 'High']);
+  for (const f of ['assets/js/preview/credit-framework/engine.js', 'assets/js/preview/credit-framework/app.js', 'preview/credit-framework.html']) {
+    assert.doesNotMatch(await read(f), /Medium-High/, `${f} has no Medium-High category`);
+  }
+  for (const t of [RERATE_CONFIDENCE_CAP, RERATE_GREEN_IMPORTANT_RULE]) assert.equal(lintCompliance(t).ok, true, t);
+
+  const run = (id, statusFor) => {
+    const a = buildAssessment(initialState(id, 'comprehensive'));
+    const qs = a.engine.comprehensive.questions;
+    return rerate({ questions: qs, rating: a.rating.text, tags: a.tags, evidence: Object.fromEntries(qs.map((q) => [q.id, statusFor(q)])) });
+  };
+  const pick = (r) => [r.to, r.movement, r.confidence];
+
+  // All supported → Medium for every shipped case.
+  assert.deepEqual(pick(run('CF-001', () => 'supports')), ['green', 'unchanged', 'Medium']);
+  assert.deepEqual(pick(run('CF-002', () => 'supports')), ['amber', 'up', 'Medium']);
+  assert.deepEqual(pick(run('CF-004', () => 'supports')), ['green', 'up', 'Medium']);
+  // All Critical supported (non-critical outstanding) → still Medium.
+  assert.deepEqual(pick(run('CF-001', (q) => (q.priority === 'Critical' ? 'supports' : 'outstanding'))), ['green', 'unchanged', 'Medium']);
+  assert.deepEqual(pick(run('CF-002', (q) => (q.priority === 'Critical' ? 'supports' : 'outstanding'))), ['amber', 'up', 'Medium']);
+  assert.deepEqual(pick(run('CF-004', (q) => (q.priority === 'Critical' ? 'supports' : 'outstanding'))), ['green', 'up', 'Medium']);
+  assert.ok(reportFor('CF-004', 'comprehensive', (s) => { for (const t of s.triggers) s.evidence[t] = 'supports'; }).text.includes(`Confidence cap: ${RERATE_CONFIDENCE_CAP}`));
+
+  // CF-001 (Green): each Important item weak → Amber.
+  for (const weakId of ['contract_growth', 'working_capital_vague']) {
+    const r = run('CF-001', (q) => (q.id === weakId ? 'weak' : 'supports'));
+    assert.deepEqual(pick(r), ['amber', 'down', 'Medium'], `CF-001 ${weakId} weak`);
+    assert.ok(r.reasons.includes(RERATE_GREEN_IMPORTANT_RULE));
+    assert.ok(r.reasons.some((x) => x.startsWith(`${RULES.find((q) => q.id === weakId).triggerLabel}: reviewed evidence weak`)));
+  }
+  assert.equal(run('CF-001', (q) => (q.id === 'contract_growth' ? 'weak' : 'outstanding')).to, 'amber', 'applies even while Critical evidence is outstanding');
+  // Amber / Red: an Important weakness alone does not downgrade again.
+  assert.deepEqual(pick(run('CF-004', (q) => (q.id === 'related_party_security' ? 'weak' : 'supports'))), ['amber', 'unchanged', 'Medium']);
+  assert.deepEqual(pick(run('CF-002', (q) => (q.id === 'working_capital_vague' ? 'weak' : 'supports'))), ['red', 'unchanged', 'Medium']);
+  // Critical-weak behaviour unchanged.
+  assert.deepEqual(pick(run('CF-001', (q) => (q.id === 'valuation_sensitive' ? 'weak' : 'supports'))), ['amber', 'down', 'Low']);
+  assert.deepEqual(pick(run('CF-002', (q) => (q.id === 'high_lvr_second_mortgage' ? 'weak' : 'supports'))), ['red', 'unchanged', 'Low']);
+  assert.deepEqual(pick(run('CF-004', (q) => (q.id === 'short_wale' ? 'weak' : 'supports'))), ['red', 'down', 'Low']);
+  // Reply-only still never improves readiness.
+  for (const id of CASE_ORDER) assert.equal(run(id, () => 'reply_only').movement, 'unchanged', `${id} reply-only`);
+
+  // Exhaustive over every evidence-status combination of every shipped case.
+  const statuses = Object.keys(EVIDENCE_STATUS);
+  const rank = (l) => ['green', 'amber', 'red', 'black'].indexOf(l);
+  for (const id of CASE_ORDER) {
+    const a = buildAssessment(initialState(id, 'comprehensive'));
+    const qs = a.engine.comprehensive.questions;
+    for (let n = 0; n < statuses.length ** qs.length; n++) {
+      const ev = Object.fromEntries(qs.map((q, i) => [q.id, statuses[Math.floor(n / statuses.length ** i) % statuses.length]]));
+      const r = rerate({ questions: qs, rating: a.rating.text, tags: a.tags, evidence: ev });
+      assert.ok(['Low', 'Medium'].includes(r.confidence), `${id} post-evidence confidence ${r.confidence}`);
+      const critWeak = qs.some((q) => q.priority === 'Critical' && ev[q.id] === 'weak');
+      const impWeak = qs.some((q) => q.priority === 'Important' && ev[q.id] === 'weak');
+      if (r.from === 'green' && impWeak) assert.notEqual(r.to, 'green', `${id} Green with Important weak`);
+      if (r.from !== 'green' && !critWeak) assert.ok(rank(r.to) <= rank(r.from), `${id} Important weakness alone never downgrades ${r.from}`);
+      assert.equal(r.confidence === 'Low', critWeak, `${id} Low iff a Critical item is weak`);
+    }
+  }
+});
+
+test('RT-04: re-rate matrix for CF-001, CF-002 and CF-004 (shared with browser smoke)', async () => {
+  const matrix = await readJson('tests/fixtures/credit-framework/rerate-matrix.json');
+  assert.deepEqual(Object.keys(matrix.cases), CASE_ORDER);
+  for (const id of CASE_ORDER) {
+    const a = buildAssessment(initialState(id, 'comprehensive'));
+    const qs = a.engine.comprehensive.questions;
+    assert.deepEqual(matrix.cases[id].questions, qs.map((q) => ({ id: q.id, priority: q.priority })), `${id} question set`);
+    assert.deepEqual(matrix.cases[id].rows.map((x) => x.scenario), Object.keys(matrix.scenarios), `${id} covers every scenario`);
+    for (const row of matrix.cases[id].rows) {
+      const r = rerate({ questions: qs, rating: a.rating.text, tags: a.tags, evidence: row.evidence });
+      assert.deepEqual({ from: r.from, to: r.to, movement: r.movement, confidence: r.confidence, stillMissing: r.stillMissing.length }, row.expect, `${id} ${row.scenario}`);
+      // Same state through the full report path (what the page renders and copies).
+      const text = reportFor(id, 'comprehensive', (s) => { s.evidence = { ...row.evidence }; }).text;
+      assert.ok(text.includes(`Rating movement: ${row.expect.from} → ${row.expect.to} (${row.expect.movement}) · Confidence: ${row.expect.confidence}`), `${id} ${row.scenario} text`);
+      assert.equal(lintCompliance(text).ok, true);
+    }
+  }
+  const row = (id, sc) => matrix.cases[id].rows.find((x) => x.scenario === sc).expect;
+  // Headline expectations (readable pins for reviewers).
+  assert.deepEqual([row('CF-001', 'reply_only').to, row('CF-001', 'critical_supported').to, row('CF-001', 'one_critical_weak').to, row('CF-001', 'important_weak').to, row('CF-001', 'last_important_weak').to], ['green', 'green', 'amber', 'amber', 'amber']);
+  assert.deepEqual([row('CF-001', 'important_weak'), row('CF-001', 'last_important_weak')].map((e) => e.movement), ['down', 'down']);
+  assert.deepEqual(CASE_ORDER.map((id) => [row(id, 'all_supported').to, row(id, 'all_supported').confidence]), [['green', 'Medium'], ['amber', 'Medium'], ['green', 'Medium']]);
+  assert.ok(CASE_ORDER.every((id) => matrix.cases[id].rows.every((x) => CONFIDENCE_LEVELS.includes(x.expect.confidence) && x.expect.confidence !== 'High')));
+  assert.deepEqual([row('CF-002', 'reply_only').to, row('CF-002', 'critical_supported').to, row('CF-002', 'one_critical_weak').to, row('CF-002', 'mixed_critical_reply').to], ['red', 'amber', 'red', 'red']);
+  assert.deepEqual([row('CF-004', 'reply_only').to, row('CF-004', 'critical_supported').to, row('CF-004', 'one_critical_weak').to, row('CF-004', 'mixed_critical_reply').to], ['amber', 'green', 'red', 'amber']);
+  for (const id of CASE_ORDER) {
+    assert.equal(row(id, 'reply_only').movement, 'unchanged', `${id} reply-only never moves`);
+    assert.notEqual(row(id, 'mixed_critical_reply').movement, 'up', `${id} one Critical reply-only blocks upward move`);
+    assert.equal(row(id, 'one_critical_weak').confidence, 'Low');
+  }
 });
 
 test('client email draft is Comprehensive-only and uses rule client wording', () => {
@@ -355,7 +554,7 @@ test('every unlocked section has a one-line summary derived from its own content
   assert.equal(sum('packaging'), 'Not ready.');
   // Simple summary never mentions gated detail counts beyond what Simple shows.
   const s2 = reportFor('CF-002', 'simple').r.sections;
-  assert.match(s2.find((x) => x.id === 'questions').summary.text, /^5 questions/);
+  assert.match(s2.find((x) => x.id === 'questions').summary.text, /^6 questions \(6 Critical\)/);
   assert.match(s2.find((x) => x.id === 'risks').summary.text, /\(\+4 more\)/);
   assert.equal(summarizeSection({ id: 'cta' }, null), null);
 });

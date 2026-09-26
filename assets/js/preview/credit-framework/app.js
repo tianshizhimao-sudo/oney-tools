@@ -267,6 +267,7 @@ function renderSection(s, report) {
       if (s.limited) {
         return sectionShell(s,
           s.items.map((m) => item(m.kind, el('span', { class: `prio ${m.priority}` }, m.priority), ' ', m.item)),
+          s.moreCritical > 0 ? el('div', { class: 'notice warn', id: 'more-critical-evidence' }, `${s.moreCritical} further Critical evidence item(s) — full list in Comprehensive; not resolved by this snapshot.`) : null,
           el('p', { class: 'hint' }, 'Decision impact and if-weak consequence per item: Comprehensive.'));
       }
       return sectionShell(s,
@@ -279,6 +280,7 @@ function renderSection(s, report) {
     case 'questions':
       return sectionShell(s,
         item(KIND.RULE, el('span', { class: 'lbl' }, 'Engine view: '), s.engineView),
+        s.expansionNote ? el('div', { class: 'notice warn', id: 'simple-expanded', 'data-kind': KIND.RULE }, el('strong', {}, 'Simple expanded: '), s.expansionNote) : null,
         s.items.length ? null : el('p', { class: 'hint' }, 'No triggers selected.'),
         s.items.map((q, i) => el('div', { class: 'q', 'data-question': q.id },
           el('h4', {}, `${i + 1}. ${q.trigger}`, el('span', { class: `prio ${q.priority}` }, q.priority), kindBadge(q.kind)),
@@ -311,7 +313,7 @@ function renderSection(s, report) {
         item(s.kind, el('span', { class: 'lbl' }, 'Re-rate logic: '), s.rerateNote),
         s.plan.reasons.length
           ? [el('div', { class: 'notice warn exact-doc', id: 'exact-doc-rule' }, el('strong', {}, 'Key: '), s.plan.exactDocumentRule),
-            el('div', { class: 'notice info' }, `Deferral reason library ${s.plan.version}. Status follows the evidence you set in the Re-rate tracker; a client reply without documents does not count.${report.pristine ? ' Sample judgement above was prepared before this deferral.' : ''}`),
+            el('div', { class: 'notice info' }, `Deferral reason library ${s.plan.version}. Status follows the reviewed-evidence status you set in the Re-rate tracker; a client reply without reviewed evidence does not count.${report.pristine ? ' Sample judgement above was prepared before this deferral.' : ''}`),
             s.plan.reasons.map((r) => el('div', { class: 'q deferral', 'data-deferral': r.id, 'data-status': r.status },
               el('h4', {}, r.label, el('span', { class: `dstatus ${r.status}` }, DEFERRAL_STATUS[r.status].short), kindBadge(r.kind)),
               el('p', {}, el('span', { class: 'lbl' }, 'Lender is testing: '), r.lenderTesting),
@@ -329,9 +331,10 @@ function renderSection(s, report) {
     case 'rerate': {
       const r = s.rerate;
       return sectionShell(s,
-        el('div', { class: 'notice info' }, r.guardrail),
+        el('div', { class: 'notice info', id: 'rerate-guardrail' }, r.guardrail),
+        el('div', { class: 'notice warn', id: 'rerate-evidence-rule' }, el('strong', {}, 'Reviewed evidence only: '), r.evidenceRule),
         s.questions.map((q) => {
-          const sel = el('select', { class: 'control', 'data-rerate': q.id, 'aria-label': `Evidence status for ${q.trigger}` },
+          const sel = el('select', { class: 'control', 'data-rerate': q.id, 'aria-label': `Reviewed-evidence status for ${q.trigger}` },
             Object.entries(EVIDENCE_STATUS).map(([v, label]) => el('option', { value: v, selected: (state.evidence[q.id] || 'outstanding') === v }, label)));
           sel.addEventListener('change', () => { state.evidence[q.id] = sel.value; renderOutput(); });
           return el('div', { class: 'rr-row' }, el('span', {}, el('span', { class: `prio ${q.priority}` }, q.priority), ' ', q.trigger,
@@ -340,6 +343,7 @@ function renderSection(s, report) {
         el('div', { class: 'rr-out', id: 'rerate-out' },
           item(r.kind, el('strong', {}, 'Rating movement: '), el('span', { id: 'rerate-movement' }, `${r.from ?? '—'} → ${r.to ?? '—'} (${r.movement})`), ` · ${r.ratingText ?? ''}`),
           item(r.kind, el('strong', {}, 'Confidence: '), el('span', { id: 'rerate-confidence' }, r.confidence)),
+          item(r.kind, el('span', { class: 'lbl' }, 'Confidence cap: '), el('span', { id: 'rerate-confidence-cap' }, r.confidenceCap)),
           r.reasons.map((x) => item(r.kind, el('span', { class: 'lbl' }, 'Reason: '), x)),
           item(r.kind, el('span', { class: 'lbl' }, 'Still missing: '), r.stillMissing.length ? r.stillMissing.join('; ') : 'none'),
           item(r.kind, el('span', { class: 'lbl' }, 'Strategy: '), el('span', { id: 'rerate-strategy' }, r.strategy)),
