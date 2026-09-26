@@ -133,11 +133,20 @@ function renderLegend() {
    Open sections are remembered across re-renders (UI state only). */
 const expanded = new Set();
 
+function watchNote(conf) {
+  const shown = conf.watch.slice(0, 3);
+  const more = conf.watch.length - shown.length;
+  return el('div', { class: 'notice warn watch', id: 'watch-points', 'data-kind': KIND.RULE },
+    el('strong', {}, `Watch — confidence stays ${conf.value} until evidenced: `),
+    shown.join('; '), more > 0 ? ` (+${more} more in Missing evidence)` : '');
+}
+
 function summaryNode(s) {
   if (s.id === 'rating') {
     return el('div', { class: 'summary rating-row', 'data-summary': s.id },
       el('span', { class: `rating-pill ${s.rating.level || ''}`, id: 'rating-pill' }, s.rating.text),
-      el('span', { class: 'conf', id: 'confidence-pill' }, `Confidence: ${s.confidence.value}${s.confidence.capped ? ' (capped)' : ''}`));
+      el('span', { class: 'conf', id: 'confidence-pill' }, `Confidence: ${s.confidence.value}`),
+      s.confidence.watch.length ? watchNote(s.confidence) : null);
   }
   return el('p', { class: 'summary', 'data-summary': s.id }, kindBadge(s.summary.kind), el('span', {}, s.summary.text));
 }
@@ -189,7 +198,7 @@ function renderSection(s, report) {
         item(s.rating.kind, el('strong', {}, 'Readiness rating: '), s.rating.text),
         item(KIND.RULE, el('strong', {}, 'Confidence: '), s.confidence.value),
         s.rating.action ? item(KIND.RULE, 'Product action: ', s.rating.action) : null,
-        s.confidence.capped ? el('div', { class: 'notice warn', id: 'confidence-cap-note' }, `Confidence capped from ${s.confidence.base} (judgement source) to ${s.confidence.value} by framework rule. Needs Dong confirmation.`) : null,
+        s.confidence.capped ? el('div', { class: 'notice info' }, `Confidence set to ${s.confidence.value} by framework rule (judgement source said ${s.confidence.base}).`) : null,
         s.confidence.rulesApplied.map((r) => item(r.kind, el('strong', {}, `${r.id} `), r.text)),
         s.confidence.flags.map((r) => item(r.kind, el('strong', {}, `${r.id} `), r.text)),
         s.oneLineView ? item(s.oneLineView.kind, el('strong', {}, 'One-line view: '), s.oneLineView.text) : null);

@@ -254,7 +254,7 @@ export function computeConfidence({ base, questions, tags, outstandingIds }) {
   const outstandingCritical = outstanding.filter((q) => q.priority === 'Critical');
   if (outstandingCritical.length) {
     ceiling = minConfidence(ceiling, 'Medium');
-    rulesApplied.push({ id: 'R-CONF-1', text: `Critical evidence outstanding (${outstandingCritical.length} item${outstandingCritical.length > 1 ? 's' : ''}) caps confidence at Medium.`, kind: KIND.RULE });
+    rulesApplied.push({ id: 'R-CONF-1', text: 'Critical evidence outstanding caps confidence at Medium (see watch points).', kind: KIND.RULE });
   }
   if (tags.some((t) => t.tag === 'weak_security_private_path')) {
     ceiling = minConfidence(ceiling, 'Medium');
@@ -263,7 +263,8 @@ export function computeConfidence({ base, questions, tags, outstandingIds }) {
   const appetiteGaps = outstandingCritical.filter((q) => APPETITE_CATEGORIES.has(q.category));
   const flags = [];
   if (appetiteGaps.length) {
-    flags.push({ id: 'R-CONF-2', text: `Review: missing serviceability/conduct/security/compliance evidence (${appetiteGaps.map((q) => q.id).join(', ')}) can cap confidence at Low where it drives lender appetite. Not auto-applied — banker review decides.`, kind: KIND.RULE });
+    // Flag only (Dong 2026-09-26): never applied automatically, no remedy suggested.
+    flags.push({ id: 'R-CONF-2', text: `Flag: serviceability/conduct/security/compliance evidence still missing (${appetiteGaps.map((q) => q.triggerLabel).join('; ')}) — may cap confidence at Low.`, kind: KIND.RULE });
   }
   const value = minConfidence(base, ceiling);
   const capped = value !== base;
@@ -368,6 +369,10 @@ export function buildAssessment(state) {
   // Post-evidence confidence is produced by the re-rate loop below.
   const base = c ? c.judgement.calibratedConfidence : 'Medium';
   const confidence = computeConfidence({ base, questions: comprehensive.questions, tags, outstandingIds: new Set(comprehensive.questions.map((q) => q.id)) });
+  // Watch points: what keeps confidence at Medium (Dong 2026-09-26: show Medium, call out watch points).
+  confidence.watch = confidence.rulesApplied.some((r) => r.id === 'R-CONF-1')
+    ? (c ? c.judgement.missingEvidence.critical.map((m) => m.item) : comprehensive.questions.filter((q) => q.priority === 'Critical').map((q) => q.triggerLabel))
+    : [];
   if (!c) confidence.rulesApplied.push({ id: 'R-CONF-4', text: 'Custom scenario without model judgement: confidence limited to Medium in this prototype.', kind: KIND.RULE });
   if (!c && CONFIDENCE_ORDER.indexOf(confidence.value) > CONFIDENCE_ORDER.indexOf('Medium')) confidence.value = 'Medium';
 
@@ -555,7 +560,7 @@ export function summarizeSection(s, assessment) {
       return { text: `${f['Deal type']} request of ${f['Loan amount']}${lvr ? ` at ${lvr.value} estimated LVR` : ''}${tags.length ? `; ${tags.join(' + ')}` : ''}.`, kind: KIND.FACT };
     }
     case 'rating':
-      return { text: `${s.rating.text} · ${s.confidence.value} confidence${s.confidence.capped ? ` (capped from ${s.confidence.base} by framework rule)` : ''}.`, kind: s.rating.kind };
+      return { text: `${s.rating.text} · ${s.confidence.value} confidence${s.confidence.watch.length ? ` · ${plural(s.confidence.watch.length, 'watch point')}` : ''}.`, kind: s.rating.kind };
     case 'risks': {
       if (!s.items.length) return { text: 'No risks identified yet — select triggers.', kind: KIND.RULE };
       const extra = s.items.length - 1;
@@ -706,6 +711,7 @@ export function reportToPlainText(report) {
       case 'rating':
         L.push(`${tag(s.rating.kind)} Readiness rating: ${s.rating.text}${s.rating.action ? ` — ${s.rating.action}` : ''}`);
         L.push(`${tag(KIND.RULE)} Confidence: ${s.confidence.value}${s.confidence.capped ? ` (capped from ${s.confidence.base})` : ''}`);
+        if (s.confidence.watch.length) L.push(`${tag(KIND.RULE)} Watch points (confidence stays ${s.confidence.value} until evidenced): ${s.confidence.watch.join('; ')}`);
         for (const r of s.confidence.rulesApplied) L.push(`${tag(r.kind)} ${r.id}: ${r.text}`);
         for (const r of s.confidence.flags) L.push(`${tag(r.kind)} ${r.id}: ${r.text}`);
         if (s.oneLineView) L.push(`${tag(s.oneLineView.kind)} One-line view: ${s.oneLineView.text}`);

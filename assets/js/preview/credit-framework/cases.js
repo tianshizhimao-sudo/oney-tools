@@ -55,7 +55,8 @@ export const CASES = Object.freeze({
     ],
     judgement: {
       source: 'deal-coaching-report-sample-CF-001-green-v0.1.md (2026-08-15)',
-      calibratedConfidence: 'Medium-High',
+      // Sample report said Medium-High; Dong 2026-09-26: show Medium and call out the watch points.
+      calibratedConfidence: 'Medium',
       oneLineView: 'Strong SME refinance / growth working-capital file: established trade services business, improving profitability, clean conduct, clear refinance purpose and a near-term contract-supported working-capital need.',
       nextStep: 'Package for lender once valuation/LVR comfort, executed or near-final contract evidence and a clear working-capital breakdown are in hand.',
       dimensions: [

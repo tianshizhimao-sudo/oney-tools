@@ -100,8 +100,14 @@ test('scenario tags, LVR calculation, rating and evidence-weighted confidence pe
     assert.ok(a.confidence.rulesApplied.some((r) => r.id === 'R-CONF-1'), `${id} critical cap applied`);
   }
   const cf1 = reportFor('CF-001', 'simple').a.confidence;
-  assert.equal(cf1.base, 'Medium-High');
-  assert.equal(cf1.capped, true, 'CF-001 Medium-High sample confidence capped by wrapper spec §8');
+  assert.equal(cf1.value, 'Medium', 'Dong 2026-09-26: CF-001 shows Medium');
+  assert.equal(cf1.capped, false);
+  assert.deepEqual(cf1.watch, ['Formal valuation or reliable AVM confidence', 'Executed or near-final new contract / purchase order', 'Updated debt schedule including home loan']);
+  assert.match(reportFor('CF-001', 'simple').text, /Watch points \(confidence stays Medium until evidenced\): Formal valuation/);
+  const flag = reportFor('CF-002', 'simple').a.confidence.flags.find((f) => f.id === 'R-CONF-2');
+  assert.match(flag.text, /^Flag: .* may cap confidence at Low\.$/);
+  assert.doesNotMatch(flag.text, /review|decides|should|collect|obtain|provide/i, 'R-CONF-2 flags only, no remedy');
+  assert.equal(reportFor('CF-002', 'simple').a.confidence.value, 'Medium', 'Low cap never auto-applied');
   assert.ok(reportFor('CF-002', 'simple').a.confidence.rulesApplied.some((r) => r.id === 'R-CONF-3'), 'specialist path never High');
   const custom = classifyScenario({ dealType: 'resi_investor_complex', deferralReason: 'Lender asked for updated servicing' }, ['high_dti', 'stale_preapproval']);
   assert.deepEqual(custom.map((t) => t.tag), ['high_dti_resi_investor', 'deferral_recovery']);

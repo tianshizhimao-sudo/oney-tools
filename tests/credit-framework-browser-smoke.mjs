@@ -89,6 +89,8 @@ async function runViewport(name, contextOpts) {
     c.bodiesVisibleCollapsed = await page.locator('.sec-body:visible').count();
     assert.ok(c.summariesVisible >= 7, `${name} ${id} summaries visible`);
     assert.equal(c.bodiesVisibleCollapsed, (await page.locator('.sec-body').evaluateAll((n) => n.filter((x) => !x.hidden).length)), 'visible bodies = expanded ones');
+    c.watchVisible = await page.locator('#watch-points').isVisible();
+    assert.equal(c.watchVisible, true, `${name} ${id} watch points visible while collapsed`);
     c.simpleQuestions = await page.locator('[data-question]').count();
     c.simpleLocked = await page.locator('section[data-locked="true"]').count();
     c.simpleGatedFields = await page.locator('[data-gated]').count();
