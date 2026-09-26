@@ -82,6 +82,8 @@ Deliberate divergence: `generate_followups.py` (Python CLI) still slices Simple 
 
 ### Re-rate matrix (Comprehensive; identical in Node and in the browser at 1440 and 390px)
 
+> **Superseded by the 2026-09-27 calibration follow-up below** (Medium-High removed; Important weak moves Green to Amber). Kept as the `bf19377` record.
+
 Scenarios: **outstanding** = nothing reviewed · **reply_only** = every item client reply only · **critical_supported** = every Critical reviewed-supports, non-critical outstanding · **all_supported** · **one_critical_weak** = first Critical reviewed-weak, rest supports · **mixed_critical_reply** = all supports except the last Critical = reply only · **important_weak** = all Critical supports, first non-critical weak.
 
 | Case (start) | outstanding | reply_only | critical_supported | all_supported | one_critical_weak | mixed_critical_reply | important_weak |
@@ -90,7 +92,7 @@ Scenarios: **outstanding** = nothing reviewed · **reply_only** = every item cli
 | CF-002 (Red; 6 Critical, 1 Important; specialist path) | Red · Medium | Red · Medium | **Amber ↑** · Medium | **Amber ↑** · Medium | Red · Low | Red · Medium | Red · Medium |
 | CF-004 (Amber; 3 Critical, 1 Important) | Amber · Medium | Amber · Medium | **Green ↑** · Medium-High | **Green ↑** · Medium-High | **Red ↓** · Low | Amber · Medium | Amber · Medium-High |
 
-Observations for Dong (behaviour unchanged — outside this task's scope):
+Observations for Dong (behaviour unchanged — outside this task's scope): _Both resolved 2026-09-27 — see below._
 1. "Medium-High" appears in re-rate output when every Critical is reviewed-supports on a non-specialist case; FRAMEWORK §6.3 defines only High / Medium / Low.
 2. A weak Important item holds the rating rather than lowering it (CF-001 contract/use-of-funds weak stays Green), whereas the Green re-rate note says such weakness should move to Amber.
 
@@ -109,3 +111,33 @@ Browser smoke (both viewports): 6 same-origin GETs (page + 5 modules), 0 externa
 Smoke-test fix: case buttons are now addressed as `#case-picker [data-case=…]`. `<body data-case>` mirrors the current case, so the old bare selector clicked `<body>` when re-selecting the current case and silently did not reset evidence (found while adding the matrix).
 
 Evidence (screenshots, PDF, smoke JSON): Obsidian project `assets/mvp-wrapper-evidence/2026-09-26-red-team/`.
+
+---
+
+## Calibration follow-up — 2026-09-27 (same branch, after `bf19377`)
+
+Dong/Oney review of task-05 passed with two calibration fixes requested (not merged or deployed):
+
+1. **Confidence is strictly High / Medium / Low** (FRAMEWORK §6.3). The undefined "Medium-High" category is removed from runtime (`CONFIDENCE_LEVELS = ['Low','Medium','High']`). Invited beta has no independent document verification or banker review, so **post-evidence confidence is capped at Medium** even when every Critical item is marked reviewed-supports; a weak Critical item still gives Low. The cap is shown in the re-rate tracker and copied text ("Confidence cap: …").
+2. **Important weak on Green → Amber.** If the current rating is Green and any triggered Important item is marked reviewed evidence weak/contradicts, the re-rate moves Green → Amber (also while Critical items are still outstanding). Amber or Red is not downgraded again by an Important weakness alone. Critical-weak behaviour is unchanged (one level down; Red stays Red; Black never moves).
+
+### Re-rate matrix (current — Node and browser, 1440 and 390px)
+
+Scenarios as above, plus **last_important_weak** = all Critical supports, last Important item weak (CF-001: `working_capital_vague`; **important_weak** is CF-001 `contract_growth`).
+
+| Case (start) | outstanding | reply_only | critical_supported | all_supported | one_critical_weak | mixed_critical_reply | important_weak | last_important_weak |
+|---|---|---|---|---|---|---|---|---|
+| CF-001 (Green) | Green · Medium | Green · Medium | Green · Medium | Green · Medium | **Amber ↓** · Low | Green · Medium | **Amber ↓** · Medium | **Amber ↓** · Medium |
+| CF-002 (Red, specialist) | Red · Medium | Red · Medium | **Amber ↑** · Medium | **Amber ↑** · Medium | Red · Low | Red · Medium | Red · Medium | Red · Medium |
+| CF-004 (Amber) | Amber · Medium | Amber · Medium | **Green ↑** · Medium | **Green ↑** · Medium | **Red ↓** · Low | Amber · Medium | Amber · Medium | Amber · Medium |
+
+### Tests (follow-up)
+
+| Check | Result |
+|---|---|
+| `git diff --check` | clean |
+| `node --test tests/credit-framework-mvp-wrapper.test.mjs` (macOS VM, Node v22) | **28/28 pass** |
+| New Node test "calibration 2026-09-27" | explicit pins: CF-001 `contract_growth` weak → Amber, `working_capital_vague` weak → Amber; all-supported CF-001 Green·Medium, CF-002 Amber·Medium, CF-004 Green·Medium; reply-only never moves; Amber/Red not downgraded by Important weak; Critical-weak unchanged. Exhaustive over all 16,704 status combinations: confidence only Low/Medium, Low ⇔ a Critical item weak, Green + Important weak never stays Green. No "Medium-High" in engine.js, app.js or the page. |
+| Mutation: remove Green/Important rule | 2 tests fail (as intended) |
+| Mutation: return High when all Critical supported | 3 tests fail (as intended) |
+| Browser smoke, Chromium 141, desktop 1440 + mobile 390 | **pass** — every matrix row reproduced through the UI; explicit pins above asserted; "Confidence cap" visible; no "Medium-High" text on the page; CSP blocks external fetch; noindex; 0 external / non-GET requests; no horizontal overflow (1440/1440, 390/390); CF-002 Simple still 6 questions with SG visible |

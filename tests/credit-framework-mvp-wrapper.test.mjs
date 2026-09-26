@@ -12,6 +12,7 @@ import {
   suggestTriggers, compareTriggers, DEFERRAL_REASONS, buildDeferralPlan,
   FEEDBACK_QUESTIONS, scoreFeedback, feedbackText,
   SIMPLE_QUESTION_TARGET, simpleExpansionNote, EVIDENCE_STATUS, RERATE_GUARDRAIL, RERATE_EVIDENCE_RULE,
+  CONFIDENCE_LEVELS, RERATE_CONFIDENCE_CAP, RERATE_GREEN_IMPORTANT_RULE,
 } from '../assets/js/preview/credit-framework/engine.js';
 
 const root = new URL('../', import.meta.url);
@@ -258,7 +259,7 @@ test('re-rate loop: evidence-driven movement and the client-reply guardrail', ()
   assert.equal(r.to, 'red'); assert.equal(r.confidence, 'Low'); assert.match(r.strategy, /Pause \/ refer/);
 
   r = run('CF-004', (q) => (q.priority === 'Critical' ? 'supports' : 'outstanding'));
-  assert.equal(r.to, 'green'); assert.equal(r.confidence, 'Medium-High');
+  assert.equal(r.to, 'green'); assert.equal(r.confidence, 'Medium', 'beta cap: never above Medium (2026-09-27)');
   assert.deepEqual(r.stillMissing, ['Related-party security or property-owning entity']);
 
   r = run('CF-004', (q) => (q.id === 'short_wale' ? 'weak' : 'supports'));
@@ -314,6 +315,67 @@ test('RT-03: supports means reviewed evidence; a client reply can never improve 
   assert.equal(combos, 4 ** 3 + 4 ** 7 + 4 ** 4);
 });
 
+test('calibration 2026-09-27: confidence is High/Medium/Low only, capped at Medium after evidence; Important weak moves Green to Amber', async () => {
+  assert.deepEqual([...CONFIDENCE_LEVELS], ['Low', 'Medium', 'High']);
+  for (const f of ['assets/js/preview/credit-framework/engine.js', 'assets/js/preview/credit-framework/app.js', 'preview/credit-framework.html']) {
+    assert.doesNotMatch(await read(f), /Medium-High/, `${f} has no Medium-High category`);
+  }
+  for (const t of [RERATE_CONFIDENCE_CAP, RERATE_GREEN_IMPORTANT_RULE]) assert.equal(lintCompliance(t).ok, true, t);
+
+  const run = (id, statusFor) => {
+    const a = buildAssessment(initialState(id, 'comprehensive'));
+    const qs = a.engine.comprehensive.questions;
+    return rerate({ questions: qs, rating: a.rating.text, tags: a.tags, evidence: Object.fromEntries(qs.map((q) => [q.id, statusFor(q)])) });
+  };
+  const pick = (r) => [r.to, r.movement, r.confidence];
+
+  // All supported → Medium for every shipped case.
+  assert.deepEqual(pick(run('CF-001', () => 'supports')), ['green', 'unchanged', 'Medium']);
+  assert.deepEqual(pick(run('CF-002', () => 'supports')), ['amber', 'up', 'Medium']);
+  assert.deepEqual(pick(run('CF-004', () => 'supports')), ['green', 'up', 'Medium']);
+  // All Critical supported (non-critical outstanding) → still Medium.
+  assert.deepEqual(pick(run('CF-001', (q) => (q.priority === 'Critical' ? 'supports' : 'outstanding'))), ['green', 'unchanged', 'Medium']);
+  assert.deepEqual(pick(run('CF-002', (q) => (q.priority === 'Critical' ? 'supports' : 'outstanding'))), ['amber', 'up', 'Medium']);
+  assert.deepEqual(pick(run('CF-004', (q) => (q.priority === 'Critical' ? 'supports' : 'outstanding'))), ['green', 'up', 'Medium']);
+  assert.ok(reportFor('CF-004', 'comprehensive', (s) => { for (const t of s.triggers) s.evidence[t] = 'supports'; }).text.includes(`Confidence cap: ${RERATE_CONFIDENCE_CAP}`));
+
+  // CF-001 (Green): each Important item weak → Amber.
+  for (const weakId of ['contract_growth', 'working_capital_vague']) {
+    const r = run('CF-001', (q) => (q.id === weakId ? 'weak' : 'supports'));
+    assert.deepEqual(pick(r), ['amber', 'down', 'Medium'], `CF-001 ${weakId} weak`);
+    assert.ok(r.reasons.includes(RERATE_GREEN_IMPORTANT_RULE));
+    assert.ok(r.reasons.some((x) => x.startsWith(`${RULES.find((q) => q.id === weakId).triggerLabel}: reviewed evidence weak`)));
+  }
+  assert.equal(run('CF-001', (q) => (q.id === 'contract_growth' ? 'weak' : 'outstanding')).to, 'amber', 'applies even while Critical evidence is outstanding');
+  // Amber / Red: an Important weakness alone does not downgrade again.
+  assert.deepEqual(pick(run('CF-004', (q) => (q.id === 'related_party_security' ? 'weak' : 'supports'))), ['amber', 'unchanged', 'Medium']);
+  assert.deepEqual(pick(run('CF-002', (q) => (q.id === 'working_capital_vague' ? 'weak' : 'supports'))), ['red', 'unchanged', 'Medium']);
+  // Critical-weak behaviour unchanged.
+  assert.deepEqual(pick(run('CF-001', (q) => (q.id === 'valuation_sensitive' ? 'weak' : 'supports'))), ['amber', 'down', 'Low']);
+  assert.deepEqual(pick(run('CF-002', (q) => (q.id === 'high_lvr_second_mortgage' ? 'weak' : 'supports'))), ['red', 'unchanged', 'Low']);
+  assert.deepEqual(pick(run('CF-004', (q) => (q.id === 'short_wale' ? 'weak' : 'supports'))), ['red', 'down', 'Low']);
+  // Reply-only still never improves readiness.
+  for (const id of CASE_ORDER) assert.equal(run(id, () => 'reply_only').movement, 'unchanged', `${id} reply-only`);
+
+  // Exhaustive over every evidence-status combination of every shipped case.
+  const statuses = Object.keys(EVIDENCE_STATUS);
+  const rank = (l) => ['green', 'amber', 'red', 'black'].indexOf(l);
+  for (const id of CASE_ORDER) {
+    const a = buildAssessment(initialState(id, 'comprehensive'));
+    const qs = a.engine.comprehensive.questions;
+    for (let n = 0; n < statuses.length ** qs.length; n++) {
+      const ev = Object.fromEntries(qs.map((q, i) => [q.id, statuses[Math.floor(n / statuses.length ** i) % statuses.length]]));
+      const r = rerate({ questions: qs, rating: a.rating.text, tags: a.tags, evidence: ev });
+      assert.ok(['Low', 'Medium'].includes(r.confidence), `${id} post-evidence confidence ${r.confidence}`);
+      const critWeak = qs.some((q) => q.priority === 'Critical' && ev[q.id] === 'weak');
+      const impWeak = qs.some((q) => q.priority === 'Important' && ev[q.id] === 'weak');
+      if (r.from === 'green' && impWeak) assert.notEqual(r.to, 'green', `${id} Green with Important weak`);
+      if (r.from !== 'green' && !critWeak) assert.ok(rank(r.to) <= rank(r.from), `${id} Important weakness alone never downgrades ${r.from}`);
+      assert.equal(r.confidence === 'Low', critWeak, `${id} Low iff a Critical item is weak`);
+    }
+  }
+});
+
 test('RT-04: re-rate matrix for CF-001, CF-002 and CF-004 (shared with browser smoke)', async () => {
   const matrix = await readJson('tests/fixtures/credit-framework/rerate-matrix.json');
   assert.deepEqual(Object.keys(matrix.cases), CASE_ORDER);
@@ -333,7 +395,10 @@ test('RT-04: re-rate matrix for CF-001, CF-002 and CF-004 (shared with browser s
   }
   const row = (id, sc) => matrix.cases[id].rows.find((x) => x.scenario === sc).expect;
   // Headline expectations (readable pins for reviewers).
-  assert.deepEqual([row('CF-001', 'reply_only').to, row('CF-001', 'critical_supported').to, row('CF-001', 'one_critical_weak').to], ['green', 'green', 'amber']);
+  assert.deepEqual([row('CF-001', 'reply_only').to, row('CF-001', 'critical_supported').to, row('CF-001', 'one_critical_weak').to, row('CF-001', 'important_weak').to, row('CF-001', 'last_important_weak').to], ['green', 'green', 'amber', 'amber', 'amber']);
+  assert.deepEqual([row('CF-001', 'important_weak'), row('CF-001', 'last_important_weak')].map((e) => e.movement), ['down', 'down']);
+  assert.deepEqual(CASE_ORDER.map((id) => [row(id, 'all_supported').to, row(id, 'all_supported').confidence]), [['green', 'Medium'], ['amber', 'Medium'], ['green', 'Medium']]);
+  assert.ok(CASE_ORDER.every((id) => matrix.cases[id].rows.every((x) => CONFIDENCE_LEVELS.includes(x.expect.confidence) && x.expect.confidence !== 'High')));
   assert.deepEqual([row('CF-002', 'reply_only').to, row('CF-002', 'critical_supported').to, row('CF-002', 'one_critical_weak').to, row('CF-002', 'mixed_critical_reply').to], ['red', 'amber', 'red', 'red']);
   assert.deepEqual([row('CF-004', 'reply_only').to, row('CF-004', 'critical_supported').to, row('CF-004', 'one_critical_weak').to, row('CF-004', 'mixed_critical_reply').to], ['amber', 'green', 'red', 'amber']);
   for (const id of CASE_ORDER) {

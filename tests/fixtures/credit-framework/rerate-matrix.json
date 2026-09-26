@@ -1,5 +1,5 @@
 {
-  "note": "Re-rate regression matrix (red team RT-04). Pinned from engine.js on 2026-09-26 after review; consumed by tests/credit-framework-mvp-wrapper.test.mjs and tests/credit-framework-browser-smoke.mjs. Change only deliberately.",
+  "note": "Re-rate regression matrix (red team RT-04; calibration follow-up 2026-09-27: confidence capped at Medium, Important weak moves Green to Amber). Pinned from engine.js after review; consumed by tests/credit-framework-mvp-wrapper.test.mjs and tests/credit-framework-browser-smoke.mjs. Change only deliberately.",
   "scenarios": {
     "outstanding": "Every item not received / not yet reviewed",
     "reply_only": "Every item: client reply only, no reviewed evidence",
@@ -7,7 +7,8 @@
     "all_supported": "Every item reviewed and supporting",
     "one_critical_weak": "First Critical item reviewed and weak; everything else reviewed and supporting",
     "mixed_critical_reply": "Everything reviewed and supporting except the last Critical item, which is a client reply only",
-    "important_weak": "All Critical reviewed and supporting; first non-critical item reviewed and weak"
+    "important_weak": "All Critical reviewed and supporting; first Important item reviewed and weak (CF-001: contract_growth)",
+    "last_important_weak": "All Critical reviewed and supporting; last Important item reviewed and weak (CF-001: working_capital_vague)"
   },
   "cases": {
     "CF-001": {
@@ -68,7 +69,7 @@
             "from": "green",
             "to": "green",
             "movement": "unchanged",
-            "confidence": "Medium-High",
+            "confidence": "Medium",
             "stillMissing": 2
           }
         },
@@ -83,7 +84,7 @@
             "from": "green",
             "to": "green",
             "movement": "unchanged",
-            "confidence": "Medium-High",
+            "confidence": "Medium",
             "stillMissing": 0
           }
         },
@@ -126,9 +127,24 @@
           },
           "expect": {
             "from": "green",
-            "to": "green",
-            "movement": "unchanged",
-            "confidence": "Medium-High",
+            "to": "amber",
+            "movement": "down",
+            "confidence": "Medium",
+            "stillMissing": 0
+          }
+        },
+        {
+          "scenario": "last_important_weak",
+          "evidence": {
+            "valuation_sensitive": "supports",
+            "contract_growth": "supports",
+            "working_capital_vague": "weak"
+          },
+          "expect": {
+            "from": "green",
+            "to": "amber",
+            "movement": "down",
+            "confidence": "Medium",
             "stillMissing": 0
           }
         }
@@ -299,6 +315,25 @@
             "confidence": "Medium",
             "stillMissing": 0
           }
+        },
+        {
+          "scenario": "last_important_weak",
+          "evidence": {
+            "mca_present": "supports",
+            "dishonours_recent": "supports",
+            "high_lvr_second_mortgage": "supports",
+            "ato_debt": "supports",
+            "missed_ato_plan": "supports",
+            "sg_unevidenced": "supports",
+            "working_capital_vague": "weak"
+          },
+          "expect": {
+            "from": "red",
+            "to": "red",
+            "movement": "unchanged",
+            "confidence": "Medium",
+            "stillMissing": 0
+          }
         }
       ]
     },
@@ -367,7 +402,7 @@
             "from": "amber",
             "to": "green",
             "movement": "up",
-            "confidence": "Medium-High",
+            "confidence": "Medium",
             "stillMissing": 1
           }
         },
@@ -383,7 +418,7 @@
             "from": "amber",
             "to": "green",
             "movement": "up",
-            "confidence": "Medium-High",
+            "confidence": "Medium",
             "stillMissing": 0
           }
         },
@@ -431,7 +466,23 @@
             "from": "amber",
             "to": "amber",
             "movement": "unchanged",
-            "confidence": "Medium-High",
+            "confidence": "Medium",
+            "stillMissing": 0
+          }
+        },
+        {
+          "scenario": "last_important_weak",
+          "evidence": {
+            "short_wale": "supports",
+            "zoning_environmental_missing": "supports",
+            "valuation_sensitive": "supports",
+            "related_party_security": "weak"
+          },
+          "expect": {
+            "from": "amber",
+            "to": "amber",
+            "movement": "unchanged",
+            "confidence": "Medium",
             "stillMissing": 0
           }
         }

@@ -343,6 +343,7 @@ function renderSection(s, report) {
         el('div', { class: 'rr-out', id: 'rerate-out' },
           item(r.kind, el('strong', {}, 'Rating movement: '), el('span', { id: 'rerate-movement' }, `${r.from ?? '—'} → ${r.to ?? '—'} (${r.movement})`), ` · ${r.ratingText ?? ''}`),
           item(r.kind, el('strong', {}, 'Confidence: '), el('span', { id: 'rerate-confidence' }, r.confidence)),
+          item(r.kind, el('span', { class: 'lbl' }, 'Confidence cap: '), el('span', { id: 'rerate-confidence-cap' }, r.confidenceCap)),
           r.reasons.map((x) => item(r.kind, el('span', { class: 'lbl' }, 'Reason: '), x)),
           item(r.kind, el('span', { class: 'lbl' }, 'Still missing: '), r.stillMissing.length ? r.stillMissing.join('; ') : 'none'),
           item(r.kind, el('span', { class: 'lbl' }, 'Strategy: '), el('span', { id: 'rerate-strategy' }, r.strategy)),

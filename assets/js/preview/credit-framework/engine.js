@@ -99,7 +99,9 @@ const RATING_ACTION = {
   black: 'Do not proceed under current facts — refer or pause.',
 };
 
-const CONFIDENCE_ORDER = ['Low', 'Medium', 'Medium-High', 'High'];
+/* FRAMEWORK §6.3 defines exactly three confidence levels. */
+export const CONFIDENCE_LEVELS = Object.freeze(['Low', 'Medium', 'High']);
+const CONFIDENCE_ORDER = CONFIDENCE_LEVELS;
 
 const PRIORITY_ORDER = { Critical: 0, Important: 1, Helpful: 2 };
 
@@ -580,11 +582,18 @@ export const RERATE_GUARDRAIL = 'Do not improve the rating because the client re
 /* No upload or storage: the broker records the review outcome; the page never sees the document. */
 export const RERATE_EVIDENCE_RULE = 'Choose “Reviewed evidence — supports” only after you have read the actual document and it proves the point. A client reply, a summary, or a document you have not yet reviewed cannot improve readiness — leave it as “Not received / not yet reviewed” or “Client reply only”.';
 
+/* Invited beta: evidence statuses are broker-recorded with no independent document
+   verification or banker review, so post-evidence confidence never exceeds Medium. */
+export const RERATE_CONFIDENCE_CAP = 'Confidence capped at Medium in this beta: evidence statuses are recorded by the broker, with no independent document verification or banker review.';
+/* Dong 2026-09-27: a weak Important item on a Green file drops it to Amber. */
+export const RERATE_GREEN_IMPORTANT_RULE = 'Green needs every triggered Important item to hold up: reviewed evidence weak on an Important item moves Green to Amber.';
+
 export function rerate({ questions, rating, tags, evidence }) {
   const statusOf = (q) => evidence[q.id] || 'outstanding';
   const critical = questions.filter((q) => q.priority === 'Critical');
   const criticalWeak = critical.filter((q) => statusOf(q) === 'weak');
   const importantWeak = questions.filter((q) => q.priority !== 'Critical' && statusOf(q) === 'weak');
+  const importantOnlyWeak = importantWeak.filter((q) => q.priority === 'Important');
   const supports = questions.filter((q) => statusOf(q) === 'supports');
   const replyOnly = questions.filter((q) => statusOf(q) === 'reply_only');
   const stillMissing = questions.filter((q) => ['outstanding', 'reply_only'].includes(statusOf(q)));
@@ -597,7 +606,7 @@ export function rerate({ questions, rating, tags, evidence }) {
   const reasons = [];
 
   if (!from) {
-    return { from: null, to: null, movement: 'unchanged', ratingText: rating, confidence: 'Low', reasons: ['No readiness rating selected.'], stillMissing: stillMissing.map((q) => q.triggerLabel), strategy: 'Select a rating before re-rating.', nextStep: 'Select a rating.', guardrail: RERATE_GUARDRAIL, evidenceRule: RERATE_EVIDENCE_RULE, kind: KIND.RULE, replyOnly: [] };
+    return { from: null, to: null, movement: 'unchanged', ratingText: rating, confidence: 'Low', reasons: ['No readiness rating selected.'], stillMissing: stillMissing.map((q) => q.triggerLabel), strategy: 'Select a rating before re-rating.', nextStep: 'Select a rating.', guardrail: RERATE_GUARDRAIL, evidenceRule: RERATE_EVIDENCE_RULE, confidenceCap: RERATE_CONFIDENCE_CAP, kind: KIND.RULE, replyOnly: [] };
   }
 
   if (from === 'black') {
@@ -606,6 +615,12 @@ export function rerate({ questions, rating, tags, evidence }) {
     to = from === 'green' ? 'amber' : 'red';
     movement = to === from ? 'unchanged' : 'down';
     for (const q of criticalWeak) reasons.push(`${q.triggerLabel}: reviewed evidence weak — ${q.ifWeak}`);
+  } else if (from === 'green' && importantOnlyWeak.length) {
+    // Amber or Red files are not downgraded again by an Important weakness alone.
+    to = 'amber';
+    movement = 'down';
+    for (const q of importantOnlyWeak) reasons.push(`${q.triggerLabel}: reviewed evidence weak — ${q.ifWeak}`);
+    reasons.push(RERATE_GREEN_IMPORTANT_RULE);
   } else if (allCriticalSupported && importantWeak.length === 0) {
     to = from === 'red' ? 'amber' : 'green';
     movement = to === from ? 'unchanged' : 'up';
@@ -618,10 +633,8 @@ export function rerate({ questions, rating, tags, evidence }) {
   }
   if (replyOnly.length) reasons.push(`Guardrail applied: ${replyOnly.length} client repl${replyOnly.length > 1 ? 'ies' : 'y'} without reviewed evidence treated as still missing.`);
 
-  let confidence;
-  if (criticalWeak.length) confidence = 'Low';
-  else if (allCriticalSupported) confidence = specialist ? 'Medium' : 'Medium-High';
-  else confidence = 'Medium';
+  // Low when a Critical item is weak; otherwise Medium (beta cap — never High here).
+  const confidence = criticalWeak.length ? 'Low' : 'Medium';
 
   let strategy;
   const lvrWeak = questions.some((q) => q.id === 'high_lvr_second_mortgage' && statusOf(q) === 'weak');
@@ -650,6 +663,7 @@ export function rerate({ questions, rating, tags, evidence }) {
     nextStep,
     guardrail: RERATE_GUARDRAIL,
     evidenceRule: RERATE_EVIDENCE_RULE,
+    confidenceCap: RERATE_CONFIDENCE_CAP,
     replyOnly: replyOnly.map((q) => q.id),
     kind: KIND.RULE,
   };
@@ -963,6 +977,7 @@ export function reportToPlainText(report) {
         L.push(`${tag(r.kind)} Guardrail: ${r.guardrail}`);
         L.push(`${tag(r.kind)} Evidence rule: ${r.evidenceRule}`);
         L.push(`${tag(r.kind)} Rating movement: ${r.from ?? '—'} → ${r.to ?? '—'} (${r.movement}) · Confidence: ${r.confidence}`);
+        L.push(`   Confidence cap: ${r.confidenceCap}`);
         r.reasons.forEach((x) => L.push(`   Reason: ${x}`));
         L.push(`   Still missing: ${r.stillMissing.length ? r.stillMissing.join('; ') : 'none'}`);
         L.push(`   Strategy: ${r.strategy}`);

@@ -191,8 +191,20 @@ async function runViewport(name, contextOpts) {
       if (row.scenario === 'reply_only' && id === 'CF-002') await page.locator('#sec-rerate').screenshot({ path: join(OUT, `${name}-cf002-rerate-reply-only.png`) });
     }
     v.rerateMatrix[id] = rows;
+    assert.equal(await page.locator('#rerate-confidence-cap').isVisible(), true, `${name} ${id} confidence cap shown`);
     await page.click(`#case-picker [data-case="${id}"]`); // reset evidence
   }
+
+  // Calibration 2026-09-27: explicit pins (also rows of the shared matrix above).
+  const has = (id, line) => assert.ok(v.rerateMatrix[id].includes(line), `${name} ${id} expected "${line}"`);
+  has('CF-001', 'important_weak: green → amber (down) · Medium'); // contract_growth weak
+  has('CF-001', 'last_important_weak: green → amber (down) · Medium'); // working_capital_vague weak
+  has('CF-001', 'all_supported: green → green (unchanged) · Medium');
+  has('CF-002', 'all_supported: red → amber (up) · Medium');
+  has('CF-004', 'all_supported: amber → green (up) · Medium');
+  for (const id of Object.keys(MATRIX.cases)) assert.match(v.rerateMatrix[id].find((x) => x.startsWith('reply_only:')), /^reply_only: (\w+) → \1 \(unchanged\)/, `${name} ${id} reply-only never improves`);
+  v.mediumHighAnywhere = await page.evaluate(() => document.body.innerText.includes('Medium-High'));
+  assert.equal(v.mediumHighAnywhere, false, `${name} no Medium-High on the page`);
 
   // Edit -> judgement withdrawn
   await page.click('#case-picker [data-case="CF-004"]');
