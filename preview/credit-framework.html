@@ -125,6 +125,14 @@
     pre.email{white-space:pre-wrap;overflow-wrap:anywhere;background:#151525;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:13px;font-family:inherit;margin:8px 0}
     .rr-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,230px);gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px}
     .rr-out{margin-top:10px;display:grid;gap:4px;font-size:13.5px}
+    .sec-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+    .sec-head h3{margin:0}
+    .sec-toggle{flex:0 0 auto;border:1px solid var(--line);background:transparent;color:var(--green);font-weight:700;font-size:12.5px;border-radius:999px;padding:6px 12px;min-height:34px;cursor:pointer;white-space:nowrap}
+    .sec-toggle:hover,.sec-toggle:focus-visible{border-color:var(--green);outline:none}
+    .summary{margin:10px 0 0;display:flex;gap:8px;align-items:baseline;font-size:14.5px;line-height:1.45;overflow-wrap:anywhere}
+    .summary .kind{flex:0 0 auto}
+    .sec-body{margin-top:10px;padding-top:6px;border-top:1px dashed var(--line)}
+    [hidden]{display:none!important}
     .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#0f2a1f;border:1px solid var(--green);color:#c9efdd;padding:10px 16px;border-radius:10px;font-size:13px;z-index:5;opacity:0;transition:opacity .2s;pointer-events:none}
     .toast.show{opacity:1}
     .print-only{display:none}
@@ -155,6 +163,8 @@
       body{background:#fff!important;color:#111!important;font-size:11.5pt}
       .no-print,.intake,.actions,.topbar .chip,.hero p,.toast,.rr-row select{display:none!important}
       .print-only{display:block!important}
+      .sec-body[hidden]{display:block!important}
+      .sec-toggle{display:none!important}
       .layout{display:block;padding:0}
       .card,section.out,.q,pre.email{background:transparent!important;box-shadow:none!important;border-color:#bbb!important;color:#111!important}
       .output{padding:0}
@@ -223,6 +233,7 @@
           </div>
           <div class="actions no-print">
             <span class="lint" id="lint-badge" role="status"></span>
+            <button class="btn btn-ghost" type="button" id="expand-all" data-state="closed">Expand all</button>
             <button class="btn btn-secondary" type="button" id="copy-btn">Copy report</button>
             <button class="btn btn-primary" type="button" id="print-btn">Export PDF / Print</button>
           </div>

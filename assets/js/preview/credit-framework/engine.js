@@ -535,6 +535,69 @@ export const GATED_SECTIONS = Object.freeze({
   rerate: 'Re-rate tracker',
 });
 
+
+/* ---------------------------------------------------------
+   One-line section summaries (collapsed view). Derived only from the
+   section's own content, so they never add claims the detail lacks.
+   --------------------------------------------------------- */
+
+const firstSentence = (t) => String(t || '').split(/(?<=[.!?])\s+/)[0];
+const headClause = (t) => { const c = firstSentence(t).split(/[:;]\s/)[0].replace(/[.:;]$/, ''); return `${c}.`; };
+const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+const WORST_FIRST = ['Black', 'Red', 'Amber', 'Green'];
+
+export function summarizeSection(s, assessment) {
+  switch (s.id) {
+    case 'snapshot': {
+      const f = Object.fromEntries(s.facts.map((x) => [x.label, x.value]));
+      const lvr = s.calcs.find((c) => c.id === 'lvr');
+      const tags = s.tags.map((t) => t.label).filter((l) => l !== f['Deal type']);
+      return { text: `${f['Deal type']} request of ${f['Loan amount']}${lvr ? ` at ${lvr.value} estimated LVR` : ''}${tags.length ? `; ${tags.join(' + ')}` : ''}.`, kind: KIND.FACT };
+    }
+    case 'rating':
+      return { text: `${s.rating.text} · ${s.confidence.value} confidence${s.confidence.capped ? ` (capped from ${s.confidence.base} by framework rule)` : ''}.`, kind: s.rating.kind };
+    case 'risks': {
+      if (!s.items.length) return { text: 'No risks identified yet — select triggers.', kind: KIND.RULE };
+      const extra = s.items.length - 1;
+      return { text: `Biggest risk: ${s.items[0].risk}${extra > 0 ? ` (+${extra} more)` : ''}.`, kind: s.items[0].kind };
+    }
+    case 'missing': {
+      const crit = assessment.missing.critical;
+      const imp = assessment.missing.important;
+      if (!crit.length && !imp.length) return { text: 'No missing evidence flagged.', kind: KIND.RULE };
+      const first = (crit[0] || imp[0]).item;
+      return { text: `${plural(crit.length, 'Critical item')}, ${imp.length} Important outstanding; start with: ${first}.`, kind: (crit[0] || imp[0]).kind };
+    }
+    case 'questions': {
+      if (!s.items.length) return { text: 'No questions — no triggers selected.', kind: KIND.RULE };
+      const crit = s.items.filter((q) => q.priority === 'Critical').length;
+      return { text: `${plural(s.items.length, 'question')} (${crit} Critical); ask first about: ${s.items[0].trigger}.`, kind: KIND.RULE };
+    }
+    case 'packaging':
+      return { text: headClause(s.mainstream), kind: s.kind };
+    case 'nextStep':
+      return { text: headClause(s.nextStep.text), kind: s.nextStep.kind };
+    case 'dimensions': {
+      if (s.empty) return { text: 'No dimension judgement for a custom scenario.', kind: KIND.RULE };
+      const worst = WORST_FIRST.find((c) => s.items.some((d) => d.rating.startsWith(c)));
+      const names = s.items.filter((d) => d.rating.startsWith(worst)).map((d) => d.dimension);
+      return { text: `Weakest (${worst}): ${names.join(', ')}.`, kind: KIND.JUDGEMENT };
+    }
+    case 'deferral':
+      return { text: s.engineView, kind: s.kind };
+    case 'email': {
+      const n = assessment.engine.comprehensive.questions.filter((q) => q.priority !== 'Helpful').length;
+      return { text: `Plain-English draft asking the client for ${plural(n, 'item')}.`, kind: s.email.kind };
+    }
+    case 'rerate': {
+      const r = s.rerate;
+      return { text: `Rating ${r.from ?? '—'} → ${r.to ?? '—'} (${r.movement}) · ${r.confidence} confidence · ${r.stillMissing.length} item${r.stillMissing.length === 1 ? '' : 's'} still missing.`, kind: r.kind };
+    }
+    default:
+      return null;
+  }
+}
+
 export function buildReport(assessment, tier) {
   const isSimple = tier === 'simple';
   const engine = isSimple ? assessment.engine.simple : assessment.engine.comprehensive;
@@ -596,6 +659,8 @@ export function buildReport(assessment, tier) {
 
   sections.push({ id: 'cta', title: isSimple ? 'Upgrade / Banker Review' : 'Banker Review by Dong (add-on)' });
 
+  for (const sec of sections) if (!sec.locked) sec.summary = summarizeSection(sec, assessment);
+
   return {
     tier,
     tierName: TIERS[tier].name,
@@ -630,6 +695,7 @@ export function reportToPlainText(report) {
     L.push('');
     if (s.locked) { L.push(`## ${s.title} — [LOCKED: Comprehensive only]`); continue; }
     L.push(`## ${s.title}`);
+    if (s.summary) L.push(`${tag(s.summary.kind)} Summary: ${s.summary.text}`);
     switch (s.id) {
       case 'snapshot':
         for (const f of s.facts) L.push(`${tag(f.kind)} ${f.label}: ${f.value}`);

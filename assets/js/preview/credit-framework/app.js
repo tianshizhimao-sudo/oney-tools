@@ -129,9 +129,45 @@ function renderLegend() {
   for (const k of Object.values(KIND)) box.append(el('span', { class: 'legend-item' }, kindBadge(k), KIND_HELP[k]));
 }
 
+/* Collapsed-by-default sections: one-line summary + "Details" toggle.
+   Open sections are remembered across re-renders (UI state only). */
+const expanded = new Set();
+
+function summaryNode(s) {
+  if (s.id === 'rating') {
+    return el('div', { class: 'summary rating-row', 'data-summary': s.id },
+      el('span', { class: `rating-pill ${s.rating.level || ''}`, id: 'rating-pill' }, s.rating.text),
+      el('span', { class: 'conf', id: 'confidence-pill' }, `Confidence: ${s.confidence.value}${s.confidence.capped ? ' (capped)' : ''}`));
+  }
+  return el('p', { class: 'summary', 'data-summary': s.id }, kindBadge(s.summary.kind), el('span', {}, s.summary.text));
+}
+
 function sectionShell(s, ...body) {
-  return el('section', { class: `out${s.locked ? ' locked' : ''}`, id: `sec-${s.id}`, 'data-section': s.id, 'data-locked': s.locked ? 'true' : 'false' },
-    el('h3', {}, s.title, s.locked ? el('span', { class: 'prio Important' }, 'Comprehensive only') : null), ...body);
+  const attrs = { class: `out${s.locked ? ' locked' : ''}`, id: `sec-${s.id}`, 'data-section': s.id, 'data-locked': s.locked ? 'true' : 'false' };
+  const title = el('h3', {}, s.title, s.locked ? el('span', { class: 'prio Important' }, 'Comprehensive only') : null);
+  if (!s.summary) return el('section', attrs, title, ...body);
+  const open = expanded.has(s.id);
+  const bodyId = `body-${s.id}`;
+  const wrap = el('div', { class: 'sec-body', id: bodyId }, ...body);
+  wrap.hidden = !open;
+  const btn = el('button', { class: 'sec-toggle no-print', type: 'button', 'aria-expanded': String(open), 'aria-controls': bodyId, 'data-toggle': s.id }, open ? 'Hide details ▴' : 'Show details ▾');
+  btn.addEventListener('click', () => {
+    const now = wrap.hidden;
+    wrap.hidden = !now;
+    if (now) expanded.add(s.id); else expanded.delete(s.id);
+    btn.setAttribute('aria-expanded', String(now));
+    btn.textContent = now ? 'Hide details ▴' : 'Show details ▾';
+    syncExpandAll();
+  });
+  return el('section', attrs, el('div', { class: 'sec-head' }, title, btn), summaryNode(s), wrap);
+}
+
+function syncExpandAll() {
+  const toggles = [...document.querySelectorAll('[data-toggle]')];
+  const allOpen = toggles.length > 0 && toggles.every((t) => t.getAttribute('aria-expanded') === 'true');
+  const b = $('#expand-all');
+  b.textContent = allOpen ? 'Collapse all' : 'Expand all';
+  b.dataset.state = allOpen ? 'open' : 'closed';
 }
 
 function renderSection(s, report) {
@@ -150,11 +186,8 @@ function renderSection(s, report) {
           s.tags.length ? s.tags.map((t) => el('span', { class: 'tagpill', title: t.because.join('; '), 'data-tag': t.tag }, t.tag)) : 'none'));
     case 'rating':
       return sectionShell(s,
-        el('div', { class: 'rating-row' },
-          el('span', { class: `rating-pill ${s.rating.level || ''}`, id: 'rating-pill' }, s.rating.text),
-          kindBadge(s.rating.kind),
-          el('span', { class: 'conf', id: 'confidence-pill' }, `Confidence: ${s.confidence.value}`),
-          kindBadge(KIND.RULE)),
+        item(s.rating.kind, el('strong', {}, 'Readiness rating: '), s.rating.text),
+        item(KIND.RULE, el('strong', {}, 'Confidence: '), s.confidence.value),
         s.rating.action ? item(KIND.RULE, 'Product action: ', s.rating.action) : null,
         s.confidence.capped ? el('div', { class: 'notice warn', id: 'confidence-cap-note' }, `Confidence capped from ${s.confidence.base} (judgement source) to ${s.confidence.value} by framework rule. Needs Dong confirmation.`) : null,
         s.confidence.rulesApplied.map((r) => item(r.kind, el('strong', {}, `${r.id} `), r.text)),
@@ -271,7 +304,8 @@ function renderOutput() {
     if (node) out.append(node);
   }
 
-  const renderedText = `${$('#report').innerText}\n${lastPlainText}`;
+  syncExpandAll();
+  const renderedText = `${$('#report').textContent}\n${lastPlainText}`;
   const lint = lintCompliance(renderedText);
   const badge = $('#lint-badge');
   badge.className = `lint ${lint.ok ? 'ok' : 'bad'}`;
@@ -335,6 +369,13 @@ async function copyText(text, okMsg) {
   return ok;
 }
 
+$('#expand-all').addEventListener('click', () => {
+  const open = $('#expand-all').dataset.state !== 'open';
+  for (const t of document.querySelectorAll('[data-toggle]')) {
+    if ((t.getAttribute('aria-expanded') === 'true') !== open) t.click();
+  }
+  syncExpandAll();
+});
 $('#copy-btn').addEventListener('click', () => copyText(lastPlainText, `${state.tier === 'simple' ? 'Simple' : 'Comprehensive'} report copied`));
 $('#print-btn').addEventListener('click', () => window.print());
 

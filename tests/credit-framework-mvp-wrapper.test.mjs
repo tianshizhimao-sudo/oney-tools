@@ -8,7 +8,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import {
   RULES, RULE_LIBRARY, CASES, CASE_ORDER, KIND, BOUNDARY_TEXT, ENGINE_BOUNDARY_TEXT,
   generateFollowUps, classifyScenario, calculations, initialState, blankState, isPristine,
-  buildAssessment, buildReport, reportToPlainText, buildClientEmail, rerate, lintCompliance,
+  buildAssessment, buildReport, reportToPlainText, buildClientEmail, rerate, lintCompliance, summarizeSection,
 } from '../assets/js/preview/credit-framework/engine.js';
 
 const root = new URL('../', import.meta.url);
@@ -323,4 +323,41 @@ test('responsive and print CSS present (browser smoke verifies behaviour)', asyn
   assert.match(app, /window\.print\(\)/);
   assert.match(app, /navigator\.clipboard/);
   assert.match(app, /execCommand\('copy'\)/, 'legacy copy fallback');
+});
+
+test('every unlocked section has a one-line summary derived from its own content', () => {
+  for (const { id, tier } of allStates()) {
+    const { r, text } = reportFor(id, tier);
+    for (const sec of r.sections) {
+      if (sec.locked) { assert.equal(sec.summary, undefined, `${id} ${tier} locked ${sec.id} has no summary`); continue; }
+      if (sec.id === 'cta') continue;
+      assert.ok(sec.summary && sec.summary.text.length > 5, `${id} ${tier} ${sec.id} summary`);
+      assert.ok(!/\n/.test(sec.summary.text), 'single line');
+      assert.ok(sec.summary.text.length <= 200, `${id} ${tier} ${sec.id} summary short: ${sec.summary.text}`);
+      assert.equal(lintCompliance(sec.summary.text).ok, true, sec.summary.text);
+      assert.ok(text.includes(`Summary: ${sec.summary.text}`), 'summary in copied text');
+    }
+  }
+  const cf2 = reportFor('CF-002', 'comprehensive').r.sections;
+  const sum = (sid) => cf2.find((x) => x.id === sid).summary.text;
+  assert.match(sum('snapshot'), /96\.8% estimated LVR/);
+  assert.match(sum('rating'), /^Red — Rework First/);
+  assert.match(sum('questions'), /^7 questions \(6 Critical\)/);
+  assert.match(sum('dimensions'), /^Weakest \(Red\)/);
+  assert.equal(sum('packaging'), 'Not ready.');
+  // Simple summary never mentions gated detail counts beyond what Simple shows.
+  const s2 = reportFor('CF-002', 'simple').r.sections;
+  assert.match(s2.find((x) => x.id === 'questions').summary.text, /^5 questions/);
+  assert.match(s2.find((x) => x.id === 'risks').summary.text, /\(\+4 more\)/);
+  assert.equal(summarizeSection({ id: 'cta' }, null), null);
+});
+
+test('collapsed/expand UI wiring present', async () => {
+  const app = await read('assets/js/preview/credit-framework/app.js');
+  const html = await read('preview/credit-framework.html');
+  assert.match(app, /aria-expanded/);
+  assert.match(app, /data-toggle/);
+  assert.match(html, /id="expand-all"/);
+  assert.match(html.slice(html.indexOf('@media print')), /\.sec-body\[hidden\]\{display:block!important\}/, 'print expands everything');
+  assert.match(app, /\$\('#report'\)\.textContent/, 'wording check covers collapsed content');
 });

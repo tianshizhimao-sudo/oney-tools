@@ -76,10 +76,19 @@ async function runViewport(name, contextOpts) {
   v.cspFetch = await page.evaluate(async () => { try { await fetch('https://example.com/cf-probe', { mode: 'no-cors' }); return 'allowed'; } catch { return 'blocked'; } });
   assert.equal(v.cspFetch, 'blocked');
 
+  v.initialVisibleBodies = await page.locator('.sec-body:visible').count();
+  assert.equal(v.initialVisibleBodies, 0, 'sections start collapsed');
+  await page.click('#sec-questions [data-toggle]');
+  assert.equal(await page.locator('#body-questions').isVisible(), true, 'single section expands');
+  await page.click('#sec-questions [data-toggle]');
   for (const id of ['CF-001', 'CF-002', 'CF-004']) {
     const c = {};
     await page.click(`[data-case="${id}"]`);
     await page.click('#tier-output [data-tier="simple"]');
+    c.summariesVisible = await page.locator('[data-summary]:visible').count();
+    c.bodiesVisibleCollapsed = await page.locator('.sec-body:visible').count();
+    assert.ok(c.summariesVisible >= 7, `${name} ${id} summaries visible`);
+    assert.equal(c.bodiesVisibleCollapsed, (await page.locator('.sec-body').evaluateAll((n) => n.filter((x) => !x.hidden).length)), 'visible bodies = expanded ones');
     c.simpleQuestions = await page.locator('[data-question]').count();
     c.simpleLocked = await page.locator('section[data-locked="true"]').count();
     c.simpleGatedFields = await page.locator('[data-gated]').count();
@@ -121,6 +130,9 @@ async function runViewport(name, contextOpts) {
   // Re-rate loop in the UI (CF-002, Comprehensive)
   await page.click('[data-case="CF-002"]');
   await page.click('#tier-output [data-tier="comprehensive"]');
+  if ((await page.getAttribute('#expand-all', 'data-state')) !== 'open') await page.click('#expand-all');
+  v.expandAll = { bodies: await page.locator('.sec-body').count(), visible: await page.locator('.sec-body:visible').count() };
+  assert.equal(v.expandAll.visible, v.expandAll.bodies, 'expand all opens every section');
   const selects = await page.locator('[data-rerate]').all();
   for (const s of selects) await s.selectOption('reply_only');
   v.rerateReplyOnly = await page.textContent('#rerate-movement');
@@ -160,12 +172,14 @@ async function runViewport(name, contextOpts) {
   await page.screenshot({ path: join(OUT, `${name}-cf002-comprehensive-full.png`), fullPage: true });
 
   // Print / PDF
+  if ((await page.getAttribute('#expand-all', 'data-state')) === 'open') await page.click('#expand-all');
   await page.emulateMedia({ media: 'print' });
   v.print = await page.evaluate(() => ({
     intake: getComputedStyle(document.querySelector('#intake')).display,
     actions: getComputedStyle(document.querySelector('.out-head .actions')).display,
     watermark: getComputedStyle(document.querySelector('#watermark')).display,
     printHead: getComputedStyle(document.querySelector('#print-head')).display,
+    hiddenBodiesPrinted: [...document.querySelectorAll('.sec-body')].every((b) => getComputedStyle(b).display !== 'none'),
     printHeadText: document.querySelector('#print-head').innerText.slice(0, 120),
     bodyBg: getComputedStyle(document.body).backgroundColor,
   }));
@@ -173,6 +187,7 @@ async function runViewport(name, contextOpts) {
   assert.equal(v.print.actions, 'none');
   assert.equal(v.print.watermark, 'grid');
   assert.equal(v.print.printHead, 'block');
+  assert.equal(v.print.hiddenBodiesPrinted, true, 'print shows collapsed detail');
   assert.equal(v.print.bodyBg, 'rgb(255, 255, 255)');
   if (name === 'desktop') {
     const pdf = await page.pdf({ format: 'A4', printBackground: true });
