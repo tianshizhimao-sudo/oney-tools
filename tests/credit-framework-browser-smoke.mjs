@@ -154,6 +154,24 @@ async function runViewport(name, contextOpts) {
   assert.equal(await page.getAttribute('body', 'data-pristine'), 'false');
   await page.click('[data-case="CF-004"]');
 
+  // Trigger suggestions on a blank custom scenario: suggested, not auto-ticked, then applied
+  await page.click('[data-case="custom"]');
+  await page.click('details.sec >> summary:has-text("Conduct / compliance")');
+  await page.fill('#f-conduct', '3 dishonours in last 6 months; ATO debt $80k on payment plan');
+  v.suggest = {
+    chips: await page.locator('[data-sugg-chip]:visible').count(),
+    ticked: await page.locator('#t-dishonours_recent').isChecked(),
+    pending: await page.getAttribute('#sugg-panel', 'data-not-selected'),
+  };
+  assert.equal(v.suggest.chips, 2, 'dishonours + ATO suggested');
+  assert.equal(v.suggest.ticked, false, 'suggestions are not auto-applied');
+  await page.click('#apply-suggestions');
+  v.suggest.afterApply = { ticked: await page.locator('#t-dishonours_recent').isChecked() && await page.locator('#t-ato_debt').isChecked(), questions: await page.locator('[data-question]').count() };
+  assert.equal(v.suggest.afterApply.ticked, true);
+  assert.equal(v.suggest.afterApply.questions, 2);
+  assert.equal(await page.getAttribute('body', 'data-lint'), 'pass');
+  await page.click('[data-case="CF-002"]');
+
   // Layout
   v.layout = await page.evaluate(() => {
     const vw = document.documentElement.clientWidth;

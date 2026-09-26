@@ -8,6 +8,7 @@ import {
   CASES, CASE_ORDER, RULES, KIND, KIND_LABEL, KIND_HELP, TIERS, INTAKE_FIELDS,
   RATING_OPTIONS, EVIDENCE_STATUS, BOUNDARY_TEXT,
   initialState, blankState, buildAssessment, buildReport, reportToPlainText, lintCompliance,
+  suggestTriggers, compareTriggers, triggerCheckText,
 } from './engine.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -109,19 +110,50 @@ function renderIntakeForm() {
       delete state.evidence[r.id];
       renderOutput();
     });
-    return el('label', { class: 'trig', for: `t-${r.id}` }, cb,
-      el('span', {}, r.triggerLabel, ' ', el('span', { class: `prio ${r.priority}` }, r.priority), el('small', {}, `${r.id} · ${r.category}`)));
+    return el('label', { class: 'trig', for: `t-${r.id}`, 'data-trig': r.id }, cb,
+      el('span', {}, r.triggerLabel, ' ', el('span', { class: `prio ${r.priority}` }, r.priority), el('span', { class: 'sugg-chip', 'data-sugg-chip': r.id, hidden: true }, 'Suggested'),
+        el('small', {}, `${r.id} · ${r.category}`), el('small', { class: 'sugg-why', 'data-sugg-why': r.id, hidden: true })));
   });
 
   form.append(el('details', { class: 'sec', open: true },
-    el('summary', {}, 'Triggers (manual selection) + current rating'),
+    el('summary', {}, 'Triggers + current rating'),
     el('div', { class: 'fields' },
-      el('p', { class: 'hint', style: 'margin:0' }, 'Trigger selection is manual in v0.1 (spec §12). Rules come verbatim from rules-v0.1.json.'),
+      el('p', { class: 'hint', style: 'margin:0' }, 'Oney suggests triggers from your intake by rule. Nothing is ticked for you — confirm or change. Rules come verbatim from rules-v0.1.json.'),
+      el('div', { class: 'sugg-panel', id: 'sugg-panel', 'aria-live': 'polite' }),
       el('div', {}, trigList),
       el('div', { class: 'field' }, el('label', { for: 'f-rating' }, 'Current readiness rating'), ratingSel))));
 }
 
 /* ------------------------------ output ------------------------------ */
+
+/* Trigger suggestions: refreshed on every intake change without rebuilding the form. */
+function renderSuggestions() {
+  const suggested = suggestTriggers(state.intake);
+  const cmp = compareTriggers(state.triggers, suggested);
+  const byId = Object.fromEntries(suggested.map((x) => [x.id, x]));
+  for (const r of RULES) {
+    const chip = document.querySelector(`[data-sugg-chip="${r.id}"]`);
+    const why = document.querySelector(`[data-sugg-why="${r.id}"]`);
+    if (!chip) continue;
+    chip.hidden = !byId[r.id];
+    why.hidden = !byId[r.id];
+    why.textContent = byId[r.id] ? `Why: ${byId[r.id].reasons.join('; ')}` : '';
+    document.querySelector(`[data-trig="${r.id}"]`).dataset.suggested = byId[r.id] ? 'true' : 'false';
+  }
+  const panel = $('#sugg-panel');
+  if (!panel) return;
+  const addBtn = cmp.notSelected.length
+    ? el('button', { class: 'btn btn-primary', type: 'button', id: 'apply-suggestions', onclick: () => {
+        state.triggers = [...state.triggers, ...cmp.notSelected];
+        renderAll();
+      } }, `Add ${cmp.notSelected.length} suggested trigger${cmp.notSelected.length > 1 ? 's' : ''}`)
+    : null;
+  panel.replaceChildren(
+    el('div', { class: 'sugg-head' }, kindBadge(KIND.RULE), el('strong', {}, ` ${suggested.length} suggested from intake`)),
+    el('p', { class: 'hint', style: 'margin:4px 0 0', id: 'sugg-status' }, triggerCheckText({ suggested, ...cmp })),
+    addBtn);
+  panel.dataset.notSelected = String(cmp.notSelected.length);
+}
 
 function renderLegend() {
   const box = $('#legend');
@@ -191,6 +223,7 @@ function renderSection(s, report) {
         el('div', { class: 'kv' }, s.facts.flatMap((f) => [el('div', { class: 'k' }, kindBadge(f.kind), ' ', f.label), el('div', { 'data-kind': f.kind }, f.value)])),
         s.calcs.map((c) => item(c.kind, el('strong', {}, `${c.label}: ${c.value}`), el('span', { class: 'hint' }, ` = ${c.formula}`))),
         s.assumptions.map((a) => item(a.kind, a.text)),
+        item(KIND.RULE, el('span', { class: 'lbl' }, 'Trigger check: '), el('span', { id: 'trigger-check' }, triggerCheckText(s.triggerCheck))),
         item(KIND.RULE, el('span', { class: 'lbl' }, 'Scenario tags: '),
           s.tags.length ? s.tags.map((t) => el('span', { class: 'tagpill', title: t.because.join('; '), 'data-tag': t.tag }, t.tag)) : 'none'));
     case 'rating':
@@ -294,6 +327,7 @@ function renderSection(s, report) {
 }
 
 function renderOutput() {
+  renderSuggestions();
   const assessment = buildAssessment(state);
   const report = buildReport(assessment, state.tier);
   lastPlainText = reportToPlainText(report);

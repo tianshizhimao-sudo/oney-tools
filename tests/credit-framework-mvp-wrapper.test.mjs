@@ -9,6 +9,7 @@ import {
   RULES, RULE_LIBRARY, CASES, CASE_ORDER, KIND, BOUNDARY_TEXT, ENGINE_BOUNDARY_TEXT,
   generateFollowUps, classifyScenario, calculations, initialState, blankState, isPristine,
   buildAssessment, buildReport, reportToPlainText, buildClientEmail, rerate, lintCompliance, summarizeSection,
+  suggestTriggers, compareTriggers,
 } from '../assets/js/preview/credit-framework/engine.js';
 
 const root = new URL('../', import.meta.url);
@@ -366,4 +367,52 @@ test('collapsed/expand UI wiring present', async () => {
   assert.match(html, /id="expand-all"/);
   assert.match(html.slice(html.indexOf('@media print')), /\.sec-body\[hidden\]\{display:block!important\}/, 'print expands everything');
   assert.match(app, /\$\('#report'\)\.textContent/, 'wording check covers collapsed content');
+});
+
+test('trigger suggestions reproduce the calibrated triggers for every sample case', () => {
+  for (const id of CASE_ORDER) {
+    const got = suggestTriggers(CASES[id].intake).map((s) => s.id).sort();
+    assert.deepEqual(got, [...CASES[id].followUpCase.triggers].sort(), id);
+    for (const s of suggestTriggers(CASES[id].intake)) {
+      assert.ok(s.reasons.length > 0, `${id} ${s.id} has a reason`);
+      assert.equal(lintCompliance(s.reasons.join(' ')).ok, true);
+    }
+    const { a, text } = reportFor(id, 'simple');
+    assert.deepEqual(a.triggerCheck.notSelected, []);
+    assert.deepEqual(a.triggerCheck.manualOnly, []);
+    assert.match(text, /Trigger check: \d+ suggested from intake, \d+ selected · selection matches intake\./);
+  }
+});
+
+test('trigger suggestions: positives, negations and thresholds', () => {
+  const base = { dealType: 'sme', purpose: '', security: '', securityValue: '', totalSecuredDebt: '', income: '', existingDebts: '', conduct: '', documents: '', urgency: '', deferralReason: '', borrower: '' };
+  const ids = (over) => suggestTriggers({ ...base, ...over }).map((s) => s.id);
+  assert.deepEqual(ids({}), [], 'blank intake suggests nothing');
+  // negations
+  assert.deepEqual(ids({ conduct: 'ATO current, no payment plan; no dishonours or excesses in 12 months' }), []);
+  assert.deepEqual(ids({ conduct: '2 dishonours in March' }), ['dishonours_recent']);
+  // tax
+  assert.deepEqual(ids({ existingDebts: 'ATO debt $80k on payment plan' }), ['ato_debt']);
+  assert.ok(ids({ conduct: 'ATO plan: missed a payment in June', existingDebts: 'tax debt $40k' }).includes('missed_ato_plan'));
+  assert.deepEqual(ids({ conduct: 'Super paid, director says current' }), ['sg_unevidenced']);
+  // security thresholds
+  assert.deepEqual(ids({ security: 'Second mortgage over home', securityValue: 1000000, totalSecuredDebt: 700000 }), [], 'second mortgage at 70% LVR is not high-LVR');
+  assert.deepEqual(ids({ security: 'Second mortgage over home', securityValue: 1000000, totalSecuredDebt: 900000 }), ['high_lvr_second_mortgage']);
+  assert.deepEqual(ids({ security: 'First mortgage', securityValue: 1000000, totalSecuredDebt: 650000, documents: 'valuation provided' }), []);
+  assert.deepEqual(ids({ security: 'First mortgage', securityValue: 1000000, totalSecuredDebt: 790000 }), ['valuation_sensitive']);
+  // other rules
+  assert.deepEqual(ids({ existingDebts: 'supplier arrears $120k' }), ['supplier_arrears']);
+  assert.deepEqual(ids({ income: 'DTI 9.2x after purchase' }), ['high_dti']);
+  assert.deepEqual(ids({ income: 'DTI 5.1x' }), []);
+  assert.deepEqual(ids({ documents: 'pre-approval issued 4 months ago' }), ['stale_preapproval']);
+  assert.deepEqual(ids({ documents: 'pre-approval issued 1 month ago' }), []);
+  assert.deepEqual(ids({ income: 'Lost a major customer in FY25; turnaround underway' }), ['turnaround_claim']);
+  assert.deepEqual(ids({ security: 'Property held by SMSF' }), ['related_party_security']);
+  assert.deepEqual(ids({ purpose: 'Working capital $80k — breakdown attached' }), []);
+  // suggestions never change the selection by themselves
+  const s = blankState(); s.intake.conduct = '3 dishonours'; const before = [...s.triggers];
+  const a = buildAssessment(s);
+  assert.deepEqual(s.triggers, before);
+  assert.deepEqual(a.triggerCheck.notSelected, ['dishonours_recent']);
+  assert.deepEqual(compareTriggers(['ato_debt'], []).manualOnly, ['ato_debt']);
 });

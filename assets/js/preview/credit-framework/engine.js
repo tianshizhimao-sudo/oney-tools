@@ -228,6 +228,84 @@ export function calculations(intake) {
   return out;
 }
 
+
+/* ---------------------------------------------------------
+   Trigger suggestions from intake (deterministic, keyword + number rules).
+   Suggestions never change the selection by themselves: the broker confirms.
+   Calibrated so each untouched sample case suggests exactly its Obsidian
+   case-JSON triggers (see tests).
+   --------------------------------------------------------- */
+
+const NEGATION = /\b(no|nil|zero|without|clean|nor)\b[^.;]{0,20}$/i;
+
+function findUnnegated(text, re) {
+  const g = new RegExp(re.source, re.flags.includes('g') ? re.flags : `${re.flags}g`);
+  for (const m of String(text || '').matchAll(g)) {
+    const before = text.slice(Math.max(0, m.index - 30), m.index);
+    if (!NEGATION.test(before)) return m[0];
+  }
+  return null;
+}
+
+const quote = (s) => `“${String(s).trim()}”`;
+
+export function suggestTriggers(intake) {
+  const f = (k) => String(intake[k] ?? '');
+  const all = ['purpose', 'security', 'income', 'existingDebts', 'conduct', 'documents', 'urgency', 'deferralReason', 'borrower'].map(f).join(' | ');
+  const lvrCalc = calculations(intake).find((c) => c.id === 'lvr');
+  const lvr = lvrCalc ? lvrCalc.numeric : null;
+  const docs = f('documents');
+  const missingDocs = (docs.match(/missing[^)]*|not (yet )?(provided|available)[^)]*/i) || [''])[0];
+  const commercial = intake.dealType === 'commercial_property' || /\b(warehouse|industrial|commercial property|retail shop|office)\b/i.test(f('security') + ' ' + f('purpose'));
+  const out = [];
+  const add = (id, ...reasons) => out.push({ id, reasons: reasons.filter(Boolean), kind: KIND.RULE });
+  let m;
+
+  // Tax / compliance
+  if ((m = findUnnegated(all, /\b(clear|owing|outstanding|repay)\s+ATO\b|\bATO (debt|integrated client account|balance owing|payment plan entered|plan entered)\b|\btax debt\b/i))) add('ato_debt', `intake mentions ${quote(m)}`);
+  if (/\bATO\b/i.test(f('conduct') + f('urgency')) && (m = findUnnegated(f('conduct') + ' ' + f('urgency'), /\bmissed (an? |one )?(ATO )?(instalment|installment|payment)|\bplan (default(ed)?|cancell?ed)\b/i))) add('missed_ato_plan', `conduct mentions ${quote(m)}`);
+  if ((m = all.match(/\b(SG|super(annuation)?)\b[^.;|]{0,60}\b(no evidence|not evidenced|unverified|according to (the )?director|director says|claimed)\b/i))) add('sg_unevidenced', `super/SG stated but not evidenced: ${quote(m[0])}`);
+
+  // Conduct
+  if ((m = findUnnegated(f('conduct'), /\bdishonou?rs?\b|\bexcess(es)?\b|\bover[- ]?limit\b/i))) add('dishonours_recent', `conduct mentions ${quote(m)}`);
+  if ((m = all.match(/\bmerchant cash advance\b|\bMCA\b|\bdaily repayments?\b/i))) add('mca_present', `intake mentions ${quote(m[0])}`);
+  if ((m = findUnnegated(all, /\bsupplier arrears\b|\baged creditors?\b[^.;|]{0,30}\b(60|90)\b|\boverdue suppliers?\b/i))) add('supplier_arrears', `intake mentions ${quote(m)}`);
+
+  // Security / property
+  const secondMortgage = /\b(second|2nd) mortgage\b|\bcaveat\b/i.test(f('security'));
+  if (secondMortgage && lvr !== null && lvr >= 80) add('high_lvr_second_mortgage', 'second-ranking security', `estimated LVR ${lvr.toFixed(1)}%`);
+  const valuationMissing = /valuation/i.test(missingDocs);
+  if (!secondMortgage && lvr !== null && (lvr >= 78 || valuationMissing)) add('valuation_sensitive', lvr >= 78 ? `estimated LVR ${lvr.toFixed(1)}% is close to common thresholds` : null, valuationMissing ? 'valuation listed as missing' : null);
+  const leaseMonths = (all.match(/\b(\d{1,3})\s*months?\s*(remaining|left|to run)\b/i) || [])[1];
+  if (/\b(tenant|lease)\b/i.test(all) && ((leaseMonths && Number(leaseMonths) <= 24) || /\bshort WALE\b/i.test(all))) add('short_wale', leaseMonths ? `lease has ${leaseMonths} months remaining` : 'short WALE mentioned');
+  if (commercial && (/zoning|environmental/i.test(missingDocs) || !/zoning/i.test(docs) || !/environmental/i.test(docs))) add('zoning_environmental_missing', /zoning|environmental/i.test(missingDocs) ? 'zoning/environmental listed as missing' : 'no zoning/environmental evidence listed');
+  if ((m = all.match(/\brelated[- ](party|entity)\b|\bSMSF\b|\bproperty[- ]owning entity\b/i))) add('related_party_security', `intake mentions ${quote(m[0])}`);
+  else if (commercial && /\b(used by (the )?borrower|owner[- ]occupi\w*)\b/i.test(f('purpose'))) add('related_party_security', 'owner-occupied commercial purchase: confirm which entity owns the property');
+
+  // Purpose / structure
+  const wc = /\bworking[- ]capital\b/i.test(f('purpose'));
+  if (wc && !/\b(breakdown|use[- ]of[- ]funds|budget)\b/i.test(f('purpose') + ' ' + docs)) add('working_capital_vague', 'working capital requested without a use-of-funds breakdown');
+  if ((m = (f('purpose') + ' ' + f('urgency')).match(/\b(new (service )?contracts?|purchase orders?|\bPOs?\b|tender won|new work)\b/i))) add('contract_growth', `growth linked to ${quote(m[0])}`);
+
+  // Capacity / business
+  if ((m = all.match(/\bDTI\b[^0-9]{0,12}(\d+(\.\d+)?)/i)) && Number(m[1]) > 6.5) add('high_dti', `DTI ${m[1]}x above 6.5`);
+  if ((m = all.match(/\bpre-?approval\b[^.;|]{0,40}?(\b(\d+)\s*months?\s*(old|ago)\b|\bstale\b|\bexpired\b)/i)) && (!m[2] || Number(m[2]) >= 3)) add('stale_preapproval', `pre-approval ${m[1]}`);
+  if ((m = all.match(/\bturn-?around\b|\blost (a |its )?major customer\b|\brecovery (claimed|underway|in progress)\b/i))) add('turnaround_claim', `intake mentions ${quote(m[0])}`);
+
+  const order = RULES.map((r) => r.id);
+  return out.sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+}
+
+export function compareTriggers(selected, suggested) {
+  const sug = new Set(suggested.map((s) => s.id));
+  const sel = new Set(selected);
+  return {
+    notSelected: [...sug].filter((id) => !sel.has(id)),
+    manualOnly: [...sel].filter((id) => !sug.has(id)),
+    matched: [...sel].filter((id) => sug.has(id)),
+  };
+}
+
 /* ---------------------------------------------------------
    Rating + confidence (mvp-wrapper-spec §8, FRAMEWORK §6.3)
    --------------------------------------------------------- */
@@ -376,6 +454,9 @@ export function buildAssessment(state) {
   if (!c) confidence.rulesApplied.push({ id: 'R-CONF-4', text: 'Custom scenario without model judgement: confidence limited to Medium in this prototype.', kind: KIND.RULE });
   if (!c && CONFIDENCE_ORDER.indexOf(confidence.value) > CONFIDENCE_ORDER.indexOf('Medium')) confidence.value = 'Medium';
 
+  const suggested = suggestTriggers(state.intake);
+  const triggerCheck = { suggested, ...compareTriggers(state.triggers, suggested), kind: KIND.RULE };
+
   const level = ratingLevel(state.rating);
 
   let risks;
@@ -407,6 +488,7 @@ export function buildAssessment(state) {
     engine: { simple, comprehensive },
     tags,
     calcs,
+    triggerCheck,
     facts,
     assumptions,
     rating: { text: state.rating, level, action: level ? RATING_ACTION[level] : '', kind: c ? KIND.JUDGEMENT : KIND.ASSUMPTION },
@@ -608,7 +690,7 @@ export function buildReport(assessment, tier) {
   const engine = isSimple ? assessment.engine.simple : assessment.engine.comprehensive;
   const sections = [];
 
-  sections.push({ id: 'snapshot', title: 'Deal snapshot', facts: assessment.facts, calcs: assessment.calcs, assumptions: assessment.assumptions, tags: assessment.tags });
+  sections.push({ id: 'snapshot', title: 'Deal snapshot', facts: assessment.facts, calcs: assessment.calcs, assumptions: assessment.assumptions, tags: assessment.tags, triggerCheck: assessment.triggerCheck });
 
   sections.push({
     id: 'rating',
@@ -685,6 +767,15 @@ export function buildReport(assessment, tier) {
 
 const tag = (kind) => `[${KIND_LABEL[kind].toUpperCase()}]`;
 
+export function triggerCheckText(tc) {
+  const label = (id) => (RULES.find((r) => r.id === id) || { triggerLabel: id }).triggerLabel;
+  const parts = [`${tc.suggested.length} suggested from intake, ${tc.matched.length} selected`];
+  if (tc.notSelected.length) parts.push(`suggested but not selected: ${tc.notSelected.map(label).join('; ')}`);
+  if (tc.manualOnly.length) parts.push(`selected manually (not suggested): ${tc.manualOnly.map(label).join('; ')}`);
+  if (!tc.notSelected.length && !tc.manualOnly.length) parts.push('selection matches intake');
+  return `${parts.join(' · ')}.`;
+}
+
 export function reportToPlainText(report) {
   const L = [];
   L.push('Oney & Co — Oney Credit Framework (INTERNAL PROTOTYPE · synthetic data)');
@@ -707,6 +798,7 @@ export function reportToPlainText(report) {
         for (const c of s.calcs) L.push(`${tag(c.kind)} ${c.label}: ${c.value} (${c.formula})`);
         for (const a of s.assumptions) L.push(`${tag(a.kind)} ${a.text}`);
         L.push(`${tag(KIND.RULE)} Scenario tags: ${s.tags.length ? s.tags.map((t) => t.tag).join(', ') : 'none'}`);
+        L.push(`${tag(KIND.RULE)} Trigger check: ${triggerCheckText(s.triggerCheck)}`);
         break;
       case 'rating':
         L.push(`${tag(s.rating.kind)} Readiness rating: ${s.rating.text}${s.rating.action ? ` — ${s.rating.action}` : ''}`);

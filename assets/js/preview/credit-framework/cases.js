@@ -207,7 +207,7 @@ export const CASES = Object.freeze({
       borrowerType: 'company',
       borrower: 'Precision Parts Pty Ltd — 11 years trading; light manufacturing / parts distribution',
       loanAmount: 1295000,
-      purpose: 'Buy industrial warehouse (metro fringe) currently used by borrower (55% floor area) and one external tenant (45%)',
+      purpose: 'Buy industrial warehouse (metro fringe) currently used by borrower (55% floor area) and one external tenant (45%); external lease 14 months remaining, no option documented',
       security: 'Industrial warehouse being purchased; purchase price $1,850,000',
       securityValue: 1850000,
       totalSecuredDebt: 1295000,
