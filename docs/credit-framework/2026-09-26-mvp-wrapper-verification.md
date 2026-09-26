@@ -171,4 +171,26 @@ Scenarios as above, plus **last_important_weak** = all Critical supports, last I
 | Mutations (scratch copy): M1 bypass guardrail → 5 fail · M2 assessment always calibrated → 4 fail · M3 trust from deal name/trigger set → 2 fail · M4 default `calibrated = true` → 2 fail · M5 guardrail removed from copied text → 1 fail | all caught |
 | Browser smoke, Chromium 141, desktop 1440 + mobile 390 | **pass** — AC-01/02/03 typed through the form: triggers match, Simple shows every Critical and no guardrail, all-Critical-supported held (Amber/Red · Medium) with guardrail visible and `data-upward-blocked=true`, reply-only unchanged, Critical weak → Red · Low, custom Green + Important weak → Amber · Medium, AC-02 copied text carries the guardrail; calibrated CF matrix unchanged with no custom guardrail; CSP blocks external fetch; noindex; 6 same-origin GETs, 0 external/non-GET; no overflow (1440/1440, 390/390) |
 
-Known limitation: the deferral-recovery status ("ready to resubmit") for a custom scenario still follows linked evidence statuses; it is not a rating movement and is unchanged by this task.
+~~Known limitation: the deferral-recovery status ("ready to resubmit") for a custom scenario still follows linked evidence statuses.~~ Resolved in the follow-up below.
+
+### Follow-up — deferral status and AC-02 wording (same branch, after `2344f37`)
+
+**1. Deferral/re-rate contradiction resolved.** `buildDeferralPlan(codes, questions, evidence, { calibrated })` now takes the same untouched-sample signal as `rerate()` (assessment passes `pristine`; direct calls default to `calibrated: false`). Per deferral reason:
+
+| Linked evidence | Calibrated sample | Custom / edited |
+|---|---|---|
+| any reviewed weak | Pause | Pause |
+| outstanding or reply-only (reply-only never counts) | Rework | Rework |
+| all reviewed-supporting | Ready to resubmit (unchanged) | **Evidence ready for banker review — do not resubmit automatically** (new `banker_review` status) |
+
+Custom UI chip, section summary ("… · evidence ready for banker review.") and copied text never say "Ready to resubmit"; the re-rate for the same state holds the upgrade for banker review, so both messages agree.
+
+**2. AC-02 wording.** The $72,000 is now explicitly retained vehicle and equipment leases: kept after settlement, not refinanced, not part of the $228,000 proposed repayments (purpose = "term debt only"; `retainedObligations` block in the fixture). Arithmetic unchanged: $72,000 retained + $228,000 proposed = $300,000; EBITDA/debt-service proxy 0.8667x (proxy, not a lender DSCR). No threshold added.
+
+| Check | Result |
+|---|---|
+| `git diff --check` | clean |
+| Credit Framework Node suite | **35/35 pass** (new deferral test incl. exhaustive AC-01/02/03 × every evidence combination × all 9 deferral reasons: custom never "resubmit"; only the ready state differs from calibrated) |
+| Oney Coach, ATO disclosure tests | pass |
+| Mutations: D1 bypass custom deferral guardrail → 1 fail · D2 plan always calibrated → 1 fail · D3 unsafe default for direct calls → 1 fail · D4 weak no longer pauses → 2 fail · D5 reply-only counted as reviewed → 2 fail | all caught |
+| Browser smoke, Chromium 141, 1440 + 390 | **pass** — custom AC-03 + "conduct" deferral: weak → pause, outstanding → rework, reply-only → rework, all supported → "evidence ready for banker review"; "Ready to resubmit" nowhere on the page or in copied text; calibrated CF-002: pause / rework / rework / ready to resubmit (unchanged); custom re-rate guardrail rows unchanged; CSP blocks external fetch; noindex; 6 same-origin GETs, 0 external/non-GET; no overflow (1440/1440, 390/390) |

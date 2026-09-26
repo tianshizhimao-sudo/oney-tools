@@ -263,6 +263,50 @@ async function runViewport(name, contextOpts) {
     }
     v.custom[id] = c;
   }
+  // Task-06 follow-up: deferral status for custom vs calibrated, all four evidence states.
+  async function tickDeferral(code) {
+    await page.evaluate(() => document.querySelectorAll('#intake-form details.sec').forEach((d) => { d.open = true; }));
+    await page.check(`#d-${code}`);
+  }
+  const DEFERRAL_STATES = [
+    ['weak', (r) => (r.id === 'mca_present' ? 'weak' : 'supports')],
+    ['outstanding', () => 'outstanding'],
+    ['reply_only', () => 'reply_only'],
+    ['all_supported', () => 'supports'],
+  ];
+  const deferralRun = async () => {
+    const out = {};
+    for (const [label, fn] of DEFERRAL_STATES) {
+      await setEvidence(fn);
+      out[label] = {
+        status: await page.getAttribute('[data-deferral="conduct_explanation"]', 'data-status'),
+        chip: (await page.textContent('[data-deferral="conduct_explanation"] .dstatus')).trim(),
+        readyToResubmitOnPage: await page.evaluate(() => /ready to resubmit/i.test(document.body.innerText)),
+        lint: await page.getAttribute('body', 'data-lint'),
+      };
+    }
+    return out;
+  };
+  await loadCustom(ADV['AC-03']);
+  await tickDeferral('conduct_explanation');
+  v.deferralCustom = await deferralRun();
+  assert.deepEqual(Object.values(v.deferralCustom).map((x) => x.status), ['pause', 'rework', 'rework', 'banker_review'], `${name} custom deferral states`);
+  assert.equal(v.deferralCustom.all_supported.chip.toLowerCase(), 'evidence ready for banker review');
+  assert.ok(Object.values(v.deferralCustom).every((x) => !x.readyToResubmitOnPage && x.lint === 'pass'), `${name} custom never shows Ready to resubmit`);
+  await page.click('#copy-btn');
+  await page.waitForFunction(() => document.body.dataset.copyStatus);
+  const dClip = await page.evaluate(() => navigator.clipboard.readText());
+  v.deferralCustomCopy = { banker: dClip.includes('overall: Evidence ready for banker review — do not resubmit automatically'), readyToResubmit: /ready to resubmit/i.test(dClip) };
+  assert.deepEqual(v.deferralCustomCopy, { banker: true, readyToResubmit: false });
+  await page.locator('#sec-deferral').screenshot({ path: join(OUT, `${name}-ac03-custom-deferral-banker-review.png`) });
+  // Calibrated sample unchanged (CF-002 conduct_explanation).
+  await page.click('#case-picker [data-case="CF-002"]');
+  await tickDeferral('conduct_explanation');
+  v.deferralCalibrated = await deferralRun();
+  assert.deepEqual(Object.values(v.deferralCalibrated).map((x) => x.status), ['pause', 'rework', 'rework', 'resubmit'], `${name} calibrated deferral states`);
+  assert.equal(v.deferralCalibrated.all_supported.readyToResubmitOnPage, true);
+  await page.click('#case-picker [data-case="CF-002"]');
+
   // Custom Green + Important weak still becomes Amber.
   await loadCustom({ ...ADV['AC-01'], rating: 'Green — Package Ready' });
   const greenWeak = await setEvidence((r) => (r.id === 'working_capital_vague' ? 'weak' : 'supports'));

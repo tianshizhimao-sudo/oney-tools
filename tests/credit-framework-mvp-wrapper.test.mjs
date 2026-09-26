@@ -9,7 +9,7 @@ import {
   RULES, RULE_LIBRARY, CASES, CASE_ORDER, KIND, BOUNDARY_TEXT, ENGINE_BOUNDARY_TEXT,
   generateFollowUps, classifyScenario, calculations, initialState, blankState, isPristine,
   buildAssessment, buildReport, reportToPlainText, buildClientEmail, rerate, lintCompliance, summarizeSection,
-  suggestTriggers, compareTriggers, DEFERRAL_REASONS, buildDeferralPlan,
+  suggestTriggers, compareTriggers, DEFERRAL_REASONS, buildDeferralPlan, DEFERRAL_STATUS,
   FEEDBACK_QUESTIONS, scoreFeedback, feedbackText,
   SIMPLE_QUESTION_TARGET, simpleExpansionNote, EVIDENCE_STATUS, RERATE_GUARDRAIL, RERATE_EVIDENCE_RULE,
   CONFIDENCE_LEVELS, RERATE_CONFIDENCE_CAP, RERATE_GREEN_IMPORTANT_RULE, RERATE_CUSTOM_GUARDRAIL,
@@ -561,7 +561,16 @@ test('task-06: AC-02 sentinel — unrelated supporting evidence cannot cure an u
   const ac = (await loadAdversarial()).cases['AC-02'];
   assert.equal(ac.role, 'sentinel');
   assert.equal(Number(((ac.facts.loanAmount / ac.facts.securityValue) * 100).toFixed(1)), ac.pins.lvrPercent);
-  assert.equal(ac.facts.existingAnnualDebtService + ac.facts.proposedAnnualDebtService, ac.pins.combinedAnnualDebtService);
+  assert.equal(ac.facts.retainedAnnualDebtService + ac.facts.proposedAnnualDebtService, ac.pins.combinedAnnualDebtService);
+  // The $72k is retained after settlement, not refinanced, and paid on top of the $228k proposed repayments.
+  const ro = ac.retainedObligations;
+  assert.deepEqual([ro.annualAmount, ro.retainedAfterSettlement, ro.refinancedByProposedFacility, ro.includedInProposedRepayments], [72000, true, false, false]);
+  assert.ok(ro.items.length && ro.items.every((i) => /lease/.test(i)), 'identified continuing obligations');
+  assert.match(ac.intake.purpose, /term debt only; the retained vehicle and equipment leases are not refinanced by this facility and continue after settlement/);
+  assert.doesNotMatch(ac.intake.purpose, /consolidat/i, 'purpose never implies the $72k is consolidated');
+  assert.match(ac.intake.existingDebts, /Retained after settlement and not refinanced: vehicle leases and equipment leases, \$72,000 per year/);
+  assert.doesNotMatch(ac.intake.existingDebts, /consolidat/i);
+  assert.match(ac.intake.income, /\$300,000 = \$72,000 retained leases \(continuing, not refinanced\) \+ \$228,000 proposed facility repayments/);
   assert.equal(Number((ac.facts.adjustedEbitda / ac.pins.combinedAnnualDebtService).toFixed(4)), ac.pins.ebitdaToDebtServiceProxy);
   assert.equal(Number((ac.facts.loanAmount / ac.facts.adjustedEbitda).toFixed(4)), ac.pins.facilityToEbitda);
   assert.match(ac.proxyLabel, /proxy only — not a lender DSCR or policy threshold/);
@@ -589,6 +598,73 @@ test('task-06: AC-02 sentinel — unrelated supporting evidence cannot cure an u
   assert.equal(cal.to, 'green', 'sentinel: without the guardrail the unrelated item would upgrade the case');
   // Downgrades still work on the sentinel.
   assert.deepEqual([customRun(customState(ac), (q) => (crit(q) ? 'weak' : 'supports')).r.to], ['red']);
+});
+
+test('task-06 follow-up: deferral status — pause / rework / banker review (custom) / ready to resubmit (calibrated only)', async () => {
+  const f = await loadAdversarial();
+  const codes = ['conduct_explanation', 'servicing_shortfall', 'purpose_use_of_funds'];
+  const planFor = (state) => { const a = buildAssessment(state); const r = buildReport(a, 'comprehensive'); return { plan: a.deferral.plan, sec: r.sections.find((x) => x.id === 'deferral'), text: reportToPlainText(r), a }; };
+  const custom = (statusFor) => { const st = customState(f.cases['AC-03']); st.intake.deferralCodes = [...codes]; const a = buildAssessment(st); st.evidence = Object.fromEntries(a.engine.comprehensive.questions.map((q) => [q.id, statusFor(q)])); return planFor(st); };
+  const reason = (plan, id) => plan.reasons.find((r) => r.id === id);
+
+  // Custom scenario, the four states on conduct_explanation (dishonours_recent + mca_present).
+  const cWeak = custom((q) => (q.id === 'mca_present' ? 'weak' : 'supports'));
+  const cOut = custom(() => 'outstanding');
+  const cReply = custom(() => 'reply_only');
+  const cAll = custom(() => 'supports');
+  assert.deepEqual([cWeak, cOut, cReply, cAll].map((x) => reason(x.plan, 'conduct_explanation').status), ['pause', 'rework', 'rework', 'banker_review']);
+  assert.equal(cAll.plan.calibrated, false);
+  assert.equal(cAll.plan.overall, 'banker_review');
+  assert.match(DEFERRAL_STATUS.banker_review.label, /^Evidence ready for banker review — do not resubmit automatically\. .*banker review is required/);
+  assert.equal(cAll.sec.summary.text, '3 lender deferral reasons · evidence ready for banker review.');
+  assert.ok(cAll.text.includes(`overall: ${DEFERRAL_STATUS.banker_review.label}`));
+  for (const x of [cWeak, cOut, cReply, cAll]) {
+    assert.doesNotMatch(x.text, /ready to resubmit/i, 'custom copied text never says Ready to resubmit');
+    assert.doesNotMatch(x.sec.summary.text, /ready to resubmit/i);
+    assert.equal(lintCompliance(x.text).ok, true);
+  }
+  // Reply-only never counts as reviewed evidence (even alongside supports).
+  assert.equal(reason(custom((q) => (q.id === 'mca_present' ? 'reply_only' : 'supports')).plan, 'conduct_explanation').status, 'rework');
+  // Deferral and re-rate agree for the custom case: evidence ready, upgrade held for banker review.
+  assert.deepEqual([cAll.a.rerate.upwardBlocked, cAll.a.rerate.to], [true, 'red']);
+
+  // Edited sample and deal-ID spoof are custom too.
+  const edited = initialState('CF-002', 'comprehensive'); edited.intake.loanAmount = 500000; edited.intake.deferralCodes = ['conduct_explanation']; edited.evidence = { dishonours_recent: 'supports', mca_present: 'supports' };
+  assert.equal(planFor(edited).plan.overall, 'banker_review');
+  const spoof = blankState('comprehensive'); spoof.intake = { ...CASES['CF-002'].intake, deferralCodes: ['ato_position'] }; spoof.triggers = [...CASES['CF-002'].followUpCase.triggers]; spoof.rating = CASES['CF-002'].followUpCase.currentRating; spoof.evidence = { ato_debt: 'supports', missed_ato_plan: 'supports', sg_unevidenced: 'supports' };
+  assert.equal(planFor(spoof).plan.overall, 'banker_review');
+
+  // Calibrated sample behaviour unchanged: weak → pause, outstanding / reply-only → rework, all supports → resubmit.
+  const cal = (ev) => { const st = initialState('CF-002', 'comprehensive'); st.intake.deferralCodes = ['conduct_explanation']; st.evidence = ev; return planFor(st); };
+  const calStates = [cal({ dishonours_recent: 'weak', mca_present: 'supports' }), cal({}), cal({ dishonours_recent: 'reply_only', mca_present: 'reply_only' }), cal({ dishonours_recent: 'supports', mca_present: 'supports' })];
+  assert.deepEqual(calStates.map((x) => x.plan.overall), ['pause', 'rework', 'rework', 'resubmit']);
+  assert.equal(calStates[3].plan.calibrated, true);
+  assert.match(calStates[3].text, /overall: Ready to resubmit with the explanation pack/);
+
+  // Direct calls default to the safe side.
+  const qs = buildAssessment(customState(f.cases['AC-03'])).engine.comprehensive.questions;
+  const ev = { dishonours_recent: 'supports', mca_present: 'supports' };
+  assert.equal(buildDeferralPlan(['conduct_explanation'], qs, ev).overall, 'banker_review');
+  assert.equal(buildDeferralPlan(['conduct_explanation'], qs, ev, { calibrated: true }).overall, 'resubmit');
+
+  // Exhaustive (AC-01/02/03 × every evidence combination × all deferral reasons): custom never reaches resubmit.
+  const allCodes = DEFERRAL_REASONS.map((d) => d.id);
+  const statuses = Object.keys(EVIDENCE_STATUS);
+  for (const id of ['AC-01', 'AC-02', 'AC-03']) {
+    const cq = buildAssessment(customState(f.cases[id])).engine.comprehensive.questions;
+    for (let n = 0; n < statuses.length ** cq.length; n++) {
+      const e = Object.fromEntries(cq.map((q, i) => [q.id, statuses[Math.floor(n / statuses.length ** i) % statuses.length]]));
+      const p = buildDeferralPlan(allCodes, cq, e);
+      const pc = buildDeferralPlan(allCodes, cq, e, { calibrated: true });
+      p.reasons.forEach((r, i) => {
+        assert.notEqual(r.status, 'resubmit');
+        assert.equal(r.status, pc.reasons[i].status === 'resubmit' ? 'banker_review' : pc.reasons[i].status, 'only the ready state differs');
+        const linked = r.linkedSelected.map((x) => x.status);
+        const want = linked.includes('weak') ? 'pause' : linked.length && linked.every((x) => x === 'supports') ? 'banker_review' : 'rework';
+        assert.equal(r.status, want);
+      });
+    }
+  }
 });
 
 test('task-06: fixtures are synthetic, wording-clean and add no network, storage or secrets', async () => {

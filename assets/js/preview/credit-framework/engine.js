@@ -538,7 +538,7 @@ export function buildAssessment(state) {
     deferral: {
       engineView: comprehensive.engineView,
       rerateNote: rerateNote(state.rating),
-      plan: buildDeferralPlan(state.intake.deferralCodes || [], comprehensive.questions, evidence),
+      plan: buildDeferralPlan(state.intake.deferralCodes || [], comprehensive.questions, evidence, { calibrated: pristine }),
       kind: KIND.RULE,
     },
     // Upward re-rate trust comes only from the pristine sample check, never from the deal ID.
@@ -556,10 +556,17 @@ export function buildAssessment(state) {
 export const DEFERRAL_STATUS = Object.freeze({
   pause: { rank: 2, short: 'pause', label: 'Pause — evidence received so far does not answer the lender’s question' },
   rework: { rank: 1, short: 'rework, then resubmit', label: 'Rework — collect the first items, then resubmit with the explanation' },
+  /* Custom/edited scenarios only (task-06 follow-up): all linked evidence reviewed-supporting, but the
+     scenario is not a calibrated sample, so it must never read as ready to resubmit. */
+  banker_review: { rank: 0.5, short: 'evidence ready for banker review', label: 'Evidence ready for banker review — do not resubmit automatically. Custom or edited scenario: banker review is required before resubmission.' },
   resubmit: { rank: 0, short: 'ready to resubmit', label: 'Ready to resubmit with the explanation pack' },
 });
 
-export function buildDeferralPlan(codes, questions, evidence) {
+/**
+ * `calibrated` must be the untouched-sample (pristine) signal from the assessment; default false (safe):
+ * weak → pause · outstanding/reply-only → rework · all reviewed-supporting → resubmit (calibrated) or banker_review (custom).
+ */
+export function buildDeferralPlan(codes, questions, evidence, { calibrated = false } = {}) {
   const byId = Object.fromEntries(questions.map((q) => [q.id, q]));
   const label = (id) => (RULES.find((r) => r.id === id) || { triggerLabel: id }).triggerLabel;
   const reasons = DEFERRAL_REASONS.filter((d) => codes.includes(d.id)).map((d) => {
@@ -567,11 +574,11 @@ export function buildDeferralPlan(codes, questions, evidence) {
     const linkedNotSelected = d.linkedTriggers.filter((t) => !byId[t]).map((t) => ({ id: t, label: label(t) }));
     let status = 'rework';
     if (linkedSelected.some((x) => x.status === 'weak')) status = 'pause';
-    else if (linkedSelected.length && linkedSelected.every((x) => x.status === 'supports')) status = 'resubmit';
+    else if (linkedSelected.length && linkedSelected.every((x) => x.status === 'supports')) status = calibrated ? 'resubmit' : 'banker_review';
     return { ...d, linkedSelected, linkedNotSelected, status, kind: KIND.RULE };
   });
   const overall = reasons.reduce((w, r) => (DEFERRAL_STATUS[r.status].rank > DEFERRAL_STATUS[w].rank ? r.status : w), 'resubmit');
-  return { version: DEFERRAL_LIBRARY_VERSION, exactDocumentRule: EXACT_DOCUMENT_RULE, reasons, overall: reasons.length ? overall : null };
+  return { version: DEFERRAL_LIBRARY_VERSION, exactDocumentRule: EXACT_DOCUMENT_RULE, reasons, overall: reasons.length ? overall : null, calibrated: Boolean(calibrated) };
 }
 
 /* ---------------------------------------------------------
