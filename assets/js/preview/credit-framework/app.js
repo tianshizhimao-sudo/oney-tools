@@ -10,6 +10,7 @@ import {
   initialState, blankState, buildAssessment, buildReport, reportToPlainText, lintCompliance,
   suggestTriggers, compareTriggers, triggerCheckText,
   DEFERRAL_REASONS, DEFERRAL_LIBRARY_VERSION, DEFERRAL_STATUS,
+  FEEDBACK_QUESTIONS, FEEDBACK_ANSWERS, scoreFeedback, feedbackText,
 } from './engine.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -453,4 +454,40 @@ $('#expand-all').addEventListener('click', () => {
 $('#copy-btn').addEventListener('click', () => copyText(lastPlainText, `${state.tier === 'simple' ? 'Simple' : 'Comprehensive'} report copied`));
 $('#print-btn').addEventListener('click', () => window.print());
 
+/* ------------------------------ broker feedback (spec §14) ------------------------------ */
+
+const feedback = { answers: {}, comment: '' };
+
+function renderFeedbackResult() {
+  const sc = scoreFeedback(feedback.answers);
+  const out = $('#fb-result');
+  out.textContent = sc.verdict;
+  out.className = `notice ${sc.meetsBar ? 'info' : 'warn'}`;
+  out.dataset.yes = String(sc.yes);
+  out.dataset.meetsBar = String(sc.meetsBar);
+}
+
+function renderFeedback() {
+  const box = $('#feedback');
+  box.replaceChildren(
+    el('div', { class: 'sec-head' }, el('h3', {}, 'Broker feedback — 6 questions'), el('span', { class: 'prio Helpful' }, 'spec §14')),
+    el('p', { class: 'hint' }, 'After trying a case, answer these. The MVP is worth continuing if at least 3 are “Yes”. Answers stay on this device; use Copy feedback to send them.'),
+    ...FEEDBACK_QUESTIONS.map((q, i) => el('fieldset', { class: 'fb-q', 'data-fb': q.id },
+      el('legend', {}, `${i + 1}. ${q.text}`),
+      el('div', { class: 'fb-opts' }, Object.entries(FEEDBACK_ANSWERS).map(([v, label]) => {
+        const id = `fb-${q.id}-${v}`;
+        const r = el('input', { type: 'radio', name: `fb-${q.id}`, id, value: v, checked: feedback.answers[q.id] === v });
+        r.addEventListener('change', () => { feedback.answers[q.id] = v; renderFeedbackResult(); });
+        return el('label', { class: `fb-opt ${v}`, for: id }, r, el('span', {}, label));
+      })))),
+    el('div', { class: 'field' }, el('label', { for: 'fb-comment' }, 'Anything else? (optional — no client details)'),
+      (() => { const t = el('textarea', { class: 'control', id: 'fb-comment', rows: '3', maxlength: '800' }); t.value = feedback.comment; t.addEventListener('input', () => { feedback.comment = t.value; }); return t; })()),
+    el('div', { id: 'fb-result', role: 'status' }),
+    el('div', { class: 'actions' },
+      el('button', { class: 'btn btn-secondary', type: 'button', id: 'fb-copy', onclick: () => copyText(feedbackText({ ...feedback, context: { caseId: state.caseId, tier: state.tier } }), 'Feedback copied') }, 'Copy feedback'),
+      el('button', { class: 'btn btn-ghost', type: 'button', id: 'fb-reset', onclick: () => { feedback.answers = {}; feedback.comment = ''; renderFeedback(); } }, 'Clear answers')));
+  renderFeedbackResult();
+}
+
 renderAll();
+renderFeedback();

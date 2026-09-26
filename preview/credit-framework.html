@@ -136,6 +136,15 @@
     .dstatus.rework{color:#ffe0a6;border-color:rgba(242,184,75,.6)}
     .dstatus.resubmit{color:#baf1d5;border-color:rgba(46,204,133,.6)}
     .q.deferral{border-left-color:var(--r-amber)}
+    .fb-q{border:0;border-top:1px solid rgba(255,255,255,.07);padding:14px 0 14px;margin:0}
+    .fb-q legend{font-size:14px;font-weight:650;padding:0;margin-bottom:8px;line-height:1.4}
+    .fb-opts{display:flex;flex-wrap:wrap;gap:8px}
+    .fb-opt{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:8px 14px;min-height:40px;cursor:pointer;font-size:13.5px}
+    .fb-opt input{accent-color:var(--green);width:16px;height:16px;margin:0}
+    .fb-opt:has(input:checked).yes{border-color:var(--r-green);background:rgba(46,204,133,.1)}
+    .fb-opt:has(input:checked).no{border-color:var(--r-red);background:rgba(239,106,106,.1)}
+    .fb-opt:has(input:checked).unsure{border-color:var(--r-amber);background:rgba(242,184,75,.1)}
+    #fb-result{margin:12px 0 4px}
     .sec-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
     .sec-head h3{margin:0}
     .sec-toggle{flex:0 0 auto;border:1px solid var(--line);background:transparent;color:var(--green);font-weight:700;font-size:12.5px;border-radius:999px;padding:6px 12px;min-height:34px;cursor:pointer;white-space:nowrap}
@@ -253,6 +262,7 @@
         <div class="tiers no-print" role="tablist" aria-label="Output tier" id="tier-output" style="margin-bottom:10px"></div>
         <div class="legend" id="legend" aria-label="Output legend"></div>
         <div id="report"></div>
+        <section class="out no-print" id="feedback" aria-label="Broker feedback"></section>
         <div class="boundary" id="boundary-bottom"><strong>Boundary:</strong> <span data-boundary>This is a lender-readiness and deal-packaging review. It does not approve credit, predict lender acceptance, or replace licensed credit assessment.</span></div>
       </main>
     </div>

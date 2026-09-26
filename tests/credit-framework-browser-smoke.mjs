@@ -171,6 +171,17 @@ async function runViewport(name, contextOpts) {
   assert.deepEqual([v.deferral.simpleUpsell, v.deferral.simplePlans, v.deferral.plans, v.deferral.status, v.deferral.statusAfterWeak], [true, 0, 1, 'rework', 'pause']);
   assert.equal(await page.getAttribute('body', 'data-lint'), 'pass');
 
+  // Broker feedback checklist (spec §14)
+  v.feedback = { questions: await page.locator('#feedback [data-fb]').count() };
+  for (const q of ['blocking', 'time', 'questions']) await page.check(`#fb-${q}-yes`);
+  await page.check('#fb-pay-no');
+  v.feedback.meetsBar = await page.getAttribute('#fb-result', 'data-meets-bar');
+  await page.fill('#fb-comment', 'Deferral plan is the useful bit');
+  await page.click('#fb-copy');
+  const fbClip = await page.evaluate(() => navigator.clipboard.readText());
+  v.feedback.copied = /Result: 3\/6 yes — meets the spec §14 bar/.test(fbClip) && fbClip.includes('Comment: Deferral plan');
+  assert.deepEqual([v.feedback.questions, v.feedback.meetsBar, v.feedback.copied], [6, 'true', true]);
+
   // Trigger suggestions on a blank custom scenario: suggested, not auto-ticked, then applied
   await page.click('[data-case="custom"]');
   await page.click('details.sec >> summary:has-text("Conduct / compliance")');
@@ -216,6 +227,7 @@ async function runViewport(name, contextOpts) {
     actions: getComputedStyle(document.querySelector('.out-head .actions')).display,
     watermark: getComputedStyle(document.querySelector('#watermark')).display,
     printHead: getComputedStyle(document.querySelector('#print-head')).display,
+    feedbackPrinted: getComputedStyle(document.querySelector('#feedback')).display,
     hiddenBodiesPrinted: [...document.querySelectorAll('.sec-body')].every((b) => getComputedStyle(b).display !== 'none'),
     printHeadText: document.querySelector('#print-head').innerText.slice(0, 120),
     bodyBg: getComputedStyle(document.body).backgroundColor,
@@ -224,6 +236,7 @@ async function runViewport(name, contextOpts) {
   assert.equal(v.print.actions, 'none');
   assert.equal(v.print.watermark, 'grid');
   assert.equal(v.print.printHead, 'block');
+  assert.equal(v.print.feedbackPrinted, 'none', 'feedback form not printed');
   assert.equal(v.print.hiddenBodiesPrinted, true, 'print shows collapsed detail');
   assert.equal(v.print.bodyBg, 'rgb(255, 255, 255)');
   if (name === 'desktop') {

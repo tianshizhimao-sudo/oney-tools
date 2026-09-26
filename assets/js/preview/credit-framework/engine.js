@@ -976,3 +976,45 @@ export function lintCompliance(text) {
   }
   return { ok: hits.length === 0, hits };
 }
+
+/* ---------------------------------------------------------
+   Broker feedback checklist — mvp-wrapper-spec-v0.1.md §14 (verbatim).
+   "The MVP is worth continuing if a broker can answer 'yes' to at least 3."
+   Stays in the browser; the broker copies the text and sends it back.
+   --------------------------------------------------------- */
+
+export const FEEDBACK_QUESTIONS = Object.freeze([
+  { id: 'blocking', text: 'Does this tell me what is actually blocking the deal?' },
+  { id: 'time', text: 'Does this reduce my next 30 minutes of work?' },
+  { id: 'questions', text: 'Does this produce better client follow-up questions than a generic checklist?' },
+  { id: 'too_early', text: 'Does this stop me submitting a weak file too early?' },
+  { id: 'explain', text: 'Does this help me explain the issue to a client without sounding vague?' },
+  { id: 'pay', text: 'Would I pay for the Comprehensive version on a messy file?' },
+]);
+
+export const FEEDBACK_ANSWERS = Object.freeze({ yes: 'Yes', no: 'No', unsure: 'Not sure' });
+export const FEEDBACK_BAR = 3;
+
+export function scoreFeedback(answers = {}) {
+  const vals = FEEDBACK_QUESTIONS.map((q) => answers[q.id]).filter(Boolean);
+  const yes = vals.filter((v) => v === 'yes').length;
+  const answered = vals.length;
+  const meetsBar = yes >= FEEDBACK_BAR;
+  const verdict = meetsBar
+    ? `${yes}/6 yes — meets the spec §14 bar (at least ${FEEDBACK_BAR}): worth continuing.`
+    : answered < 6 && yes + (6 - answered) >= FEEDBACK_BAR
+      ? `${yes}/6 yes so far — ${6 - answered} still unanswered.`
+      : `${yes}/6 yes — below the spec §14 bar (at least ${FEEDBACK_BAR}).`;
+  return { yes, answered, meetsBar, verdict };
+}
+
+export function feedbackText({ answers = {}, comment = '', context = {} }) {
+  const sc = scoreFeedback(answers);
+  const L = ['Oney Credit Framework — broker feedback (internal prototype, synthetic cases)'];
+  if (context.caseId || context.tier) L.push(`Viewed: ${context.caseId || 'custom'} · ${context.tier || ''}`.trim());
+  L.push('');
+  FEEDBACK_QUESTIONS.forEach((q, i) => L.push(`${i + 1}. ${q.text} — ${FEEDBACK_ANSWERS[answers[q.id]] || 'Not answered'}`));
+  L.push('', `Result: ${sc.verdict}`);
+  if (String(comment).trim()) L.push('', `Comment: ${String(comment).trim()}`);
+  return L.join('\n');
+}

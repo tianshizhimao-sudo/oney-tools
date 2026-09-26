@@ -10,6 +10,7 @@ import {
   generateFollowUps, classifyScenario, calculations, initialState, blankState, isPristine,
   buildAssessment, buildReport, reportToPlainText, buildClientEmail, rerate, lintCompliance, summarizeSection,
   suggestTriggers, compareTriggers, DEFERRAL_REASONS, buildDeferralPlan,
+  FEEDBACK_QUESTIONS, scoreFeedback, feedbackText,
 } from '../assets/js/preview/credit-framework/engine.js';
 
 const root = new URL('../', import.meta.url);
@@ -457,4 +458,33 @@ test('deferral recovery plan: Comprehensive only, evidence-driven status, sample
   assert.equal(simple.r.sections.find((x) => x.id === 'deferral').locked, true);
   assert.ok(!simple.text.includes('Lender is testing'), 'plan content gated');
   assert.match(simple.text, /Lender deferral entered \(1\): the deferral recovery plan is in Comprehensive\./);
+});
+
+test('broker feedback checklist: spec §14 questions verbatim, bar of 3 yes, copy text', async () => {
+  const spec = [
+    'Does this tell me what is actually blocking the deal?',
+    'Does this reduce my next 30 minutes of work?',
+    'Does this produce better client follow-up questions than a generic checklist?',
+    'Does this stop me submitting a weak file too early?',
+    'Does this help me explain the issue to a client without sounding vague?',
+    'Would I pay for the Comprehensive version on a messy file?',
+  ];
+  assert.deepEqual(FEEDBACK_QUESTIONS.map((q) => q.text), spec);
+  const ids = FEEDBACK_QUESTIONS.map((q) => q.id);
+  const ans = (arr) => Object.fromEntries(arr.map((v, i) => [ids[i], v]).filter(([, v]) => v));
+  assert.equal(scoreFeedback({}).meetsBar, false);
+  assert.equal(scoreFeedback(ans(['yes', 'yes', 'no', 'no', 'no', 'no'])).meetsBar, false);
+  assert.equal(scoreFeedback(ans(['yes', 'yes', 'yes', 'no', 'no', 'no'])).meetsBar, true);
+  assert.match(scoreFeedback(ans(['yes', 'yes'])).verdict, /2\/6 yes so far — 4 still unanswered/);
+  assert.match(scoreFeedback(ans(['no', 'no', 'no', 'no', 'unsure', 'unsure'])).verdict, /below the spec §14 bar/);
+  const txt = feedbackText({ answers: ans(['yes', 'yes', 'yes', 'unsure', 'no', 'yes']), comment: 'Deferral plan is the useful bit', context: { caseId: 'CF-002', tier: 'comprehensive' } });
+  for (const q of spec) assert.ok(txt.includes(q));
+  assert.match(txt, /Result: 4\/6 yes — meets the spec §14 bar/);
+  assert.match(txt, /Viewed: CF-002 · comprehensive/);
+  assert.match(txt, /Comment: Deferral plan is the useful bit/);
+  assert.equal(lintCompliance(txt).ok, true);
+  const html = await read('preview/credit-framework.html');
+  assert.match(html, /<section class="out no-print" id="feedback"/, 'feedback not printed with the report');
+  const plain = reportFor('CF-002', 'comprehensive').text;
+  assert.ok(!plain.includes('30 minutes of work'), 'feedback is not part of the copied report');
 });
