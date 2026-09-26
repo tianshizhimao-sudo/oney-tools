@@ -9,7 +9,7 @@ import {
   RULES, RULE_LIBRARY, CASES, CASE_ORDER, KIND, BOUNDARY_TEXT, ENGINE_BOUNDARY_TEXT,
   generateFollowUps, classifyScenario, calculations, initialState, blankState, isPristine,
   buildAssessment, buildReport, reportToPlainText, buildClientEmail, rerate, lintCompliance, summarizeSection,
-  suggestTriggers, compareTriggers,
+  suggestTriggers, compareTriggers, DEFERRAL_REASONS, buildDeferralPlan,
 } from '../assets/js/preview/credit-framework/engine.js';
 
 const root = new URL('../', import.meta.url);
@@ -415,4 +415,42 @@ test('trigger suggestions: positives, negations and thresholds', () => {
   assert.deepEqual(s.triggers, before);
   assert.deepEqual(a.triggerCheck.notSelected, ['dishonours_recent']);
   assert.deepEqual(compareTriggers(['ato_debt'], []).manualOnly, ['ato_debt']);
+});
+
+test('deferral reason library (draft) links only to existing rules and is wording-clean', () => {
+  const ruleIds = new Set(RULES.map((r) => r.id));
+  const ids = new Set();
+  for (const d of DEFERRAL_REASONS) {
+    assert.ok(!ids.has(d.id), `unique ${d.id}`); ids.add(d.id);
+    for (const t of d.linkedTriggers) assert.ok(ruleIds.has(t), `${d.id} → ${t}`);
+    assert.ok(d.lenderTesting && d.explanation && d.collectFirst.length >= 2, d.id);
+    assert.equal(lintCompliance(JSON.stringify(d)).ok, true, d.id);
+  }
+});
+
+test('deferral recovery plan: Comprehensive only, evidence-driven status, sample judgement kept', () => {
+  const withCodes = (id, tier, codes, evidence = {}) => reportFor(id, tier, (s) => { s.intake.deferralCodes = codes; s.evidence = evidence; });
+  const c = withCodes('CF-004', 'comprehensive', ['valuation_shortfall', 'property_due_diligence']);
+  const sec = c.r.sections.find((x) => x.id === 'deferral');
+  assert.equal(sec.plan.reasons.length, 2);
+  assert.equal(sec.plan.overall, 'rework');
+  assert.ok(c.a.tags.some((t) => t.tag === 'deferral_recovery'));
+  assert.equal(c.a.pristine, true, 'deferral overlay keeps sample judgement');
+  assert.deepEqual(sec.plan.reasons[0].linkedNotSelected.map((x) => x.id), ['high_lvr_second_mortgage']);
+  assert.match(sec.summary.text, /^2 lender deferral reasons · rework, then resubmit\.$/);
+  assert.deepEqual(c.r.sections.slice(0, 3).map((x) => x.id), ['snapshot', 'rating', 'deferral'], 'plan shown right after rating');
+  assert.equal(reportFor('CF-004', 'comprehensive').r.sections[2].id, 'risks', 'default order without deferral');
+  assert.match(c.text, /Lender is testing: Whether the security still covers/);
+  assert.equal(lintCompliance(c.text).ok, true);
+
+  assert.equal(withCodes('CF-004', 'comprehensive', ['valuation_shortfall'], { valuation_sensitive: 'weak' }).r.sections.find((x) => x.id === 'deferral').plan.overall, 'pause');
+  assert.equal(withCodes('CF-004', 'comprehensive', ['valuation_shortfall'], { valuation_sensitive: 'reply_only' }).r.sections.find((x) => x.id === 'deferral').plan.overall, 'rework', 'reply without documents does not count');
+  assert.equal(withCodes('CF-002', 'comprehensive', ['ato_position'], { ato_debt: 'supports', missed_ato_plan: 'supports', sg_unevidenced: 'supports' }).r.sections.find((x) => x.id === 'deferral').plan.overall, 'resubmit');
+  assert.equal(buildDeferralPlan(['structure_parties'], [], {}).overall, 'rework', 'no linked trigger selected stays rework');
+  assert.equal(buildDeferralPlan([], [], {}).overall, null);
+
+  const simple = withCodes('CF-004', 'simple', ['valuation_shortfall']);
+  assert.equal(simple.r.sections.find((x) => x.id === 'deferral').locked, true);
+  assert.ok(!simple.text.includes('Lender is testing'), 'plan content gated');
+  assert.match(simple.text, /Lender deferral entered \(1\): the deferral recovery plan is in Comprehensive\./);
 });

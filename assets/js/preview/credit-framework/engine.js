@@ -17,8 +17,9 @@
 
 import { RULES, RULE_LIBRARY } from './rules.js';
 import { CASES, CASE_ORDER } from './cases.js';
+import { DEFERRAL_REASONS, DEFERRAL_LIBRARY_VERSION } from './deferral-reasons.js';
 
-export { RULES, RULE_LIBRARY, CASES, CASE_ORDER };
+export { RULES, RULE_LIBRARY, CASES, CASE_ORDER, DEFERRAL_REASONS, DEFERRAL_LIBRARY_VERSION };
 
 export const ENGINE_VERSION = 'credit-framework-mvp-wrapper v0.1 (prototype)';
 
@@ -199,6 +200,7 @@ export function classifyScenario(intake, triggers) {
   if (intake.dealType === 'ato_debt') add('ato_debt_restructure', 'deal type = ATO debt');
   if (intake.dealType === 'resi_investor_complex' && triggers.includes('high_dti')) add('high_dti_resi_investor', 'deal type = residential-investor complex');
   if ((intake.deferralReason || '').trim()) add('deferral_recovery', 'lender deferral / concern reason entered');
+  for (const code of intake.deferralCodes || []) add('deferral_recovery', `lender deferral: ${code}`);
   const ruleById = Object.fromEntries(RULES.map((r) => [r.id, r]));
   const stressed = triggers.some((t) => ruleById[t] && (STRESS_CATEGORIES.has(ruleById[t].category) || t === 'high_lvr_second_mortgage'));
   if (!stressed && (intake.dealType === 'refinance' || intake.dealType === 'sme')) add('clean_sme_refi', 'refinance/SME deal with no tax, conduct or leverage stress triggers');
@@ -385,7 +387,7 @@ export function initialState(caseId = 'CF-002', tier = 'simple') {
     caseId,
     edited: false,
     tier,
-    intake: { ...c.intake },
+    intake: { ...c.intake, deferralCodes: [] },
     triggers: [...c.followUpCase.triggers],
     rating: c.followUpCase.currentRating,
     evidence: {},
@@ -396,6 +398,7 @@ export function blankState(tier = 'simple') {
   const intake = {};
   for (const f of INTAKE_FIELDS) intake[f.key] = '';
   intake.dealType = 'sme';
+  intake.deferralCodes = [];
   intake.borrowerType = 'company';
   return { caseId: null, edited: true, tier, intake, triggers: [], rating: 'Amber — Package Better', evidence: {} };
 }
@@ -405,6 +408,7 @@ export function isPristine(state) {
   if (!state.caseId || state.edited) return false;
   const c = CASES[state.caseId];
   if (state.rating !== c.followUpCase.currentRating) return false;
+  // Deferral codes are an overlay: the sample judgement still applies (the plan notes it predates the deferral).
   const norm = (a) => JSON.stringify([...a].sort());
   if (norm(state.triggers) !== norm(c.followUpCase.triggers)) return false;
   return INTAKE_FIELDS.every((f) => String(state.intake[f.key] ?? '') === String(c.intake[f.key] ?? ''));
@@ -502,10 +506,39 @@ export function buildAssessment(state) {
     deferral: {
       engineView: comprehensive.engineView,
       rerateNote: rerateNote(state.rating),
+      plan: buildDeferralPlan(state.intake.deferralCodes || [], comprehensive.questions, evidence),
       kind: KIND.RULE,
     },
     rerate: rerate({ questions: comprehensive.questions, rating: state.rating, tags, evidence }),
   };
+}
+
+
+/* ---------------------------------------------------------
+   Deferral recovery plan (deferral-follow-up-engine-spec §4 Mode B)
+   Comprehensive only. Status per reason is driven by the evidence status of
+   its linked, selected triggers (same guardrail as re-rate: replies ≠ evidence).
+   --------------------------------------------------------- */
+
+export const DEFERRAL_STATUS = Object.freeze({
+  pause: { rank: 2, short: 'pause', label: 'Pause — evidence received so far does not answer the lender’s question' },
+  rework: { rank: 1, short: 'rework, then resubmit', label: 'Rework — collect the first items, then resubmit with the explanation' },
+  resubmit: { rank: 0, short: 'ready to resubmit', label: 'Ready to resubmit with the explanation pack' },
+});
+
+export function buildDeferralPlan(codes, questions, evidence) {
+  const byId = Object.fromEntries(questions.map((q) => [q.id, q]));
+  const label = (id) => (RULES.find((r) => r.id === id) || { triggerLabel: id }).triggerLabel;
+  const reasons = DEFERRAL_REASONS.filter((d) => codes.includes(d.id)).map((d) => {
+    const linkedSelected = d.linkedTriggers.filter((t) => byId[t]).map((t) => ({ id: t, label: label(t), status: evidence[t] || 'outstanding' }));
+    const linkedNotSelected = d.linkedTriggers.filter((t) => !byId[t]).map((t) => ({ id: t, label: label(t) }));
+    let status = 'rework';
+    if (linkedSelected.some((x) => x.status === 'weak')) status = 'pause';
+    else if (linkedSelected.length && linkedSelected.every((x) => x.status === 'supports')) status = 'resubmit';
+    return { ...d, linkedSelected, linkedNotSelected, status, kind: KIND.RULE };
+  });
+  const overall = reasons.reduce((w, r) => (DEFERRAL_STATUS[r.status].rank > DEFERRAL_STATUS[w].rank ? r.status : w), 'resubmit');
+  return { version: DEFERRAL_LIBRARY_VERSION, reasons, overall: reasons.length ? overall : null };
 }
 
 /* ---------------------------------------------------------
@@ -671,7 +704,8 @@ export function summarizeSection(s, assessment) {
       return { text: `Weakest (${worst}): ${names.join(', ')}.`, kind: KIND.JUDGEMENT };
     }
     case 'deferral':
-      return { text: s.engineView, kind: s.kind };
+      if (!s.plan.reasons.length) return { text: `No lender deferral entered. ${s.engineView}`, kind: s.kind };
+      return { text: `${plural(s.plan.reasons.length, 'lender deferral reason')} · ${DEFERRAL_STATUS[s.plan.overall].short}.`, kind: s.kind };
     case 'email': {
       const n = assessment.engine.comprehensive.questions.filter((q) => q.priority !== 'Helpful').length;
       return { text: `Plain-English draft asking the client for ${plural(n, 'item')}.`, kind: s.email.kind };
@@ -748,6 +782,13 @@ export function buildReport(assessment, tier) {
 
   for (const sec of sections) if (!sec.locked) sec.summary = summarizeSection(sec, assessment);
 
+  // When a lender deferral is entered, the recovery plan is the broker's first question: show it right after the rating.
+  if (!isSimple && assessment.deferral.plan.reasons.length) {
+    const i = sections.findIndex((x) => x.id === 'deferral');
+    const [d] = sections.splice(i, 1);
+    sections.splice(sections.findIndex((x) => x.id === 'rating') + 1, 0, d);
+  }
+
   return {
     tier,
     tierName: TIERS[tier].name,
@@ -755,6 +796,7 @@ export function buildReport(assessment, tier) {
     dealId: assessment.followUpCase.dealId,
     pristine: assessment.pristine,
     judgementSource: assessment.judgementSource,
+    deferralCount: assessment.deferral.plan.reasons.length,
     boundary: BOUNDARY_TEXT,
     engineBoundary: ENGINE_BOUNDARY_TEXT,
     sections,
@@ -856,6 +898,16 @@ export function reportToPlainText(report) {
       case 'deferral':
         L.push(`${tag(s.kind)} Engine view: ${s.engineView}`);
         L.push(`${tag(s.kind)} Re-rate logic: ${s.rerateNote}`);
+        if (s.plan.reasons.length) {
+          L.push(`${tag(s.kind)} Deferral recovery (${s.plan.version}) — overall: ${DEFERRAL_STATUS[s.plan.overall].label}`);
+          for (const r of s.plan.reasons) {
+            L.push(`   • ${r.label} — ${DEFERRAL_STATUS[r.status].label}`);
+            L.push(`     Lender is testing: ${r.lenderTesting}`);
+            L.push(`     Collect first: ${r.collectFirst.join('; ')}`);
+            L.push(`     Explanation to include: ${r.explanation}`);
+            L.push(`     Linked triggers selected: ${r.linkedSelected.length ? r.linkedSelected.map((x) => x.label).join('; ') : 'none'}${r.linkedNotSelected.length ? ` · not selected: ${r.linkedNotSelected.map((x) => x.label).join('; ')}` : ''}`);
+          }
+        }
         break;
       case 'email':
         L.push(`${tag(s.email.kind)} Draft (edit before sending; nothing is sent from this page):`);
@@ -874,6 +926,7 @@ export function reportToPlainText(report) {
       case 'cta':
         L.push(report.tier === 'simple'
           ? 'Upgrade to Comprehensive for the full workflow, client wording, if-strong / if-weak consequences, deferral recovery and re-rate. Banker Review by Dong is an add-on (not active in this prototype).'
+            + (report.deferralCount ? ` Lender deferral entered (${report.deferralCount}): the deferral recovery plan is in Comprehensive.` : '')
           : 'Optional Banker Review by Dong — add-on handoff (not active in this prototype; nothing is sent).');
         break;
       default:

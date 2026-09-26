@@ -9,6 +9,7 @@ import {
   RATING_OPTIONS, EVIDENCE_STATUS, BOUNDARY_TEXT,
   initialState, blankState, buildAssessment, buildReport, reportToPlainText, lintCompliance,
   suggestTriggers, compareTriggers, triggerCheckText,
+  DEFERRAL_REASONS, DEFERRAL_LIBRARY_VERSION, DEFERRAL_STATUS,
 } from './engine.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -72,6 +73,21 @@ function renderTierToggles() {
   }
 }
 
+function deferralPicker() {
+  const codes = state.intake.deferralCodes || (state.intake.deferralCodes = []);
+  return el('fieldset', { class: 'deferral-pick', id: 'deferral-pick' },
+    el('legend', {}, 'Lender deferral / more-info request'),
+    el('small', { class: 'hint' }, `Tick what the lender asked for. Reason library ${DEFERRAL_LIBRARY_VERSION}.`),
+    DEFERRAL_REASONS.map((d) => {
+      const cb = el('input', { type: 'checkbox', id: `d-${d.id}`, value: d.id, checked: codes.includes(d.id) });
+      cb.addEventListener('change', () => {
+        state.intake.deferralCodes = cb.checked ? [...codes.filter((c) => c !== d.id), d.id] : codes.filter((c) => c !== d.id);
+        renderAll();
+      });
+      return el('label', { class: 'trig', for: `d-${d.id}` }, cb, el('span', {}, d.label));
+    }));
+}
+
 function renderIntakeForm() {
   const form = $('#intake-form');
   form.replaceChildren();
@@ -96,7 +112,9 @@ function renderIntakeForm() {
       return el('div', { class: 'field' }, el('label', { for: id }, f.label), control);
     });
     const narrow = window.matchMedia('(max-width: 1100px)').matches;
-    form.append(el('details', { class: 'sec', open: !narrow && i < 2 ? true : null }, el('summary', {}, section), el('div', { class: 'fields' }, fields)));
+    if (section === 'Deferral / concern reason') fields.unshift(deferralPicker());
+    const hasDeferral = section === 'Deferral / concern reason' && (state.intake.deferralCodes || []).length > 0;
+    form.append(el('details', { class: 'sec', open: (!narrow && i < 2) || hasDeferral ? true : null }, el('summary', {}, section), el('div', { class: 'fields' }, fields)));
   });
 
   const ratingSel = el('select', { class: 'control', id: 'f-rating', name: 'rating' },
@@ -289,7 +307,18 @@ function renderSection(s, report) {
     case 'deferral':
       return sectionShell(s,
         item(s.kind, el('span', { class: 'lbl' }, 'Engine view: '), s.engineView),
-        item(s.kind, el('span', { class: 'lbl' }, 'Re-rate logic: '), s.rerateNote));
+        item(s.kind, el('span', { class: 'lbl' }, 'Re-rate logic: '), s.rerateNote),
+        s.plan.reasons.length
+          ? [el('div', { class: 'notice info' }, `Deferral reason library ${s.plan.version}. Status follows the evidence you set in the Re-rate tracker; a client reply without documents does not count.${report.pristine ? ' Sample judgement above was prepared before this deferral.' : ''}`),
+            s.plan.reasons.map((r) => el('div', { class: 'q deferral', 'data-deferral': r.id, 'data-status': r.status },
+              el('h4', {}, r.label, el('span', { class: `dstatus ${r.status}` }, DEFERRAL_STATUS[r.status].short), kindBadge(r.kind)),
+              el('p', {}, el('span', { class: 'lbl' }, 'Lender is testing: '), r.lenderTesting),
+              el('div', {}, el('span', { class: 'lbl' }, 'Collect first:'), el('ul', {}, r.collectFirst.map((c) => el('li', {}, c)))),
+              el('p', {}, el('span', { class: 'lbl' }, 'Explanation to include: '), r.explanation),
+              el('p', {}, el('span', { class: 'lbl' }, 'Linked triggers: '), r.linkedSelected.length ? r.linkedSelected.map((x) => `${x.label} (${EVIDENCE_STATUS[x.status]})`).join('; ') : 'none selected',
+                r.linkedNotSelected.length ? el('span', { class: 'hint' }, ` · not selected: ${r.linkedNotSelected.map((x) => x.label).join('; ')}`) : null),
+              el('p', { class: 'hint' }, DEFERRAL_STATUS[r.status].label)))]
+          : el('p', { class: 'hint' }, 'No lender deferral entered. Tick reasons under Intake → Deferral / concern reason to get a recovery plan.'));
     case 'email':
       return sectionShell(s,
         el('p', { class: 'hint' }, 'Draft only — edit before use. Nothing is sent from this page.'),
@@ -316,7 +345,8 @@ function renderSection(s, report) {
     }
     case 'cta':
       return sectionShell(s, report.tier === 'simple'
-        ? [el('p', { class: 'hint' }, 'Generate the comprehensive follow-up checklist and deferral recovery plan: full workflow, client wording, if-strong / if-weak consequences, re-rate loop.'),
+        ? [report.deferralCount ? el('div', { class: 'notice warn', id: 'deferral-upsell' }, `Lender deferral entered (${report.deferralCount} reason${report.deferralCount > 1 ? 's' : ''}). The deferral recovery plan is in Comprehensive.`) : null,
+          el('p', { class: 'hint' }, 'Generate the comprehensive follow-up checklist and deferral recovery plan: full workflow, client wording, if-strong / if-weak consequences, re-rate loop.'),
           el('button', { class: 'btn btn-primary no-print', type: 'button', id: 'upgrade-btn', onclick: () => { state.tier = 'comprehensive'; renderAll(); } }, 'Upgrade to Comprehensive'),
           el('p', { class: 'hint', style: 'margin-top:8px' }, 'Banker Review by Dong — add-on. Not active in this prototype; no pricing, payment or data handoff.')]
         : [el('p', { class: 'hint' }, 'Optional Banker Review by Dong — add-on handoff. Not active in this prototype; nothing is sent.'),

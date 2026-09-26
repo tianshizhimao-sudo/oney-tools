@@ -154,6 +154,21 @@ async function runViewport(name, contextOpts) {
   assert.equal(await page.getAttribute('body', 'data-pristine'), 'false');
   await page.click('[data-case="CF-004"]');
 
+  // Deferral recovery mode (CF-004): gated in Simple, plan in Comprehensive
+  await page.click('[data-case="CF-004"]');
+  await page.click('#tier-output [data-tier="simple"]');
+  await page.click('details.sec >> summary:has-text("Deferral / concern reason")');
+  await page.check('#d-valuation_shortfall');
+  v.deferral = { simpleUpsell: await page.locator('#deferral-upsell').isVisible(), simplePlans: await page.locator('[data-deferral]').count() };
+  await page.click('#tier-output [data-tier="comprehensive"]');
+  v.deferral.plans = await page.locator('[data-deferral]').count();
+  v.deferral.status = await page.getAttribute('[data-deferral="valuation_shortfall"]', 'data-status');
+  if ((await page.getAttribute('#expand-all', 'data-state')) !== 'open') await page.click('#expand-all');
+  await page.selectOption('[data-rerate="valuation_sensitive"]', 'weak');
+  v.deferral.statusAfterWeak = await page.getAttribute('[data-deferral="valuation_sensitive"], [data-deferral="valuation_shortfall"]', 'data-status');
+  assert.deepEqual([v.deferral.simpleUpsell, v.deferral.simplePlans, v.deferral.plans, v.deferral.status, v.deferral.statusAfterWeak], [true, 0, 1, 'rework', 'pause']);
+  assert.equal(await page.getAttribute('body', 'data-lint'), 'pass');
+
   // Trigger suggestions on a blank custom scenario: suggested, not auto-ticked, then applied
   await page.click('[data-case="custom"]');
   await page.click('details.sec >> summary:has-text("Conduct / compliance")');
