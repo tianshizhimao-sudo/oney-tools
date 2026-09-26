@@ -6,10 +6,13 @@
      intake -> scenario tags -> rating + confidence -> Deferral Follow-Up Engine
      -> Simple / Comprehensive output -> re-rate loop (Comprehensive only)
 
-   generateFollowUps() is a line-for-line port of
+   generateFollowUps() is a port of
    assets/follow-up-engine/generate_followups.py (v0.2): same sort order
-   (priority -> category -> id), Simple tier = first 5 questions,
-   same engine-view and re-rate strings.
+   (priority -> category -> id), same engine-view and re-rate strings.
+   Intentional divergence (release red team RT-02, 2026-09-26): the Simple
+   tier never drops a triggered Critical question. Nominal target is 5; when
+   more than 5 Critical questions trigger, Simple shows all of them and says
+   why. The Python CLI generator still slices the first 5.
 
    Every output item carries a `kind` so the UI and copied text can separate
    facts, calculations, assumptions, deterministic rules and model judgement.
@@ -100,6 +103,9 @@ const CONFIDENCE_ORDER = ['Low', 'Medium', 'Medium-High', 'High'];
 
 const PRIORITY_ORDER = { Critical: 0, Important: 1, Helpful: 2 };
 
+/* Simple tier nominal question target (tiered-output-pricing-logic §4). */
+export const SIMPLE_QUESTION_TARGET = 5;
+
 /* ---------------------------------------------------------
    Follow-up engine (port of generate_followups.py)
    --------------------------------------------------------- */
@@ -146,7 +152,22 @@ export function generateFollowUps(caseInput, tier) {
     questions.push(q);
   }
   questions.sort(pyCompare);
-  if (tier === 'simple') questions = questions.slice(0, 5);
+  let simpleSelection = null;
+  if (tier === 'simple') {
+    // Every triggered Critical question is kept first; non-critical questions
+    // only fill the remaining room up to the nominal target.
+    const triggered = questions.length;
+    const critical = questions.filter((q) => q.priority === 'Critical');
+    const rest = questions.filter((q) => q.priority !== 'Critical');
+    questions = [...critical, ...rest.slice(0, Math.max(0, SIMPLE_QUESTION_TARGET - critical.length))];
+    simpleSelection = {
+      target: SIMPLE_QUESTION_TARGET,
+      triggered,
+      criticalCount: critical.length,
+      shown: questions.length,
+      expanded: critical.length > SIMPLE_QUESTION_TARGET,
+    };
+  }
   return {
     dealId: caseInput.dealId,
     dealName: caseInput.dealName,
@@ -156,7 +177,14 @@ export function generateFollowUps(caseInput, tier) {
     tier,
     questions,
     unknownTriggers: unknown,
+    simpleSelection,
   };
+}
+
+/** Plain-English reason shown whenever Simple expands past its nominal target. */
+export function simpleExpansionNote(sel) {
+  if (!sel || !sel.expanded) return null;
+  return `Simple normally shows up to ${sel.target} questions. It shows all ${sel.criticalCount} here because ${sel.criticalCount} Critical items were triggered — Critical items are never held back for Comprehensive.`;
 }
 
 /* ---------------------------------------------------------
@@ -414,11 +442,13 @@ export function isPristine(state) {
   return INTAKE_FIELDS.every((f) => String(state.intake[f.key] ?? '') === String(c.intake[f.key] ?? ''));
 }
 
+/* Keys are stable (state/tests); labels make the reviewed-evidence requirement explicit (red team RT-03)
+   and stay short enough to read in a 390px select. */
 export const EVIDENCE_STATUS = Object.freeze({
-  outstanding: 'Not yet received',
-  reply_only: 'Client replied — no document yet',
-  supports: 'Received — supports',
-  weak: 'Received — weak / contradicted',
+  outstanding: 'Not received / not yet reviewed',
+  reply_only: 'Client reply only — does not count',
+  supports: 'Reviewed evidence — supports',
+  weak: 'Reviewed evidence — weak/contradicts',
 });
 
 export function buildAssessment(state) {
@@ -546,7 +576,9 @@ export function buildDeferralPlan(codes, questions, evidence) {
    Guardrail: never improve because the client replied; only evidence counts.
    --------------------------------------------------------- */
 
-export const RERATE_GUARDRAIL = 'Do not improve the rating because the client replied. Improve only if the evidence proves the relevant credit issue.';
+export const RERATE_GUARDRAIL = 'Do not improve the rating because the client replied. Improve only if reviewed evidence proves the relevant credit issue.';
+/* No upload or storage: the broker records the review outcome; the page never sees the document. */
+export const RERATE_EVIDENCE_RULE = 'Choose “Reviewed evidence — supports” only after you have read the actual document and it proves the point. A client reply, a summary, or a document you have not yet reviewed cannot improve readiness — leave it as “Not received / not yet reviewed” or “Client reply only”.';
 
 export function rerate({ questions, rating, tags, evidence }) {
   const statusOf = (q) => evidence[q.id] || 'outstanding';
@@ -565,7 +597,7 @@ export function rerate({ questions, rating, tags, evidence }) {
   const reasons = [];
 
   if (!from) {
-    return { from: null, to: null, movement: 'unchanged', ratingText: rating, confidence: 'Low', reasons: ['No readiness rating selected.'], stillMissing: stillMissing.map((q) => q.triggerLabel), strategy: 'Select a rating before re-rating.', nextStep: 'Select a rating.', guardrail: RERATE_GUARDRAIL, kind: KIND.RULE, replyOnly: [] };
+    return { from: null, to: null, movement: 'unchanged', ratingText: rating, confidence: 'Low', reasons: ['No readiness rating selected.'], stillMissing: stillMissing.map((q) => q.triggerLabel), strategy: 'Select a rating before re-rating.', nextStep: 'Select a rating.', guardrail: RERATE_GUARDRAIL, evidenceRule: RERATE_EVIDENCE_RULE, kind: KIND.RULE, replyOnly: [] };
   }
 
   if (from === 'black') {
@@ -573,18 +605,18 @@ export function rerate({ questions, rating, tags, evidence }) {
   } else if (criticalWeak.length) {
     to = from === 'green' ? 'amber' : 'red';
     movement = to === from ? 'unchanged' : 'down';
-    for (const q of criticalWeak) reasons.push(`${q.triggerLabel}: evidence weak — ${q.ifWeak}`);
+    for (const q of criticalWeak) reasons.push(`${q.triggerLabel}: reviewed evidence weak — ${q.ifWeak}`);
   } else if (allCriticalSupported && importantWeak.length === 0) {
     to = from === 'red' ? 'amber' : 'green';
     movement = to === from ? 'unchanged' : 'up';
-    for (const q of supports) reasons.push(`${q.triggerLabel}: evidence supports — ${q.ifStrong}`);
+    for (const q of supports) reasons.push(`${q.triggerLabel}: reviewed evidence supports — ${q.ifStrong}`);
   } else {
-    if (importantWeak.length) for (const q of importantWeak) reasons.push(`${q.triggerLabel}: evidence weak — ${q.ifWeak}`);
+    if (importantWeak.length) for (const q of importantWeak) reasons.push(`${q.triggerLabel}: reviewed evidence weak — ${q.ifWeak}`);
     const outstandingCritical = critical.filter((q) => statusOf(q) !== 'supports');
-    if (outstandingCritical.length) reasons.push(`Rating held: ${outstandingCritical.length} Critical item${outstandingCritical.length > 1 ? 's' : ''} not yet proven by evidence.`);
+    if (outstandingCritical.length) reasons.push(`Rating held: ${outstandingCritical.length} Critical item${outstandingCritical.length > 1 ? 's' : ''} not yet proven by reviewed evidence.`);
     if (!critical.length && !importantWeak.length) reasons.push('No Critical triggers selected; rating held pending banker review.');
   }
-  if (replyOnly.length) reasons.push(`Guardrail applied: ${replyOnly.length} client repl${replyOnly.length > 1 ? 'ies' : 'y'} without documents treated as still missing.`);
+  if (replyOnly.length) reasons.push(`Guardrail applied: ${replyOnly.length} client repl${replyOnly.length > 1 ? 'ies' : 'y'} without reviewed evidence treated as still missing.`);
 
   let confidence;
   if (criticalWeak.length) confidence = 'Low';
@@ -617,6 +649,7 @@ export function rerate({ questions, rating, tags, evidence }) {
     strategy,
     nextStep,
     guardrail: RERATE_GUARDRAIL,
+    evidenceRule: RERATE_EVIDENCE_RULE,
     replyOnly: replyOnly.map((q) => q.id),
     kind: KIND.RULE,
   };
@@ -749,7 +782,9 @@ export function buildReport(assessment, tier) {
   if (isSimple) {
     const top = [...assessment.missing.critical, ...assessment.missing.important].slice(0, 5)
       .map((m) => ({ item: m.item, priority: assessment.missing.critical.includes(m) ? 'Critical' : 'Important', kind: m.kind }));
-    sections.push({ id: 'missing', title: 'Top missing evidence', items: top, limited: true });
+    // Disclose (never silently drop) Critical evidence items beyond the Simple list.
+    const moreCritical = assessment.missing.critical.length - top.filter((m) => m.priority === 'Critical').length;
+    sections.push({ id: 'missing', title: 'Top missing evidence', items: top, limited: true, moreCritical });
   } else {
     sections.push({ id: 'missing', title: 'Missing evidence — Critical / Important / Helpful', groups: assessment.missing });
   }
@@ -762,6 +797,7 @@ export function buildReport(assessment, tier) {
       ? { priority: q.priority, trigger: q.triggerLabel, id: q.id, question: q.question, whyItMatters: q.whyItMatters, evidence: q.evidence, kind: KIND.RULE }
       : { priority: q.priority, trigger: q.triggerLabel, id: q.id, question: q.question, whyItMatters: q.whyItMatters, evidence: q.evidence, ifStrong: q.ifStrong, ifWeak: q.ifWeak, owner: q.owner, clientWording: q.clientWording, kind: KIND.RULE })),
     hiddenCount: assessment.engine.comprehensive.questions.length - engine.questions.length,
+    expansionNote: isSimple ? simpleExpansionNote(engine.simpleSelection) : null,
     unknownTriggers: engine.unknownTriggers,
   });
 
@@ -860,7 +896,10 @@ export function reportToPlainText(report) {
         });
         break;
       case 'missing':
-        if (s.limited) s.items.forEach((m, i) => L.push(`${tag(m.kind)} ${i + 1}. [${m.priority}] ${m.item}`));
+        if (s.limited) {
+          s.items.forEach((m, i) => L.push(`${tag(m.kind)} ${i + 1}. [${m.priority}] ${m.item}`));
+          if (s.moreCritical > 0) L.push(`${s.moreCritical} further Critical evidence item(s) — full list in Comprehensive; not resolved by this snapshot.`);
+        }
         else {
           L.push('Critical:');
           s.groups.critical.forEach((m) => L.push(`${tag(m.kind)} ${m.item} — Decision impact: ${m.impact} If weak: ${m.ifWeak}`));
@@ -872,6 +911,7 @@ export function reportToPlainText(report) {
         break;
       case 'questions':
         L.push(`${tag(KIND.RULE)} Engine view: ${s.engineView}`);
+        if (s.expansionNote) L.push(`${tag(KIND.RULE)} Simple expanded: ${s.expansionNote}`);
         s.items.forEach((q, i) => {
           L.push(`${tag(q.kind)} ${i + 1}. ${q.trigger} — ${q.priority}`);
           L.push(`   Question: ${q.question}`);
@@ -921,6 +961,7 @@ export function reportToPlainText(report) {
       case 'rerate': {
         const r = s.rerate;
         L.push(`${tag(r.kind)} Guardrail: ${r.guardrail}`);
+        L.push(`${tag(r.kind)} Evidence rule: ${r.evidenceRule}`);
         L.push(`${tag(r.kind)} Rating movement: ${r.from ?? '—'} → ${r.to ?? '—'} (${r.movement}) · Confidence: ${r.confidence}`);
         r.reasons.forEach((x) => L.push(`   Reason: ${x}`));
         L.push(`   Still missing: ${r.stillMissing.length ? r.stillMissing.join('; ') : 'none'}`);

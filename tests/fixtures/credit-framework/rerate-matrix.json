@@ -1,0 +1,441 @@
+{
+  "note": "Re-rate regression matrix (red team RT-04). Pinned from engine.js on 2026-09-26 after review; consumed by tests/credit-framework-mvp-wrapper.test.mjs and tests/credit-framework-browser-smoke.mjs. Change only deliberately.",
+  "scenarios": {
+    "outstanding": "Every item not received / not yet reviewed",
+    "reply_only": "Every item: client reply only, no reviewed evidence",
+    "critical_supported": "All Critical items reviewed and supporting; non-critical still outstanding",
+    "all_supported": "Every item reviewed and supporting",
+    "one_critical_weak": "First Critical item reviewed and weak; everything else reviewed and supporting",
+    "mixed_critical_reply": "Everything reviewed and supporting except the last Critical item, which is a client reply only",
+    "important_weak": "All Critical reviewed and supporting; first non-critical item reviewed and weak"
+  },
+  "cases": {
+    "CF-001": {
+      "rating": "Green — Package Ready, subject to valuation and contract evidence",
+      "questions": [
+        {
+          "id": "valuation_sensitive",
+          "priority": "Critical"
+        },
+        {
+          "id": "contract_growth",
+          "priority": "Important"
+        },
+        {
+          "id": "working_capital_vague",
+          "priority": "Important"
+        }
+      ],
+      "rows": [
+        {
+          "scenario": "outstanding",
+          "evidence": {
+            "valuation_sensitive": "outstanding",
+            "contract_growth": "outstanding",
+            "working_capital_vague": "outstanding"
+          },
+          "expect": {
+            "from": "green",
+            "to": "green",
+            "movement": "unchanged",
+            "confidence": "Medium",
+            "stillMissing": 3
+          }
+        },
+        {
+          "scenario": "reply_only",
+          "evidence": {
+            "valuation_sensitive": "reply_only",
+            "contract_growth": "reply_only",
+            "working_capital_vague": "reply_only"
+          },
+          "expect": {
+            "from": "green",
+            "to": "green",
+            "movement": "unchanged",
+            "confidence": "Medium",
+            "stillMissing": 3
+          }
+        },
+        {
+          "scenario": "critical_supported",
+          "evidence": {
+            "valuation_sensitive": "supports",
+            "contract_growth": "outstanding",
+            "working_capital_vague": "outstanding"
+          },
+          "expect": {
+            "from": "green",
+            "to": "green",
+            "movement": "unchanged",
+            "confidence": "Medium-High",
+            "stillMissing": 2
+          }
+        },
+        {
+          "scenario": "all_supported",
+          "evidence": {
+            "valuation_sensitive": "supports",
+            "contract_growth": "supports",
+            "working_capital_vague": "supports"
+          },
+          "expect": {
+            "from": "green",
+            "to": "green",
+            "movement": "unchanged",
+            "confidence": "Medium-High",
+            "stillMissing": 0
+          }
+        },
+        {
+          "scenario": "one_critical_weak",
+          "evidence": {
+            "valuation_sensitive": "weak",
+            "contract_growth": "supports",
+            "working_capital_vague": "supports"
+          },
+          "expect": {
+            "from": "green",
+            "to": "amber",
+            "movement": "down",
+            "confidence": "Low",
+            "stillMissing": 0
+          }
+        },
+        {
+          "scenario": "mixed_critical_reply",
+          "evidence": {
+            "valuation_sensitive": "reply_only",
+            "contract_growth": "supports",
+            "working_capital_vague": "supports"
+          },
+          "expect": {
+            "from": "green",
+            "to": "green",
+            "movement": "unchanged",
+            "confidence": "Medium",
+            "stillMissing": 1
+          }
+        },
+        {
+          "scenario": "important_weak",
+          "evidence": {
+            "valuation_sensitive": "supports",
+            "contract_growth": "weak",
+            "working_capital_vague": "supports"
+          },
+          "expect": {
+            "from": "green",
+            "to": "green",
+            "movement": "unchanged",
+            "confidence": "Medium-High",
+            "stillMissing": 0
+          }
+        }
+      ]
+    },
+    "CF-002": {
+      "rating": "Red — Rework First / specialist-private path only",
+      "questions": [
+        {
+          "id": "mca_present",
+          "priority": "Critical"
+        },
+        {
+          "id": "dishonours_recent",
+          "priority": "Critical"
+        },
+        {
+          "id": "high_lvr_second_mortgage",
+          "priority": "Critical"
+        },
+        {
+          "id": "ato_debt",
+          "priority": "Critical"
+        },
+        {
+          "id": "missed_ato_plan",
+          "priority": "Critical"
+        },
+        {
+          "id": "sg_unevidenced",
+          "priority": "Critical"
+        },
+        {
+          "id": "working_capital_vague",
+          "priority": "Important"
+        }
+      ],
+      "rows": [
+        {
+          "scenario": "outstanding",
+          "evidence": {
+            "mca_present": "outstanding",
+            "dishonours_recent": "outstanding",
+            "high_lvr_second_mortgage": "outstanding",
+            "ato_debt": "outstanding",
+            "missed_ato_plan": "outstanding",
+            "sg_unevidenced": "outstanding",
+            "working_capital_vague": "outstanding"
+          },
+          "expect": {
+            "from": "red",
+            "to": "red",
+            "movement": "unchanged",
+            "confidence": "Medium",
+            "stillMissing": 7
+          }
+        },
+        {
+          "scenario": "reply_only",
+          "evidence": {
+            "mca_present": "reply_only",
+            "dishonours_recent": "reply_only",
+            "high_lvr_second_mortgage": "reply_only",
+            "ato_debt": "reply_only",
+            "missed_ato_plan": "reply_only",
+            "sg_unevidenced": "reply_only",
+            "working_capital_vague": "reply_only"
+          },
+          "expect": {
+            "from": "red",
+            "to": "red",
+            "movement": "unchanged",
+            "confidence": "Medium",
+            "stillMissing": 7
+          }
+        },
+        {
+          "scenario": "critical_supported",
+          "evidence": {
+            "mca_present": "supports",
+            "dishonours_recent": "supports",
+            "high_lvr_second_mortgage": "supports",
+            "ato_debt": "supports",
+            "missed_ato_plan": "supports",
+            "sg_unevidenced": "supports",
+            "working_capital_vague": "outstanding"
+          },
+          "expect": {
+            "from": "red",
+            "to": "amber",
+            "movement": "up",
+            "confidence": "Medium",
+            "stillMissing": 1
+          }
+        },
+        {
+          "scenario": "all_supported",
+          "evidence": {
+            "mca_present": "supports",
+            "dishonours_recent": "supports",
+            "high_lvr_second_mortgage": "supports",
+            "ato_debt": "supports",
+            "missed_ato_plan": "supports",
+            "sg_unevidenced": "supports",
+            "working_capital_vague": "supports"
+          },
+          "expect": {
+            "from": "red",
+            "to": "amber",
+            "movement": "up",
+            "confidence": "Medium",
+            "stillMissing": 0
+          }
+        },
+        {
+          "scenario": "one_critical_weak",
+          "evidence": {
+            "mca_present": "weak",
+            "dishonours_recent": "supports",
+            "high_lvr_second_mortgage": "supports",
+            "ato_debt": "supports",
+            "missed_ato_plan": "supports",
+            "sg_unevidenced": "supports",
+            "working_capital_vague": "supports"
+          },
+          "expect": {
+            "from": "red",
+            "to": "red",
+            "movement": "unchanged",
+            "confidence": "Low",
+            "stillMissing": 0
+          }
+        },
+        {
+          "scenario": "mixed_critical_reply",
+          "evidence": {
+            "mca_present": "supports",
+            "dishonours_recent": "supports",
+            "high_lvr_second_mortgage": "supports",
+            "ato_debt": "supports",
+            "missed_ato_plan": "supports",
+            "sg_unevidenced": "reply_only",
+            "working_capital_vague": "supports"
+          },
+          "expect": {
+            "from": "red",
+            "to": "red",
+            "movement": "unchanged",
+            "confidence": "Medium",
+            "stillMissing": 1
+          }
+        },
+        {
+          "scenario": "important_weak",
+          "evidence": {
+            "mca_present": "supports",
+            "dishonours_recent": "supports",
+            "high_lvr_second_mortgage": "supports",
+            "ato_debt": "supports",
+            "missed_ato_plan": "supports",
+            "sg_unevidenced": "supports",
+            "working_capital_vague": "weak"
+          },
+          "expect": {
+            "from": "red",
+            "to": "red",
+            "movement": "unchanged",
+            "confidence": "Medium",
+            "stillMissing": 0
+          }
+        }
+      ]
+    },
+    "CF-004": {
+      "rating": "Amber — Package Better",
+      "questions": [
+        {
+          "id": "short_wale",
+          "priority": "Critical"
+        },
+        {
+          "id": "zoning_environmental_missing",
+          "priority": "Critical"
+        },
+        {
+          "id": "valuation_sensitive",
+          "priority": "Critical"
+        },
+        {
+          "id": "related_party_security",
+          "priority": "Important"
+        }
+      ],
+      "rows": [
+        {
+          "scenario": "outstanding",
+          "evidence": {
+            "short_wale": "outstanding",
+            "zoning_environmental_missing": "outstanding",
+            "valuation_sensitive": "outstanding",
+            "related_party_security": "outstanding"
+          },
+          "expect": {
+            "from": "amber",
+            "to": "amber",
+            "movement": "unchanged",
+            "confidence": "Medium",
+            "stillMissing": 4
+          }
+        },
+        {
+          "scenario": "reply_only",
+          "evidence": {
+            "short_wale": "reply_only",
+            "zoning_environmental_missing": "reply_only",
+            "valuation_sensitive": "reply_only",
+            "related_party_security": "reply_only"
+          },
+          "expect": {
+            "from": "amber",
+            "to": "amber",
+            "movement": "unchanged",
+            "confidence": "Medium",
+            "stillMissing": 4
+          }
+        },
+        {
+          "scenario": "critical_supported",
+          "evidence": {
+            "short_wale": "supports",
+            "zoning_environmental_missing": "supports",
+            "valuation_sensitive": "supports",
+            "related_party_security": "outstanding"
+          },
+          "expect": {
+            "from": "amber",
+            "to": "green",
+            "movement": "up",
+            "confidence": "Medium-High",
+            "stillMissing": 1
+          }
+        },
+        {
+          "scenario": "all_supported",
+          "evidence": {
+            "short_wale": "supports",
+            "zoning_environmental_missing": "supports",
+            "valuation_sensitive": "supports",
+            "related_party_security": "supports"
+          },
+          "expect": {
+            "from": "amber",
+            "to": "green",
+            "movement": "up",
+            "confidence": "Medium-High",
+            "stillMissing": 0
+          }
+        },
+        {
+          "scenario": "one_critical_weak",
+          "evidence": {
+            "short_wale": "weak",
+            "zoning_environmental_missing": "supports",
+            "valuation_sensitive": "supports",
+            "related_party_security": "supports"
+          },
+          "expect": {
+            "from": "amber",
+            "to": "red",
+            "movement": "down",
+            "confidence": "Low",
+            "stillMissing": 0
+          }
+        },
+        {
+          "scenario": "mixed_critical_reply",
+          "evidence": {
+            "short_wale": "supports",
+            "zoning_environmental_missing": "supports",
+            "valuation_sensitive": "reply_only",
+            "related_party_security": "supports"
+          },
+          "expect": {
+            "from": "amber",
+            "to": "amber",
+            "movement": "unchanged",
+            "confidence": "Medium",
+            "stillMissing": 1
+          }
+        },
+        {
+          "scenario": "important_weak",
+          "evidence": {
+            "short_wale": "supports",
+            "zoning_environmental_missing": "supports",
+            "valuation_sensitive": "supports",
+            "related_party_security": "weak"
+          },
+          "expect": {
+            "from": "amber",
+            "to": "amber",
+            "movement": "unchanged",
+            "confidence": "Medium-High",
+            "stillMissing": 0
+          }
+        }
+      ]
+    }
+  }
+}

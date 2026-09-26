@@ -54,3 +54,58 @@ Screenshots and the PDF are stored in the Obsidian project folder under `assets/
 ## Protected systems
 
 No existing file was modified. Not touched: Commercial Intake, FHC, Bank-Ready Score, Supabase schema/Edge Functions, credentials, DNS, `sitemap.xml`, `robots.txt`, `index.html`, `tools.html`, tool registries. Nothing pushed, merged or deployed.
+
+---
+
+## Release red-team remediation — 2026-09-26 (post-`d77d437`)
+
+> Branch: `fix/credit-framework-red-team-remediation` from `main` @ `d77d437` (live invited beta). Not merged, pushed or deployed.
+> Input: ChatGPT Routine 02 release red team (HOLD, RT-01..RT-05), re-triaged in `claude-tasks/task-05`. The sections above are the original 2026-09-26 build evidence and are kept as history.
+
+### Current state at `d77d437` (what the red team reviewed)
+
+- Page `preview/credit-framework.html` live as unlisted, noindex invited beta; not in sitemap/nav/registries.
+- Dong decision (commit `d77d437`): invited brokers may enter real deals **de-identified only** — no names, ABNs/ACNs, addresses, dates of birth or account numbers. Everything runs in the browser; CSP `default-src 'none'`, `connect-src 'none'`, `form-action 'none'`; no storage, upload or submission. RT-01 is therefore a source-of-truth sync item, not a live defect.
+- CF-001 confidence: Dong chose **Medium** with watch points (RT-05 runtime already aligned; notes now annotated).
+
+### Disposition and change
+
+| ID | Disposition | Change on this branch | Proof |
+|---|---|---|---|
+| RT-01 | Product decision already made (`d77d437`) | Obsidian/source notes annotated (FRAMEWORK §10, wrapper spec §13, Index, build note). Page copy unchanged. | Existing test `beta data notice` |
+| RT-02 | Confirmed P1 → fixed | `generateFollowUps(…, 'simple')` keeps every triggered Critical question, then fills to 5 with non-critical ones. Over 5 Critical → all shown + "Simple expanded" note (UI + copy). Simple top-missing-evidence discloses Critical items beyond its five. | Node test `RT-02` (CF-002 includes `sg_unevidenced`; exhaustive 65,536 trigger sets: no Critical ever dropped, parity with the Python slice whenever ≤5 Critical); browser: SG visible in CF-002 Simple, desktop + 390px |
+| RT-03 | P2 hardening → done | Status labels: *Not received / not yet reviewed* · *Client reply only — does not count* · *Reviewed evidence — supports* · *Reviewed evidence — weak/contradicts*; guardrail says "reviewed evidence"; new "Reviewed evidence only" rule shown in the tracker and copied text. No upload/storage. | Node test `RT-03` (exhaustive 4ⁿ status combos for all 3 cases = 16,704: no upward move unless every Critical is reviewed-supports; reply-only ≡ not received); browser checks labels + rule visible |
+| RT-04 | Evidence gap → closed | `tests/fixtures/credit-framework/rerate-matrix.json` shared by Node tests and browser smoke. | Node test `RT-04`; browser drives every row through the selects at 1440 and 390 |
+| RT-05 | Documentation debt → closed | Case pack + CF-001 sample/demo annotated "Medium-High superseded by Medium". | Existing confidence test |
+
+Deliberate divergence: `generate_followups.py` (Python CLI) still slices Simple to 5; the wrapper no longer does. Only the Critical-overflow case differs (CF-002 among the samples).
+
+### Re-rate matrix (Comprehensive; identical in Node and in the browser at 1440 and 390px)
+
+Scenarios: **outstanding** = nothing reviewed · **reply_only** = every item client reply only · **critical_supported** = every Critical reviewed-supports, non-critical outstanding · **all_supported** · **one_critical_weak** = first Critical reviewed-weak, rest supports · **mixed_critical_reply** = all supports except the last Critical = reply only · **important_weak** = all Critical supports, first non-critical weak.
+
+| Case (start) | outstanding | reply_only | critical_supported | all_supported | one_critical_weak | mixed_critical_reply | important_weak |
+|---|---|---|---|---|---|---|---|
+| CF-001 (Green; 1 Critical, 2 Important) | Green · Medium | Green · Medium | Green · Medium-High | Green · Medium-High | **Amber ↓** · Low | Green · Medium | Green · Medium-High |
+| CF-002 (Red; 6 Critical, 1 Important; specialist path) | Red · Medium | Red · Medium | **Amber ↑** · Medium | **Amber ↑** · Medium | Red · Low | Red · Medium | Red · Medium |
+| CF-004 (Amber; 3 Critical, 1 Important) | Amber · Medium | Amber · Medium | **Green ↑** · Medium-High | **Green ↑** · Medium-High | **Red ↓** · Low | Amber · Medium | Amber · Medium-High |
+
+Observations for Dong (behaviour unchanged — outside this task's scope):
+1. "Medium-High" appears in re-rate output when every Critical is reviewed-supports on a non-specialist case; FRAMEWORK §6.3 defines only High / Medium / Low.
+2. A weak Important item holds the rating rather than lowering it (CF-001 contract/use-of-funds weak stays Green), whereas the Green re-rate note says such weakness should move to Amber.
+
+### Commands and results (this branch)
+
+| Command | Where | Result |
+|---|---|---|
+| `git diff --check` | macOS repo | clean |
+| `node --test tests/credit-framework-mvp-wrapper.test.mjs` | macOS VM, Node v22 | **27/27 pass** (was 24) |
+| Mutation check: revert Simple to `slice(0,5)` | scratch copy | 4 tests fail (as intended) |
+| Mutation check: count reply-only as supports | scratch copy | 3 tests fail (as intended) |
+| `PLAYWRIGHT_MODULE=… node tests/credit-framework-browser-smoke.mjs` | Linux, Playwright bundled Chromium 141.0.7390.37 | **pass**, desktop 1440×900 + mobile 390×844 |
+
+Browser smoke (both viewports): 6 same-origin GETs (page + 5 modules), 0 external, 0 non-GET; CSP blocks `fetch('https://example.com')`; `noindex,nofollow,noarchive,nosnippet`; wording check pass on every case, tier and matrix row; CF-001/002/004 Simple questions 3/**6**/4, Comprehensive 3/7/4; "Simple expanded" note only on CF-002; SG question visible in CF-002 Simple; re-rate matrix above reproduced row-for-row; no horizontal overflow (1440/1440, 390/390); print media and 14-page A4 PDF.
+
+Smoke-test fix: case buttons are now addressed as `#case-picker [data-case=…]`. `<body data-case>` mirrors the current case, so the old bare selector clicked `<body>` when re-selecting the current case and silently did not reset evidence (found while adding the matrix).
+
+Evidence (screenshots, PDF, smoke JSON): Obsidian project `assets/mvp-wrapper-evidence/2026-09-26-red-team/`.

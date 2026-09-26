@@ -49,8 +49,8 @@ MVP definitions compared: blueprint §9 "Must-have v1" (`~/clawd/oney-co/product
 
 - **Duplicated:** `follow-up-checklist-demo-CF-002-red-v0.1.md` ≡ `tier-demo-CF-002-comprehensive-followup-v0.1.md` minus the tier-scope and re-rate blocks (diffed). Same pattern for CF-004. Checklist demos are the pre-tiering generator output.
 - **Duplicated/confusing naming:** two "run 003" files — `benchmark-run-003-gemini.md` (real Gemini CLI) and `benchmark-run-003-analyst-gemini.md` (self-described "simulated second-model assessment"). README lists only the former.
-- **Contradictory (calibration):** CF-001 sample/case pack give **Medium-High** confidence while three critical items are outstanding; `FRAMEWORK-v0.1.md` §6.3 and the later `mvp-wrapper-spec` §8 cap confidence at Medium when critical evidence is missing. Wrapper applies the later spec (Medium) and shows the discrepancy. **Needs Dong confirmation.**
-- **Calibration observation:** the generator sorts by priority → category (alphabetical) → id and the Simple tier keeps 5. For CF-002 that drops `sg_unevidenced` (Critical) from Simple while keeping the MCA question, even though the case pack treats SG evidence as critical. Behaviour preserved for parity; flagged for Dong.
+- **Contradictory (calibration):** CF-001 sample/case pack give **Medium-High** confidence while three critical items are outstanding; `FRAMEWORK-v0.1.md` §6.3 and the later `mvp-wrapper-spec` §8 cap confidence at Medium when critical evidence is missing. Wrapper applies the later spec (Medium) and shows the discrepancy. **Needs Dong confirmation.** _Resolved 2026-09-26: Dong chose Medium until Critical evidence is resolved; the Medium-High benchmark expectation is annotated as superseded in the source notes._
+- **Calibration observation:** the generator sorts by priority → category (alphabetical) → id and the Simple tier keeps 5. For CF-002 that drops `sg_unevidenced` (Critical) from Simple while keeping the MCA question, even though the case pack treats SG evidence as critical. Behaviour preserved for parity; flagged for Dong. _Resolved 2026-09-26 (release red team RT-02): Simple now keeps every Critical question — see the verification doc, red-team section._
 - **Wording outside the compliance boundary in source notes:** case-pack CF-002 title ("Viable Business"), CF-004 ideal next step ("make approval conditional"), CF-002 sample missing-evidence #10 ("viable secured-lending route"), CF-004 sample environmental item ("decline to rely"), `FRAMEWORK` Black action ("Decline, refer"). These are not shown verbatim; the wrapper uses reworded, compliance-safe equivalents.
 - **Stale:** fallback `Oney-Credit-Framework-Project.md` week-by-week checkboxes (all Week 2–8 items unchecked since 2026-08-03); `CLAUDE.md` strategy section dated 2026-04.
 
@@ -62,7 +62,7 @@ MVP definitions compared: blueprint §9 "Must-have v1" (`~/clawd/oney-co/product
 
 1. Runnable wrapper connecting engine + tiers + re-rate (this task).
 2. Dong walkthrough/calibration of the wrapper output (spec §13 item 7).
-3. Decisions: public launch, pricing display, payment path, real-data collection, compliance wording sign-off.
+3. Decisions: public launch, pricing display, payment path, real-data collection, compliance wording sign-off. _(Real data: Dong decided 2026-09-26, `d77d437` — invited beta may use de-identified real deals only.)_
 4. Model layer (hosted or BYO) — deferred by spec.
 5. Industry profiles — not started.
 
