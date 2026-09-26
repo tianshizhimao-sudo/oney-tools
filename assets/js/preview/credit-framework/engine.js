@@ -17,9 +17,9 @@
 
 import { RULES, RULE_LIBRARY } from './rules.js';
 import { CASES, CASE_ORDER } from './cases.js';
-import { DEFERRAL_REASONS, DEFERRAL_LIBRARY_VERSION } from './deferral-reasons.js';
+import { DEFERRAL_REASONS, DEFERRAL_LIBRARY_VERSION, EXACT_DOCUMENT_RULE } from './deferral-reasons.js';
 
-export { RULES, RULE_LIBRARY, CASES, CASE_ORDER, DEFERRAL_REASONS, DEFERRAL_LIBRARY_VERSION };
+export { RULES, RULE_LIBRARY, CASES, CASE_ORDER, DEFERRAL_REASONS, DEFERRAL_LIBRARY_VERSION, EXACT_DOCUMENT_RULE };
 
 export const ENGINE_VERSION = 'credit-framework-mvp-wrapper v0.1 (prototype)';
 
@@ -538,7 +538,7 @@ export function buildDeferralPlan(codes, questions, evidence) {
     return { ...d, linkedSelected, linkedNotSelected, status, kind: KIND.RULE };
   });
   const overall = reasons.reduce((w, r) => (DEFERRAL_STATUS[r.status].rank > DEFERRAL_STATUS[w].rank ? r.status : w), 'resubmit');
-  return { version: DEFERRAL_LIBRARY_VERSION, reasons, overall: reasons.length ? overall : null };
+  return { version: DEFERRAL_LIBRARY_VERSION, exactDocumentRule: EXACT_DOCUMENT_RULE, reasons, overall: reasons.length ? overall : null };
 }
 
 /* ---------------------------------------------------------
@@ -634,6 +634,10 @@ export function buildClientEmail(assessment) {
   lines.push('Hi [Client name],');
   lines.push('');
   lines.push('Thanks for the information so far. Before we take the file further, these items will help us present it clearly and avoid delays:');
+  if (assessment.deferral.plan.reasons.length) {
+    lines.push('');
+    lines.push('The lender has asked for specific documents. Please send the exact documents listed (or the same type of document) rather than summaries — that is what the lender’s credit policy needs to see.');
+  }
   lines.push('');
   qs.forEach((q, i) => lines.push(`${i + 1}. ${q.clientWording}`));
   lines.push('');
@@ -900,10 +904,11 @@ export function reportToPlainText(report) {
         L.push(`${tag(s.kind)} Re-rate logic: ${s.rerateNote}`);
         if (s.plan.reasons.length) {
           L.push(`${tag(s.kind)} Deferral recovery (${s.plan.version}) — overall: ${DEFERRAL_STATUS[s.plan.overall].label}`);
+          L.push(`${tag(s.kind)} KEY: ${s.plan.exactDocumentRule}`);
           for (const r of s.plan.reasons) {
             L.push(`   • ${r.label} — ${DEFERRAL_STATUS[r.status].label}`);
             L.push(`     Lender is testing: ${r.lenderTesting}`);
-            L.push(`     Collect first: ${r.collectFirst.join('; ')}`);
+            L.push(`     Collect first (exact documents credit asked for, or the same type): ${r.collectFirst.join('; ')}`);
             L.push(`     Explanation to include: ${r.explanation}`);
             L.push(`     Linked triggers selected: ${r.linkedSelected.length ? r.linkedSelected.map((x) => x.label).join('; ') : 'none'}${r.linkedNotSelected.length ? ` · not selected: ${r.linkedNotSelected.map((x) => x.label).join('; ')}` : ''}`);
           }

@@ -1,16 +1,22 @@
 /* =========================================================
-   Oney Credit Framework — lender deferral reason library (DRAFT v0.1)
-   INTERNAL PROTOTYPE ONLY. Pending Dong calibration.
+   Oney Credit Framework — lender deferral reason library v0.1
+   INTERNAL PROTOTYPE ONLY. Calibrated by Dong 2026-09-26: reasons sufficient,
+   "lender is testing" lines fit, collect-first order reasonable, linked
+   triggers right. Key rule: supply the exact document credit asked for (or
+   the same type) — after a concern is raised, only that meets credit policy.
 
    Source: deferral-follow-up-engine-spec-v0.1.md §4 Mode B (what the lender
    is really testing / what to collect first / what explanation should
    accompany documents / rework or pause) and §6 trigger category 9.
    Each reason links to existing rules-v0.1.json trigger ids so the
    Follow-Up Engine and re-rate loop are reused, not duplicated.
-   Obsidian copy for editing: deferral-reason-library-v0.1-draft.md
+   Obsidian copy: deferral-reason-library-v0.1.md
    ========================================================= */
 
-export const DEFERRAL_LIBRARY_VERSION = 'draft-0.1 (2026-09-26, pending Dong calibration)';
+export const DEFERRAL_LIBRARY_VERSION = 'v0.1 (calibrated 2026-09-26)';
+
+/* Dong 2026-09-26: the single most important instruction on any deferral. */
+export const EXACT_DOCUMENT_RULE = 'Provide the exact documents credit asked for, or the same document type. Credit has already raised a concern, so only the requested evidence meets credit policy; substitutes, summaries or explanations on their own do not.';
 
 export const DEFERRAL_REASONS = Object.freeze([
   {

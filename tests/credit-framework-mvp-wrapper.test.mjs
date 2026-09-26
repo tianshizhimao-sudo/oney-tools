@@ -441,6 +441,10 @@ test('deferral recovery plan: Comprehensive only, evidence-driven status, sample
   assert.deepEqual(c.r.sections.slice(0, 3).map((x) => x.id), ['snapshot', 'rating', 'deferral'], 'plan shown right after rating');
   assert.equal(reportFor('CF-004', 'comprehensive').r.sections[2].id, 'risks', 'default order without deferral');
   assert.match(c.text, /Lender is testing: Whether the security still covers/);
+  assert.match(c.text, /KEY: Provide the exact documents credit asked for, or the same document type\./, 'exact-document rule (Dong 2026-09-26)');
+  assert.match(c.text, /Collect first \(exact documents credit asked for, or the same type\)/);
+  assert.match(c.text, /Please send the exact documents listed \(or the same type of document\)/, 'client email carries the rule');
+  assert.ok(!reportFor('CF-004', 'comprehensive').text.includes('exact documents listed'), 'no deferral → no exact-doc line in email');
   assert.equal(lintCompliance(c.text).ok, true);
 
   assert.equal(withCodes('CF-004', 'comprehensive', ['valuation_shortfall'], { valuation_sensitive: 'weak' }).r.sections.find((x) => x.id === 'deferral').plan.overall, 'pause');

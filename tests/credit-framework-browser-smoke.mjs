@@ -162,6 +162,8 @@ async function runViewport(name, contextOpts) {
   v.deferral = { simpleUpsell: await page.locator('#deferral-upsell').isVisible(), simplePlans: await page.locator('[data-deferral]').count() };
   await page.click('#tier-output [data-tier="comprehensive"]');
   v.deferral.plans = await page.locator('[data-deferral]').count();
+  v.deferral.exactDocRule = await page.locator('#exact-doc-rule').count();
+  assert.equal(v.deferral.exactDocRule, 1, 'exact-document rule shown');
   v.deferral.status = await page.getAttribute('[data-deferral="valuation_shortfall"]', 'data-status');
   if ((await page.getAttribute('#expand-all', 'data-state')) !== 'open') await page.click('#expand-all');
   await page.selectOption('[data-rerate="valuation_sensitive"]', 'weak');
