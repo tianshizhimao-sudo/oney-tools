@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+  <meta name="googlebot" content="noindex,nofollow,noarchive,nosnippet">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'">
+  <meta name="theme-color" content="#1A1A2E">
+  <title>Oney Credit Framework — MVP Wrapper (Internal Prototype)</title>
+  <link rel="icon" href="data:,">
+  <style>
+    :root{
+      --green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--purple-l:#9B59B6;
+      --bg:#1A1A2E;--card:#252540;--card2:#1f1f36;--line:#3D3D5C;--muted:#a3a3b8;--text:#f2f2f7;
+      --k-fact:#7fb3ff;--k-calc:#5fd3e6;--k-assumption:#f2b84b;--k-rule:#2ECC85;--k-judgement:#c39bef;
+      --r-green:#2ECC85;--r-amber:#f2b84b;--r-red:#ef6a6a;--r-black:#8a8aa0;
+      --shadow:0 18px 50px rgba(0,0,0,.28)
+    }
+    *{box-sizing:border-box}
+    html{overflow-x:hidden;-webkit-text-size-adjust:100%}
+    body{margin:0;overflow-x:hidden;background:radial-gradient(circle at 8% 0%,rgba(46,204,133,.10),transparent 32%),radial-gradient(circle at 96% 8%,rgba(107,76,154,.18),transparent 30%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:15px;line-height:1.5;min-height:100vh}
+    button,input,select,textarea{font:inherit;color:inherit}
+    .wrap{width:min(1320px,calc(100% - 32px));margin:0 auto;position:relative;z-index:1}
+    /* Watermark */
+    .watermark{position:fixed;inset:0;pointer-events:none;z-index:0;display:grid;place-items:center;overflow:hidden}
+    .watermark-inner{transform:rotate(-24deg);display:flex;flex-direction:column;align-items:center;gap:10px;opacity:.055;white-space:nowrap}
+    .watermark-inner svg{width:min(46vw,360px);height:auto}
+    .watermark-inner span{font-weight:800;font-size:clamp(22px,5vw,46px);letter-spacing:.08em;color:#fff}
+    /* Header */
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 0;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:750;letter-spacing:-.3px;font-size:18px}
+    .brand svg{width:34px;height:34px;flex:0 0 34px}
+    .brand b{color:var(--green)}
+    .chip{font-size:11px;font-weight:800;letter-spacing:.06em;color:#e3d3f5;background:rgba(155,89,182,.16);border:1px solid rgba(155,89,182,.45);padding:6px 10px;border-radius:999px;max-width:100%;overflow-wrap:anywhere}
+    .hero{padding:6px 0 14px}
+    .eyebrow{color:var(--green);font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+    h1{font-size:clamp(26px,4.2vw,40px);line-height:1.1;letter-spacing:-1px;margin:8px 0 8px}
+    .hero p{color:var(--muted);margin:0;max-width:820px}
+    .boundary{margin:14px 0 0;padding:12px 14px;border:1px solid rgba(46,204,133,.35);background:rgba(46,204,133,.07);border-radius:12px;color:#c9efdd;font-size:13.5px}
+    .boundary strong{color:#fff}
+    .privacy{margin-top:8px;font-size:12.5px;color:var(--muted)}
+    /* Layout */
+    .layout{display:grid;grid-template-columns:minmax(0,420px) minmax(0,1fr);gap:18px;padding:16px 0 48px;align-items:start}
+    .layout>*{min-width:0}
+    .card{background:linear-gradient(180deg,rgba(37,37,64,.97),rgba(29,29,50,.97));border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
+    .intake{padding:18px;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto}
+    .intake h2,.out-head h2{font-size:19px;margin:0 0 4px;letter-spacing:-.3px}
+    .hint{color:var(--muted);font-size:12.5px;margin:0 0 12px}
+    .case-picker{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px}
+    .case-btn{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid var(--line);background:var(--card2);border-radius:12px;padding:10px 12px;cursor:pointer;min-height:44px}
+    .case-btn[aria-pressed="true"]{border-color:var(--green);box-shadow:0 0 0 2px rgba(46,204,133,.18) inset}
+    .dot{width:10px;height:10px;border-radius:50%;flex:0 0 10px}
+    .dot.green{background:var(--r-green)}.dot.amber{background:var(--r-amber)}.dot.red{background:var(--r-red)}.dot.custom{background:var(--muted)}
+    details.sec{border:1px solid var(--line);border-radius:12px;margin:8px 0;background:rgba(0,0,0,.12)}
+    details.sec>summary{cursor:pointer;padding:10px 12px;font-weight:700;font-size:13.5px;list-style:none;display:flex;justify-content:space-between;gap:8px}
+    details.sec>summary::-webkit-details-marker{display:none}
+    details.sec>summary::after{content:"+";color:var(--muted)}
+    details.sec[open]>summary::after{content:"–"}
+    .fields{display:grid;gap:10px;padding:0 12px 12px}
+    .field{display:grid;gap:5px}
+    .field label{font-size:12.5px;font-weight:700}
+    .control{width:100%;border:1px solid var(--line);background:#151525;border-radius:10px;padding:10px 11px;outline:none;min-height:42px}
+    textarea.control{min-height:64px;resize:vertical}
+    .control:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(46,204,133,.12)}
+    .trig{display:flex;gap:9px;align-items:flex-start;padding:7px 2px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.05)}
+    .trig input{margin-top:3px;width:18px;height:18px;accent-color:var(--green);flex:0 0 18px}
+    .trig small{display:block;color:var(--muted);font-size:11.5px}
+    .prio{font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:999px;border:1px solid var(--line);white-space:nowrap}
+    .prio.Critical{color:#ffc0c0;border-color:rgba(239,106,106,.5)}.prio.Important{color:#ffe0a6;border-color:rgba(242,184,75,.5)}.prio.Helpful{color:#cfe3ff;border-color:rgba(127,179,255,.5)}
+    /* Tier toggle */
+    .tiers{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:rgba(0,0,0,.2);padding:5px;border-radius:12px}
+    .tier-btn{border:0;border-radius:9px;padding:10px 8px;background:transparent;color:var(--muted);font-weight:750;cursor:pointer;line-height:1.25;min-height:44px}
+    .tier-btn small{display:block;font-weight:500;font-size:11px;opacity:.85}
+    .tier-btn[aria-selected="true"]{background:linear-gradient(135deg,var(--green),var(--green2));color:#06140d}
+    /* Output */
+    .output{padding:18px;min-width:0}
+    .out-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+    .actions{display:flex;flex-wrap:wrap;gap:8px}
+    .btn{border:0;border-radius:10px;padding:10px 14px;font-weight:750;cursor:pointer;min-height:42px}
+    .btn-primary{background:linear-gradient(135deg,var(--green),var(--green2));color:#06140d}
+    .btn-secondary{background:#30304a;border:1px solid #4a4a68}
+    .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+    .lint{font-size:12px;font-weight:700;padding:6px 10px;border-radius:999px;border:1px solid;align-self:center;white-space:nowrap}
+    .lint.ok{color:#baf1d5;border-color:rgba(46,204,133,.5);background:rgba(46,204,133,.08)}
+    .lint.bad{color:#ffb1b1;border-color:rgba(239,106,106,.6);background:rgba(239,106,106,.1)}
+    .legend{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px;padding:10px;border:1px dashed var(--line);border-radius:12px}
+    .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+    .kind{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:6px;border:1px solid;white-space:nowrap;vertical-align:1px}
+    .kind.fact{color:var(--k-fact);border-color:var(--k-fact)}
+    .kind.calculation{color:var(--k-calc);border-color:var(--k-calc)}
+    .kind.assumption{color:var(--k-assumption);border-color:var(--k-assumption);border-style:dashed}
+    .kind.rule{color:var(--k-rule);border-color:var(--k-rule)}
+    .kind.judgement{color:var(--k-judgement);border-color:var(--k-judgement);font-style:italic}
+    .item{border-left:3px solid var(--line);padding:6px 0 6px 10px;margin:6px 0;overflow-wrap:anywhere}
+    .item.fact{border-left-color:var(--k-fact)}.item.calculation{border-left-color:var(--k-calc)}.item.assumption{border-left-color:var(--k-assumption);border-left-style:dashed}.item.rule{border-left-color:var(--k-rule)}.item.judgement{border-left-color:var(--k-judgement)}
+    .notice{padding:10px 12px;border-radius:10px;font-size:13px;margin:8px 0}
+    .notice.warn{background:rgba(242,184,75,.08);border:1px solid rgba(242,184,75,.35);color:#f5d9a2}
+    .notice.info{background:rgba(155,89,182,.1);border:1px solid rgba(155,89,182,.35);color:#e3d3f5}
+    section.out{border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0;background:rgba(0,0,0,.10)}
+    section.out h3{margin:0 0 8px;font-size:16px;letter-spacing:-.2px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .kv{display:grid;grid-template-columns:minmax(120px,190px) minmax(0,1fr);gap:4px 12px;font-size:13.5px}
+    .kv .k{color:var(--muted)}
+    .kv>div{min-width:0;overflow-wrap:anywhere}
+    .rating-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    .rating-pill{font-weight:800;padding:8px 12px;border-radius:999px;border:1px solid}
+    .rating-pill.green{color:var(--r-green);border-color:var(--r-green);background:rgba(46,204,133,.08)}
+    .rating-pill.amber{color:var(--r-amber);border-color:var(--r-amber);background:rgba(242,184,75,.08)}
+    .rating-pill.red{color:var(--r-red);border-color:var(--r-red);background:rgba(239,106,106,.08)}
+    .rating-pill.black{color:var(--r-black);border-color:var(--r-black)}
+    .conf{font-weight:800;padding:8px 12px;border-radius:999px;border:1px solid var(--k-rule);color:var(--k-rule)}
+    .tagpill{display:inline-block;font-size:12px;padding:3px 8px;border-radius:999px;background:rgba(46,204,133,.1);border:1px solid rgba(46,204,133,.35);margin:2px 4px 2px 0}
+    table.grid{width:100%;border-collapse:collapse;font-size:13px}
+    table.grid th,table.grid td{text-align:left;vertical-align:top;padding:8px;border-bottom:1px solid rgba(255,255,255,.07);overflow-wrap:anywhere}
+    table.grid th{color:var(--muted);font-weight:700;font-size:12px}
+    .q{border:1px solid var(--line);border-left:3px solid var(--k-rule);border-radius:10px;padding:10px 12px;margin:8px 0;background:rgba(0,0,0,.08)}
+    .q h4{margin:0 0 6px;font-size:14px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+    .q p{margin:4px 0;font-size:13.5px}
+    .q ul{margin:4px 0 4px 18px;padding:0;font-size:13px}
+    .q .gated{color:#e3d3f5}
+    .lbl{color:var(--muted);font-weight:700}
+    .locked{border-style:dashed;opacity:.9}
+    .locked p{color:var(--muted);margin:0 0 8px;font-size:13px}
+    pre.email{white-space:pre-wrap;overflow-wrap:anywhere;background:#151525;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:13px;font-family:inherit;margin:8px 0}
+    .rr-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,230px);gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px}
+    .rr-out{margin-top:10px;display:grid;gap:4px;font-size:13.5px}
+    .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#0f2a1f;border:1px solid var(--green);color:#c9efdd;padding:10px 16px;border-radius:10px;font-size:13px;z-index:5;opacity:0;transition:opacity .2s;pointer-events:none}
+    .toast.show{opacity:1}
+    .print-only{display:none}
+    .jump{display:none;text-align:center;text-decoration:none;margin-bottom:6px}
+    .footer{text-align:center;color:var(--muted);font-size:12px;padding:0 0 32px}
+    .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+    @media (max-width:1100px){
+      .layout{grid-template-columns:1fr}
+      .intake{position:static;max-height:none}
+      .jump{display:block}
+    }
+    @media (max-width:620px){
+      .wrap{width:calc(100% - 20px)}
+      .intake,.output{padding:14px}
+      .kv{grid-template-columns:1fr}
+      .kv .k{margin-top:6px}
+      .rr-row{grid-template-columns:1fr}
+      table.grid thead{display:none}
+      table.grid,table.grid tbody,table.grid tr,table.grid td{display:block;width:100%}
+      table.grid tr{border:1px solid var(--line);border-radius:10px;margin:8px 0;padding:4px 0}
+      table.grid td{border:0;padding:4px 10px}
+      table.grid td::before{content:attr(data-label);display:block;color:var(--muted);font-size:11px;font-weight:700}
+      .actions .btn{flex:1 1 auto}
+      .tier-btn small{display:none}
+    }
+    @media print{
+      @page{margin:14mm}
+      body{background:#fff!important;color:#111!important;font-size:11.5pt}
+      .no-print,.intake,.actions,.topbar .chip,.hero p,.toast,.rr-row select{display:none!important}
+      .print-only{display:block!important}
+      .layout{display:block;padding:0}
+      .card,section.out,.q,pre.email{background:transparent!important;box-shadow:none!important;border-color:#bbb!important;color:#111!important}
+      .output{padding:0}
+      .boundary{background:#f3fbf7!important;color:#0b3d27!important;border-color:#2ECC85!important}
+      .boundary strong{color:#0b3d27!important}
+      .privacy{color:#555!important}
+      #print-head svg{width:28px!important;height:28px!important}
+      .kv .k,.hint,.lbl,table.grid th,.legend-item{color:#444!important}
+      .kind{background:#fff!important}
+      .watermark{position:fixed;display:grid!important;inset:0;width:100%;height:100%;z-index:0}
+      .watermark-inner{opacity:.09}
+      .watermark-inner svg{width:300px}
+      .watermark-inner span{color:#1A1A2E;font-size:22px}
+      section.out{break-inside:auto;page-break-inside:auto}
+      .q,.item,tr{break-inside:avoid;page-break-inside:avoid}
+      a{color:#111}
+    }
+  </style>
+</head>
+<body>
+  <div class="watermark" aria-hidden="true" id="watermark">
+    <div class="watermark-inner">
+      <svg viewBox="0 0 100 100"><g transform="translate(50 50)"><circle r="38" fill="none" stroke="#2ECC85" stroke-width="10"/><circle r="28" fill="#2ECC85"/></g></svg>
+      <span>ONEY &amp; CO · INTERNAL PROTOTYPE</span>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <header class="topbar">
+      <div class="brand" id="brand">
+        <svg viewBox="0 0 100 100" role="img" aria-label="Oney &amp; Co logo"><defs><linearGradient id="cfFill" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#1FAD73"/><stop offset="60%" stop-color="#2ECC85"/><stop offset="60%" stop-color="transparent"/><stop offset="100%" stop-color="transparent"/></linearGradient><linearGradient id="cfStroke" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2ECC85"/><stop offset="100%" stop-color="#1FAD73"/></linearGradient></defs><g transform="translate(50 50)"><circle r="38" fill="none" stroke="url(#cfStroke)" stroke-width="10"/><circle r="28" fill="url(#cfFill)"/></g></svg>
+        <span>Oney <b>&amp;</b> Co</span>
+      </div>
+      <span class="chip" id="env-chip">NOINDEX · INTERNAL PROTOTYPE · SYNTHETIC DATA</span>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Oney Credit Framework · MVP wrapper v0.1</div>
+      <h1>Deal review wrapper</h1>
+      <p>Intake → scenario tags → readiness rating + confidence → Deferral Follow-Up Engine → Simple or Comprehensive output → re-rate loop. Rules run in your browser; judgement shown is a pre-generated, banker-calibrated sample.</p>
+      <div class="boundary" id="boundary-top"><strong>Boundary:</strong> <span data-boundary>This is a lender-readiness and deal-packaging review. It does not approve credit, predict lender acceptance, or replace licensed credit assessment.</span></div>
+      <div class="privacy">Private test page: everything runs locally. Nothing is uploaded, saved, emailed or submitted, and network access is blocked by this page’s security policy. Use synthetic data only — do not enter real client information.</div>
+    </section>
+
+    <div class="layout">
+      <aside class="card intake no-print" id="intake" aria-label="Deal intake">
+        <h2>1 · Intake</h2>
+        <p class="hint">Load a synthetic sample, then edit facts or triggers. Any edit switches to a custom scenario (rule output only).</p>
+        <div class="case-picker" id="case-picker" role="group" aria-label="Sample cases"></div>
+        <a class="btn btn-secondary jump" href="#output" id="jump-output">View output ↓</a>
+
+        <div class="field" style="margin:10px 0">
+          <span class="lbl" style="font-size:12.5px">Output tier</span>
+          <div class="tiers" role="tablist" aria-label="Output tier" id="tier-intake"></div>
+        </div>
+
+        <form id="intake-form" autocomplete="off" novalidate></form>
+      </aside>
+
+      <main class="card output" id="output" aria-live="polite">
+        <div class="print-only" id="print-head"></div>
+        <div class="out-head">
+          <div>
+            <h2 id="out-title">2 · Output</h2>
+            <p class="hint" id="out-sub"></p>
+          </div>
+          <div class="actions no-print">
+            <span class="lint" id="lint-badge" role="status"></span>
+            <button class="btn btn-secondary" type="button" id="copy-btn">Copy report</button>
+            <button class="btn btn-primary" type="button" id="print-btn">Export PDF / Print</button>
+          </div>
+        </div>
+        <div class="tiers no-print" role="tablist" aria-label="Output tier" id="tier-output" style="margin-bottom:10px"></div>
+        <div class="legend" id="legend" aria-label="Output legend"></div>
+        <div id="report"></div>
+        <div class="boundary" id="boundary-bottom"><strong>Boundary:</strong> <span data-boundary>This is a lender-readiness and deal-packaging review. It does not approve credit, predict lender acceptance, or replace licensed credit assessment.</span></div>
+      </main>
+    </div>
+
+    <footer class="footer">Oney &amp; Co · Oney Credit Framework internal prototype · Not linked from site navigation · Synthetic data only</footer>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <textarea id="copy-buffer" class="sr-only" aria-hidden="true" tabindex="-1" readonly></textarea>
+
+  <script type="module" src="/assets/js/preview/credit-framework/app.js"></script>
+</body>
+</html>

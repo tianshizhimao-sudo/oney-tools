@@ -1,0 +1,304 @@
+/* =========================================================
+   Oney Credit Framework — follow-up rule library v0.1 (browser/Node ES module)
+
+   Verbatim transcription of Obsidian
+   20-Projects/Oney-Co/Oney-Credit-Framework/assets/follow-up-engine/rules-v0.1.json
+   (sha256 9c92ed541a67299c45708b66bbe1ec22af971ff7e74519af50a945034b96b006).
+   Do not edit by hand: tests/credit-framework-mvp-wrapper.test.mjs deep-equals
+   this export against tests/fixtures/credit-framework/rules-v0.1.json.
+   INTERNAL PROTOTYPE ONLY — synthetic data, noindex page.
+   ========================================================= */
+
+export const RULE_LIBRARY = Object.freeze({
+  "version": "0.1",
+  "updated": "2026-08-15",
+  "purpose": "Trigger-based broker follow-up questions for Oney Credit Framework deferral/rework workflow.",
+  "rules": [
+    {
+      "id": "ato_debt",
+      "category": "tax_compliance",
+      "priority": "Critical",
+      "triggerLabel": "ATO debt present",
+      "question": "Can you provide the full ATO integrated client account and current payment-plan letter?",
+      "whyItMatters": "Confirms whether tax debt is contained and managed, or evidence of recurring compliance stress.",
+      "evidence": [
+        "ATO integrated client account",
+        "ATO payment-plan letter",
+        "latest BAS lodgement status"
+      ],
+      "ifStrong": "May support a controlled restructure narrative and improve lender-readiness.",
+      "ifWeak": "Rating likely remains Red; mainstream submission should pause and specialist/private path may be the only testable option.",
+      "owner": "Client / accountant",
+      "clientWording": "Please send the full ATO account statement and current payment plan letter so we can confirm the balance, plan status and whether ATO is still comfortable with the arrangement."
+    },
+    {
+      "id": "missed_ato_plan",
+      "category": "tax_compliance",
+      "priority": "Critical",
+      "triggerLabel": "ATO payment plan missed or defaulted",
+      "question": "What was the missed ATO instalment amount, why was it missed, and how quickly was it caught up?",
+      "whyItMatters": "Separates an isolated timing issue from ongoing inability to meet statutory commitments.",
+      "evidence": [
+        "payment-plan history",
+        "bank statement showing catch-up payment",
+        "accountant explanation"
+      ],
+      "ifStrong": "May allow the missed payment to be framed as remediated rather than fatal.",
+      "ifWeak": "Conduct/compliance remains a major barrier and rating likely stays Red.",
+      "owner": "Client / accountant",
+      "clientWording": "Can you briefly explain what happened with the missed ATO payment, the amount involved, and provide evidence showing it has been brought back up to date?"
+    },
+    {
+      "id": "sg_unevidenced",
+      "category": "tax_compliance",
+      "priority": "Critical",
+      "triggerLabel": "Superannuation / SG claimed current but not evidenced",
+      "question": "Can you provide SG payment or clearing-house evidence confirming super is current?",
+      "whyItMatters": "Unpaid super materially worsens compliance risk and can change lender strategy.",
+      "evidence": [
+        "SG clearing-house receipts",
+        "payroll reports",
+        "ATO/SBSCH or fund payment confirmation"
+      ],
+      "ifStrong": "Removes a major compliance uncertainty and may support re-rating.",
+      "ifWeak": "Deal may need remediation before lender submission; rating likely remains Red.",
+      "owner": "Client / bookkeeper / accountant",
+      "clientWording": "Please send the latest super payment/clearing-house confirmations so we can show payroll obligations are up to date."
+    },
+    {
+      "id": "dishonours_recent",
+      "category": "conduct",
+      "priority": "Critical",
+      "triggerLabel": "Recent dishonours or account excesses",
+      "question": "Can you explain each recent dishonour/excess and provide 6–12 months statements so we can see whether this was isolated or ongoing?",
+      "whyItMatters": "Bank conduct is one of the fastest ways a lender forms a risk view.",
+      "evidence": [
+        "6–12 months business bank statements",
+        "explanation for each dishonour/excess"
+      ],
+      "ifStrong": "May support a contained timing explanation if conduct has normalised.",
+      "ifWeak": "Rating remains Red/Amber and lender selection narrows.",
+      "owner": "Client / broker",
+      "clientWording": "Please provide 6–12 months business statements and a short note explaining the recent dishonours/excesses, including whether they have stopped."
+    },
+    {
+      "id": "mca_present",
+      "category": "capacity_structure",
+      "priority": "Critical",
+      "triggerLabel": "Merchant cash advance or expensive short-term finance present",
+      "question": "Is the MCA being paid out, left in place, or restructured separately? Please provide the agreement, balance and payout figure.",
+      "whyItMatters": "MCA can materially distort cash flow and determine whether the proposed refinance actually improves servicing.",
+      "evidence": [
+        "MCA agreement",
+        "current balance",
+        "payout letter",
+        "repayment history"
+      ],
+      "ifStrong": "Can clarify true refinance benefit and support a restructure narrative.",
+      "ifWeak": "Capacity may be overstated and structure may be wrong or under-sized.",
+      "owner": "Client / broker",
+      "clientWording": "Please send the MCA agreement, current balance and payout figure, and confirm whether the new finance is intended to clear it."
+    },
+    {
+      "id": "working_capital_vague",
+      "category": "purpose_structure",
+      "priority": "Important",
+      "triggerLabel": "Working capital purpose is vague",
+      "question": "What exactly will the working-capital funds pay for, broken down by major category and timing?",
+      "whyItMatters": "Distinguishes productive working capital from funding recurring losses or cash leakage.",
+      "evidence": [
+        "use-of-funds breakdown",
+        "supplier invoices",
+        "contract mobilisation budget",
+        "cash-flow forecast"
+      ],
+      "ifStrong": "May improve purpose strength and support packaging.",
+      "ifWeak": "Request may need to be reduced, restructured or paused.",
+      "owner": "Client / accountant / broker",
+      "clientWording": "Please break down the working-capital amount into what it will pay for and when those costs are expected."
+    },
+    {
+      "id": "high_lvr_second_mortgage",
+      "category": "security",
+      "priority": "Critical",
+      "triggerLabel": "High-LVR second mortgage security",
+      "question": "Has any credible private/specialist lender confirmed appetite for this second-mortgage LVR, pricing and exit requirement?",
+      "whyItMatters": "High-LVR second mortgage structures may have no realistic secured path without specific lender appetite.",
+      "evidence": [
+        "private lender indicative terms",
+        "valuation/AVM",
+        "exit strategy",
+        "pricing estimate"
+      ],
+      "ifStrong": "May allow a specialist restructure path to be explored.",
+      "ifWeak": "Deal may have no realistic secured-lending pathway regardless of business story.",
+      "owner": "Broker / lender BDM / private lender",
+      "clientWording": "The proposed security position is tight, so we need to test whether any specialist lender would actually consider the LVR, price and exit before progressing too far."
+    },
+    {
+      "id": "valuation_sensitive",
+      "category": "security",
+      "priority": "Critical",
+      "triggerLabel": "Valuation-sensitive deal",
+      "question": "What happens if valuation comes in below the estimate — can the client contribute more equity or reduce the loan amount?",
+      "whyItMatters": "Valuation shortfall can change LVR, pricing, lender appetite and required equity.",
+      "evidence": [
+        "formal valuation",
+        "AVM",
+        "cash-to-complete",
+        "equity buffer"
+      ],
+      "ifStrong": "Supports lender strategy and fallback planning.",
+      "ifWeak": "May require lower loan amount, more equity or different lender path.",
+      "owner": "Broker / client / valuer",
+      "clientWording": "If the bank valuation is lower than expected, how much extra cash can you contribute, or what loan amount would still work?"
+    },
+    {
+      "id": "contract_growth",
+      "category": "purpose_capacity",
+      "priority": "Important",
+      "triggerLabel": "Growth working capital linked to new contract",
+      "question": "Can you provide signed contract / purchase order evidence and payment terms for the new work?",
+      "whyItMatters": "Converts a growth story into evidence-backed working-capital need.",
+      "evidence": [
+        "signed contract",
+        "accepted quote",
+        "purchase order",
+        "payment terms"
+      ],
+      "ifStrong": "May support Green/package-ready positioning.",
+      "ifWeak": "Rating may remain Amber until revenue certainty and cash-flow timing are proven.",
+      "owner": "Client",
+      "clientWording": "Please send the signed contract, accepted quote or purchase order, plus the payment terms, so we can link the working-capital request to confirmed work."
+    },
+    {
+      "id": "short_wale",
+      "category": "commercial_property",
+      "priority": "Critical",
+      "triggerLabel": "Short WALE / lease expiry risk",
+      "question": "Can the borrower service the debt if the external tenant leaves or does not renew?",
+      "whyItMatters": "Tests whether rental income is essential to servicing or merely a supporting mitigant.",
+      "evidence": [
+        "full lease",
+        "tenant payment history",
+        "servicing sensitivity",
+        "vacancy/re-leasing plan"
+      ],
+      "ifStrong": "Supports Amber-to-Green movement if borrower can service without tenant reliance.",
+      "ifWeak": "Rent may need to be shaded or ignored; lender appetite may reduce.",
+      "owner": "Broker / client / accountant",
+      "clientWording": "Please help us confirm whether the business can still service the loan if the tenant leaves after the current lease term."
+    },
+    {
+      "id": "zoning_environmental_missing",
+      "category": "commercial_property",
+      "priority": "Critical",
+      "triggerLabel": "Zoning or environmental evidence missing",
+      "question": "Has zoning/permitted use been confirmed, and are there any known environmental or contamination issues?",
+      "whyItMatters": "Commercial property suitability and marketability can be impaired by zoning or environmental concerns.",
+      "evidence": [
+        "zoning certificate",
+        "permitted-use confirmation",
+        "environmental risk check",
+        "contract due-diligence clauses"
+      ],
+      "ifStrong": "Improves security comfort and property due-diligence narrative.",
+      "ifWeak": "May require legal review, further reports, renegotiation or lender change.",
+      "owner": "Client / solicitor / valuer",
+      "clientWording": "Please confirm zoning/permitted use and whether any environmental or contamination issues are known for the property."
+    },
+    {
+      "id": "related_party_security",
+      "category": "structure_security",
+      "priority": "Important",
+      "triggerLabel": "Related-party security or property-owning entity",
+      "question": "Who owns the property, who is the borrower, and are any related-party leases, guarantees or SMSF interests involved?",
+      "whyItMatters": "Related-party security can create legal, policy and enforceability issues.",
+      "evidence": [
+        "title/ownership details",
+        "entity structure",
+        "related-party lease",
+        "guarantee/security consent",
+        "SMSF confirmation"
+      ],
+      "ifStrong": "Clarifies structure and prevents late legal/lender issues.",
+      "ifWeak": "May require solicitor review or a different borrowing/security structure.",
+      "owner": "Broker / client / solicitor / accountant",
+      "clientWording": "Please confirm who owns the property, which entity is borrowing, and whether any SMSF or related-party lease is involved."
+    },
+    {
+      "id": "stale_preapproval",
+      "category": "documentation_freshness",
+      "priority": "Critical",
+      "triggerLabel": "Stale pre-approval or old servicing position",
+      "question": "Can we re-run servicing using current income, expenses, debts, rental shading and lender policy?",
+      "whyItMatters": "Old pre-approvals can be unreliable after policy, rate, income, expense or debt changes.",
+      "evidence": [
+        "updated servicing calculator",
+        "current loan statements",
+        "income evidence",
+        "expense position"
+      ],
+      "ifStrong": "May restore confidence in lender strategy.",
+      "ifWeak": "Deal may move to Red or require debt reduction / lower purchase price.",
+      "owner": "Broker",
+      "clientWording": "Because the pre-approval is no longer fresh, we should re-check servicing with current income, expenses and debts before relying on it."
+    },
+    {
+      "id": "high_dti",
+      "category": "capacity_leverage",
+      "priority": "Critical",
+      "triggerLabel": "High DTI / leverage pressure",
+      "question": "What debt reduction, lower loan amount, additional income evidence or lender-specific pathway could bring DTI/serviceability back within appetite?",
+      "whyItMatters": "High income does not solve excessive leverage; DTI can be a hard strategic constraint.",
+      "evidence": [
+        "current liabilities",
+        "servicing run",
+        "income evidence",
+        "debt reduction plan"
+      ],
+      "ifStrong": "May identify a narrower lender path or revised purchase ceiling.",
+      "ifWeak": "No-deal under normal settings; rework before submission.",
+      "owner": "Broker / client",
+      "clientWording": "The total debt position is the main issue, so we need to check whether reducing debt, lowering the loan amount or using stronger verified income evidence changes the outcome."
+    },
+    {
+      "id": "supplier_arrears",
+      "category": "conduct_capacity",
+      "priority": "Critical",
+      "triggerLabel": "Supplier arrears / aged creditors",
+      "question": "Can you provide an aged creditors report and explain any amounts over 60 or 90 days by supplier, amount and reason?",
+      "whyItMatters": "Supplier arrears can indicate liquidity stress and may affect trading continuity.",
+      "evidence": [
+        "aged creditors",
+        "supplier repayment plan",
+        "reason for arrears",
+        "current trading update"
+      ],
+      "ifStrong": "May support a manageable working-capital/restructure story.",
+      "ifWeak": "Rating may remain Amber/Red and lender may require remediation first.",
+      "owner": "Client / accountant",
+      "clientWording": "Please send an aged creditors report and explain any older supplier balances, especially anything over 60 or 90 days."
+    },
+    {
+      "id": "turnaround_claim",
+      "category": "business_risk",
+      "priority": "Important",
+      "triggerLabel": "Turnaround claimed but not evidenced",
+      "question": "What evidence proves the turnaround is real — current management accounts, new contracts, YTD revenue, margin and cash conversion?",
+      "whyItMatters": "A turnaround story only improves credit quality if it is evidenced and cash-generative.",
+      "evidence": [
+        "YTD management accounts",
+        "new customer contracts",
+        "margin analysis",
+        "cash-flow forecast"
+      ],
+      "ifStrong": "May support Amber/package-better positioning despite weak prior year.",
+      "ifWeak": "Treat as unproven; rating may remain Red/Amber.",
+      "owner": "Client / accountant",
+      "clientWording": "Please provide the latest management accounts and any new customer/order evidence so we can show the recovery is real, not just expected."
+    }
+  ]
+});
+
+export const RULES = RULE_LIBRARY.rules;

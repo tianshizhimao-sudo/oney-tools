@@ -1,0 +1,12 @@
+{
+  "dealId": "CF-004",
+  "dealName": "Precision Parts — Commercial Property Purchase",
+  "currentRating": "Amber — Package Better",
+  "scenario": "Commercial warehouse purchase with external tenant, short WALE and missing property due diligence",
+  "triggers": [
+    "valuation_sensitive",
+    "short_wale",
+    "zoning_environmental_missing",
+    "related_party_security"
+  ]
+}

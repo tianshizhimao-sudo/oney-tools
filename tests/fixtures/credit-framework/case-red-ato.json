@@ -1,0 +1,15 @@
+{
+  "dealId": "CF-002",
+  "dealName": "Northside Hospitality Group — ATO Debt Restructure",
+  "currentRating": "Red — Rework First / specialist-private path only",
+  "scenario": "ATO debt restructure with missed payment plan, SG uncertainty, dishonours, MCA and high-LVR second mortgage",
+  "triggers": [
+    "ato_debt",
+    "missed_ato_plan",
+    "sg_unevidenced",
+    "dishonours_recent",
+    "mca_present",
+    "high_lvr_second_mortgage",
+    "working_capital_vague"
+  ]
+}

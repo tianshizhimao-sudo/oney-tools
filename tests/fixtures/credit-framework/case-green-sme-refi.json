@@ -1,0 +1,11 @@
+{
+  "dealId": "CF-001",
+  "dealName": "Harbour Electrical — Clean SME Refinance",
+  "currentRating": "Green — Package Ready, subject to valuation and contract evidence",
+  "scenario": "Clean SME refinance plus contract-backed growth working capital",
+  "triggers": [
+    "valuation_sensitive",
+    "contract_growth",
+    "working_capital_vague"
+  ]
+}
