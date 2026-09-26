@@ -824,7 +824,7 @@ export function triggerCheckText(tc) {
 
 export function reportToPlainText(report) {
   const L = [];
-  L.push('Oney & Co — Oney Credit Framework (INTERNAL PROTOTYPE · synthetic data)');
+  L.push('Oney & Co — Oney Credit Framework (beta · sample cases are synthetic · generated in the browser)');
   L.push(`${report.tierName} — ${report.dealName} (${report.dealId})`);
   L.push('');
   L.push(report.boundary);

@@ -209,7 +209,7 @@
   <div class="watermark" aria-hidden="true" id="watermark">
     <div class="watermark-inner">
       <svg viewBox="0 0 100 100"><g transform="translate(50 50)"><circle r="38" fill="none" stroke="#2ECC85" stroke-width="10"/><circle r="28" fill="#2ECC85"/></g></svg>
-      <span>ONEY &amp; CO · INTERNAL PROTOTYPE</span>
+      <span>ONEY &amp; CO · BETA</span>
     </div>
   </div>
 
@@ -219,7 +219,7 @@
         <svg viewBox="0 0 100 100" role="img" aria-label="Oney &amp; Co logo"><defs><linearGradient id="cfFill" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#1FAD73"/><stop offset="60%" stop-color="#2ECC85"/><stop offset="60%" stop-color="transparent"/><stop offset="100%" stop-color="transparent"/></linearGradient><linearGradient id="cfStroke" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2ECC85"/><stop offset="100%" stop-color="#1FAD73"/></linearGradient></defs><g transform="translate(50 50)"><circle r="38" fill="none" stroke="url(#cfStroke)" stroke-width="10"/><circle r="28" fill="url(#cfFill)"/></g></svg>
         <span>Oney <b>&amp;</b> Co</span>
       </div>
-      <span class="chip" id="env-chip">NOINDEX · INTERNAL PROTOTYPE · SYNTHETIC DATA</span>
+      <span class="chip" id="env-chip">BETA · BY INVITATION · RUNS IN YOUR BROWSER</span>
     </header>
 
     <section class="hero">
@@ -227,13 +227,13 @@
       <h1>Deal review wrapper</h1>
       <p>Intake → scenario tags → readiness rating + confidence → Deferral Follow-Up Engine → Simple or Comprehensive output → re-rate loop. Rules run in your browser; judgement shown is a pre-generated, banker-calibrated sample.</p>
       <div class="boundary" id="boundary-top"><strong>Boundary:</strong> <span data-boundary>This is a lender-readiness and deal-packaging review. It does not approve credit, predict lender acceptance, or replace licensed credit assessment.</span></div>
-      <div class="privacy">Private test page: everything runs locally. Nothing is uploaded, saved, emailed or submitted, and network access is blocked by this page’s security policy. Use synthetic data only — do not enter real client information.</div>
+      <div class="privacy" id="data-notice">Private beta: everything runs in your browser. Nothing is uploaded, saved, emailed or submitted, and network access is blocked by this page’s security policy. The three sample cases are synthetic. You can enter a real deal <strong>only de-identified</strong>: no client names, ABNs/ACNs, addresses, dates of birth or account numbers.</div>
     </section>
 
     <div class="layout">
       <aside class="card intake no-print" id="intake" aria-label="Deal intake">
         <h2>1 · Intake</h2>
-        <p class="hint">Load a synthetic sample, then edit facts or triggers. Any edit switches to a custom scenario (rule output only).</p>
+        <p class="hint">Load a synthetic sample, or start blank and enter your own deal <strong>de-identified</strong> (no names, ABNs, addresses or account numbers). Any edit switches to a custom scenario (rule output only).</p>
         <div class="case-picker" id="case-picker" role="group" aria-label="Sample cases"></div>
         <a class="btn btn-secondary jump" href="#output" id="jump-output">View output ↓</a>
 
@@ -267,7 +267,7 @@
       </main>
     </div>
 
-    <footer class="footer">Oney &amp; Co · Oney Credit Framework internal prototype · Not linked from site navigation · Synthetic data only</footer>
+    <footer class="footer">Oney &amp; Co · Oney Credit Framework beta · Not linked from site navigation · Sample cases are synthetic; entered deals never leave your browser</footer>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <textarea id="copy-buffer" class="sr-only" aria-hidden="true" tabindex="-1" readonly></textarea>

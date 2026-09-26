@@ -393,7 +393,7 @@ function renderOutput() {
 
   $('#print-head').replaceChildren(
     el('div', { style: 'display:flex;align-items:center;gap:10px;font-weight:800' }, printLogo(), 'Oney & Co — Oney Credit Framework'),
-    el('div', { style: 'font-size:10pt;color:#444' }, `${report.tierName} · ${report.dealName} (${report.dealId}) · Internal prototype · Synthetic data`),
+    el('div', { style: 'font-size:10pt;color:#444' }, `${report.tierName} · ${report.dealName} (${report.dealId}) · Oney Credit Framework beta`),
     el('div', { class: 'boundary', style: 'margin:8px 0' }, BOUNDARY_TEXT));
 }
 

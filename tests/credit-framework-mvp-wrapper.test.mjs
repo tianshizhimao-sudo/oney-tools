@@ -488,3 +488,11 @@ test('broker feedback checklist: spec §14 questions verbatim, bar of 3 yes, cop
   const plain = reportFor('CF-002', 'comprehensive').text;
   assert.ok(!plain.includes('30 minutes of work'), 'feedback is not part of the copied report');
 });
+
+test('beta data notice: de-identified real deals only, nothing leaves the browser', async () => {
+  const html = await read('preview/credit-framework.html');
+  assert.match(html, /id="data-notice"[^>]*>Private beta: everything runs in your browser\. Nothing is uploaded, saved, emailed or submitted/);
+  assert.match(html, /only de-identified<\/strong>: no client names, ABNs\/ACNs, addresses, dates of birth or account numbers/);
+  assert.doesNotMatch(html, /INTERNAL PROTOTYPE|Use synthetic data only/);
+  assert.match(reportFor('CF-001', 'simple').text, /^Oney & Co — Oney Credit Framework \(beta · sample cases are synthetic · generated in the browser\)/);
+});
