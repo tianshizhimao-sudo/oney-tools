@@ -1,0 +1,83 @@
+{
+  "note": "Synthetic adversarial cases from the 2026-09-27 Adversarial Case Lab (R03 v2), corrected per claude-tasks/task-06. No real customer data. AC-01 and AC-03 are deterministic custom-scenario fixtures; AC-02 is an evaluator/ambiguity sentinel only (the v0.1 rule library has no generic SME capacity trigger, and none is invented here). Arithmetic pins are descriptive calculations, not lender-policy thresholds.",
+  "cases": {
+    "AC-01": {
+      "role": "fixture",
+      "rating": "Amber — Package Better",
+      "expectedTriggers": ["sg_unevidenced", "supplier_arrears", "working_capital_vague"],
+      "intake": {
+        "dealName": "AC-01 — Profitable refinance with aged creditors (synthetic)",
+        "scenario": "Profitable SME refinance with low headline leverage but material aged supplier arrears and a partially specified working-capital request",
+        "dealType": "refinance",
+        "borrowerType": "company",
+        "borrower": "Company; commercial cleaning and facilities services",
+        "loanAmount": 900000,
+        "purpose": "$650,000 refinance existing business debt; $250,000 working capital",
+        "security": "First mortgage over director-owned residential property",
+        "securityValue": 2400000,
+        "totalSecuredDebt": 1400000,
+        "income": "FY25 revenue $4,800,000; FY25 adjusted EBITDA $620,000",
+        "existingDebts": "Existing business term debt to be refinanced; existing property debt $500,000; supplier arrears over 90 days $310,000",
+        "conduct": "ATO current; SG claimed current by the director; bank conduct summary provided by client",
+        "documents": "FY24/FY25 financials; 3 months business bank statements; existing facility statement; property estimate",
+        "urgency": "Wants to settle the refinance this quarter",
+        "deferralReason": ""
+      },
+      "facts": { "loanAmount": 900000, "securityValue": 2400000, "totalSecuredDebt": 1400000, "adjustedEbitda": 620000, "proposedAnnualDebtService": 216000, "supplierArrearsOver90Days": 310000 },
+      "pins": { "lvrPercent": 58.33, "lvrDisplayed": "58.3%", "facilityToEbitda": 1.4516, "arrearsToEbitda": 0.5 }
+    },
+    "AC-02": {
+      "role": "sentinel",
+      "rating": "Amber — Package Better",
+      "expectedTriggers": ["related_party_security", "zoning_environmental_missing"],
+      "intake": {
+        "dealName": "AC-02 — Low-LVR commercial refinance, weak capacity (synthetic sentinel)",
+        "scenario": "Low-LVR owner-occupied commercial refinance where strong property security sits beside weak operating debt-service capacity",
+        "dealType": "commercial_property",
+        "borrowerType": "company",
+        "borrower": "Company; printing and signage",
+        "loanAmount": 1050000,
+        "purpose": "Refinance existing business term debt only; the retained vehicle and equipment leases are not refinanced by this facility and continue after settlement",
+        "security": "First mortgage over related-entity commercial property",
+        "securityValue": 3000000,
+        "totalSecuredDebt": 1050000,
+        "income": "FY25 revenue $2,950,000; FY25 adjusted EBITDA $260,000; combined annual debt service after settlement $300,000 = $72,000 retained leases (continuing, not refinanced) + $228,000 proposed facility repayments",
+        "existingDebts": "Business term debt: repaid in full from the proposed facility. Retained after settlement and not refinanced: vehicle leases and equipment leases, $72,000 per year in total, continuing alongside the new repayments",
+        "conduct": "ATO current; SG current per management; bank conduct summary provided by client",
+        "documents": "FY24/FY25 financials; 6 months bank statements; property estimate; equipment debt schedule",
+        "urgency": "Refinance before the equipment facilities roll over",
+        "deferralReason": ""
+      },
+      "facts": { "loanAmount": 1050000, "securityValue": 3000000, "adjustedEbitda": 260000, "retainedAnnualDebtService": 72000, "proposedAnnualDebtService": 228000 },
+      "retainedObligations": { "annualAmount": 72000, "items": ["vehicle leases", "equipment leases"], "retainedAfterSettlement": true, "refinancedByProposedFacility": false, "includedInProposedRepayments": false, "note": "The $72,000 is paid in addition to the $228,000 proposed facility repayments; it is not debt consolidated into the new facility." },
+      "pins": { "lvrPercent": 35.0, "lvrDisplayed": "35.0%", "combinedAnnualDebtService": 300000, "ebitdaToDebtServiceProxy": 0.8667, "facilityToEbitda": 4.0385 },
+      "proxyLabel": "EBITDA / stated debt service is an analytical proxy only — not a lender DSCR or policy threshold."
+    },
+    "AC-03": {
+      "role": "fixture",
+      "rating": "Red — Rework First",
+      "expectedTriggers": ["dishonours_recent", "mca_present", "working_capital_vague"],
+      "intake": {
+        "dealName": "AC-03 — MCA refinance with remediation path (synthetic)",
+        "scenario": "Profitable wholesale business seeks to refinance a merchant cash advance and add working capital after a temporary inventory build",
+        "dealType": "refinance",
+        "borrowerType": "company",
+        "borrower": "Company; foodservice packaging wholesale",
+        "loanAmount": 480000,
+        "purpose": "$300,000 MCA payout; $180,000 working capital",
+        "security": "General security agreement plus director guarantee; no property security assumed",
+        "securityValue": "",
+        "totalSecuredDebt": "",
+        "income": "FY25 revenue $3,600,000; FY25 adjusted EBITDA $410,000",
+        "existingDebts": "Merchant cash advance: payout $300,000, repayments $10,500 per week",
+        "conduct": "Two account excesses during the peak inventory month; ATO current; SG current per supplied summary",
+        "documents": "FY24/FY25 financials; 3 months bank statements; MCA balance screenshot; inventory report",
+        "urgency": "Wants the MCA cleared as soon as possible",
+        "deferralReason": ""
+      },
+      "facts": { "loanAmount": 480000, "adjustedEbitda": 410000, "mcaWeeklyRepayment": 10500, "proposedMonthlyRepayment": 11500 },
+      "pins": { "mcaAnnualisedRepayment": 546000, "proposedAnnualRepayment": 138000, "nominalAnnualRepaymentReduction": 408000, "facilityToEbitda": 1.1707 },
+      "reductionLabel": "Nominal annual repayment reduction — not free cash flow and not proof of serviceability."
+    }
+  }
+}

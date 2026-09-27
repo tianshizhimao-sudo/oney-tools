@@ -333,6 +333,7 @@ function renderSection(s, report) {
       return sectionShell(s,
         el('div', { class: 'notice info', id: 'rerate-guardrail' }, r.guardrail),
         el('div', { class: 'notice warn', id: 'rerate-evidence-rule' }, el('strong', {}, 'Reviewed evidence only: '), r.evidenceRule),
+        r.customGuardrail ? el('div', { class: 'notice warn', id: 'rerate-custom-guardrail', 'data-upward-blocked': String(r.upwardBlocked) }, el('strong', {}, 'Banker review before any upgrade: '), r.customGuardrail) : null,
         s.questions.map((q) => {
           const sel = el('select', { class: 'control', 'data-rerate': q.id, 'aria-label': `Reviewed-evidence status for ${q.trigger}` },
             Object.entries(EVIDENCE_STATUS).map(([v, label]) => el('option', { value: v, selected: (state.evidence[q.id] || 'outstanding') === v }, label)));

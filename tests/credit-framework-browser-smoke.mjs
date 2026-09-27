@@ -45,6 +45,8 @@ const URL_PAGE = `${ORIGIN}/preview/credit-framework.html`;
 const EXPECT_Q = { 'CF-001': { simple: 3, comprehensive: 3 }, 'CF-002': { simple: 6, comprehensive: 7 }, 'CF-004': { simple: 4, comprehensive: 4 } };
 // Shared re-rate matrix (red team RT-04) — same fixture the Node tests pin against engine.js.
 const MATRIX = JSON.parse(await readFile(join(ROOT, 'tests/fixtures/credit-framework/rerate-matrix.json'), 'utf8'));
+// Task-06 synthetic adversarial cases (custom scenarios typed into the form).
+const ADV = JSON.parse(await readFile(join(ROOT, 'tests/fixtures/credit-framework/adversarial-cases.json'), 'utf8')).cases;
 const { EVIDENCE_STATUS } = await import(new URL('../assets/js/preview/credit-framework/engine.js', import.meta.url));
 // Case buttons are addressed via #case-picker: <body data-case> mirrors the current case, so a bare
 // [data-case="X"] selector would hit <body> and silently not reload the case.
@@ -192,6 +194,7 @@ async function runViewport(name, contextOpts) {
     }
     v.rerateMatrix[id] = rows;
     assert.equal(await page.locator('#rerate-confidence-cap').isVisible(), true, `${name} ${id} confidence cap shown`);
+    assert.equal(await page.locator('#rerate-custom-guardrail').count(), 0, `${name} ${id} calibrated sample has no custom guardrail`);
     await page.click(`#case-picker [data-case="${id}"]`); // reset evidence
   }
 
@@ -205,6 +208,111 @@ async function runViewport(name, contextOpts) {
   for (const id of Object.keys(MATRIX.cases)) assert.match(v.rerateMatrix[id].find((x) => x.startsWith('reply_only:')), /^reply_only: (\w+) → \1 \(unchanged\)/, `${name} ${id} reply-only never improves`);
   v.mediumHighAnywhere = await page.evaluate(() => document.body.innerText.includes('Medium-High'));
   assert.equal(v.mediumHighAnywhere, false, `${name} no Medium-High on the page`);
+
+  // Task-06: custom scenarios typed through the form never re-rate upward; downgrades still apply.
+  async function loadCustom(ac) {
+    await page.click('#case-picker [data-case="custom"]');
+    await page.evaluate(() => document.querySelectorAll('#intake-form details.sec').forEach((d) => { d.open = true; }));
+    for (const [k, val] of Object.entries(ac.intake)) {
+      if (k === 'dealType' || k === 'borrowerType') await page.selectOption(`#f-${k}`, String(val));
+      else await page.fill(`#f-${k}`, String(val));
+    }
+    if (await page.locator('#apply-suggestions').count()) await page.click('#apply-suggestions');
+    await page.selectOption('#f-rating', ac.rating);
+    return page.evaluate(() => [...document.querySelectorAll('#intake-form input[type=checkbox][id^="t-"]:checked')].map((c) => c.value).sort());
+  }
+  async function setEvidence(statusFor) {
+    await page.click('#tier-output [data-tier="comprehensive"]');
+    if ((await page.getAttribute('#expand-all', 'data-state')) !== 'open') await page.click('#expand-all');
+    const rows = await page.evaluate(() => [...document.querySelectorAll('[data-rerate]')].map((s) => ({ id: s.dataset.rerate, priority: s.closest('.rr-row').querySelector('.prio').textContent })));
+    for (const r of rows) await page.selectOption(`[data-rerate="${r.id}"]`, statusFor(r));
+    return { movement: (await page.textContent('#rerate-movement')).trim(), confidence: (await page.textContent('#rerate-confidence')).trim() };
+  }
+  const critOnly = (r) => (r.priority === 'Critical' ? 'supports' : 'outstanding');
+  v.custom = {};
+  for (const [id, expectHeld] of [['AC-02', 'amber → amber (unchanged)'], ['AC-03', 'red → red (unchanged)'], ['AC-01', 'amber → amber (unchanged)']]) {
+    const triggers = await loadCustom(ADV[id]);
+    assert.deepEqual(triggers, ADV[id].expectedTriggers, `${name} ${id} triggers from the form`);
+    assert.equal(await page.getAttribute('body', 'data-pristine'), 'false');
+    await page.click('#tier-output [data-tier="simple"]');
+    const simpleCritical = await page.evaluate(() => [...document.querySelectorAll('[data-question]')].filter((q) => q.querySelector('.prio')?.textContent === 'Critical').length);
+    const simpleGuardrail = await page.locator('#rerate-custom-guardrail').count();
+    const held = await setEvidence(critOnly);
+    const guard = page.locator('#rerate-custom-guardrail');
+    const c = { triggers, simpleCritical, simpleGuardrail, held: `${held.movement} · ${held.confidence}`, guardrailVisible: await guard.isVisible(), upwardBlocked: await guard.getAttribute('data-upward-blocked'), strategy: (await page.textContent('#rerate-strategy')).trim() };
+    assert.equal(simpleGuardrail, 0, `${name} ${id} Simple gating unchanged`);
+    assert.equal(simpleCritical, ADV[id].expectedTriggers.filter((t) => ['supplier_arrears', 'sg_unevidenced', 'mca_present', 'dishonours_recent', 'zoning_environmental_missing'].includes(t)).length, `${name} ${id} Simple shows every Critical`);
+    assert.equal(c.held, `${expectHeld} · Medium`, `${name} ${id} all Critical supported is held`);
+    assert.deepEqual([c.guardrailVisible, c.upwardBlocked], [true, 'true']);
+    assert.match(c.strategy, /^Hold at .* banker review required before any upward movement/);
+    const reply = await setEvidence(() => 'reply_only');
+    c.replyOnly = `${reply.movement} · ${reply.confidence}`;
+    assert.equal(c.replyOnly, `${expectHeld} · Medium`);
+    const weakCrit = await setEvidence((r) => (r.priority === 'Critical' && r.id === ADV[id].expectedTriggers.find((t) => ['supplier_arrears', 'mca_present', 'zoning_environmental_missing'].includes(t)) ? 'weak' : 'supports'));
+    c.criticalWeak = `${weakCrit.movement} · ${weakCrit.confidence}`;
+    assert.match(c.criticalWeak, /→ red \((down|unchanged)\) · Low$/);
+    assert.equal(await page.getAttribute('body', 'data-lint'), 'pass', `${name} ${id} lint`);
+    if (id === 'AC-02') {
+      await setEvidence(critOnly);
+      await page.click('#copy-btn');
+      await page.waitForFunction(() => document.body.dataset.copyStatus);
+      const clip = await page.evaluate(() => navigator.clipboard.readText());
+      c.copiedGuardrail = clip.includes('Custom-scenario guardrail: Custom or edited scenario: material dimensions') && clip.includes('upgrade held for banker review');
+      assert.equal(c.copiedGuardrail, true, `${name} AC-02 copied text carries guardrail`);
+      await page.locator('#sec-rerate').screenshot({ path: join(OUT, `${name}-ac02-custom-guardrail.png`) });
+    }
+    v.custom[id] = c;
+  }
+  // Task-06 follow-up: deferral status for custom vs calibrated, all four evidence states.
+  async function tickDeferral(code) {
+    await page.evaluate(() => document.querySelectorAll('#intake-form details.sec').forEach((d) => { d.open = true; }));
+    await page.check(`#d-${code}`);
+  }
+  const DEFERRAL_STATES = [
+    ['weak', (r) => (r.id === 'mca_present' ? 'weak' : 'supports')],
+    ['outstanding', () => 'outstanding'],
+    ['reply_only', () => 'reply_only'],
+    ['all_supported', () => 'supports'],
+  ];
+  const deferralRun = async () => {
+    const out = {};
+    for (const [label, fn] of DEFERRAL_STATES) {
+      await setEvidence(fn);
+      out[label] = {
+        status: await page.getAttribute('[data-deferral="conduct_explanation"]', 'data-status'),
+        chip: (await page.textContent('[data-deferral="conduct_explanation"] .dstatus')).trim(),
+        readyToResubmitOnPage: await page.evaluate(() => /ready to resubmit/i.test(document.body.innerText)),
+        lint: await page.getAttribute('body', 'data-lint'),
+      };
+    }
+    return out;
+  };
+  await loadCustom(ADV['AC-03']);
+  await tickDeferral('conduct_explanation');
+  v.deferralCustom = await deferralRun();
+  assert.deepEqual(Object.values(v.deferralCustom).map((x) => x.status), ['pause', 'rework', 'rework', 'banker_review'], `${name} custom deferral states`);
+  assert.equal(v.deferralCustom.all_supported.chip.toLowerCase(), 'evidence ready for banker review');
+  assert.ok(Object.values(v.deferralCustom).every((x) => !x.readyToResubmitOnPage && x.lint === 'pass'), `${name} custom never shows Ready to resubmit`);
+  await page.click('#copy-btn');
+  await page.waitForFunction(() => document.body.dataset.copyStatus);
+  const dClip = await page.evaluate(() => navigator.clipboard.readText());
+  v.deferralCustomCopy = { banker: dClip.includes('overall: Evidence ready for banker review — do not resubmit automatically'), readyToResubmit: /ready to resubmit/i.test(dClip) };
+  assert.deepEqual(v.deferralCustomCopy, { banker: true, readyToResubmit: false });
+  await page.locator('#sec-deferral').screenshot({ path: join(OUT, `${name}-ac03-custom-deferral-banker-review.png`) });
+  // Calibrated sample unchanged (CF-002 conduct_explanation).
+  await page.click('#case-picker [data-case="CF-002"]');
+  await tickDeferral('conduct_explanation');
+  v.deferralCalibrated = await deferralRun();
+  assert.deepEqual(Object.values(v.deferralCalibrated).map((x) => x.status), ['pause', 'rework', 'rework', 'resubmit'], `${name} calibrated deferral states`);
+  assert.equal(v.deferralCalibrated.all_supported.readyToResubmitOnPage, true);
+  await page.click('#case-picker [data-case="CF-002"]');
+
+  // Custom Green + Important weak still becomes Amber.
+  await loadCustom({ ...ADV['AC-01'], rating: 'Green — Package Ready' });
+  const greenWeak = await setEvidence((r) => (r.id === 'working_capital_vague' ? 'weak' : 'supports'));
+  v.custom.greenImportantWeak = `${greenWeak.movement} · ${greenWeak.confidence}`;
+  assert.equal(v.custom.greenImportantWeak, 'green → amber (down) · Medium');
+  await page.click('#case-picker [data-case="CF-004"]');
 
   // Edit -> judgement withdrawn
   await page.click('#case-picker [data-case="CF-004"]');

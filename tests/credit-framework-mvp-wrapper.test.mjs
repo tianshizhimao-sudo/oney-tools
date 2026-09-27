@@ -9,10 +9,10 @@ import {
   RULES, RULE_LIBRARY, CASES, CASE_ORDER, KIND, BOUNDARY_TEXT, ENGINE_BOUNDARY_TEXT,
   generateFollowUps, classifyScenario, calculations, initialState, blankState, isPristine,
   buildAssessment, buildReport, reportToPlainText, buildClientEmail, rerate, lintCompliance, summarizeSection,
-  suggestTriggers, compareTriggers, DEFERRAL_REASONS, buildDeferralPlan,
+  suggestTriggers, compareTriggers, DEFERRAL_REASONS, buildDeferralPlan, DEFERRAL_STATUS,
   FEEDBACK_QUESTIONS, scoreFeedback, feedbackText,
   SIMPLE_QUESTION_TARGET, simpleExpansionNote, EVIDENCE_STATUS, RERATE_GUARDRAIL, RERATE_EVIDENCE_RULE,
-  CONFIDENCE_LEVELS, RERATE_CONFIDENCE_CAP, RERATE_GREEN_IMPORTANT_RULE,
+  CONFIDENCE_LEVELS, RERATE_CONFIDENCE_CAP, RERATE_GREEN_IMPORTANT_RULE, RERATE_CUSTOM_GUARDRAIL,
 } from '../assets/js/preview/credit-framework/engine.js';
 
 const root = new URL('../', import.meta.url);
@@ -61,6 +61,7 @@ const EXPECTED = {
   },
 };
 
+const RATING_NAMES = ['Green — Package Ready', 'Amber — Package Better', 'Red — Rework First', 'Black — Do Not Proceed'];
 const allStates = () => CASE_ORDER.flatMap((id) => ['simple', 'comprehensive'].map((tier) => ({ id, tier })));
 const reportFor = (id, tier, mutate) => {
   const s = initialState(id, tier);
@@ -240,7 +241,7 @@ test('re-rate loop: evidence-driven movement and the client-reply guardrail', ()
     const a = buildAssessment(initialState(id, 'comprehensive'));
     const qs = a.engine.comprehensive.questions;
     const evidence = Object.fromEntries(qs.map((q) => [q.id, statusFor(q)]));
-    return rerate({ questions: qs, rating: a.rating.text, tags: a.tags, evidence });
+    return rerate({ questions: qs, rating: a.rating.text, tags: a.tags, evidence, calibrated: true });
   };
   let r = run('CF-002', () => 'outstanding');
   assert.equal(r.to, 'red'); assert.equal(r.movement, 'unchanged');
@@ -298,7 +299,7 @@ test('RT-03: supports means reviewed evidence; a client reply can never improve 
   for (const id of CASE_ORDER) {
     const a = buildAssessment(initialState(id, 'comprehensive'));
     const qs = a.engine.comprehensive.questions;
-    const run = (ev) => rerate({ questions: qs, rating: a.rating.text, tags: a.tags, evidence: ev });
+    const run = (ev) => rerate({ questions: qs, rating: a.rating.text, tags: a.tags, evidence: ev, calibrated: true });
     for (let n = 0; n < statuses.length ** qs.length; n++) {
       const ev = Object.fromEntries(qs.map((q, i) => [q.id, statuses[Math.floor(n / statuses.length ** i) % statuses.length]]));
       const r = run(ev);
@@ -325,7 +326,7 @@ test('calibration 2026-09-27: confidence is High/Medium/Low only, capped at Medi
   const run = (id, statusFor) => {
     const a = buildAssessment(initialState(id, 'comprehensive'));
     const qs = a.engine.comprehensive.questions;
-    return rerate({ questions: qs, rating: a.rating.text, tags: a.tags, evidence: Object.fromEntries(qs.map((q) => [q.id, statusFor(q)])) });
+    return rerate({ questions: qs, rating: a.rating.text, tags: a.tags, evidence: Object.fromEntries(qs.map((q) => [q.id, statusFor(q)])), calibrated: true });
   };
   const pick = (r) => [r.to, r.movement, r.confidence];
 
@@ -365,7 +366,7 @@ test('calibration 2026-09-27: confidence is High/Medium/Low only, capped at Medi
     const qs = a.engine.comprehensive.questions;
     for (let n = 0; n < statuses.length ** qs.length; n++) {
       const ev = Object.fromEntries(qs.map((q, i) => [q.id, statuses[Math.floor(n / statuses.length ** i) % statuses.length]]));
-      const r = rerate({ questions: qs, rating: a.rating.text, tags: a.tags, evidence: ev });
+      const r = rerate({ questions: qs, rating: a.rating.text, tags: a.tags, evidence: ev, calibrated: true });
       assert.ok(['Low', 'Medium'].includes(r.confidence), `${id} post-evidence confidence ${r.confidence}`);
       const critWeak = qs.some((q) => q.priority === 'Critical' && ev[q.id] === 'weak');
       const impWeak = qs.some((q) => q.priority === 'Important' && ev[q.id] === 'weak');
@@ -374,6 +375,304 @@ test('calibration 2026-09-27: confidence is High/Medium/Low only, capped at Medi
       assert.equal(r.confidence === 'Low', critWeak, `${id} Low iff a Critical item is weak`);
     }
   }
+});
+
+/* ------------------------------ task-06: custom-scenario re-rate guardrail ------------------------------ */
+
+const loadAdversarial = () => readJson('tests/fixtures/credit-framework/adversarial-cases.json');
+/** Custom scenario built the way a broker would: blank form, typed intake, suggested triggers applied, own rating. */
+const customState = (ac, tier = 'comprehensive', over = {}) => {
+  const s = blankState(tier);
+  s.intake = { ...ac.intake, deferralCodes: [] };
+  s.triggers = suggestTriggers(s.intake).map((x) => x.id);
+  s.rating = ac.rating;
+  Object.assign(s, over);
+  return s;
+};
+const customRun = (state, statusFor) => {
+  const a = buildAssessment(state);
+  const qs = a.engine.comprehensive.questions;
+  state.evidence = Object.fromEntries(qs.map((q) => [q.id, statusFor(q)]));
+  const a2 = buildAssessment(state);
+  return { a: a2, r: a2.rerate, text: reportToPlainText(buildReport(a2, state.tier)) };
+};
+const crit = (q) => q.priority === 'Critical';
+
+test('task-06: custom scenarios hold or move down, never up; banker-review guardrail shown', async () => {
+  const f = await loadAdversarial();
+  const pick = (r) => [r.to, r.movement, r.confidence];
+
+  // Custom Amber (AC-02 shape): every selected Critical reviewed-supporting → stays Amber/Medium.
+  let x = customRun(customState(f.cases['AC-02']), (q) => (crit(q) ? 'supports' : 'outstanding'));
+  assert.equal(x.a.pristine, false);
+  assert.deepEqual(pick(x.r), ['amber', 'unchanged', 'Medium']);
+  assert.equal(x.r.upwardEligible, true, 'the calibrated rule alone would have moved it');
+  assert.equal(x.r.upwardBlocked, true);
+  assert.equal(x.r.customGuardrail, RERATE_CUSTOM_GUARDRAIL);
+  assert.ok(x.r.reasons.some((m) => m.startsWith('Upward movement held (amber → green not applied)')));
+  assert.match(x.r.strategy, /^Hold at Amber — Package Better — banker review required before any upward movement/);
+  assert.match(x.r.nextStep, /^Book banker review/);
+  assert.ok(x.text.includes(`Custom-scenario guardrail: ${RERATE_CUSTOM_GUARDRAIL}`), 'guardrail in copied text');
+  assert.match(x.text, /Summary: Rating amber → amber \(unchanged\) · Medium confidence · \d+ items? still missing · upgrade held for banker review\./);
+  assert.equal(lintCompliance(x.text).ok, true, JSON.stringify(lintCompliance(x.text).hits));
+  // All supported too (Important included) → still held.
+  assert.deepEqual(pick(customRun(customState(f.cases['AC-02']), () => 'supports').r), ['amber', 'unchanged', 'Medium']);
+
+  // Custom Red (AC-03): every selected Critical reviewed-supporting → stays Red/Medium.
+  x = customRun(customState(f.cases['AC-03']), (q) => (crit(q) ? 'supports' : 'outstanding'));
+  assert.deepEqual(pick(x.r), ['red', 'unchanged', 'Medium']);
+  assert.equal(x.r.upwardBlocked, true);
+
+  // Custom downgrades still apply: Critical weak (Amber → Red/Low) …
+  x = customRun(customState(f.cases['AC-01']), (q) => (q.id === 'supplier_arrears' ? 'weak' : 'supports'));
+  assert.deepEqual(pick(x.r), ['red', 'down', 'Low']);
+  assert.equal(x.r.upwardBlocked, false);
+  // … and Green + Important weak → Amber/Medium.
+  x = customRun(customState(f.cases['AC-01'], 'comprehensive', { rating: 'Green — Package Ready' }), (q) => (q.id === 'working_capital_vague' ? 'weak' : 'supports'));
+  assert.deepEqual(pick(x.r), ['amber', 'down', 'Medium']);
+  assert.ok(x.r.reasons.includes(RERATE_GREEN_IMPORTANT_RULE));
+  // Custom Green, all supports → stays Green (no upward move involved, nothing blocked).
+  x = customRun(customState(f.cases['AC-01'], 'comprehensive', { rating: 'Green — Package Ready' }), () => 'supports');
+  assert.deepEqual([...pick(x.r), x.r.upwardBlocked], ['green', 'unchanged', 'Medium', false]);
+
+  // Edited shipped sample loses calibration: CF-004 with a changed loan amount cannot move Amber → Green.
+  const edited = initialState('CF-004', 'comprehensive'); edited.intake.loanAmount = 1400000;
+  x = customRun(edited, (q) => (crit(q) ? 'supports' : 'outstanding'));
+  assert.deepEqual([...pick(x.r), x.r.upwardBlocked], ['amber', 'unchanged', 'Medium', true]);
+  // Trust never comes from the deal ID: a blank scenario copying CF-004's intake and name is still custom.
+  const spoof = blankState('comprehensive');
+  spoof.intake = { ...CASES['CF-004'].intake, deferralCodes: [] }; spoof.triggers = [...CASES['CF-004'].followUpCase.triggers]; spoof.rating = CASES['CF-004'].followUpCase.currentRating;
+  x = customRun(spoof, (q) => (crit(q) ? 'supports' : 'outstanding'));
+  assert.equal(x.a.pristine, false);
+  assert.equal(x.a.followUpCase.dealId, 'CUSTOM');
+  assert.deepEqual([x.r.to, x.r.upwardBlocked], ['amber', true]);
+  // rerate() defaults to the safe (custom) path when no calibration signal is passed.
+  const cf4 = buildAssessment(initialState('CF-004', 'comprehensive'));
+  const all = Object.fromEntries(cf4.engine.comprehensive.questions.map((q) => [q.id, 'supports']));
+  assert.equal(rerate({ questions: cf4.engine.comprehensive.questions, rating: cf4.rating.text, tags: cf4.tags, evidence: all }).to, 'amber');
+  assert.equal(rerate({ questions: cf4.engine.comprehensive.questions, rating: cf4.rating.text, tags: cf4.tags, evidence: all, calibrated: true }).to, 'green');
+
+  // Calibrated samples keep their approved behaviour through the full assessment path, with no custom guardrail.
+  for (const id of CASE_ORDER) {
+    const r = reportFor(id, 'comprehensive', (st) => { for (const t of st.triggers) st.evidence[t] = 'supports'; });
+    assert.equal(r.a.rerate.calibrated, true); assert.equal(r.a.rerate.customGuardrail, null);
+    assert.ok(!r.text.includes('Custom-scenario guardrail'), `${id} no custom guardrail`);
+  }
+  assert.deepEqual(CASE_ORDER.map((id) => reportFor(id, 'comprehensive', (st) => { for (const t of st.triggers) st.evidence[t] = 'supports'; }).a.rerate.to), ['green', 'amber', 'green']);
+
+  // Simple gating unchanged: no re-rate content (and so no guardrail) in Simple.
+  const simple = reportToPlainText(buildReport(buildAssessment(customState(f.cases['AC-02'], 'simple')), 'simple'));
+  assert.ok(!simple.includes('Custom-scenario guardrail') && !simple.includes('Guardrail:'));
+});
+
+test('task-06: exhaustive — custom never moves up, otherwise identical to the calibrated rule; reply-only ≡ outstanding', async () => {
+  const f = await loadAdversarial();
+  const statuses = Object.keys(EVIDENCE_STATUS);
+  let combos = 0;
+  for (const id of ['AC-01', 'AC-02', 'AC-03']) {
+    for (const rating of RATING_NAMES) {
+      const a = buildAssessment(customState(f.cases[id], 'comprehensive', { rating }));
+      const qs = a.engine.comprehensive.questions;
+      for (let n = 0; n < statuses.length ** qs.length; n++) {
+        const ev = Object.fromEntries(qs.map((q, i) => [q.id, statuses[Math.floor(n / statuses.length ** i) % statuses.length]]));
+        const args = { questions: qs, rating, tags: a.tags, evidence: ev };
+        const custom = rerate(args);
+        const cal = rerate({ ...args, calibrated: true });
+        combos++;
+        assert.notEqual(custom.movement, 'up', `${id} ${rating} ${JSON.stringify(ev)}`);
+        if (cal.movement === 'up') {
+          assert.deepEqual([custom.to, custom.movement, custom.upwardBlocked], [cal.from, 'unchanged', true]);
+          for (const q of qs.filter(crit)) assert.equal(ev[q.id], 'supports', 'eligibility needs every Critical reviewed-supporting');
+        } else {
+          assert.deepEqual([custom.to, custom.movement, custom.confidence, custom.stillMissing], [cal.to, cal.movement, cal.confidence, cal.stillMissing], `${id} downgrades/holds unchanged`);
+        }
+        const asOutstanding = rerate({ ...args, evidence: Object.fromEntries(Object.entries(ev).map(([k, v]) => [k, v === 'reply_only' ? 'outstanding' : v])) });
+        assert.deepEqual([custom.to, custom.movement, custom.confidence, custom.upwardEligible], [asOutstanding.to, asOutstanding.movement, asOutstanding.confidence, asOutstanding.upwardEligible], 'reply-only ≡ outstanding');
+      }
+    }
+  }
+  assert.equal(combos, 4 * (4 ** 3 + 4 ** 2 + 4 ** 3));
+});
+
+test('task-06: AC-01 fixture — supplier arrears + unevidenced SG, both Critical required', async () => {
+  const ac = (await loadAdversarial()).cases['AC-01'];
+  // Arithmetic pins (descriptive only).
+  assert.equal(Number(((ac.facts.totalSecuredDebt / ac.facts.securityValue) * 100).toFixed(2)), ac.pins.lvrPercent);
+  assert.equal(Number((ac.facts.loanAmount / ac.facts.adjustedEbitda).toFixed(4)), ac.pins.facilityToEbitda);
+  assert.equal(Number((ac.facts.supplierArrearsOver90Days / ac.facts.adjustedEbitda).toFixed(2)), ac.pins.arrearsToEbitda);
+  assert.equal(calculations(ac.intake)[0].value, ac.pins.lvrDisplayed);
+  // Trigger inference.
+  const suggested = suggestTriggers(ac.intake).map((x) => x.id);
+  assert.ok(suggested.includes('supplier_arrears') && suggested.includes('sg_unevidenced'));
+  assert.deepEqual([...suggested].sort(), ac.expectedTriggers);
+  // Simple shows every Critical item; SG proof is requested in follow-ups and missing evidence.
+  const simple = buildReport(buildAssessment(customState(ac, 'simple')), 'simple');
+  const sq = simple.sections.find((x) => x.id === 'questions').items;
+  assert.deepEqual(sq.filter(crit).map((q) => q.id).sort(), ['sg_unevidenced', 'supplier_arrears']);
+  const sgRule = RULES.find((r) => r.id === 'sg_unevidenced');
+  const compA = buildAssessment(customState(ac));
+  const compText = reportToPlainText(buildReport(compA, 'comprehensive'));
+  assert.ok(compText.includes(sgRule.question), 'SG follow-up question');
+  for (const ev of sgRule.evidence) assert.ok(compA.missing.critical.some((m) => m.item.includes(ev)), `missing evidence includes ${ev}`);
+  assert.ok(reportToPlainText(simple).includes(sgRule.question));
+  // Upward eligibility needs both Critical items reviewed-supporting (and is then held as custom).
+  let x = customRun(customState(ac), (q) => (q.id === 'supplier_arrears' ? 'supports' : 'outstanding'));
+  assert.deepEqual([x.r.to, x.r.upwardEligible, x.r.upwardBlocked], ['amber', false, false]);
+  x = customRun(customState(ac), (q) => (crit(q) ? 'supports' : 'outstanding'));
+  assert.deepEqual([x.r.to, x.r.confidence, x.r.upwardEligible, x.r.upwardBlocked], ['amber', 'Medium', true, true]);
+  for (const weak of ['supplier_arrears', 'sg_unevidenced']) {
+    x = customRun(customState(ac), (q) => (q.id === weak ? 'weak' : 'supports'));
+    assert.deepEqual([x.r.to, x.r.confidence], ['red', 'Low'], weak);
+  }
+  x = customRun(customState(ac), (q) => (q.id === 'working_capital_vague' ? 'weak' : 'supports'));
+  assert.deepEqual([x.r.to, x.r.movement, x.r.confidence], ['amber', 'unchanged', 'Medium'], 'Amber not downgraded by Important weak alone');
+  assert.deepEqual(customRun(customState(ac), () => 'reply_only').r.to, 'amber');
+  assert.equal(lintCompliance(compText).ok, true);
+});
+
+test('task-06: AC-03 fixture — MCA + account excesses, both Critical required; $408k is not free cash flow', async () => {
+  const ac = (await loadAdversarial()).cases['AC-03'];
+  assert.equal(ac.facts.mcaWeeklyRepayment * 52, ac.pins.mcaAnnualisedRepayment);
+  assert.equal(ac.facts.proposedMonthlyRepayment * 12, ac.pins.proposedAnnualRepayment);
+  assert.equal(ac.pins.mcaAnnualisedRepayment - ac.pins.proposedAnnualRepayment, ac.pins.nominalAnnualRepaymentReduction);
+  assert.equal(ac.pins.nominalAnnualRepaymentReduction, 408000);
+  assert.equal(Number((ac.facts.loanAmount / ac.facts.adjustedEbitda).toFixed(4)), ac.pins.facilityToEbitda);
+  assert.match(ac.reductionLabel, /^Nominal annual repayment reduction — not free cash flow/);
+  const suggested = suggestTriggers(ac.intake).map((x) => x.id);
+  assert.ok(suggested.includes('mca_present') && suggested.includes('dishonours_recent'));
+  assert.deepEqual([...suggested].sort(), ac.expectedTriggers);
+  const simple = buildReport(buildAssessment(customState(ac, 'simple')), 'simple');
+  assert.deepEqual(simple.sections.find((x) => x.id === 'questions').items.filter(crit).map((q) => q.id).sort(), ['dishonours_recent', 'mca_present']);
+  for (const only of ['mca_present', 'dishonours_recent']) {
+    const x = customRun(customState(ac), (q) => (q.id === only ? 'supports' : 'outstanding'));
+    assert.deepEqual([x.r.to, x.r.upwardEligible], ['red', false], `${only} alone is not enough`);
+  }
+  let x = customRun(customState(ac), (q) => (crit(q) ? 'supports' : 'outstanding'));
+  assert.deepEqual([x.r.to, x.r.confidence, x.r.upwardEligible, x.r.upwardBlocked], ['red', 'Medium', true, true]);
+  for (const weak of ['mca_present', 'dishonours_recent']) assert.deepEqual([customRun(customState(ac), (q) => (q.id === weak ? 'weak' : 'supports')).r.to, customRun(customState(ac), (q) => (q.id === weak ? 'weak' : 'supports')).r.confidence], ['red', 'Low']);
+  assert.equal(customRun(customState(ac), (q) => (q.id === 'working_capital_vague' ? 'weak' : 'supports')).r.to, 'red');
+  const text = reportToPlainText(buildReport(buildAssessment(customState(ac)), 'comprehensive'));
+  assert.doesNotMatch(text, /free cash flow/i);
+  assert.doesNotMatch(JSON.stringify(ac).replace(ac.reductionLabel, ''), /free cash flow/i, 'fixture never calls the $408k free cash flow');
+  assert.equal(lintCompliance(text).ok, true);
+});
+
+test('task-06: AC-02 sentinel — unrelated supporting evidence cannot cure an unrepresented capacity gap', async () => {
+  const ac = (await loadAdversarial()).cases['AC-02'];
+  assert.equal(ac.role, 'sentinel');
+  assert.equal(Number(((ac.facts.loanAmount / ac.facts.securityValue) * 100).toFixed(1)), ac.pins.lvrPercent);
+  assert.equal(ac.facts.retainedAnnualDebtService + ac.facts.proposedAnnualDebtService, ac.pins.combinedAnnualDebtService);
+  // The $72k is retained after settlement, not refinanced, and paid on top of the $228k proposed repayments.
+  const ro = ac.retainedObligations;
+  assert.deepEqual([ro.annualAmount, ro.retainedAfterSettlement, ro.refinancedByProposedFacility, ro.includedInProposedRepayments], [72000, true, false, false]);
+  assert.ok(ro.items.length && ro.items.every((i) => /lease/.test(i)), 'identified continuing obligations');
+  assert.match(ac.intake.purpose, /term debt only; the retained vehicle and equipment leases are not refinanced by this facility and continue after settlement/);
+  assert.doesNotMatch(ac.intake.purpose, /consolidat/i, 'purpose never implies the $72k is consolidated');
+  assert.match(ac.intake.existingDebts, /Retained after settlement and not refinanced: vehicle leases and equipment leases, \$72,000 per year/);
+  assert.doesNotMatch(ac.intake.existingDebts, /consolidat/i);
+  assert.match(ac.intake.income, /\$300,000 = \$72,000 retained leases \(continuing, not refinanced\) \+ \$228,000 proposed facility repayments/);
+  assert.equal(Number((ac.facts.adjustedEbitda / ac.pins.combinedAnnualDebtService).toFixed(4)), ac.pins.ebitdaToDebtServiceProxy);
+  assert.equal(Number((ac.facts.loanAmount / ac.facts.adjustedEbitda).toFixed(4)), ac.pins.facilityToEbitda);
+  assert.match(ac.proxyLabel, /proxy only — not a lender DSCR or policy threshold/);
+  // No generic capacity trigger exists, none is invented, and low LVR alone does not infer valuation_sensitive.
+  assert.equal(RULES.length, 16);
+  assert.ok(!RULES.some((r) => /dscr|capacity|surplus|servic/i.test(r.id)), 'no generic capacity rule id');
+  const suggested = suggestTriggers(ac.intake).map((x) => x.id);
+  assert.ok(!suggested.includes('valuation_sensitive'), 'low LVR alone does not infer valuation_sensitive');
+  assert.deepEqual([...suggested].sort(), ac.expectedTriggers);
+  // The only selected Critical is a commercial-property item unrelated to capacity.
+  const a = buildAssessment(customState(ac));
+  const critical = a.engine.comprehensive.questions.filter(crit).map((q) => q.id);
+  assert.deepEqual(critical, ['zoning_environmental_missing']);
+  // Resolving it (and even everything else) cannot lift the Amber custom case.
+  for (const statusFor of [(q) => (crit(q) ? 'supports' : 'outstanding'), () => 'supports']) {
+    const x = customRun(customState(ac), statusFor);
+    assert.deepEqual([x.r.to, x.r.movement, x.r.confidence, x.r.upwardEligible, x.r.upwardBlocked], ['amber', 'unchanged', 'Medium', true, true]);
+    assert.match(x.r.customGuardrail, /capacity\/serviceability/);
+    assert.doesNotMatch(x.text, /LVR[^.]{0,60}(mitigat|cure|offset|compensat)/i, 'low LVR is never presented as curing capacity');
+    assert.equal(lintCompliance(x.text).ok, true);
+  }
+  // Documented gap: the calibrated rule alone would have lifted it — this is what the guardrail blocks.
+  const qs = a.engine.comprehensive.questions;
+  const cal = rerate({ questions: qs, rating: ac.rating, tags: a.tags, evidence: { zoning_environmental_missing: 'supports' }, calibrated: true });
+  assert.equal(cal.to, 'green', 'sentinel: without the guardrail the unrelated item would upgrade the case');
+  // Downgrades still work on the sentinel.
+  assert.deepEqual([customRun(customState(ac), (q) => (crit(q) ? 'weak' : 'supports')).r.to], ['red']);
+});
+
+test('task-06 follow-up: deferral status — pause / rework / banker review (custom) / ready to resubmit (calibrated only)', async () => {
+  const f = await loadAdversarial();
+  const codes = ['conduct_explanation', 'servicing_shortfall', 'purpose_use_of_funds'];
+  const planFor = (state) => { const a = buildAssessment(state); const r = buildReport(a, 'comprehensive'); return { plan: a.deferral.plan, sec: r.sections.find((x) => x.id === 'deferral'), text: reportToPlainText(r), a }; };
+  const custom = (statusFor) => { const st = customState(f.cases['AC-03']); st.intake.deferralCodes = [...codes]; const a = buildAssessment(st); st.evidence = Object.fromEntries(a.engine.comprehensive.questions.map((q) => [q.id, statusFor(q)])); return planFor(st); };
+  const reason = (plan, id) => plan.reasons.find((r) => r.id === id);
+
+  // Custom scenario, the four states on conduct_explanation (dishonours_recent + mca_present).
+  const cWeak = custom((q) => (q.id === 'mca_present' ? 'weak' : 'supports'));
+  const cOut = custom(() => 'outstanding');
+  const cReply = custom(() => 'reply_only');
+  const cAll = custom(() => 'supports');
+  assert.deepEqual([cWeak, cOut, cReply, cAll].map((x) => reason(x.plan, 'conduct_explanation').status), ['pause', 'rework', 'rework', 'banker_review']);
+  assert.equal(cAll.plan.calibrated, false);
+  assert.equal(cAll.plan.overall, 'banker_review');
+  assert.match(DEFERRAL_STATUS.banker_review.label, /^Evidence ready for banker review — do not resubmit automatically\. .*banker review is required/);
+  assert.equal(cAll.sec.summary.text, '3 lender deferral reasons · evidence ready for banker review.');
+  assert.ok(cAll.text.includes(`overall: ${DEFERRAL_STATUS.banker_review.label}`));
+  for (const x of [cWeak, cOut, cReply, cAll]) {
+    assert.doesNotMatch(x.text, /ready to resubmit/i, 'custom copied text never says Ready to resubmit');
+    assert.doesNotMatch(x.sec.summary.text, /ready to resubmit/i);
+    assert.equal(lintCompliance(x.text).ok, true);
+  }
+  // Reply-only never counts as reviewed evidence (even alongside supports).
+  assert.equal(reason(custom((q) => (q.id === 'mca_present' ? 'reply_only' : 'supports')).plan, 'conduct_explanation').status, 'rework');
+  // Deferral and re-rate agree for the custom case: evidence ready, upgrade held for banker review.
+  assert.deepEqual([cAll.a.rerate.upwardBlocked, cAll.a.rerate.to], [true, 'red']);
+
+  // Edited sample and deal-ID spoof are custom too.
+  const edited = initialState('CF-002', 'comprehensive'); edited.intake.loanAmount = 500000; edited.intake.deferralCodes = ['conduct_explanation']; edited.evidence = { dishonours_recent: 'supports', mca_present: 'supports' };
+  assert.equal(planFor(edited).plan.overall, 'banker_review');
+  const spoof = blankState('comprehensive'); spoof.intake = { ...CASES['CF-002'].intake, deferralCodes: ['ato_position'] }; spoof.triggers = [...CASES['CF-002'].followUpCase.triggers]; spoof.rating = CASES['CF-002'].followUpCase.currentRating; spoof.evidence = { ato_debt: 'supports', missed_ato_plan: 'supports', sg_unevidenced: 'supports' };
+  assert.equal(planFor(spoof).plan.overall, 'banker_review');
+
+  // Calibrated sample behaviour unchanged: weak → pause, outstanding / reply-only → rework, all supports → resubmit.
+  const cal = (ev) => { const st = initialState('CF-002', 'comprehensive'); st.intake.deferralCodes = ['conduct_explanation']; st.evidence = ev; return planFor(st); };
+  const calStates = [cal({ dishonours_recent: 'weak', mca_present: 'supports' }), cal({}), cal({ dishonours_recent: 'reply_only', mca_present: 'reply_only' }), cal({ dishonours_recent: 'supports', mca_present: 'supports' })];
+  assert.deepEqual(calStates.map((x) => x.plan.overall), ['pause', 'rework', 'rework', 'resubmit']);
+  assert.equal(calStates[3].plan.calibrated, true);
+  assert.match(calStates[3].text, /overall: Ready to resubmit with the explanation pack/);
+
+  // Direct calls default to the safe side.
+  const qs = buildAssessment(customState(f.cases['AC-03'])).engine.comprehensive.questions;
+  const ev = { dishonours_recent: 'supports', mca_present: 'supports' };
+  assert.equal(buildDeferralPlan(['conduct_explanation'], qs, ev).overall, 'banker_review');
+  assert.equal(buildDeferralPlan(['conduct_explanation'], qs, ev, { calibrated: true }).overall, 'resubmit');
+
+  // Exhaustive (AC-01/02/03 × every evidence combination × all deferral reasons): custom never reaches resubmit.
+  const allCodes = DEFERRAL_REASONS.map((d) => d.id);
+  const statuses = Object.keys(EVIDENCE_STATUS);
+  for (const id of ['AC-01', 'AC-02', 'AC-03']) {
+    const cq = buildAssessment(customState(f.cases[id])).engine.comprehensive.questions;
+    for (let n = 0; n < statuses.length ** cq.length; n++) {
+      const e = Object.fromEntries(cq.map((q, i) => [q.id, statuses[Math.floor(n / statuses.length ** i) % statuses.length]]));
+      const p = buildDeferralPlan(allCodes, cq, e);
+      const pc = buildDeferralPlan(allCodes, cq, e, { calibrated: true });
+      p.reasons.forEach((r, i) => {
+        assert.notEqual(r.status, 'resubmit');
+        assert.equal(r.status, pc.reasons[i].status === 'resubmit' ? 'banker_review' : pc.reasons[i].status, 'only the ready state differs');
+        const linked = r.linkedSelected.map((x) => x.status);
+        const want = linked.includes('weak') ? 'pause' : linked.length && linked.every((x) => x === 'supports') ? 'banker_review' : 'rework';
+        assert.equal(r.status, want);
+      });
+    }
+  }
+});
+
+test('task-06: fixtures are synthetic, wording-clean and add no network, storage or secrets', async () => {
+  const raw = await read('tests/fixtures/credit-framework/adversarial-cases.json');
+  assert.equal(lintCompliance(raw).ok, true, JSON.stringify(lintCompliance(raw).hits));
+  assert.match(raw, /Synthetic adversarial cases/);
+  assert.doesNotMatch(raw, /https?:\/\/|@|\b\d{2,3}\s?\d{3}\s?\d{3}\b(?![,\d])|ABN|ACN/i, 'no URLs, emails or identifiers');
+  assert.equal(lintCompliance(RERATE_CUSTOM_GUARDRAIL).ok, true);
 });
 
 test('RT-04: re-rate matrix for CF-001, CF-002 and CF-004 (shared with browser smoke)', async () => {
@@ -385,7 +684,7 @@ test('RT-04: re-rate matrix for CF-001, CF-002 and CF-004 (shared with browser s
     assert.deepEqual(matrix.cases[id].questions, qs.map((q) => ({ id: q.id, priority: q.priority })), `${id} question set`);
     assert.deepEqual(matrix.cases[id].rows.map((x) => x.scenario), Object.keys(matrix.scenarios), `${id} covers every scenario`);
     for (const row of matrix.cases[id].rows) {
-      const r = rerate({ questions: qs, rating: a.rating.text, tags: a.tags, evidence: row.evidence });
+      const r = rerate({ questions: qs, rating: a.rating.text, tags: a.tags, evidence: row.evidence, calibrated: true });
       assert.deepEqual({ from: r.from, to: r.to, movement: r.movement, confidence: r.confidence, stillMissing: r.stillMissing.length }, row.expect, `${id} ${row.scenario}`);
       // Same state through the full report path (what the page renders and copies).
       const text = reportFor(id, 'comprehensive', (s) => { s.evidence = { ...row.evidence }; }).text;

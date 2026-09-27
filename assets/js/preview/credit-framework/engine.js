@@ -538,10 +538,11 @@ export function buildAssessment(state) {
     deferral: {
       engineView: comprehensive.engineView,
       rerateNote: rerateNote(state.rating),
-      plan: buildDeferralPlan(state.intake.deferralCodes || [], comprehensive.questions, evidence),
+      plan: buildDeferralPlan(state.intake.deferralCodes || [], comprehensive.questions, evidence, { calibrated: pristine }),
       kind: KIND.RULE,
     },
-    rerate: rerate({ questions: comprehensive.questions, rating: state.rating, tags, evidence }),
+    // Upward re-rate trust comes only from the pristine sample check, never from the deal ID.
+    rerate: rerate({ questions: comprehensive.questions, rating: state.rating, tags, evidence, calibrated: pristine }),
   };
 }
 
@@ -555,10 +556,17 @@ export function buildAssessment(state) {
 export const DEFERRAL_STATUS = Object.freeze({
   pause: { rank: 2, short: 'pause', label: 'Pause — evidence received so far does not answer the lender’s question' },
   rework: { rank: 1, short: 'rework, then resubmit', label: 'Rework — collect the first items, then resubmit with the explanation' },
+  /* Custom/edited scenarios only (task-06 follow-up): all linked evidence reviewed-supporting, but the
+     scenario is not a calibrated sample, so it must never read as ready to resubmit. */
+  banker_review: { rank: 0.5, short: 'evidence ready for banker review', label: 'Evidence ready for banker review — do not resubmit automatically. Custom or edited scenario: banker review is required before resubmission.' },
   resubmit: { rank: 0, short: 'ready to resubmit', label: 'Ready to resubmit with the explanation pack' },
 });
 
-export function buildDeferralPlan(codes, questions, evidence) {
+/**
+ * `calibrated` must be the untouched-sample (pristine) signal from the assessment; default false (safe):
+ * weak → pause · outstanding/reply-only → rework · all reviewed-supporting → resubmit (calibrated) or banker_review (custom).
+ */
+export function buildDeferralPlan(codes, questions, evidence, { calibrated = false } = {}) {
   const byId = Object.fromEntries(questions.map((q) => [q.id, q]));
   const label = (id) => (RULES.find((r) => r.id === id) || { triggerLabel: id }).triggerLabel;
   const reasons = DEFERRAL_REASONS.filter((d) => codes.includes(d.id)).map((d) => {
@@ -566,11 +574,11 @@ export function buildDeferralPlan(codes, questions, evidence) {
     const linkedNotSelected = d.linkedTriggers.filter((t) => !byId[t]).map((t) => ({ id: t, label: label(t) }));
     let status = 'rework';
     if (linkedSelected.some((x) => x.status === 'weak')) status = 'pause';
-    else if (linkedSelected.length && linkedSelected.every((x) => x.status === 'supports')) status = 'resubmit';
+    else if (linkedSelected.length && linkedSelected.every((x) => x.status === 'supports')) status = calibrated ? 'resubmit' : 'banker_review';
     return { ...d, linkedSelected, linkedNotSelected, status, kind: KIND.RULE };
   });
   const overall = reasons.reduce((w, r) => (DEFERRAL_STATUS[r.status].rank > DEFERRAL_STATUS[w].rank ? r.status : w), 'resubmit');
-  return { version: DEFERRAL_LIBRARY_VERSION, exactDocumentRule: EXACT_DOCUMENT_RULE, reasons, overall: reasons.length ? overall : null };
+  return { version: DEFERRAL_LIBRARY_VERSION, exactDocumentRule: EXACT_DOCUMENT_RULE, reasons, overall: reasons.length ? overall : null, calibrated: Boolean(calibrated) };
 }
 
 /* ---------------------------------------------------------
@@ -588,7 +596,16 @@ export const RERATE_CONFIDENCE_CAP = 'Confidence capped at Medium in this beta: 
 /* Dong 2026-09-27: a weak Important item on a Green file drops it to Amber. */
 export const RERATE_GREEN_IMPORTANT_RULE = 'Green needs every triggered Important item to hold up: reviewed evidence weak on an Important item moves Green to Amber.';
 
-export function rerate({ questions, rating, tags, evidence }) {
+/* Task-06 (invited beta): only the untouched, calibrated sample cases may re-rate upward
+   automatically. A custom or edited scenario can hold or move down, never up — the
+   16-rule library cannot represent every material dimension (e.g. generic capacity). */
+export const RERATE_CUSTOM_GUARDRAIL = 'Custom or edited scenario: material dimensions (for example capacity/serviceability, conduct or security) may not be represented by the selected triggers. The rating can hold or move down here, but banker review is required before any upward movement.';
+
+/**
+ * `calibrated` must come from the assessment (untouched shipped sample, see isPristine),
+ * never from a user-editable field such as the deal ID. Defaults to false (safe).
+ */
+export function rerate({ questions, rating, tags, evidence, calibrated = false }) {
   const statusOf = (q) => evidence[q.id] || 'outstanding';
   const critical = questions.filter((q) => q.priority === 'Critical');
   const criticalWeak = critical.filter((q) => statusOf(q) === 'weak');
@@ -603,10 +620,12 @@ export function rerate({ questions, rating, tags, evidence }) {
   const from = ratingLevel(rating);
   let to = from;
   let movement = 'unchanged';
+  let upwardEligible = false;
+  let upwardBlocked = false;
   const reasons = [];
 
   if (!from) {
-    return { from: null, to: null, movement: 'unchanged', ratingText: rating, confidence: 'Low', reasons: ['No readiness rating selected.'], stillMissing: stillMissing.map((q) => q.triggerLabel), strategy: 'Select a rating before re-rating.', nextStep: 'Select a rating.', guardrail: RERATE_GUARDRAIL, evidenceRule: RERATE_EVIDENCE_RULE, confidenceCap: RERATE_CONFIDENCE_CAP, kind: KIND.RULE, replyOnly: [] };
+    return { from: null, to: null, movement: 'unchanged', ratingText: rating, confidence: 'Low', reasons: ['No readiness rating selected.'], stillMissing: stillMissing.map((q) => q.triggerLabel), strategy: 'Select a rating before re-rating.', nextStep: 'Select a rating.', guardrail: RERATE_GUARDRAIL, evidenceRule: RERATE_EVIDENCE_RULE, confidenceCap: RERATE_CONFIDENCE_CAP, calibrated: Boolean(calibrated), customGuardrail: calibrated ? null : RERATE_CUSTOM_GUARDRAIL, upwardEligible: false, upwardBlocked: false, kind: KIND.RULE, replyOnly: [] };
   }
 
   if (from === 'black') {
@@ -622,9 +641,16 @@ export function rerate({ questions, rating, tags, evidence }) {
     for (const q of importantOnlyWeak) reasons.push(`${q.triggerLabel}: reviewed evidence weak — ${q.ifWeak}`);
     reasons.push(RERATE_GREEN_IMPORTANT_RULE);
   } else if (allCriticalSupported && importantWeak.length === 0) {
-    to = from === 'red' ? 'amber' : 'green';
-    movement = to === from ? 'unchanged' : 'up';
+    const target = from === 'red' ? 'amber' : 'green';
+    upwardEligible = target !== from;
     for (const q of supports) reasons.push(`${q.triggerLabel}: reviewed evidence supports — ${q.ifStrong}`);
+    if (upwardEligible && !calibrated) {
+      upwardBlocked = true; // custom/edited: hold, never auto-upgrade
+      reasons.push(`Upward movement held (${from} → ${target} not applied): ${RERATE_CUSTOM_GUARDRAIL}`);
+    } else {
+      to = target;
+      movement = to === from ? 'unchanged' : 'up';
+    }
   } else {
     if (importantWeak.length) for (const q of importantWeak) reasons.push(`${q.triggerLabel}: reviewed evidence weak — ${q.ifWeak}`);
     const outstandingCritical = critical.filter((q) => statusOf(q) !== 'supports');
@@ -639,6 +665,7 @@ export function rerate({ questions, rating, tags, evidence }) {
   let strategy;
   const lvrWeak = questions.some((q) => q.id === 'high_lvr_second_mortgage' && statusOf(q) === 'weak');
   if (lvrWeak) strategy = 'Pause / refer — no realistic secured-lending pathway is evidenced.';
+  else if (upwardBlocked) strategy = `Hold at ${RATING_NAME[to]} — banker review required before any upward movement; selected triggers may not cover every material dimension.`;
   else if (to === 'green') strategy = 'Mainstream packaging — prepare the lender-ready summary.';
   else if (to === 'amber') strategy = specialist ? 'Specialist/private testing only, subject to appetite, pricing, LVR, repayment source and exit evidence.' : 'Collect the remaining evidence, then test selected mainstream lenders.';
   else if (to === 'red') strategy = specialist ? 'Pause mainstream submission; specialist/private path only if appetite, pricing and exit are evidenced.' : 'Rework first — fix blockers before any lender path.';
@@ -647,7 +674,9 @@ export function rerate({ questions, rating, tags, evidence }) {
   const firstGap = stillMissing.find((q) => q.priority === 'Critical') || stillMissing[0];
   const nextStep = criticalWeak.length
     ? `Discuss the weak evidence with the client: ${criticalWeak[0].triggerLabel}.`
-    : firstGap
+    : upwardBlocked
+      ? 'Book banker review: check capacity/serviceability, conduct and security dimensions that the selected triggers may not cover before any upward re-rate.'
+      : firstGap
       ? `Chase next: ${firstGap.evidence.join(', ')} (${firstGap.owner}).`
       : 'Prepare the package summary and book banker review before any lender contact.';
 
@@ -664,6 +693,10 @@ export function rerate({ questions, rating, tags, evidence }) {
     guardrail: RERATE_GUARDRAIL,
     evidenceRule: RERATE_EVIDENCE_RULE,
     confidenceCap: RERATE_CONFIDENCE_CAP,
+    calibrated: Boolean(calibrated),
+    customGuardrail: calibrated ? null : RERATE_CUSTOM_GUARDRAIL,
+    upwardEligible,
+    upwardBlocked,
     replyOnly: replyOnly.map((q) => q.id),
     kind: KIND.RULE,
   };
@@ -763,7 +796,7 @@ export function summarizeSection(s, assessment) {
     }
     case 'rerate': {
       const r = s.rerate;
-      return { text: `Rating ${r.from ?? '—'} → ${r.to ?? '—'} (${r.movement}) · ${r.confidence} confidence · ${r.stillMissing.length} item${r.stillMissing.length === 1 ? '' : 's'} still missing.`, kind: r.kind };
+      return { text: `Rating ${r.from ?? '—'} → ${r.to ?? '—'} (${r.movement}) · ${r.confidence} confidence · ${r.stillMissing.length} item${r.stillMissing.length === 1 ? '' : 's'} still missing${r.upwardBlocked ? ' · upgrade held for banker review' : ''}.`, kind: r.kind };
     }
     default:
       return null;
@@ -978,6 +1011,7 @@ export function reportToPlainText(report) {
         L.push(`${tag(r.kind)} Evidence rule: ${r.evidenceRule}`);
         L.push(`${tag(r.kind)} Rating movement: ${r.from ?? '—'} → ${r.to ?? '—'} (${r.movement}) · Confidence: ${r.confidence}`);
         L.push(`   Confidence cap: ${r.confidenceCap}`);
+        if (r.customGuardrail) L.push(`${tag(r.kind)} Custom-scenario guardrail: ${r.customGuardrail}`);
         r.reasons.forEach((x) => L.push(`   Reason: ${x}`));
         L.push(`   Still missing: ${r.stillMissing.length ? r.stillMissing.join('; ') : 'none'}`);
         L.push(`   Strategy: ${r.strategy}`);
