@@ -1,3 +1,5 @@
+@import url('/assets/css/tokens.css');
+
 /* =========================================================
    Oney & Co — Brand layer (Phase 1)
    Shared design tokens, nav, footer, hero, cards, motion.
@@ -5,42 +7,43 @@
    ========================================================= */
 
 :root {
-  --bg: #0a0a0a;
-  --bg-secondary: #0f0f1a;
+  /* Compatibility aliases. Canonical values live in tokens.css. */
+  --bg: var(--oney-bg-dark);
+  --bg-secondary: var(--oney-bg-dark-deep);
   --surface: rgba(37, 37, 64, 0.92);
   --surface-2: rgba(255, 255, 255, 0.04);
-  --surface-solid: #252540;
+  --surface-solid: var(--oney-surface-dark);
   --border: rgba(255, 255, 255, 0.10);
   --border-strong: #3D3D5C;
 
-  --text: #ffffff;
+  --text: var(--oney-text-on-dark);
   --text-soft: rgba(255, 255, 255, 0.70);
-  --text-muted: rgba(255, 255, 255, 0.55);
-  --text-faint: rgba(255, 255, 255, 0.40);
+  --text-muted: var(--oney-text-on-dark-muted);
+  --text-faint: var(--oney-text-on-dark-faint);
 
-  --green: #2ECC85;
-  --green-dark: #1FAD73;
+  --green: var(--oney-green);
+  --green-dark: var(--oney-green-dark);
   --green-soft: rgba(46, 204, 133, 0.16);
-  --green-glow: rgba(46, 204, 133, 0.15);
+  --green-glow: var(--oney-green-glow);
 
-  --purple: #6B4C9A;
-  --purple-light: #9B59B6;
-  --purple-soft: rgba(155, 89, 182, 0.18);
+  --purple: var(--oney-purple);
+  --purple-light: var(--oney-purple-light);
+  --purple-soft: var(--oney-purple-glow);
 
-  --blue: #5fa8ff;
-  --gold: #f2b84b;
-  --danger: #ff6b6b;
+  --blue: var(--oney-state-info);
+  --gold: var(--oney-state-warn);
+  --danger: var(--oney-state-error);
 
-  --radius-xl: 28px;
-  --radius-lg: 20px;
-  --radius-md: 14px;
+  --radius-xl: var(--oney-radius-card-lg);
+  --radius-lg: var(--oney-radius-card);
+  --radius-md: var(--oney-radius-button);
   --radius-sm: 10px;
 
-  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.25);
-  --shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.40);
+  --shadow-card: var(--oney-shadow-card);
+  --shadow-hover: var(--oney-shadow-lift);
 
   --max-w: 1280px;
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --font: var(--oney-font-sans);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -80,11 +83,13 @@ img, svg { display: block; max-width: 100%; }
 }
 .brand-logo { display: flex; align-items: center; gap: 12px; }
 .brand-logo-mark {
-  width: 32px; height: 32px; border-radius: 50%; padding: 3px;
-  background: conic-gradient(from 180deg at 50% 50%, #2ECC85 0deg, #6B4C9A 220deg, #2ECC85 360deg);
+  width: 32px; height: 32px; padding: 0; border-radius: 0;
+  background: url('/assets/svg/oney-icon.svg') center/contain no-repeat;
+  filter: drop-shadow(0 0 8px rgba(109,94,245,0.30)) drop-shadow(0 0 18px rgba(37,99,235,0.14));
 }
-.brand-logo-mark > span { display: block; width: 100%; height: 100%; border-radius: 50%; background: var(--bg); }
+.brand-logo-mark > span { display: none; }
 .brand-logo-text { font-size: 20px; font-weight: 600; color: var(--text); letter-spacing: -0.5px; }
+.brand-logo-text::after { content: '.'; color: var(--oney-wordmark-dot); font-weight: 700; margin-left: 1px; }
 .brand-logo-text .amp {
   background: linear-gradient(135deg, #2ECC85, #6B4C9A);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
@@ -237,14 +242,14 @@ img, svg { display: block; max-width: 100%; }
   padding: 24px; color: var(--text); display: block;
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
   box-shadow: var(--shadow-card);
-  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: transform var(--oney-dur-card) var(--oney-ease-out), border-color var(--oney-dur-card) var(--oney-ease-out), box-shadow var(--oney-dur-card) var(--oney-ease-out);
 }
 .tool-card::before, .entry-card::before {
   content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), transparent 40%);
 }
 .tool-card:hover, .entry-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-hover);
   border-color: rgba(95, 168, 255, 0.28);
 }
