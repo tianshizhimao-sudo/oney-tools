@@ -188,7 +188,7 @@ img, svg { display: block; max-width: 100%; }
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   padding: 12px 22px; border-radius: 12px; font-size: 14px; font-weight: 600;
-  border: 1px solid transparent; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, background 0.2s;
+  border: 1px solid transparent; cursor: pointer; transition: transform var(--oney-dur-cta) var(--oney-ease-out), box-shadow var(--oney-dur-cta) var(--oney-ease-out), border-color var(--oney-dur-cta) var(--oney-ease-out), background var(--oney-dur-cta) var(--oney-ease-out);
   text-decoration: none; color: var(--text);
   font-family: inherit;
 }
@@ -196,7 +196,7 @@ img, svg { display: block; max-width: 100%; }
   background: linear-gradient(135deg, #2ECC85, #1FAD73);
   box-shadow: 0 8px 24px rgba(46, 204, 133, 0.25);
 }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(46, 204, 133, 0.35); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 12px 32px rgba(46, 204, 133, 0.35); }
 .btn-secondary {
   background: rgba(255, 255, 255, 0.06); border-color: var(--border);
 }
@@ -205,12 +205,19 @@ img, svg { display: block; max-width: 100%; }
   background: linear-gradient(135deg, #6B4C9A, #9B59B6);
   box-shadow: 0 8px 24px rgba(107, 76, 154, 0.30);
 }
-.btn-pro:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(107, 76, 154, 0.40); }
+.btn-pro:hover { transform: translateY(-1px); box-shadow: 0 12px 32px rgba(107, 76, 154, 0.40); }
 .btn-ghost {
   background: transparent; border-color: transparent; color: var(--text-soft);
   padding: 8px 12px;
 }
 .btn-ghost:hover { color: var(--text); }
+
+
+:where(a, button, input, select, textarea):focus-visible {
+  outline: 2px solid var(--oney-wordmark-dot);
+  outline-offset: 3px;
+}
+.btn:active, .tool-card:active, .entry-card:active, .intent-card:active { transform: translateY(0); }
 
 /* ---------- Section heading ---------- */
 .section-label {
@@ -406,6 +413,8 @@ img, svg { display: block; max-width: 100%; }
     border-bottom: 1px solid var(--border-strong); gap: 4px;
   }
   .brand-nav.is-open .brand-nav-links { display: flex; }
+  .brand-nav-link { width:100%; padding:12px 14px; }
+  .brand-nav-inner { position:relative; }
   .brand-nav.is-open .brand-nav-hamburger span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
   .brand-nav.is-open .brand-nav-hamburger span:nth-child(2) { opacity: 0; }
   .brand-nav.is-open .brand-nav-hamburger span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
