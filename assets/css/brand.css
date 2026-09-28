@@ -82,6 +82,11 @@ img, svg { display: block; max-width: 100%; }
   height: 64px; display: flex; align-items: center; justify-content: space-between;
 }
 .brand-logo { display: flex; align-items: center; gap: 12px; }
+.brand-logo::after {
+  content: 'TOOLS'; margin-left: 2px; padding-left: 12px;
+  border-left: 1px solid var(--border); color: var(--text-faint);
+  font-size: 10px; font-weight: 600; letter-spacing: .16em;
+}
 .brand-logo-mark {
   width: 32px; height: 32px; padding: 0; border-radius: 0;
   background: url('/assets/svg/oney-icon.svg') center/contain no-repeat;
@@ -267,13 +272,16 @@ img, svg { display: block; max-width: 100%; }
 .tool-icon {
   width: 44px; height: 44px; border-radius: 12px;
   display: inline-flex; align-items: center; justify-content: center; font-size: 22px;
-  background: linear-gradient(135deg, #2ECC85, #1FAD73);
-  box-shadow: 0 4px 16px rgba(46, 204, 133, 0.20);
+  background: rgba(46,204,133,.09);
+  border: 1px solid rgba(46,204,133,.18);
+  color: var(--green);
 }
 .tool-icon[data-tier="pro"] {
-  background: linear-gradient(135deg, #6B4C9A, #9B59B6);
-  box-shadow: 0 4px 16px rgba(107, 76, 154, 0.20);
+  background: rgba(107,76,154,.12);
+  border-color: rgba(155,89,182,.22);
+  color: var(--purple-light);
 }
+.tool-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .tool-tier, .tool-group {
   font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 999px;
   text-transform: uppercase; letter-spacing: 0.08em;
@@ -390,6 +398,7 @@ img, svg { display: block; max-width: 100%; }
 
 /* ---------- Responsive nav ---------- */
 @media (max-width: 768px) {
+  .brand-logo::after { display:none; }
   .brand-nav-hamburger { display: flex; }
   .brand-nav-links {
     display: none; position: absolute; top: 64px; left: 0; right: 0;
