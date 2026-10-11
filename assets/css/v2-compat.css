@@ -35,3 +35,22 @@ html[data-theme=dark] .tool-card,html[data-theme=dark] .entry-card,html[data-the
 /* Release-gate QA: Pro workspace controls stay readable in both themes. */
 .choice-card{color:var(--text);font-family:inherit}
 .field-row input:focus-visible,.field-row select:focus-visible,.field-row textarea:focus-visible{outline:3px solid var(--purple);outline-offset:2px}
+
+/* Release-gate QA: readable accents. Text uses the darker green/purple per theme; fills keep --green / --purple. */
+:root{--oney-v2-green-text:#117A50;--oney-v2-green-tint:#E7F7EF;--oney-v2-purple-text:#5949E8;--oney-v2-purple-tint:#F2F0FF}
+html[data-theme=dark]{--oney-v2-green-text:#43D095;--oney-v2-green-tint:#173429;--oney-v2-purple-text:#9A83FF;--oney-v2-purple-tint:#2A2140}
+.tool-link,.intent-card small,.section-label.green,.brand-footer a,.tool-header .eyebrow,.assist-card a{color:var(--oney-v2-green-text)}
+.section-label.purple,.intent-card--pro small{color:var(--oney-v2-purple-text)}
+.tool-icon{background:var(--oney-v2-green-tint);border-color:transparent;color:var(--oney-v2-green-text)}
+.tool-icon[data-tier="pro"]{background:var(--oney-v2-purple-tint);border-color:transparent;color:var(--oney-v2-purple-text)}
+.tool-tier,.chip.is-free{background:var(--oney-v2-green-tint);color:var(--oney-v2-green-text)}
+.tool-tier[data-value="pro"],.chip.is-pro{background:var(--oney-v2-purple-tint);color:var(--oney-v2-purple-text)}
+/* Pro workspace belongs to the Tools family: Ink primary button, no gradient, no glow. */
+.btn-pro{background:#111815!important;color:#fff!important;box-shadow:none!important}
+html[data-theme=dark] .btn-pro{background:#F5F2F7!important;color:#17131E!important}
+.btn-primary:hover,.btn-pro:hover{box-shadow:none!important}
+/* Product family: Bank-Ready Score = Purple; Calculate and Analyse = Ink / neutral. */
+.tool-card[href$="bank-ready-score.html"] .tool-icon{background:var(--oney-v2-purple-tint);color:var(--oney-v2-purple-text)}
+.tool-card[href$="bank-ready-score.html"] .tool-link{color:var(--oney-v2-purple-text)}
+body:has(.brand-nav-link.active[href="/calculate/"]) .tool-card:not([data-tier="pro"]) .tool-icon,body:has(.brand-nav-link.active[href="/analyse/"]) .tool-card:not([data-tier="pro"]) .tool-icon{background:var(--surface-2);color:var(--text)}
+body:has(.brand-nav-link.active[href="/calculate/"]) .tool-card .tool-link,body:has(.brand-nav-link.active[href="/analyse/"]) .tool-card .tool-link{color:var(--text)}
