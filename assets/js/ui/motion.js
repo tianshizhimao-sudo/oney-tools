@@ -27,7 +27,23 @@ export function initNav() {
   if (!nav) return;
   const toggle = nav.querySelector('.brand-nav-hamburger');
   if (!toggle) return;
-  toggle.addEventListener('click', () => nav.classList.toggle('is-open'));
+  const menu = nav.querySelector('.brand-nav-links');
+  if (menu) {
+    if (!menu.id) menu.id = 'brand-nav-menu';
+    toggle.setAttribute('aria-controls', menu.id);
+  }
+  const setOpen = (open) => {
+    nav.classList.toggle('is-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+  };
+  setOpen(nav.classList.contains('is-open'));
+  toggle.addEventListener('click', () => setOpen(!nav.classList.contains('is-open')));
+  // Escape closes the open menu and returns focus to the button that opened it.
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape' || !nav.classList.contains('is-open')) return;
+    setOpen(false);
+    toggle.focus();
+  });
 }
 
 export function initAll() {
