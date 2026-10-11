@@ -1,0 +1,11 @@
+/* Oney Tools V2.1 opt-in compatibility layer. No tool calculation logic changed. */
+:root{--oney-v2-bg:#F2F4F3;--oney-v2-panel:#FAFBFA;--oney-v2-soft:#E9EDEA;--oney-v2-ink:#18201D;--oney-v2-muted:#4C5853;--oney-v2-border:#D8DEDA;--oney-v2-green:#22B978;--oney-v2-purple:#6D5EF5;--bg:var(--oney-v2-bg);--bg-secondary:var(--oney-v2-soft);--surface:var(--oney-v2-panel);--surface-2:var(--oney-v2-soft);--surface-solid:var(--oney-v2-panel);--border:var(--oney-v2-border);--text:var(--oney-v2-ink);--text-soft:var(--oney-v2-muted);--text-muted:var(--oney-v2-muted);--text-faint:var(--oney-v2-muted);--green:var(--oney-v2-green);--purple:var(--oney-v2-purple);--font:"Inter Tight",Inter,sans-serif;--max-w:1200px}
+html[data-theme=dark]{--oney-v2-bg:#17131E;--oney-v2-panel:#211A2B;--oney-v2-soft:#1C1724;--oney-v2-ink:#F6F3F8;--oney-v2-muted:#C9C0D1;--oney-v2-border:#372D43;--oney-v2-green:#43D095;--oney-v2-purple:#9A83FF}
+body{background:var(--bg);color:var(--text);font-family:var(--font)}.ambient-bg,.hub-hero-glow-1,.hub-hero-glow-2{display:none!important}
+.brand-nav{background:color-mix(in srgb,var(--bg) 90%,transparent);border-bottom:1px solid var(--border)}.brand-logo-text{color:var(--text)}.brand-nav-link{color:var(--text-soft)}.brand-nav-link:hover,.brand-nav-link.active{color:var(--text)}
+.hub-hero{background:var(--bg)}.hub-hero h1,.hub-hero h2{color:var(--text);-webkit-text-fill-color:currentColor}.hub-hero p{color:var(--text-soft)}
+.hub-card,.hub-branch-card,.feature-card,.tool-card,.assist-card,.tool-main{background:var(--surface)!important;color:var(--text);border:1px solid var(--border);border-radius:16px;box-shadow:0 8px 24px rgba(17,20,24,.05)}
+.tool-main{background:var(--surface)!important}.tool-header p,.assist-card p{color:var(--text-soft)}
+:focus-visible{outline:3px solid var(--purple);outline-offset:3px}
+.oney-v2-toggle{min-width:44px;min-height:44px;border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--text);cursor:pointer;font-size:18px}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
