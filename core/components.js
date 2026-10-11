@@ -534,7 +534,7 @@ const OneyUI = (function() {
    */
   function footer(options = {}) {
     const {
-      email = 'dong.m@oneyco.com.au',
+      email = 'hello@oneyco.com.au',
       showYear = true
     } = options;
     
