@@ -9,3 +9,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--font)}.ambient-bg,
 :focus-visible{outline:3px solid var(--purple);outline-offset:3px}
 .oney-v2-toggle{min-width:44px;min-height:44px;border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--text);cursor:pointer;font-size:18px}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* QA source-review fixes: remove legacy decorative treatments and enforce readable CTAs */
+.brand-logo-mark{filter:none}.brand-logo-text .amp{background:none!important;-webkit-text-fill-color:currentColor!important;color:var(--text)}
+.hub-hero h1 .gradient,.mini-metric span{background:none!important;-webkit-text-fill-color:currentColor!important;color:var(--text)!important}
+.btn-primary{background:#117A50!important;color:#fff!important;box-shadow:none!important}
+html[data-theme=dark] .btn-primary{background:#43D095!important;color:#17131E!important}
+.btn-secondary,.btn-ghost{background:var(--surface)!important;color:var(--text)!important;border:1px solid var(--border)!important}
+.brand-nav-link:hover,.brand-nav-link.active{background:var(--surface-2)}
+.mini-metric{background:var(--surface);border-color:var(--border)}
+@media(max-width:640px){.brand-nav-hamburger{min-width:44px;min-height:44px;align-items:center;justify-content:center}}
