@@ -31,3 +31,7 @@ html[data-theme=dark]{--oney-v2-border-strong:#4A3C59}
 html[data-theme=dark] .tool-card,html[data-theme=dark] .entry-card,html[data-theme=dark] .upgrade-band,html[data-theme=dark] .tool-main,html[data-theme=dark] .assist-card,html[data-theme=dark] .tool-card:hover,html[data-theme=dark] .entry-card:hover{box-shadow:none}
 .result-hero{background:var(--surface-2)!important;border-color:var(--border)}
 .result-hero .value{background:none!important;-webkit-text-fill-color:currentColor!important;color:var(--text)!important}
+
+/* Release-gate QA: Pro workspace controls stay readable in both themes. */
+.choice-card{color:var(--text);font-family:inherit}
+.field-row input:focus-visible,.field-row select:focus-visible,.field-row textarea:focus-visible{outline:3px solid var(--purple);outline-offset:2px}

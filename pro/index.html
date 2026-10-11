@@ -73,11 +73,11 @@
       const labels = [...sources].map((s) => SOURCE_LABEL[s] || s).join(', ');
       const banner = document.getElementById('pro-import-banner');
       banner.innerHTML = `
-        <div style="border:1px solid rgba(46,204,133,0.30);
-                    background:linear-gradient(90deg,rgba(46,204,133,0.10),rgba(107,76,154,0.06));
+        <div style="border:1px solid var(--border);
+                    background:var(--surface-2);
                     border-radius:14px;padding:14px 18px;display:flex;
                     align-items:center;gap:12px;flex-wrap:wrap;font-size:14px">
-          <strong style="color:#9be7c1">Imported</strong>
+          <strong style="color:var(--oney-v2-green-text,var(--text))">Imported</strong>
           <span style="color:var(--text-soft)">Case context loaded from <strong>${labels}</strong>.</span>
           <span style="flex:1"></span>
           <button type="button" id="banner-dismiss" style="background:transparent;border:0;
