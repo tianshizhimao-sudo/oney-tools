@@ -58,3 +58,12 @@ body:has(.brand-nav-link.active[href="/calculate/"]) .tool-card .tool-link,body:
 /* Release-gate QA: the hub hero no longer clips on narrow phones (320-360px). */
 @media(max-width:860px){.hub-hero-inner{grid-template-columns:minmax(0,1fr)}.hub-hero-inner>*{min-width:0}}
 @media(max-width:360px){.hub-hero-panel{grid-template-columns:1fr}.mini-metric{display:flex;align-items:baseline;gap:10px}.mini-metric label{margin-top:0}}
+
+/* Release hardening: the theme toggle sits in the shared navigation (same control as the main site); the floating toggle is gone. */
+.brand-nav-links{margin-left:auto}
+.oney-v2-toggle{flex:none;width:44px;height:44px;padding:0;margin-left:8px;display:grid;place-items:center;font:inherit}
+.oney-v2-toggle:hover{background:var(--surface-2)}
+.oney-v2-toggle svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.oney-v2-toggle .oney-v2-sun,html[data-theme=dark] .oney-v2-toggle .oney-v2-moon{display:none}
+html[data-theme=dark] .oney-v2-toggle .oney-v2-sun{display:block}
+@media(max-width:768px){.brand-logo{margin-right:auto}.oney-v2-toggle{order:2;margin-left:0}.brand-nav-hamburger{order:3;margin-left:8px;min-width:44px;min-height:44px;align-items:center;justify-content:center}}
