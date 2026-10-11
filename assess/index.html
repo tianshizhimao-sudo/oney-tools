@@ -42,7 +42,7 @@
         <span class="hub-hero-eyebrow">Step 1 — Diagnose first</span>
         <h1>Find out <span class="gradient">where you stand</span> before you apply.</h1>
         <p class="hub-hero-text">
-          Five short diagnostics that route you to the right calculator, the next question worth investigating,
+          Short diagnostics that route you to the right calculator, the next question worth investigating,
           or into deeper Oney analysis. Each takes about five minutes.
         </p>
         <div class="hub-hero-actions">
@@ -52,7 +52,7 @@
       <aside class="hub-hero-panel fade-up fade-up-d1">
         <div class="mini-metric"><span>5m</span><label>Per tool</label></div>
         <div class="mini-metric"><span>Free</span><label>No signup</label></div>
-        <div class="mini-metric"><span>5</span><label>Tools</label></div>
+        <div class="mini-metric"><span id="m-count">6</span><label>Tools</label></div>
       </aside>
     </div>
   </header>
@@ -103,6 +103,7 @@
     import { renderGroupPage } from '/assets/js/app/route-map.js';
     import { initAll } from '/assets/js/ui/motion.js';
     renderGroupPage('assess', document.getElementById('group-tools'));
+    document.getElementById('m-count').textContent = document.getElementById('group-tools').children.length;
     initAll();
   </script>
 <script>(function(){const b=document.getElementById('oneyToolsTheme'),r=document.documentElement;if(!b)return;function sync(){b.setAttribute('aria-pressed',String(r.dataset.theme==='dark'))}sync();b.addEventListener('click',()=>{r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem('oney-theme',r.dataset.theme)}catch(e){}sync()})})();</script></body>
