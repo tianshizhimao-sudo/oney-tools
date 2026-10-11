@@ -67,3 +67,6 @@ body:has(.brand-nav-link.active[href="/calculate/"]) .tool-card .tool-link,body:
 .oney-v2-toggle .oney-v2-sun,html[data-theme=dark] .oney-v2-toggle .oney-v2-moon{display:none}
 html[data-theme=dark] .oney-v2-toggle .oney-v2-sun{display:block}
 @media(max-width:768px){.brand-logo{margin-right:auto}.oney-v2-toggle{order:2;margin-left:0}.brand-nav-hamburger{order:3;margin-left:8px;min-width:44px;min-height:44px;align-items:center;justify-content:center}}
+/* With the toggle in the bar, 769-860px needs the room the "TOOLS" tag used (the tag is already hidden at 768px and below). */
+.brand-nav-link{white-space:nowrap}
+@media(min-width:769px) and (max-width:860px){.brand-logo::after{display:none}}
