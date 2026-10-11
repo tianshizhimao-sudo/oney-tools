@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0a0a0a">
+  <meta name="theme-color" content="#F2F4F3">
   <title>Oney Pro Workspace — Unified case workspace</title>
   <meta name="description" content="One workspace, one shared dataset, one credit summary. Built on the same finance engine as every free Oney tool.">
   <link rel="icon" type="image/svg+xml" href="/assets/svg/oney-icon.svg">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/brand.css">
   <link rel="stylesheet" href="/assets/css/tool-shell.css">
   <link rel="canonical" href="https://tools.oneyco.com.au/pro/">
-</head>
+<link rel="stylesheet" href="/assets/css/v2-compat.css"><script>try{document.documentElement.dataset.theme=localStorage.getItem('oney-theme')==='dark'?'dark':'light'}catch(e){document.documentElement.dataset.theme='light'}</script></head>
 <body class="tool-page">
   <div class="ambient-bg"></div>
 
@@ -32,7 +32,7 @@
         <a href="/pro/" class="brand-nav-link active">Pro</a>
       </div>
     </div>
-  </nav>
+  </nav><div style="position:fixed;right:18px;bottom:18px;z-index:1100"><button class="oney-v2-toggle" id="oneyToolsTheme" type="button" aria-label="Switch light and dark theme" aria-pressed="false">◐</button></div>
 
   <div id="pro-import-banner" class="container" style="padding-top:16px;position:relative;z-index:1"></div>
 
@@ -139,5 +139,5 @@
 
     initAll();
   </script>
-</body>
+<script>(function(){const b=document.getElementById('oneyToolsTheme'),r=document.documentElement;if(!b)return;function sync(){b.setAttribute('aria-pressed',String(r.dataset.theme==='dark'))}sync();b.addEventListener('click',()=>{r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem('oney-theme',r.dataset.theme)}catch(e){}sync()})})();</script></body>
 </html>
