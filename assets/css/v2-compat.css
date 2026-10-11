@@ -54,3 +54,7 @@ html[data-theme=dark] .btn-pro{background:#F5F2F7!important;color:#17131E!import
 .tool-card[href$="bank-ready-score.html"] .tool-link{color:var(--oney-v2-purple-text)}
 body:has(.brand-nav-link.active[href="/calculate/"]) .tool-card:not([data-tier="pro"]) .tool-icon,body:has(.brand-nav-link.active[href="/analyse/"]) .tool-card:not([data-tier="pro"]) .tool-icon{background:var(--surface-2);color:var(--text)}
 body:has(.brand-nav-link.active[href="/calculate/"]) .tool-card .tool-link,body:has(.brand-nav-link.active[href="/analyse/"]) .tool-card .tool-link{color:var(--text)}
+
+/* Release-gate QA: the hub hero no longer clips on narrow phones (320-360px). */
+@media(max-width:860px){.hub-hero-inner{grid-template-columns:minmax(0,1fr)}.hub-hero-inner>*{min-width:0}}
+@media(max-width:360px){.hub-hero-panel{grid-template-columns:1fr}.mini-metric{display:flex;align-items:baseline;gap:10px}.mini-metric label{margin-top:0}}
