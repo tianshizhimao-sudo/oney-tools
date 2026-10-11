@@ -3,18 +3,19 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0a0a0a">
+  <meta name="theme-color" content="#F2F4F3">
   <title>Oney & Co Tools — Diagnose, calculate, analyse Australian lending</title>
   <meta name="description" content="Diagnose first, calculate second, analyse only when needed. Free Australian mortgage and business finance tools — built by an experienced banker.">
   <link rel="icon" type="image/svg+xml" href="/assets/svg/oney-icon.svg">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/brand.css">
+  <link rel="stylesheet" href="assets/css/v2-compat.css">
   <meta property="og:title" content="Oney & Co Tools — Diagnose, calculate, analyse">
   <meta property="og:description" content="Free Australian mortgage and business finance tools — built by an experienced banker.">
   <meta property="og:url" content="https://tools.oneyco.com.au/">
   <meta property="og:type" content="website">
   <link rel="canonical" href="https://tools.oneyco.com.au/">
-</head>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem('oney-theme')==='dark'?'dark':'light'}catch(e){document.documentElement.dataset.theme='light'}</script></head>
 <body>
   <div class="ambient-bg"></div>
 
@@ -36,7 +37,7 @@
         <a href="/ai-use-disclaimer.html" class="brand-nav-link">AI & Disclaimer</a>
       </div>
     </div>
-  </nav>
+  </nav><div style="position:fixed;right:18px;bottom:18px;z-index:1100"><button class="oney-v2-toggle" id="oneyToolsTheme" type="button" aria-label="Switch light and dark theme" aria-pressed="false">◐</button></div>
 
   <header class="hub-hero">
     <div class="hub-hero-glow-1"></div>
@@ -147,5 +148,5 @@
 
     initAll();
   </script>
-</body>
+<script>(function(){const b=document.getElementById('oneyToolsTheme');const r=document.documentElement;function sync(){b.setAttribute('aria-pressed',String(r.dataset.theme==='dark'))}sync();b.addEventListener('click',()=>{r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem('oney-theme',r.dataset.theme)}catch(e){}sync()})})();</script></body>
 </html>
