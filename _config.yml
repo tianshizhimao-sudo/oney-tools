@@ -1,0 +1,24 @@
+# GitHub Pages (Jekyll) build settings for tools.oneyco.com.au.
+#
+# The paths below stay in the repository and its history, but GitHub Pages does
+# not publish them (Tools V2.1 release hardening). The same paths are listed in
+# .vercelignore for the Vercel deployment.
+#
+#   card/                    personal contact card
+#   archive/                 obsolete page versions
+#   docs/credit-framework/   internal planning documents
+#
+# The remaining entries restore what a custom `exclude` replaces: the Jekyll
+# defaults, and CNAME, which GitHub Pages keeps out of the published site.
+exclude:
+  - card/
+  - archive/
+  - docs/credit-framework/
+  - CNAME
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/

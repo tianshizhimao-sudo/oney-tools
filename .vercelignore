@@ -1,0 +1,8 @@
+# Kept in the repository and its history, but not uploaded to or served by the
+# Vercel deployment (Tools V2.1 release hardening). Same list as _config.yml.
+/card
+/archive
+/docs/credit-framework
+
+# Build configuration for GitHub Pages only; nothing on Vercel reads it.
+/_config.yml
