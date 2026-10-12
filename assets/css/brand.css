@@ -387,6 +387,7 @@ img, svg { display: block; max-width: 100%; }
 .brand-footer p { color: var(--text-muted); font-size: 13px; margin: 4px 0; }
 .brand-footer a { color: var(--green); }
 .brand-footer a:hover { text-decoration: underline; }
+.brand-footer .brand-footer-note { max-width: 720px; margin: 16px auto 0; font-size: 12px; line-height: 1.6; }
 
 /* ---------- Motion ---------- */
 .fade-up {

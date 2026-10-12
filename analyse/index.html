@@ -3,14 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#0a0a0a">
+  <meta name="theme-color" content="#F2F4F3">
   <title>Analyse — Go deeper | Oney & Co Tools</title>
   <meta name="description" content="Deal-level analysis tools — investment yield, commercial servicing, security assessment, and flow visualisation.">
   <link rel="icon" type="image/svg+xml" href="/assets/svg/oney-icon.svg">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/assets/css/brand.css">
   <link rel="canonical" href="https://tools.oneyco.com.au/analyse/">
-</head>
+<link rel="stylesheet" href="/assets/css/v2-compat.css"><script>try{document.documentElement.dataset.theme=localStorage.getItem('oney-theme')==='dark'?'dark':'light'}catch(e){document.documentElement.dataset.theme='light'}</script></head>
 <body>
   <div class="ambient-bg"></div>
 
@@ -29,7 +29,9 @@
         <a href="/calculate/" class="brand-nav-link">Calculate</a>
         <a href="/analyse/" class="brand-nav-link active">Analyse</a>
         <a href="/pro/" class="brand-nav-link">Pro</a>
+        <a href="/ai-use-disclaimer.html" class="brand-nav-link">AI & Disclaimer</a>
       </div>
+      <button class="oney-v2-toggle" id="oneyToolsTheme" type="button" aria-label="Switch light and dark theme" aria-pressed="false"><svg class="oney-v2-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 8.5 8.5 0 1 0 20 15.5Z"/></svg><svg class="oney-v2-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2"/></svg></button>
     </div>
   </nav>
 
@@ -59,7 +61,7 @@
 
   <main class="container" style="padding-top:24px;padding-bottom:80px;">
     <section>
-      <div class="section-label purple fade-up">
+      <div class="section-label neutral fade-up">
         <span>Analysis tools</span>
         <small>Some are free; some unlock more in Pro.</small>
       </div>
@@ -77,7 +79,8 @@
 
   <footer class="brand-footer">
     <p>Oney &amp; Co — Lending intelligence for clearer decisions</p>
-    <p><a href="https://oneyco.com.au">oneyco.com.au</a></p>
+    <p><a href="https://oneyco.com.au">oneyco.com.au</a> · <a href="/ai-use-disclaimer.html">AI Use & Disclaimer</a></p>
+    <p class="brand-footer-note">Oney &amp; Co Pty Ltd is an independent Australian education and financial literacy business. It is not a bank, lender or payment provider, and is not affiliated with Oney Bank or the Oney group.</p>
   </footer>
 
   <script type="module">
@@ -88,5 +91,5 @@
     document.getElementById('m-count').textContent = getToolsByGroup('analyse').length;
     initAll();
   </script>
-</body>
+<script>(function(){const b=document.getElementById('oneyToolsTheme'),r=document.documentElement;if(!b)return;function sync(){b.setAttribute('aria-pressed',String(r.dataset.theme==='dark'))}sync();b.addEventListener('click',()=>{r.dataset.theme=r.dataset.theme==='dark'?'light':'dark';try{localStorage.setItem('oney-theme',r.dataset.theme)}catch(e){}sync()})})();</script></body>
 </html>

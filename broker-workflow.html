@@ -445,7 +445,7 @@ select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='htt
     <div class="grid-3">
       <div class="field"><label>Lender</label><input type="text" id="c_lender" placeholder="NAB" oninput="refreshComms()"></div>
       <div class="field"><label>Settlement Date</label><input type="date" id="c_settleDate" oninput="refreshComms()"></div>
-      <div class="field"><label>Your Name / Signature</label><input type="text" id="c_broker" placeholder="Dong — Oney & Co" oninput="refreshComms()"></div>
+      <div class="field"><label>Your Name / Signature</label><input type="text" id="c_broker" placeholder="Your name — Your brokerage" oninput="refreshComms()"></div>
     </div>
   </div>
 
@@ -931,7 +931,7 @@ The lender (${c.lender||'[Lender]'}) has confirmed the loan is ready to settle. 
 Happy to jump on a quick call if easier.
 
 Thanks,
-${c.broker||'Dong — Oney & Co'}
+${c.broker||'[Your name]'}
 Mortgage Broker | Oney & Co Pty Ltd`,
   },
   {
@@ -960,7 +960,7 @@ Specifically looking for:
 My clients are time-sensitive — happy to provide any additional info to help expedite.
 
 Cheers,
-${c.broker||'Dong — Oney & Co'}`,
+${c.broker||'[Your name]'}`,
   },
   {
     id:'valuer-chase',
@@ -988,7 +988,7 @@ Could you please confirm:
 Please contact me directly if you have any questions.
 
 Regards,
-${c.broker||'Dong — Oney & Co'}`,
+${c.broker||'[Your name]'}`,
   },
   {
     id:'accountant-req',
@@ -1018,7 +1018,7 @@ Please send directly to me at [your email] or securely to my client. Let me know
 Thank you for your assistance.
 
 Kind regards,
-${c.broker||'Dong — Oney & Co'}`,
+${c.broker||'[Your name]'}`,
   },
   {
     id:'client-update',
@@ -1047,7 +1047,7 @@ What we need from you:
 Don't hesitate to reach out if you have any questions — I'm always happy to chat.
 
 Talk soon,
-${c.broker||'Dong — Oney & Co'}
+${c.broker||'[Your name]'}
 Mortgage Broker | Oney & Co Pty Ltd
 hello@oneyco.com.au | oneyco.com.au`,
   },

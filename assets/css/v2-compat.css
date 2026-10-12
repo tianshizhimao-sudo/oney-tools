@@ -1,0 +1,72 @@
+/* Oney Tools V2.1 opt-in compatibility layer. No tool calculation logic changed. */
+:root{--oney-v2-bg:#F2F4F3;--oney-v2-panel:#FAFBFA;--oney-v2-soft:#E9EDEA;--oney-v2-ink:#18201D;--oney-v2-muted:#4C5853;--oney-v2-border:#D8DEDA;--oney-v2-green:#22B978;--oney-v2-purple:#6D5EF5;--bg:var(--oney-v2-bg);--bg-secondary:var(--oney-v2-soft);--surface:var(--oney-v2-panel);--surface-2:var(--oney-v2-soft);--surface-solid:var(--oney-v2-panel);--border:var(--oney-v2-border);--text:var(--oney-v2-ink);--text-soft:var(--oney-v2-muted);--text-muted:var(--oney-v2-muted);--text-faint:var(--oney-v2-muted);--green:var(--oney-v2-green);--purple:var(--oney-v2-purple);--font:"Inter Tight",Inter,sans-serif;--max-w:1200px}
+html[data-theme=dark]{--oney-v2-bg:#17131E;--oney-v2-panel:#211A2B;--oney-v2-soft:#1C1724;--oney-v2-ink:#F6F3F8;--oney-v2-muted:#C9C0D1;--oney-v2-border:#372D43;--oney-v2-green:#43D095;--oney-v2-purple:#9A83FF}
+body{background:var(--bg);color:var(--text);font-family:var(--font)}.ambient-bg,.hub-hero-glow-1,.hub-hero-glow-2{display:none!important}
+.brand-nav{background:color-mix(in srgb,var(--bg) 90%,transparent);border-bottom:1px solid var(--border)}.brand-logo-text{color:var(--text)}.brand-nav-link{color:var(--text-soft)}.brand-nav-link:hover,.brand-nav-link.active{color:var(--text)}
+.hub-hero{background:var(--bg)}.hub-hero h1,.hub-hero h2{color:var(--text);-webkit-text-fill-color:currentColor}.hub-hero p{color:var(--text-soft)}
+.hub-card,.hub-branch-card,.feature-card,.tool-card,.assist-card,.tool-main{background:var(--surface)!important;color:var(--text);border:1px solid var(--border);border-radius:16px;box-shadow:0 8px 24px rgba(17,20,24,.05)}
+.tool-main{background:var(--surface)!important}.tool-header p,.assist-card p{color:var(--text-soft)}
+:focus-visible{outline:3px solid var(--purple);outline-offset:3px}
+.oney-v2-toggle{min-width:44px;min-height:44px;border:1px solid var(--border);border-radius:12px;background:var(--surface);color:var(--text);cursor:pointer;font-size:18px}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* QA source-review fixes: remove legacy decorative treatments and enforce readable CTAs */
+.brand-logo-mark{filter:none}.brand-logo-text .amp{background:none!important;-webkit-text-fill-color:currentColor!important;color:var(--text)}
+.hub-hero h1 .gradient,.mini-metric span{background:none!important;-webkit-text-fill-color:currentColor!important;color:var(--text)!important}
+.btn-primary{background:#117A50!important;color:#fff!important;box-shadow:none!important}
+html[data-theme=dark] .btn-primary{background:#43D095!important;color:#17131E!important}
+.btn-secondary,.btn-ghost{background:var(--surface)!important;color:var(--text)!important;border:1px solid var(--border)!important}
+.brand-nav-link:hover,.brand-nav-link.active{background:var(--surface-2)}
+.mini-metric{background:var(--surface);border-color:var(--border)}
+@media(max-width:640px){.brand-nav-hamburger{min-width:44px;min-height:44px;align-items:center;justify-content:center}}
+
+/* Release-gate QA: surfaces. Entry cards, the upgrade band and the result panel use the V2 surface in both themes. */
+:root{--oney-v2-border-strong:#C2CBC6;--border-strong:var(--oney-v2-border-strong);--radius-lg:16px;--radius-xl:16px}
+html[data-theme=dark]{--oney-v2-border-strong:#4A3C59}
+.entry-card,.upgrade-band{background:var(--surface)!important;color:var(--text);border:1px solid var(--border);box-shadow:0 8px 24px rgba(17,20,24,.05)}
+.intent-card{background:var(--surface)}
+.tool-card,.entry-card{backdrop-filter:none;-webkit-backdrop-filter:none}
+.tool-card::before,.entry-card::before{display:none}
+.tool-card:hover,.entry-card:hover,.tool-card[data-tier="pro"]:hover{border-color:var(--border-strong);box-shadow:0 12px 30px rgba(17,20,24,.10)}
+html[data-theme=dark] .tool-card,html[data-theme=dark] .entry-card,html[data-theme=dark] .upgrade-band,html[data-theme=dark] .tool-main,html[data-theme=dark] .assist-card,html[data-theme=dark] .tool-card:hover,html[data-theme=dark] .entry-card:hover{box-shadow:none}
+.result-hero{background:var(--surface-2)!important;border-color:var(--border)}
+.result-hero .value{background:none!important;-webkit-text-fill-color:currentColor!important;color:var(--text)!important}
+
+/* Release-gate QA: Pro workspace controls stay readable in both themes. */
+.choice-card{color:var(--text);font-family:inherit}
+.field-row input:focus-visible,.field-row select:focus-visible,.field-row textarea:focus-visible{outline:3px solid var(--purple);outline-offset:2px}
+
+/* Release-gate QA: readable accents. Text uses the darker green/purple per theme; fills keep --green / --purple. */
+:root{--oney-v2-green-text:#117A50;--oney-v2-green-tint:#E7F7EF;--oney-v2-purple-text:#5949E8;--oney-v2-purple-tint:#F2F0FF}
+html[data-theme=dark]{--oney-v2-green-text:#43D095;--oney-v2-green-tint:#173429;--oney-v2-purple-text:#9A83FF;--oney-v2-purple-tint:#2A2140}
+.tool-link,.intent-card small,.section-label.green,.brand-footer a,.tool-header .eyebrow,.assist-card a{color:var(--oney-v2-green-text)}
+.section-label.purple,.intent-card--pro small{color:var(--oney-v2-purple-text)}
+.tool-icon{background:var(--oney-v2-green-tint);border-color:transparent;color:var(--oney-v2-green-text)}
+.tool-icon[data-tier="pro"]{background:var(--oney-v2-purple-tint);border-color:transparent;color:var(--oney-v2-purple-text)}
+.tool-tier,.chip.is-free{background:var(--oney-v2-green-tint);color:var(--oney-v2-green-text)}
+.tool-tier[data-value="pro"],.chip.is-pro{background:var(--oney-v2-purple-tint);color:var(--oney-v2-purple-text)}
+/* Pro workspace belongs to the Tools family: Ink primary button, no gradient, no glow. */
+.btn-pro{background:#111815!important;color:#fff!important;box-shadow:none!important}
+html[data-theme=dark] .btn-pro{background:#F5F2F7!important;color:#17131E!important}
+.btn-primary:hover,.btn-pro:hover{box-shadow:none!important}
+/* Product family: Bank-Ready Score = Purple; Calculate and Analyse = Ink / neutral. */
+.tool-card[href$="bank-ready-score.html"] .tool-icon{background:var(--oney-v2-purple-tint);color:var(--oney-v2-purple-text)}
+.tool-card[href$="bank-ready-score.html"] .tool-link{color:var(--oney-v2-purple-text)}
+body:has(.brand-nav-link.active[href="/calculate/"]) .tool-card:not([data-tier="pro"]) .tool-icon,body:has(.brand-nav-link.active[href="/analyse/"]) .tool-card:not([data-tier="pro"]) .tool-icon{background:var(--surface-2);color:var(--text)}
+body:has(.brand-nav-link.active[href="/calculate/"]) .tool-card .tool-link,body:has(.brand-nav-link.active[href="/analyse/"]) .tool-card .tool-link{color:var(--text)}
+
+/* Release-gate QA: the hub hero no longer clips on narrow phones (320-360px). */
+@media(max-width:860px){.hub-hero-inner{grid-template-columns:minmax(0,1fr)}.hub-hero-inner>*{min-width:0}}
+@media(max-width:360px){.hub-hero-panel{grid-template-columns:1fr}.mini-metric{display:flex;align-items:baseline;gap:10px}.mini-metric label{margin-top:0}}
+
+/* Release hardening: the theme toggle sits in the shared navigation (same control as the main site); the floating toggle is gone. */
+.brand-nav-links{margin-left:auto}
+.oney-v2-toggle{flex:none;width:44px;height:44px;padding:0;margin-left:8px;display:grid;place-items:center;font:inherit}
+.oney-v2-toggle:hover{background:var(--surface-2)}
+.oney-v2-toggle svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.oney-v2-toggle .oney-v2-sun,html[data-theme=dark] .oney-v2-toggle .oney-v2-moon{display:none}
+html[data-theme=dark] .oney-v2-toggle .oney-v2-sun{display:block}
+@media(max-width:768px){.brand-logo{margin-right:auto}.oney-v2-toggle{order:2;margin-left:0}.brand-nav-hamburger{order:3;margin-left:8px;min-width:44px;min-height:44px;align-items:center;justify-content:center}}
+/* With the toggle in the bar, 769-860px needs the room the "TOOLS" tag used (the tag is already hidden at 768px and below). */
+.brand-nav-link{white-space:nowrap}
+@media(min-width:769px) and (max-width:860px){.brand-logo::after{display:none}}
