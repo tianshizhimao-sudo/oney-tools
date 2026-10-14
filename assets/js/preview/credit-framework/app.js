@@ -12,6 +12,9 @@ import {
   DEFERRAL_REASONS, DEFERRAL_LIBRARY_VERSION, DEFERRAL_STATUS,
   FEEDBACK_QUESTIONS, FEEDBACK_ANSWERS, scoreFeedback, feedbackText,
 } from './engine.js';
+import { formatMoneyEdit, deleteMoneySeparator } from './money-input.js';
+import { buildOverview } from './overview.js';
+import { INTAKE_PRESETS, TRIGGER_GROUPS, composeIntakeValue } from './intake-options.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 
@@ -42,6 +45,15 @@ const startCase = CASE_ORDER.includes(params.get('case')) ? params.get('case') :
 const startTier = params.get('tier') === 'comprehensive' ? 'comprehensive' : 'simple';
 let state = initialState(startCase, startTier);
 let lastPlainText = '';
+// UI-only drafts retain invalid text and decimal precision across tier switches.
+const moneyDrafts = new Map();
+const manualDrafts = new Map();
+const presetSelections = new Map();
+const manualExpanded = new Set();
+const triggerGroupsExpanded = new Set();
+function resetIntakeUi() {
+  moneyDrafts.clear(); manualDrafts.clear(); presetSelections.clear(); manualExpanded.clear(); triggerGroupsExpanded.clear();
+}
 
 /* ------------------------------ intake ------------------------------ */
 
@@ -52,12 +64,12 @@ function renderCasePicker() {
     const c = CASES[id];
     box.append(el('button', {
       class: 'case-btn', type: 'button', 'aria-pressed': state.caseId === id ? 'true' : 'false', 'data-case': id,
-      onclick: () => { state = initialState(id, state.tier); renderAll(); },
+      onclick: () => { state = initialState(id, state.tier); resetIntakeUi(); renderAll(); },
     }, el('span', { class: `dot ${c.tone}` }), el('span', {}, c.shortLabel)));
   }
   box.append(el('button', {
     class: 'case-btn', type: 'button', 'aria-pressed': state.caseId === null ? 'true' : 'false', 'data-case': 'custom',
-    onclick: () => { state = blankState(state.tier); renderAll(); },
+    onclick: () => { state = blankState(state.tier); resetIntakeUi(); renderAll(); },
   }, el('span', { class: 'dot custom' }), el('span', {}, 'Blank custom scenario (rules only)')));
 }
 
@@ -89,6 +101,66 @@ function deferralPicker() {
     }));
 }
 
+function renderPresetField(f, id) {
+  const config = INTAKE_PRESETS[f.key];
+  if (!manualDrafts.has(f.key)) manualDrafts.set(f.key, String(state.intake[f.key] ?? ''));
+  const selected = () => presetSelections.get(f.key) || [];
+  const reviewNote = el('small', { class: 'preset-review-note' }, 'Retained details are still included. Check that these choices agree with them; edit the details if the situation changed.');
+  const updateReviewNote = () => {
+    reviewNote.hidden = !manualDrafts.get(f.key)?.trim() || !config.options.some((option) => selected().includes(option.id));
+  };
+  updateReviewNote();
+  const manual = el('textarea', { class: 'control', id, name: f.key, rows: '2', maxlength: '600', placeholder: 'Optional details or anything the choices do not cover' });
+  manual.value = manualDrafts.get(f.key);
+  const details = el('details', { class: 'manual-details', open: manualExpanded.has(f.key) ? true : null },
+    el('summary', {}, manual.value ? 'View / edit retained details' : 'Add other details (optional)'),
+    el('label', { class: 'sr-only', for: id }, `${f.label} — manual details`), manual);
+  details.addEventListener('toggle', () => { if (details.open) manualExpanded.add(f.key); else manualExpanded.delete(f.key); });
+  const choices = el('div', { class: 'preset-options', role: 'group', 'aria-label': config.label });
+  const apply = (values) => {
+    presetSelections.set(f.key, values);
+    state.edited = true; // Choices describe a custom scenario, never a calibrated sample.
+    state.intake[f.key] = composeIntakeValue(f.key, manualDrafts.get(f.key), values);
+    updateReviewNote();
+    for (const button of choices.querySelectorAll('[data-preset]')) button.setAttribute('aria-pressed', String(values.includes(button.dataset.preset)));
+    if (values.includes('other')) { details.open = true; manualExpanded.add(f.key); manual.focus(); }
+    renderOutput();
+  };
+  const options = [...config.options, { id: 'unknown', label: 'Unknown' }, { id: 'other', label: 'Other / add details' }];
+  if (config.multiple) {
+    for (const option of options) choices.append(el('button', {
+      class: 'preset-choice', type: 'button', 'data-preset-field': f.key, 'data-preset': option.id,
+      'aria-pressed': String(selected().includes(option.id)),
+      onclick: () => {
+        const current = selected();
+        const next = current.includes(option.id) ? current.filter((value) => value !== option.id)
+          : option.id === 'unknown' ? ['unknown'] : [...current.filter((value) => value !== 'unknown'), option.id];
+        apply(next);
+      },
+    }, option.label));
+  } else {
+    const select = el('select', { class: 'control', id: `preset-${f.key}`, 'aria-label': config.label, 'data-preset-select': f.key },
+      el('option', { value: '', selected: !selected().length }, 'Choose an option (optional)'),
+      options.map((option) => el('option', { value: option.id, selected: selected().includes(option.id) }, option.label)));
+    select.addEventListener('change', () => apply(select.value ? [select.value] : []));
+    choices.append(select);
+  }
+  manual.addEventListener('input', () => {
+    manualDrafts.set(f.key, manual.value);
+    state.edited = true;
+    state.intake[f.key] = composeIntakeValue(f.key, manual.value, selected());
+    updateReviewNote();
+    renderOutput();
+  });
+  return el('div', { class: 'field preset-field', 'data-structured-field': f.key },
+    el('span', { class: 'preset-label' }, config.label),
+    config.multiple ? el('small', { class: 'hint' }, 'Choose all that apply; leave unselected if unsure.') : null,
+    choices,
+    el('small', { class: 'hint preset-help' }, f.key === 'documents'
+      ? 'Availability is reported only, not reviewed or verified. Choices add to retained details.'
+      : 'Choices add to retained details below. Unknown does not mean none.'), reviewNote, details);
+}
+
 function renderIntakeForm() {
   const form = $('#intake-form');
   form.replaceChildren();
@@ -96,21 +168,65 @@ function renderIntakeForm() {
   sections.forEach((section, i) => {
     const fields = INTAKE_FIELDS.filter((f) => f.section === section).map((f) => {
       const id = `f-${f.key}`;
+      if (INTAKE_PRESETS[f.key]) return renderPresetField(f, id);
       let control;
+      let error;
       if (f.options) {
         control = el('select', { class: 'control', id, name: f.key },
           Object.entries(f.options).map(([v, label]) => el('option', { value: v, selected: String(state.intake[f.key]) === v }, label)));
       } else if (f.money) {
-        control = el('input', { class: 'control', id, name: f.key, type: 'number', min: '0', step: '1000', inputmode: 'numeric', value: state.intake[f.key] ?? '' });
+        const draft = moneyDrafts.get(f.key) || formatMoneyEdit(state.intake[f.key] ?? '');
+        control = el('input', { class: 'control money-control', id, name: f.key, type: 'text', inputmode: 'decimal', spellcheck: 'false', value: draft.text, 'aria-describedby': `${id}-help ${id}-error`, 'aria-invalid': String(!draft.valid) });
+        error = el('small', { class: 'field-error', id: `${id}-error`, hidden: draft.valid }, draft.error || '');
+        control.setCustomValidity(draft.error || '');
+        const updateMoney = (result) => {
+          moneyDrafts.set(f.key, result);
+          control.value = result.text;
+          control.setSelectionRange(result.start, result.end);
+          control.setAttribute('aria-invalid', String(!result.valid));
+          control.setCustomValidity(result.error || '');
+          error.textContent = result.error || '';
+          error.hidden = result.valid;
+          state.intake[f.key] = result.value;
+          renderOutput();
+        };
+        control.addEventListener('input', (event) => {
+          const strict = moneyDrafts.get(f.key)?.valid === false || !event.inputType || /insertFrom(?:Drop|Paste)/.test(event.inputType) || (event.inputType === 'insertText' && event.data?.includes(','));
+          updateMoney(formatMoneyEdit(control.value, control.selectionStart, control.selectionEnd, { paste: strict }));
+        });
+        control.addEventListener('paste', (event) => {
+          if (!event.clipboardData) return;
+          event.preventDefault();
+          const pasted = event.clipboardData.getData('text');
+          const start = control.selectionStart;
+          const text = control.value.slice(0, start) + pasted + control.value.slice(control.selectionEnd);
+          // Validate the pasted segment on its own; grouping around an edited
+          // selection may legitimately be incomplete and is reformatted below.
+          const segment = formatMoneyEdit(pasted, pasted.length, pasted.length, { paste: true });
+          const caret = start + pasted.length;
+          updateMoney(segment.valid ? formatMoneyEdit(text, caret, caret, { paste: moneyDrafts.get(f.key)?.valid === false }) : { ...segment, text, start: caret, end: caret });
+        });
+        control.addEventListener('beforeinput', (event) => {
+          if (moneyDrafts.get(f.key)?.valid === false) return;
+          const deletion = deleteMoneySeparator(control.value, control.selectionStart, control.selectionEnd, event.inputType);
+          if (!deletion) return;
+          event.preventDefault();
+          updateMoney(formatMoneyEdit(deletion.text, deletion.caret, deletion.caret));
+        });
+      } else if (f.key === 'dealName') {
+        control = el('input', { class: 'control', id, name: f.key, type: 'text', maxlength: '600', value: state.intake[f.key] ?? '', placeholder: 'Optional de-identified deal label' });
       } else {
         control = el('textarea', { class: 'control', id, name: f.key, rows: '2', maxlength: '600' });
         control.value = state.intake[f.key] ?? '';
       }
-      control.addEventListener('input', () => {
-        state.intake[f.key] = f.money ? (control.value === '' ? '' : Number(control.value)) : control.value;
+      if (!f.money) control.addEventListener('input', () => {
+        state.intake[f.key] = control.value;
         renderOutput();
       });
-      return el('div', { class: 'field' }, el('label', { for: id }, f.label), control);
+      const field = el('div', { class: 'field' }, el('label', { for: id }, f.label), control,
+        f.money ? el('small', { class: 'hint money-help', id: `${id}-help` }, 'AUD · e.g. 1,250,000.50 · blank means not provided') : null, error);
+      const optionalLabels = { scenario: 'Scenario context (optional)', borrower: 'Structure details (optional)', deferralReason: 'Exact lender wording (optional)' };
+      return optionalLabels[f.key] ? el('details', { class: 'manual-details' }, el('summary', {}, optionalLabels[f.key]), field) : field;
     });
     const narrow = window.matchMedia('(max-width: 1100px)').matches;
     if (section === 'Deferral / concern reason') fields.unshift(deferralPicker());
@@ -122,24 +238,32 @@ function renderIntakeForm() {
     [...new Set([state.rating, ...RATING_OPTIONS])].map((r) => el('option', { value: r, selected: r === state.rating }, r)));
   ratingSel.addEventListener('change', () => { state.rating = ratingSel.value; renderOutput(); });
 
-  const trigList = RULES.map((r) => {
+  const trigNodes = Object.fromEntries(RULES.map((r) => {
     const cb = el('input', { type: 'checkbox', id: `t-${r.id}`, value: r.id, checked: state.triggers.includes(r.id) });
     cb.addEventListener('change', () => {
       state.triggers = cb.checked ? [...state.triggers, r.id] : state.triggers.filter((t) => t !== r.id);
       delete state.evidence[r.id];
       renderOutput();
     });
-    return el('label', { class: 'trig', for: `t-${r.id}`, 'data-trig': r.id }, cb,
+    return [r.id, el('label', { class: 'trig', for: `t-${r.id}`, 'data-trig': r.id }, cb,
       el('span', {}, r.triggerLabel, ' ', el('span', { class: `prio ${r.priority}` }, r.priority), el('span', { class: 'sugg-chip', 'data-sugg-chip': r.id, hidden: true }, 'Suggested'),
-        el('small', {}, `${r.id} · ${r.category}`), el('small', { class: 'sugg-why', 'data-sugg-why': r.id, hidden: true })));
+        el('small', { class: 'sugg-why', 'data-sugg-why': r.id, hidden: true })))];
+  }));
+  const groups = TRIGGER_GROUPS.map((group) => {
+    const box = el('details', { class: 'risk-group', id: `risk-group-${group.id}`, open: triggerGroupsExpanded.has(group.id) ? true : null },
+      el('summary', {}, el('span', {}, el('strong', {}, group.label), el('small', {}, group.hint)), el('span', { class: 'group-count', 'data-group-count': group.id })),
+      el('div', { class: 'risk-group-body' }, group.rules.map((id) => trigNodes[id])));
+    box.addEventListener('toggle', () => { if (box.open) triggerGroupsExpanded.add(group.id); else triggerGroupsExpanded.delete(group.id); });
+    return box;
   });
 
   form.append(el('details', { class: 'sec', open: true },
-    el('summary', {}, 'Triggers + current rating'),
+    el('summary', {}, 'Risk categories + current rating'),
     el('div', { class: 'fields' },
       el('p', { class: 'hint', style: 'margin:0' }, 'Oney suggests triggers from your intake by rule. Nothing is ticked for you — confirm or change. Rules come verbatim from rules-v0.1.json.'),
       el('div', { class: 'sugg-panel', id: 'sugg-panel', 'aria-live': 'polite' }),
-      el('div', {}, trigList),
+      el('div', { class: 'selected-risk-summary', id: 'selected-risk-summary', 'aria-live': 'polite' }),
+      el('div', { class: 'risk-groups' }, groups),
       el('div', { class: 'field' }, el('label', { for: 'f-rating' }, 'Current readiness rating'), ratingSel))));
 }
 
@@ -150,6 +274,25 @@ function renderSuggestions() {
   const suggested = suggestTriggers(state.intake);
   const cmp = compareTriggers(state.triggers, suggested);
   const byId = Object.fromEntries(suggested.map((x) => [x.id, x]));
+  for (const group of TRIGGER_GROUPS) {
+    const count = document.querySelector(`[data-group-count="${group.id}"]`);
+    if (count) {
+      const selectedCount = group.rules.filter((id) => state.triggers.includes(id)).length;
+      const toConfirm = group.rules.filter((id) => cmp.notSelected.includes(id)).length;
+      count.textContent = `${selectedCount} selected${toConfirm ? ` · ${toConfirm} suggested` : ''}`;
+    }
+  }
+  const selectedBox = $('#selected-risk-summary');
+  if (selectedBox) selectedBox.replaceChildren(
+    el('strong', {}, `${state.triggers.length} trigger${state.triggers.length === 1 ? '' : 's'} selected`),
+    state.triggers.length ? el('div', { class: 'selected-risk-chips' }, RULES.filter((rule) => state.triggers.includes(rule.id)).map((rule) => el('button', {
+      class: 'selected-risk-chip', type: 'button', 'data-review-trigger': rule.id, title: 'Open this trigger for review',
+      onclick: () => {
+        const group = TRIGGER_GROUPS.find((item) => item.rules.includes(rule.id));
+        const box = $(`#risk-group-${group.id}`); box.open = true; triggerGroupsExpanded.add(group.id);
+        const input = $(`#t-${rule.id}`); input.focus({ preventScroll: true }); input.scrollIntoView({ block: 'center' });
+      },
+    }, rule.triggerLabel))) : el('p', { class: 'hint' }, 'None selected yet. This does not mean there are no risks. Open a category to confirm what applies.'));
   for (const r of RULES) {
     const chip = document.querySelector(`[data-sugg-chip="${r.id}"]`);
     const why = document.querySelector(`[data-sugg-why="${r.id}"]`);
@@ -228,6 +371,63 @@ function syncExpandAll() {
   const b = $('#expand-all');
   b.textContent = allOpen ? 'Collapse all' : 'Expand all';
   b.dataset.state = allOpen ? 'open' : 'closed';
+}
+
+function revealSection(id) {
+  const section = $(`#sec-${id}`);
+  if (!section) return;
+  const toggle = $(`[data-toggle="${id}"]`, section);
+  if (toggle && toggle.getAttribute('aria-expanded') !== 'true') toggle.click();
+  section.setAttribute('tabindex', '-1');
+  section.focus({ preventScroll: true });
+  section.scrollIntoView({ block: 'start' });
+}
+
+function renderOverview(assessment, report) {
+  const v = buildOverview(assessment, report, state.evidence);
+  const detailButton = (text, target) => el('button', { type: 'button', class: 'overview-link no-print', 'data-open-section': target, onclick: () => revealSection(target) }, text, ' →');
+  const reviewTriggers = () => {
+    const panel = $('#sugg-panel');
+    panel.closest('details').open = true;
+    panel.setAttribute('tabindex', '-1');
+    panel.focus({ preventScroll: true });
+    panel.scrollIntoView({ block: 'center' });
+  };
+  const first = v.first;
+  return el('section', { class: 'review-overview', id: 'review-overview', 'aria-labelledby': 'overview-title' },
+    el('div', { class: 'overview-heading' }, el('div', {}, el('span', { class: 'eyebrow' }, 'Start here'), el('h3', { id: 'overview-title' }, 'What needs attention?')), kindBadge(KIND.RULE)),
+    el('p', { class: 'overview-scope' }, v.scope),
+    el('div', { class: 'overview-stats' },
+      el('div', { class: 'overview-stat' }, el('span', { class: 'lbl' }, v.ratingSource), el('strong', { class: `overview-rating ${v.rating.level}` }, v.rating.text), el('small', {}, `Initial framework confidence: ${v.initialConfidence}`), detailButton('Rating context', 'rating')),
+      el('div', { class: 'overview-stat' }, el('span', { class: 'lbl' }, v.comprehensive ? 'Critical trigger reviews' : 'Selected Critical triggers'), el('strong', { class: 'overview-count', id: 'overview-critical-count' }, v.comprehensive ? `${v.criticalOpen} / ${v.criticalTotal}` : String(v.criticalTotal)), el('small', {}, v.comprehensive ? 'need attention / selected' : 'potential issues; review evidence'), detailButton(v.comprehensive ? 'Update review status' : 'See follow-ups', v.comprehensive ? 'rerate' : 'questions')),
+      el('div', { class: 'overview-stat' }, el('span', { class: 'lbl' }, 'Intake evidence checklist'), el('strong', { class: 'overview-count' }, `${v.evidenceCounts.critical} Critical`), el('small', {}, `${v.evidenceCounts.important} Important · ${v.evidenceCounts.helpful} Helpful`), detailButton('View evidence checklist', 'missing'))),
+    el('p', { class: 'overview-checklist-note' }, v.evidenceScope),
+    v.suggestions.length ? el('div', { class: 'notice warn', id: 'overview-suggestions' }, el('strong', {}, `${v.suggestions.length} intake suggestion${v.suggestions.length === 1 ? '' : 's'} not selected. `), 'The review may be incomplete. ', el('button', { class: 'overview-link no-print', type: 'button', onclick: reviewTriggers }, 'Confirm triggers →')) : null,
+    v.comprehensive ? el('div', { class: 'review-statuses', 'aria-label': 'Review status of shown selected triggers' },
+      [['weak', 'weak / contradicting'], ['outstanding', 'not reviewed'], ['reply_only', 'reply only'], ['supports', 'marked supporting']].map(([status, label]) => el('span', { class: `review-status ${status}`, 'data-review-count': status }, `${v.reviewCounts[status]} ${label}`))) : null,
+    v.comprehensive && v.reRate ? el('div', { class: 'overview-rerate' },
+      el('span', {}, el('strong', {}, 'Evidence re-rate: '), `${v.reRate.from ?? '—'} → ${v.reRate.to ?? '—'} (${v.reRate.movement}) · ${v.reRate.confidence} confidence`),
+      el('small', {}, v.reRate.customGuardrail || v.reRate.confidenceCap), detailButton('Re-rate reasons', 'rerate')) : null,
+    el('div', { class: 'overview-work' },
+      el('div', { class: 'overview-issues' },
+        el('h4', {}, 'Potential blockers / priority issues'),
+        v.empty || !v.issues.length ? el('p', { class: 'notice info', id: 'overview-empty' }, v.emptyText) : null,
+        el('ol', { class: 'priority-list' }, v.issues.map((q) => el('li', { class: `priority-issue ${q.status}`, 'data-priority-issue': q.id },
+          el('div', { class: 'issue-heading' }, el('span', { class: `prio ${q.priority}` }, q.priority), el('strong', {}, q.trigger)),
+          v.comprehensive ? el('span', { class: `review-status ${q.status}` }, EVIDENCE_STATUS[q.status]) : null,
+          el('p', {}, el('span', { class: 'lbl' }, 'Why it matters: '), q.whyItMatters)))),
+        v.remaining ? el('p', { class: 'hint' }, `${v.remaining} more selected issue${v.remaining === 1 ? '' : 's'} need attention; the full workflow is below.`) : null,
+        detailButton('All prioritised questions', 'questions')),
+      el('div', { class: 'overview-action' }, el('h4', {}, 'Next conversation'),
+        el('p', { class: 'overview-next-step', id: 'overview-next-step' }, v.nextStep),
+        first ? [
+          el('p', { class: 'overview-question', id: 'overview-question' }, el('span', { class: 'lbl' }, 'Ask: '), first.question),
+          first.clientWording ? el('details', { class: 'client-wording' }, el('summary', {}, 'Client-friendly wording'), el('p', {}, first.clientWording)) : null,
+          el('strong', { class: 'evidence-heading' }, 'Evidence to request / review'),
+          el('ul', { class: 'overview-evidence' }, first.evidence.map((text) => el('li', {}, text))),
+          first.owner ? el('p', { class: 'hint' }, `Owner: ${first.owner}`) : null,
+          detailButton('Full question and context', 'questions'),
+        ] : el('button', { type: 'button', class: 'overview-link no-print', onclick: reviewTriggers }, 'Review selected triggers →'))));
 }
 
 function renderSection(s, report) {
@@ -337,7 +537,11 @@ function renderSection(s, report) {
         s.questions.map((q) => {
           const sel = el('select', { class: 'control', 'data-rerate': q.id, 'aria-label': `Reviewed-evidence status for ${q.trigger}` },
             Object.entries(EVIDENCE_STATUS).map(([v, label]) => el('option', { value: v, selected: (state.evidence[q.id] || 'outstanding') === v }, label)));
-          sel.addEventListener('change', () => { state.evidence[q.id] = sel.value; renderOutput(); });
+          sel.addEventListener('change', () => {
+            state.evidence[q.id] = sel.value;
+            renderOutput();
+            document.querySelector(`[data-rerate="${q.id}"]`)?.focus({ preventScroll: true });
+          });
           return el('div', { class: 'rr-row' }, el('span', {}, el('span', { class: `prio ${q.priority}` }, q.priority), ' ', q.trigger,
             el('span', { class: 'print-only' }, ` — ${EVIDENCE_STATUS[state.evidence[q.id] || 'outstanding']}`)), sel);
         }),
@@ -374,11 +578,14 @@ function renderOutput() {
 
   const out = $('#report');
   out.replaceChildren();
+  const invalidAmounts = INTAKE_FIELDS.filter((f) => f.money && moneyDrafts.has(f.key) && !moneyDrafts.get(f.key).valid);
+  if (invalidAmounts.length) out.append(el('div', { class: 'notice warn', id: 'amount-warning', role: 'status' }, `Check amount inputs: ${invalidAmounts.map((f) => f.label).join(', ')}. Invalid entries are treated as not provided; calculations using them are unavailable.`));
   if (!report.pristine) {
     out.append(el('div', { class: 'notice warn', id: 'custom-notice' }, state.caseId
       ? `Edited from ${state.caseId}: model judgement withdrawn (it only applies to the untouched sample). Risks and missing evidence below are rule-derived. Reload ${state.caseId} to restore.`
       : 'Custom scenario: no model judgement in this prototype. Risks and missing evidence below are rule-derived; rating is your own current view.'));
   }
+  out.append(renderOverview(assessment, report));
   for (const s of report.sections) {
     const node = renderSection(s, report);
     if (node) out.append(node);
