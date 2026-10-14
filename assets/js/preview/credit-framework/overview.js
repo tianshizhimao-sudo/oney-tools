@@ -1,6 +1,6 @@
 /* A presentation view of the existing assessment. No scoring, risk inference,
    rating changes or evidence verification happens here. Tier gating is retained. */
-import { EVIDENCE_STATUS } from './engine.js';
+import { EVIDENCE_STATUS } from './engine.js?v=cf-20261014-5';
 
 export function buildOverview(assessment, report, evidence = {}) {
   const comprehensive = report.tier === 'comprehensive';
@@ -21,6 +21,13 @@ export function buildOverview(assessment, report, evidence = {}) {
   // Use only the existing recovery plan, and never expose it through Simple.
   const deferral = comprehensive && deferralCount ? assessment.deferral.plan : null;
   const pauseFirst = assessment.rating.level === 'black';
+  // Text and rendered action share this precedence; neither can independently
+  // put recovery or trigger selection ahead of a pause / banker-review step.
+  const actionType = pauseFirst ? 'pause'
+    : deferralCount ? 'deferral'
+    : !rows.length ? 'confirm'
+    : reRate && (reRate.upwardBlocked || !first) ? 'rerate'
+    : first ? 'question' : 'confirm';
   return {
     comprehensive,
     rating: assessment.rating,
@@ -30,6 +37,7 @@ export function buildOverview(assessment, report, evidence = {}) {
     deferralCount,
     deferral,
     pauseFirst,
+    actionType,
     scope: 'Selected triggers identify potential issues to review; they are not verified findings or a complete credit assessment.',
     total: rows.length,
     criticalTotal: critical.length,
@@ -49,14 +57,12 @@ export function buildOverview(assessment, report, evidence = {}) {
       ? 'Intake checklist from the sample. This list does not update when you mark trigger reviews.'
       : 'Requests from selected rules. Document availability is not checked; these are not confirmed missing documents.',
     first,
-    nextStep: pauseFirst ? assessment.rating.action
-      : deferralCount ? comprehensive
+    nextStep: actionType === 'pause' ? assessment.rating.action
+      : actionType === 'deferral' ? comprehensive
         ? 'Review the lender deferral recovery plan before the general trigger follow-ups.'
         : 'Lender deferral entered. Switch to Comprehensive for the deferral recovery plan.'
-      : !rows.length ? 'Confirm the triggers that apply before drawing a readiness conclusion.'
-      : reRate && (reRate.upwardBlocked || !first)
-      ? reRate.nextStep
-      : first ? (first.status === 'weak' ? `Review the weak evidence for ${first.trigger} with the client.` : `Ask the client about ${first.trigger}.`)
+      : actionType === 'rerate' ? reRate.nextStep
+      : actionType === 'question' ? (first.status === 'weak' ? `Review the weak evidence for ${first.trigger} with the client.` : `Ask the client about ${first.trigger}.`)
         : 'Confirm the triggers that apply before drawing a readiness conclusion.',
   };
 }

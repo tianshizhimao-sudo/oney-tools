@@ -865,7 +865,7 @@ export function buildReport(assessment, tier) {
     sections.push({ id: 'rerate', title: GATED_SECTIONS.rerate, rerate: assessment.rerate, questions: engine.questions.map((q) => ({ id: q.id, trigger: q.triggerLabel, priority: q.priority })) });
   }
 
-  sections.push({ id: 'cta', title: isSimple ? 'Upgrade / Banker Review' : 'Banker Review by Dong (add-on)' });
+  sections.push({ id: 'cta', title: isSimple ? 'Upgrade / Banker Review' : 'Banker Review (add-on)' });
 
   for (const sec of sections) if (!sec.locked) sec.summary = summarizeSection(sec, assessment);
 
@@ -1020,9 +1020,9 @@ export function reportToPlainText(report) {
       }
       case 'cta':
         L.push(report.tier === 'simple'
-          ? 'Upgrade to Comprehensive for the full workflow, client wording, if-strong / if-weak consequences, deferral recovery and re-rate. Banker Review by Dong is an add-on (not active in this prototype).'
+          ? 'Upgrade to Comprehensive for the full workflow, client wording, if-strong / if-weak consequences, deferral recovery and re-rate. Banker Review is an add-on (not active in this prototype).'
             + (report.deferralCount ? ` Lender deferral entered (${report.deferralCount}): the deferral recovery plan is in Comprehensive.` : '')
-          : 'Optional Banker Review by Dong — add-on handoff (not active in this prototype; nothing is sent).');
+          : 'Optional Banker Review — add-on handoff (not active in this prototype; nothing is sent).');
         break;
       default:
         break;
