@@ -112,6 +112,46 @@ test('custom all-supported overview preserves manual rating, Medium cap and bank
   s.tier = 'simple'; assert.match(overview(s).nextStep, /Do not proceed.*refer or pause/);
 });
 
+test('lender deferrals take overview precedence with absent or unrelated triggers, respecting tier gates and Black pause', () => {
+  for (const tier of ['simple', 'comprehensive']) for (const triggers of [[], ['valuation_sensitive']]) {
+    const s = blankState(tier); s.intake.deferralCodes = ['ato_position']; s.triggers = triggers;
+    const before = structuredClone(s); const a = buildAssessment(s); const v = overview(s);
+    assert.equal(v.deferralCount, 1);
+    assert.match(v.nextStep, /deferral recovery plan/);
+    assert.doesNotMatch(v.nextStep, /Confirm the triggers|Ask the client about Valuation/);
+    if (tier === 'comprehensive') assert.deepEqual(v.deferral, a.deferral.plan);
+    else {
+      assert.equal(v.deferral, null); assert.equal(v.reRate, null);
+      assert.match(v.nextStep, /Switch to Comprehensive/);
+      assert.doesNotMatch(JSON.stringify(v), /ATO integrated client account|exact documents credit asked for|collectFirst|lenderTesting/);
+    }
+    assert.deepEqual(s, before, 'presentation does not select linked triggers or change evidence');
+    assert.equal(lintCompliance(JSON.stringify(v)).ok, true);
+    s.rating = 'Black — Do Not Proceed';
+    assert.equal(overview(s).nextStep, buildAssessment(s).rating.action);
+    assert.equal(overview(s).pauseFirst, true);
+  }
+});
+
+test('deferral overview copies existing worst status and custom/sample guardrails without recalculation', () => {
+  const s = blankState('comprehensive');
+  s.triggers = ['valuation_sensitive', 'ato_debt'];
+  s.intake.deferralCodes = ['valuation_shortfall', 'ato_position'];
+  for (const [status, expected] of [['outstanding', 'rework'], ['reply_only', 'rework'], ['supports', 'banker_review'], ['weak', 'pause']]) {
+    s.evidence = { valuation_sensitive: 'supports', ato_debt: status };
+    const v = overview(s);
+    assert.equal(v.deferral.overall, expected);
+    assert.deepEqual(v.deferral, buildAssessment(s).deferral.plan);
+    assert.match(v.nextStep, /deferral recovery plan/);
+    assert.equal(v.rating.text, s.rating);
+  }
+  const sample = initialState('CF-002', 'comprehensive'); sample.intake.deferralCodes = ['ato_position'];
+  sample.evidence = { ato_debt: 'supports', missed_ato_plan: 'supports', sg_unevidenced: 'supports' };
+  assert.equal(overview(sample).deferral.overall, 'resubmit');
+  sample.rating = 'Black — Do Not Proceed';
+  assert.match(overview(sample).nextStep, /Do not proceed/);
+});
+
 test('new modules remain local-only and the overview is inserted before detail sections', async () => {
   const dir = new URL('../assets/js/preview/credit-framework/', import.meta.url);
   for (const file of ['money-input.js', 'overview.js']) {
@@ -124,4 +164,6 @@ test('new modules remain local-only and the overview is inserted before detail s
   assert.match(app, /Invalid entries are treated as not provided/);
   const html = await readFile(new URL('../preview/credit-framework.html', import.meta.url), 'utf8');
   assert.match(html, /src="\/assets\/js\/preview\/credit-framework\/app\.js\?v=[a-z0-9-]+"/, 'entry script is versioned for static-host cache refresh');
+  const version = html.match(/app\.js\?v=([a-z0-9-]+)/)[1];
+  assert.ok(app.includes(`from './overview.js?v=${version}'`), 'changed overview dependency and app entry share release cache version');
 });

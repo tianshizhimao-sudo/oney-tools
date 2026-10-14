@@ -17,12 +17,19 @@ export function buildOverview(assessment, report, evidence = {}) {
   const critical = rows.filter((q) => q.priority === 'Critical');
   const first = ordered[0] || null;
   const reRate = comprehensive ? assessment.rerate : null;
+  const deferralCount = report.deferralCount;
+  // Use only the existing recovery plan, and never expose it through Simple.
+  const deferral = comprehensive && deferralCount ? assessment.deferral.plan : null;
+  const pauseFirst = assessment.rating.level === 'black';
   return {
     comprehensive,
     rating: assessment.rating,
     ratingSource: assessment.pristine ? 'Pre-generated sample view' : 'Current input rating (manual)',
     initialConfidence: assessment.confidence.value,
     reRate,
+    deferralCount,
+    deferral,
+    pauseFirst,
     scope: 'Selected triggers identify potential issues to review; they are not verified findings or a complete credit assessment.',
     total: rows.length,
     criticalTotal: critical.length,
@@ -33,14 +40,19 @@ export function buildOverview(assessment, report, evidence = {}) {
     remaining: Math.max(0, ordered.length - 3),
     empty: rows.length === 0,
     emptyText: rows.length === 0
-      ? 'No triggers selected. Potential blockers and evidence gaps have not been assessed. Confirm the triggers that apply.'
+      ? deferralCount
+        ? 'No triggers selected. Trigger-based issues have not been assessed. The entered lender deferral is shown separately; confirm any other triggers that apply.'
+        : 'No triggers selected. Potential blockers and evidence gaps have not been assessed. Confirm the triggers that apply.'
       : 'All shown trigger reviews are marked supporting by you. This does not establish overall readiness; other issues may remain.',
     evidenceCounts: Object.fromEntries(Object.entries(assessment.missing).map(([priority, items]) => [priority, items.length])),
     evidenceScope: assessment.pristine
       ? 'Intake checklist from the sample. This list does not update when you mark trigger reviews.'
       : 'Requests from selected rules. Document availability is not checked; these are not confirmed missing documents.',
     first,
-    nextStep: assessment.rating.level === 'black' ? assessment.rating.action
+    nextStep: pauseFirst ? assessment.rating.action
+      : deferralCount ? comprehensive
+        ? 'Review the lender deferral recovery plan before the general trigger follow-ups.'
+        : 'Lender deferral entered. Switch to Comprehensive for the deferral recovery plan.'
       : !rows.length ? 'Confirm the triggers that apply before drawing a readiness conclusion.'
       : reRate && (reRate.upwardBlocked || !first)
       ? reRate.nextStep
