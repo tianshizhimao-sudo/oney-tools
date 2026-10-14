@@ -28,8 +28,10 @@ integration('mounted UI: formatted amount entry, paste, edit, clearing, invalid 
   };
   assert.equal($('#f-loanAmount').value.includes(','), true);
   assert.equal(document.body.dataset.pristine, 'true');
+  assert.doesNotMatch($('#sugg-panel').textContent, /\bnull\b/);
   click('#case-picker [data-case="custom"]');
   assert.match($('#overview-empty').textContent, /No triggers selected/);
+  assert.doesNotMatch($('#sugg-panel').textContent, /\bnull\b/);
   assert.match($('#overview-next-step').textContent, /Confirm the triggers/);
   const amount = enter('#f-loanAmount', '1234567.50');
   assert.equal(amount.value, '1,234,567.50'); assert.equal(amount.selectionStart, 12);
