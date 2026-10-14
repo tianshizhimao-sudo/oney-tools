@@ -313,7 +313,7 @@ function renderSuggestions() {
   panel.replaceChildren(
     el('div', { class: 'sugg-head' }, kindBadge(KIND.RULE), el('strong', {}, ` ${suggested.length} suggested from intake`)),
     el('p', { class: 'hint', style: 'margin:4px 0 0', id: 'sugg-status' }, triggerCheckText({ suggested, ...cmp })),
-    addBtn);
+    ...(addBtn ? [addBtn] : []));
   panel.dataset.notSelected = String(cmp.notSelected.length);
 }
 
