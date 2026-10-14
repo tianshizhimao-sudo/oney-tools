@@ -11,12 +11,12 @@ import {
   suggestTriggers, compareTriggers, triggerCheckText,
   DEFERRAL_REASONS, DEFERRAL_LIBRARY_VERSION, DEFERRAL_STATUS,
   FEEDBACK_QUESTIONS, FEEDBACK_ANSWERS, scoreFeedback, feedbackText,
-} from './engine.js?v=cf-20261014-5';
+} from './engine.js?v=cf-20261014-6';
 import { formatMoneyEdit, deleteMoneySeparator } from './money-input.js';
-import { buildOverview } from './overview.js?v=cf-20261014-5';
+import { buildOverview } from './overview.js?v=cf-20261014-6';
 import { INTAKE_PRESETS, TRIGGER_GROUPS, composeIntakeValue } from './intake-options.js';
-import { createRiskView, syncRiskInputs, riskViewText } from './manual-risk-view.js?v=cf-20261014-5';
-import { renderManualRiskView } from './manual-risk-view-ui.js?v=cf-20261014-5';
+import { createRiskView, syncRiskInputs, riskViewText } from './manual-risk-view.js?v=cf-20261014-6';
+import { renderManualRiskView } from './manual-risk-view-ui.js?v=cf-20261014-6';
 
 const $ = (s, r = document) => r.querySelector(s);
 
@@ -367,7 +367,7 @@ function sectionShell(s, ...body) {
     btn.textContent = now ? 'Hide details ▴' : 'Show details ▾';
     syncExpandAll();
   });
-  return el('section', attrs, el('div', { class: 'sec-head' }, title, btn), summaryNode(s), wrap);
+  return el('section', attrs, el('div', { class: 'sec-intro' }, el('div', { class: 'sec-head' }, title, btn), summaryNode(s)), wrap);
 }
 
 function syncExpandAll() {
@@ -400,13 +400,14 @@ function renderOverview(assessment, report) {
   };
   const first = v.first;
   return el('section', { class: 'review-overview', id: 'review-overview', 'aria-labelledby': 'overview-title' },
+    el('div', { class: 'overview-intro' },
     el('div', { class: 'overview-heading' }, el('div', {}, el('span', { class: 'eyebrow' }, 'Start here'), el('h3', { id: 'overview-title' }, 'What needs attention?')), kindBadge(KIND.RULE)),
     el('p', { class: 'overview-scope' }, v.scope),
     el('div', { class: 'overview-stats' },
       el('div', { class: 'overview-stat' }, el('span', { class: 'lbl' }, v.ratingSource), el('strong', { class: `overview-rating ${v.rating.level}` }, v.rating.text), el('small', {}, `Initial framework confidence: ${v.initialConfidence}`), detailButton('Rating context', 'rating')),
       el('div', { class: 'overview-stat' }, el('span', { class: 'lbl' }, v.comprehensive ? 'Critical trigger reviews' : 'Selected Critical triggers'), el('strong', { class: 'overview-count', id: 'overview-critical-count' }, v.comprehensive ? `${v.criticalOpen} / ${v.criticalTotal}` : String(v.criticalTotal)), el('small', {}, v.comprehensive ? 'need attention / selected' : 'potential issues; review evidence'), detailButton(v.comprehensive ? 'Update review status' : 'See follow-ups', v.comprehensive ? 'rerate' : 'questions')),
       el('div', { class: 'overview-stat' }, el('span', { class: 'lbl' }, 'Intake evidence checklist'), el('strong', { class: 'overview-count' }, `${v.evidenceCounts.critical} Critical`), el('small', {}, `${v.evidenceCounts.important} Important · ${v.evidenceCounts.helpful} Helpful`), detailButton('View evidence checklist', 'missing'))),
-    el('p', { class: 'overview-checklist-note' }, v.evidenceScope),
+    el('p', { class: 'overview-checklist-note' }, v.evidenceScope)),
     v.suggestions.length ? el('div', { class: 'notice warn', id: 'overview-suggestions' }, el('strong', {}, `${v.suggestions.length} intake suggestion${v.suggestions.length === 1 ? '' : 's'} not selected. `), 'The review may be incomplete. ', el('button', { class: 'overview-link no-print', type: 'button', onclick: reviewTriggers }, 'Confirm triggers →')) : null,
     v.comprehensive ? el('div', { class: 'review-statuses', 'aria-label': 'Review status of shown selected triggers' },
       [['weak', 'weak / contradicting'], ['outstanding', 'not reviewed'], ['reply_only', 'reply only'], ['supports', 'marked supporting']].map(([status, label]) => el('span', { class: `review-status ${status}`, 'data-review-count': status }, `${v.reviewCounts[status]} ${label}`))) : null,
@@ -460,7 +461,7 @@ function renderSection(s, report) {
   switch (s.id) {
     case 'snapshot':
       return sectionShell(s,
-        el('div', { class: 'kv' }, s.facts.flatMap((f) => [el('div', { class: 'k' }, kindBadge(f.kind), ' ', f.label), el('div', { 'data-kind': f.kind }, f.value)])),
+        el('div', { class: 'kv' }, s.facts.map((f) => el('div', { class: 'kv-row' }, el('div', { class: 'k' }, kindBadge(f.kind), ' ', f.label), el('div', { 'data-kind': f.kind }, f.value)))),
         s.calcs.map((c) => item(c.kind, el('strong', {}, `${c.label}: ${c.value}`), el('span', { class: 'hint' }, ` = ${c.formula}`))),
         s.assumptions.map((a) => item(a.kind, a.text)),
         item(KIND.RULE, el('span', { class: 'lbl' }, 'Trigger check: '), el('span', { id: 'trigger-check' }, triggerCheckText(s.triggerCheck))),
@@ -627,7 +628,10 @@ function renderOutput() {
 
   $('#print-head').replaceChildren(
     el('div', { style: 'display:flex;align-items:center;gap:10px;font-weight:800' }, printLogo(), 'Oney & Co — Oney Credit Framework'),
-    el('div', { style: 'font-size:10pt;color:#444' }, `${report.tierName} · ${report.dealName} (${report.dealId}) · Oney Credit Framework beta`),
+    el('div', { style: 'font-size:10pt;color:#444', id: 'print-tier', 'data-tier': state.tier }, `Output tier: ${state.tier === 'simple' ? 'Simple' : 'Comprehensive'} — ${report.tierName} · ${report.dealName} (${report.dealId}) · Oney Credit Framework beta`),
+    el('p', { class: 'hint', id: 'print-scope' }, state.tier === 'simple'
+      ? 'Current in-page selection: Simple. Comprehensive-only sections are omitted from this printout; any gated evidence detail is labelled in the report.'
+      : 'Current in-page selection: Comprehensive. The report below reflects this selected tier.'),
     el('div', { class: 'boundary', style: 'margin:8px 0' }, BOUNDARY_TEXT));
 }
 

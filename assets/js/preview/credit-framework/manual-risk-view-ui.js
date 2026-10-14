@@ -1,4 +1,4 @@
-import { RISK_AREAS, RISK_VIEWS, RISK_SOURCE, RISK_BOUNDARY, riskAreaState, riskAreaNotes, confirmRiskArea, clearRiskArea } from './manual-risk-view.js?v=cf-20261014-5';
+import { RISK_AREAS, RISK_VIEWS, RISK_SOURCE, RISK_BOUNDARY, riskAreaState, riskAreaNotes, confirmRiskArea, clearRiskArea } from './manual-risk-view.js?v=cf-20261014-6';
 
 // DOM-only UI; text is always inserted as textContent, never HTML.
 export function renderManualRiskView(view, ruleLabels, onChange) {
@@ -105,10 +105,12 @@ export function renderManualRiskView(view, ruleLabels, onChange) {
       });
       editors.append(details);
     }
-    root.replaceChildren(node('h3', { id: 'manual-risk-title' }, 'Manual four-area risk view'), node('p', { class: 'manual-risk-source' }, RISK_SOURCE),
+    const intro = node('div', { class: 'manual-risk-intro' }, node('h3', { id: 'manual-risk-title' }, 'Manual four-area risk view'), node('p', { class: 'manual-risk-source' }, RISK_SOURCE),
       node('p', { class: 'hint' }, RISK_BOUNDARY),
-      node('p', { class: 'hint' }, 'Grey = not assessed, draft changes, or review required. Changes to deal inputs, triggers or evidence require reconfirmation. Nothing is saved outside this page.'),
-      node('div', { class: 'manual-risk-layout' }, svg, readouts), editors);
+      node('p', { class: 'hint' }, 'Grey = not assessed, draft changes, or review required. Changes to deal inputs, triggers or evidence require reconfirmation. Nothing is saved outside this page.'));
+    // One bounded print unit keeps provenance and the legend with the SVG.
+    // Notes stay outside it so long bases can flow across pages.
+    root.replaceChildren(node('div', { class: 'manual-risk-layout' }, node('div', { class: 'manual-risk-visual' }, intro, svg), readouts), editors);
   };
   draw();
   return root;

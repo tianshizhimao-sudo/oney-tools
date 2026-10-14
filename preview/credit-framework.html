@@ -130,9 +130,10 @@
     .notice.info{background:rgba(155,89,182,.1);border:1px solid rgba(155,89,182,.35);color:#e3d3f5}
     section.out{border:1px solid var(--line);border-radius:14px;padding:14px;margin:12px 0;background:rgba(0,0,0,.10)}
     section.out h3{margin:0 0 8px;font-size:16px;letter-spacing:-.2px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .kv{display:grid;grid-template-columns:minmax(120px,190px) minmax(0,1fr);gap:4px 12px;font-size:13.5px}
+    .kv{display:grid;gap:4px;font-size:13.5px}
+    .kv-row{display:grid;grid-template-columns:minmax(120px,190px) minmax(0,1fr);gap:4px 12px;font-size:13.5px}
     .kv .k{color:var(--muted)}
-    .kv>div{min-width:0;overflow-wrap:anywhere}
+    .kv-row>div{min-width:0;overflow-wrap:anywhere}
     .rating-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
     .rating-pill{font-weight:800;padding:8px 12px;border-radius:999px;border:1px solid}
     .rating-pill.green{color:var(--r-green);border-color:var(--r-green);background:rgba(46,204,133,.08)}
@@ -225,7 +226,9 @@
     .manual-risk-view{border:1px solid var(--line);border-radius:12px;margin:18px 0;padding:16px;background:rgba(0,0,0,.08)}
     .manual-risk-view h3{margin:0 0 6px;font-size:18px}
     .manual-risk-source{font-weight:700;color:#d8bdf5;font-size:13px;margin:0 0 8px}
-    .manual-risk-layout{display:grid;grid-template-columns:minmax(180px,280px) minmax(0,1fr);align-items:start;gap:16px}
+    .manual-risk-visual{display:contents}
+    .manual-risk-intro{grid-column:1 / -1}
+    .manual-risk-layout{display:grid;grid-template-columns:minmax(180px,280px) minmax(0,1fr);align-items:start;column-gap:16px;row-gap:0}
     .manual-risk-donut{width:100%;height:auto;max-width:320px;justify-self:center}
     .risk-fill{stroke:#17151f;stroke-width:5;fill:#68717e}
     .risk-fill.green{fill:#2ecc85}.risk-fill.amber{fill:#e5ad43}.risk-fill.red{fill:#ed737f}
@@ -258,7 +261,7 @@
     @media (max-width:620px){
       .wrap{width:calc(100% - 20px)}
       .intake,.output{padding:14px}
-      .kv{grid-template-columns:1fr}
+      .kv-row{grid-template-columns:1fr}
       .kv .k{margin-top:6px}
       .rr-row{grid-template-columns:1fr}
       table.grid thead{display:none}
@@ -280,22 +283,35 @@
     @media print{
       @page{margin:14mm}
       body{background:#fff!important;color:#111!important;font-size:11.5pt}
-      .no-print,.intake,.actions,.topbar .chip,.hero p,.toast,.rr-row select{display:none!important}
+      .no-print,.intake,.actions,.topbar,.hero,.toast,.rr-row select,#report>section[data-locked="true"],#sec-cta{display:none!important}
       .print-only{display:block!important}
       .sec-body[hidden]{display:block!important}
       .sec-toggle{display:none!important}
       .review-overview,.overview-stat,.overview-action,.priority-issue{background:transparent!important;box-shadow:none!important;border-color:#aaa!important;color:#111!important}
       .manual-risk-view{background:transparent!important;color:#111!important;border-color:#aaa!important;break-inside:auto}
       .manual-risk-source,.risk-centre,.risk-centre-small{color:#111!important;fill:#111!important}
-      .manual-risk-layout{grid-template-columns:180px minmax(0,1fr)}
+      .manual-risk-layout,.risk-readouts{display:block}
+      .manual-risk-visual{display:block;break-inside:avoid;page-break-inside:avoid}
+      .manual-risk-donut{display:block;width:160px;max-width:100%;margin:8px auto}
+      .risk-readouts li{margin-top:8px}
       .risk-readouts li{break-inside:avoid}.risk-readouts .hint{color:#222!important}
       .overview-stats{grid-template-columns:1.35fr 1fr 1fr}
-      .overview-work{grid-template-columns:1fr 1fr}
+      .overview-work,.priority-list{display:block}
+      .overview-action{margin-top:12px}
+      .priority-issue{margin:8px 0}
       .overview-scope,.overview-checklist-note,.overview-stat small,.overview-rerate small,.overview-rating,.review-status{color:#444!important}
+      .notice,.q .gated{color:#222!important}
+      .notice{background:transparent!important;border-color:#888!important}
       .priority-issue,.overview-action,.overview-stat{break-inside:avoid;page-break-inside:avoid}
       .layout{display:block;padding:0}
       .card,section.out,.q,pre.email{background:transparent!important;box-shadow:none!important;border-color:#bbb!important;color:#111!important}
-      .output{padding:0}
+      .output{padding:0;border:0}
+      .wrap{width:100%;max-width:none}
+      .overview-intro,.sec-intro,#print-head,.legend,.kv-row{break-inside:avoid;page-break-inside:avoid}
+      h3,h4,.sec-intro,.overview-issues>h4{break-after:avoid;page-break-after:avoid}
+      p{orphans:3;widows:3}
+      .kv{display:block}
+      .kv-row{grid-template-columns:190px minmax(0,1fr);margin:4px 0}
       .boundary{background:#f3fbf7!important;color:#0b3d27!important;border-color:#2ECC85!important}
       .boundary strong{color:#0b3d27!important}
       .privacy{color:#555!important}
@@ -379,6 +395,6 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <textarea id="copy-buffer" class="sr-only" aria-hidden="true" tabindex="-1" readonly></textarea>
 
-<script type="module" src="/assets/js/preview/credit-framework/app.js?v=cf-20261014-5"></script>
+<script type="module" src="/assets/js/preview/credit-framework/app.js?v=cf-20261014-6"></script>
 </body>
 </html>
