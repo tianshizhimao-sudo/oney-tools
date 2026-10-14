@@ -13,7 +13,7 @@ import {
   FEEDBACK_QUESTIONS, FEEDBACK_ANSWERS, scoreFeedback, feedbackText,
 } from './engine.js';
 import { formatMoneyEdit, deleteMoneySeparator } from './money-input.js';
-import { buildOverview } from './overview.js';
+import { buildOverview } from './overview.js?v=cf-20261014-3';
 import { INTAKE_PRESETS, TRIGGER_GROUPS, composeIntakeValue } from './intake-options.js';
 
 const $ = (s, r = document) => r.querySelector(s);
@@ -420,7 +420,17 @@ function renderOverview(assessment, report) {
         detailButton('All prioritised questions', 'questions')),
       el('div', { class: 'overview-action' }, el('h4', {}, 'Next conversation'),
         el('p', { class: 'overview-next-step', id: 'overview-next-step' }, v.nextStep),
-        first ? [
+        v.deferralCount ? [
+          el('div', { class: 'notice warn', id: 'overview-deferral' }, `Lender deferral entered (${v.deferralCount}). `,
+            v.deferral ? 'Review the lender’s request before the general trigger questions.' : 'The deferral recovery plan is available in Comprehensive.'),
+          v.deferral ? [
+            el('ul', { class: 'overview-evidence' }, v.deferral.reasons.map((reason) => el('li', {}, reason.label))),
+            !v.pauseFirst ? el('p', { id: 'overview-deferral-status' }, el('span', { class: 'lbl' }, 'Recovery status from recorded evidence: '), DEFERRAL_STATUS[v.deferral.overall].label) : null,
+            el('p', { class: 'hint' }, 'Status follows the evidence review you record; a client reply alone does not count.'),
+            el('p', { class: 'notice info', id: 'overview-exact-doc' }, v.deferral.exactDocumentRule),
+          ] : null,
+          detailButton(v.deferral ? 'Open lender deferral recovery plan' : 'View Comprehensive recovery-plan access', 'deferral'),
+        ] : v.pauseFirst ? detailButton('Review pause / referral context', 'rating') : first ? [
           el('p', { class: 'overview-question', id: 'overview-question' }, el('span', { class: 'lbl' }, 'Ask: '), first.question),
           first.clientWording ? el('details', { class: 'client-wording' }, el('summary', {}, 'Client-friendly wording'), el('p', {}, first.clientWording)) : null,
           el('strong', { class: 'evidence-heading' }, 'Evidence to request / review'),

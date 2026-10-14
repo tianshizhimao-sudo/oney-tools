@@ -88,5 +88,42 @@ integration('mounted UI: formatted amount entry, paste, edit, clearing, invalid 
   assert.equal(document.body.dataset.pristine, 'true');
   assert.equal($('#f-loanAmount').value, '650,000');
   assert.equal($('#amount-warning'), null);
+  // Lender deferrals lead the action card even with no or unrelated triggers.
+  click('#case-picker [data-case="custom"]');
+  click('#d-ato_position');
+  for (const tier of ['simple', 'comprehensive']) {
+    click(`#tier-output [data-tier="${tier}"]`);
+    for (const unrelated of [false, true]) {
+      if (unrelated) click('#t-valuation_sensitive');
+      assert.match($('#overview-next-step').textContent, /deferral recovery plan/);
+      assert.equal($('#overview-question'), null, 'no unrelated question in deferral action card');
+      assert.match($('#overview-deferral').textContent, /Lender deferral entered \(1\)/);
+      const link = $('#review-overview [data-open-section="deferral"]');
+      link.click(); assert.equal(document.activeElement.id, 'sec-deferral');
+      if (tier === 'simple') {
+        assert.equal($('#overview-exact-doc'), null);
+        assert.equal($('#overview-deferral-status'), null);
+        assert.doesNotMatch($('#review-overview').textContent, /ATO integrated client account|exact documents credit asked for/);
+        assert.match($('#sec-deferral').textContent, /Available in Comprehensive/);
+      } else {
+        assert.equal($('#body-deferral').hidden, false);
+        assert.match($('#overview-exact-doc').textContent, /exact documents credit asked for/);
+        assert.match($('#overview-deferral-status').textContent, /Rework/);
+        assert.match($('#body-deferral').textContent, /ATO integrated client account/);
+      }
+      assert.equal(document.body.dataset.lint, 'pass');
+      const rating = $('#f-rating'); rating.value = 'Black — Do Not Proceed';
+      rating.dispatchEvent(new window.Event('change', { bubbles: true }));
+      assert.match($('#overview-next-step').textContent, /Do not proceed.*refer or pause/);
+      assert.equal($('#overview-question'), null);
+      assert.equal($('#overview-deferral-status'), null, 'Black pause suppresses recovery status action');
+      rating.value = 'Amber — Package Better';
+      rating.dispatchEvent(new window.Event('change', { bubbles: true }));
+      if (unrelated) click('#t-valuation_sensitive');
+    }
+  }
+  click('#d-ato_position');
+  assert.equal($('#overview-deferral'), null);
+  assert.match($('#overview-next-step').textContent, /Confirm the triggers/);
   dom.window.close();
 });
