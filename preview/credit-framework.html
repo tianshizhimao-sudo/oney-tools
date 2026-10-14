@@ -64,6 +64,36 @@
     .control{width:100%;border:1px solid var(--line);background:#151525;border-radius:10px;padding:10px 11px;outline:none;min-height:42px}
     textarea.control{min-height:64px;resize:vertical}
     .control:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(46,204,133,.12)}
+    .money-control{font-variant-numeric:tabular-nums;letter-spacing:.03em}
+    .money-help{margin:0;font-weight:400;font-size:11.5px}
+    .control[aria-invalid="true"]{border-color:var(--r-red)}
+    .field-error{color:#ffc0c0;font-size:12px}
+    .preset-label{font-size:12.5px;font-weight:700}
+    .preset-field>.hint,.preset-help{margin:0;font-size:11.5px}
+    .preset-review-note{font-size:11.5px;color:#ffe0a6;border-left:2px solid var(--r-amber);padding-left:7px}
+    .preset-options{display:flex;flex-wrap:wrap;gap:6px}
+    .preset-choice{font-size:12px;text-align:left;border:1px solid var(--line);border-radius:9px;background:#151525;padding:9px 10px;min-height:42px;cursor:pointer}
+    .preset-choice[aria-pressed="true"]{border-color:var(--green);background:rgba(46,204,133,.13);color:#c9efdd;box-shadow:inset 0 0 0 1px var(--green)}
+    .preset-choice:focus-visible,.selected-risk-chip:focus-visible,.risk-group>summary:focus-visible,.manual-details>summary:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+    .manual-details{border-top:1px dashed var(--line);margin-top:5px;font-size:12px}
+    .manual-details>summary{padding:9px 0;min-height:40px;cursor:pointer;color:#d8bdf5;font-weight:700}
+    .manual-details .control{margin-bottom:4px;font-size:13px}
+    .selected-risk-summary{padding:10px;border:1px solid var(--line);border-radius:10px;font-size:12px}
+    .selected-risk-summary>.hint{margin:5px 0 0}
+    .selected-risk-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+    .selected-risk-chip{font-size:11px;text-align:left;padding:6px 8px;min-height:36px;line-height:1.4;border:1px solid rgba(46,204,133,.35);border-radius:8px;background:rgba(46,204,133,.08);color:#c9efdd;cursor:pointer}
+    .risk-groups{display:grid;gap:7px}
+    .risk-group{border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.12);min-width:0}
+    .risk-group>summary{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding:12px;cursor:pointer;list-style:none;min-height:54px}
+    .risk-group>summary::-webkit-details-marker{display:none}
+    .risk-group>summary::after{content:'+';color:var(--green);font-weight:800}
+    .risk-group[open]>summary::after{content:'−'}
+    .risk-group>summary>span:first-child{flex:1;min-width:0}
+    .risk-group summary strong{font-size:13px}
+    .risk-group summary small{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+    .group-count{font-size:10.5px;color:#baf1d5;flex:0 0 74px;text-align:right}
+    .risk-group-body{padding:0 10px 8px}
+    .risk-group-body .trig{min-height:44px}
     .trig{display:flex;gap:9px;align-items:flex-start;padding:7px 2px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.05)}
     .trig input{margin-top:3px;width:18px;height:18px;accent-color:var(--green);flex:0 0 18px}
     .trig small{display:block;color:var(--muted);font-size:11.5px}
@@ -154,6 +184,44 @@
     .summary .kind{flex:0 0 auto}
     .watch{flex:1 1 100%;margin:0;font-size:13px}
     .sec-body{margin-top:10px;padding-top:6px;border-top:1px dashed var(--line)}
+    /* Priority overview: presentation of existing rules, never a credit score. */
+    .review-overview{border:1px solid rgba(46,204,133,.4);border-radius:14px;padding:16px;margin:14px 0 20px;background:linear-gradient(145deg,rgba(46,204,133,.05),rgba(107,76,154,.06));overflow-wrap:anywhere}
+    .overview-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .overview-heading h3{margin:3px 0 0;font-size:22px;letter-spacing:-.5px}
+    .overview-scope,.overview-checklist-note{font-size:12px;color:var(--muted);margin:9px 0 12px}
+    .overview-stats{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:8px}
+    .overview-stat{display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid var(--line);border-radius:11px;background:rgba(0,0,0,.14);min-width:0}
+    .overview-stat .lbl{font-size:11px}
+    .overview-stat small,.overview-rerate small{font-size:11.5px;color:var(--muted)}
+    .overview-rating{font-size:17px;line-height:1.3}
+    .overview-rating.green{color:var(--r-green)}.overview-rating.amber{color:var(--r-amber)}.overview-rating.red{color:var(--r-red)}.overview-rating.black{color:#c0c0d2}
+    .overview-count{font-size:24px;line-height:1.2;font-variant-numeric:tabular-nums}
+    .overview-link{display:inline-block;align-self:flex-start;padding:6px 0;background:transparent;border:0;color:#85e5b6;font-size:12px;font-weight:700;text-align:left;text-decoration:underline;text-underline-offset:3px;cursor:pointer;min-height:32px}
+    .overview-link:focus-visible,.client-wording summary:focus-visible{outline:2px solid var(--green);outline-offset:3px;border-radius:3px}
+    .review-statuses{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+    .review-status{display:inline-block;font-size:10.5px;line-height:1.4;border:1px solid var(--line);border-radius:6px;padding:3px 6px;color:#c6c6d7}
+    .review-status.weak{color:#ffc0c0;border-color:rgba(239,106,106,.6)}
+    .review-status.reply_only,.review-status.outstanding{color:#ffe0a6;border-color:rgba(242,184,75,.35)}
+    .review-status.supports{color:#baf1d5;border-color:rgba(46,204,133,.4)}
+    .overview-rerate{display:grid;gap:5px;border-left:3px solid var(--purple-l);padding:6px 10px;margin:10px 0 16px;font-size:12px}
+    .overview-work{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start}
+    .overview-work>*{min-width:0}
+    .overview-work h4{font-size:14px;margin:0 0 10px}
+    .priority-list{list-style:none;counter-reset:issue;margin:0;padding:0;display:grid;gap:8px}
+    .priority-issue{counter-increment:issue;border-left:3px solid var(--r-amber);padding:9px 10px;background:rgba(0,0,0,.12);border-radius:0 8px 8px 0}
+    .priority-issue.weak{border-left-color:var(--r-red)}
+    .issue-heading{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;font-size:13px;margin:0 0 6px}
+    .issue-heading::before{content:counter(issue) ".";font-size:12px;color:var(--muted)}
+    .priority-issue p{font-size:12px;margin:7px 0 0}
+    .overview-action{padding:12px;border:1px solid rgba(46,204,133,.35);border-radius:10px;background:rgba(46,204,133,.04)}
+    .overview-next-step{font-size:13px;margin:0 0 10px;font-weight:700}
+    .overview-question{font-size:13px;line-height:1.6;margin:10px 0}
+    .client-wording{font-size:12px;margin:8px 0 12px}
+    .client-wording summary{cursor:pointer;color:#d8bdf5;font-weight:700;min-height:32px;padding:6px 0}
+    .client-wording p{margin:4px 0 10px}
+    .evidence-heading{font-size:12px}
+    .overview-evidence{padding-left:18px;font-size:12px;margin:7px 0 10px}
+    .overview-evidence li+li{margin-top:5px}
     [hidden]{display:none!important}
     .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#0f2a1f;border:1px solid var(--green);color:#c9efdd;padding:10px 16px;border-radius:10px;font-size:13px;z-index:5;opacity:0;transition:opacity .2s;pointer-events:none}
     .toast.show{opacity:1}
@@ -179,6 +247,13 @@
       table.grid td::before{content:attr(data-label);display:block;color:var(--muted);font-size:11px;font-weight:700}
       .actions .btn{flex:1 1 auto}
       .tier-btn small{display:none}
+      .review-overview{padding:12px}
+      .overview-stats,.overview-work{grid-template-columns:1fr}
+      .overview-stat{display:grid;grid-template-columns:1fr auto;align-items:center}
+      .overview-stat .lbl,.overview-stat small,.overview-stat .overview-link{grid-column:1 / -1}
+      .overview-link{min-height:40px}
+      .preset-choice{min-height:44px;flex:1 1 calc(50% - 6px)}
+      .selected-risk-chip{min-height:40px}
     }
     @media print{
       @page{margin:14mm}
@@ -187,6 +262,11 @@
       .print-only{display:block!important}
       .sec-body[hidden]{display:block!important}
       .sec-toggle{display:none!important}
+      .review-overview,.overview-stat,.overview-action,.priority-issue{background:transparent!important;box-shadow:none!important;border-color:#aaa!important;color:#111!important}
+      .overview-stats{grid-template-columns:1.35fr 1fr 1fr}
+      .overview-work{grid-template-columns:1fr 1fr}
+      .overview-scope,.overview-checklist-note,.overview-stat small,.overview-rerate small,.overview-rating,.review-status{color:#444!important}
+      .priority-issue,.overview-action,.overview-stat{break-inside:avoid;page-break-inside:avoid}
       .layout{display:block;padding:0}
       .card,section.out,.q,pre.email{background:transparent!important;box-shadow:none!important;border-color:#bbb!important;color:#111!important}
       .output{padding:0}
@@ -234,7 +314,7 @@
     <div class="layout">
       <aside class="card intake no-print" id="intake" aria-label="Deal intake">
         <h2>1 · Intake</h2>
-        <p class="hint">Load a synthetic sample, or start blank and enter your own deal <strong>de-identified</strong> (no names, ABNs, addresses or account numbers). Any edit switches to a custom scenario (rule output only).</p>
+        <p class="hint">Load a synthetic sample, or start blank and enter your own deal <strong>de-identified</strong> (no names, ABNs, addresses or account numbers). Use quick choices, then open the risk categories that apply. Details are optional. Any edit switches to a custom scenario (rule output only).</p>
         <div class="case-picker" id="case-picker" role="group" aria-label="Sample cases"></div>
         <a class="btn btn-secondary jump" href="#output" id="jump-output">View output ↓</a>
 

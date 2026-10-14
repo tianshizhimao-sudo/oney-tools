@@ -212,7 +212,7 @@ async function runViewport(name, contextOpts) {
   // Task-06: custom scenarios typed through the form never re-rate upward; downgrades still apply.
   async function loadCustom(ac) {
     await page.click('#case-picker [data-case="custom"]');
-    await page.evaluate(() => document.querySelectorAll('#intake-form details.sec').forEach((d) => { d.open = true; }));
+    await page.evaluate(() => document.querySelectorAll('#intake-form details').forEach((d) => { d.open = true; }));
     for (const [k, val] of Object.entries(ac.intake)) {
       if (k === 'dealType' || k === 'borrowerType') await page.selectOption(`#f-${k}`, String(val));
       else await page.fill(`#f-${k}`, String(val));
@@ -265,7 +265,7 @@ async function runViewport(name, contextOpts) {
   }
   // Task-06 follow-up: deferral status for custom vs calibrated, all four evidence states.
   async function tickDeferral(code) {
-    await page.evaluate(() => document.querySelectorAll('#intake-form details.sec').forEach((d) => { d.open = true; }));
+    await page.evaluate(() => document.querySelectorAll('#intake-form details').forEach((d) => { d.open = true; }));
     await page.check(`#d-${code}`);
   }
   const DEFERRAL_STATES = [
@@ -354,6 +354,9 @@ async function runViewport(name, contextOpts) {
   // Trigger suggestions on a blank custom scenario: suggested, not auto-ticked, then applied
   await page.click('#case-picker [data-case="custom"]');
   await page.click('details.sec >> summary:has-text("Conduct / compliance")');
+  await page.click('[data-structured-field="conduct"] .manual-details > summary');
+  await page.click('#risk-group-tax > summary');
+  await page.click('#risk-group-conduct > summary');
   await page.fill('#f-conduct', '3 dishonours in last 6 months; ATO debt $80k on payment plan');
   v.suggest = {
     chips: await page.locator('[data-sugg-chip]:visible').count(),
