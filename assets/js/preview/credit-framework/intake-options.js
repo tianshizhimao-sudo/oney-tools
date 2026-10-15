@@ -30,6 +30,7 @@ export const INTAKE_PRESETS = Object.freeze({
     { id: 'ato', label: 'ATO debt', text: 'ATO debt outstanding' },
   ] },
   conduct: { label: 'What has been reported?', multiple: true, options: [
+    { id: 'no_concerns', label: 'No conduct/compliance concerns reported', text: 'No conduct or compliance concerns reported; this statement is unverified' },
     { id: 'dishonours', label: 'Dishonours / account excesses', text: 'Recent dishonours or account excesses reported' },
     { id: 'suppliers', label: 'Supplier arrears', text: 'Supplier arrears reported' },
     { id: 'ato_missed', label: 'Missed ATO plan payment', text: 'ATO payment plan: missed instalment reported' },
@@ -68,3 +69,13 @@ export const TRIGGER_GROUPS = Object.freeze([
   { id: 'property', label: 'Security & property', hint: 'LVR, valuation, leases, due diligence', rules: ['high_lvr_second_mortgage', 'valuation_sensitive', 'short_wale', 'zoning_environmental_missing'] },
   { id: 'structure', label: 'Structure & document currency', hint: 'Related parties and old servicing positions', rules: ['related_party_security', 'stale_preapproval'] },
 ]);
+
+// UI-only self-report. Never removes intake text, trigger selections or lender requests.
+export function conductReport(selected = [], retainedText = '', triggers = [], suggested = [], hasDeferral = false) {
+  if (!selected.includes('no_concerns')) return null;
+  const conductIds = ['ato_debt', 'missed_ato_plan', 'sg_unevidenced', 'dishonours_recent', 'supplier_arrears'];
+  const conflict = Boolean(retainedText.trim() || selected.some(id => id !== 'no_concerns' && id !== 'other')
+    || [...triggers, ...suggested].some(id => conductIds.includes(id)) || hasDeferral);
+  return { conflict, text: 'No conduct/compliance concerns reported — unverified self-report, not an evidence review. This does not change any rating or clear any issue.'
+    + (conflict ? ' Retained details, concern selections, triggers or lender requests still need reconciliation. Review them individually; none were removed.' : '') };
+}

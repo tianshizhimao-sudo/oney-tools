@@ -11,14 +11,14 @@ import {
   suggestTriggers, compareTriggers, triggerCheckText,
   DEFERRAL_REASONS, DEFERRAL_LIBRARY_VERSION, DEFERRAL_STATUS,
   FEEDBACK_QUESTIONS, FEEDBACK_ANSWERS, scoreFeedback, feedbackText,
-} from './engine.js?v=cf-20261014-6';
+} from './engine.js?v=cf-20261014-6&vanilla=1';
 import { formatMoneyEdit, deleteMoneySeparator } from './money-input.js';
 import { buildOverview } from './overview.js?v=cf-20261014-6';
-import { INTAKE_PRESETS, TRIGGER_GROUPS, composeIntakeValue } from './intake-options.js';
+import { INTAKE_PRESETS, TRIGGER_GROUPS, composeIntakeValue, conductReport } from './intake-options.js?v=conduct-1';
 import { createRiskView, syncRiskInputs, riskViewText, RISK_AREAS, riskAreaState } from './manual-risk-view.js?v=cf-20261014-6';
 import { renderManualRiskView } from './manual-risk-view-ui.js?v=cf-20261014-6&ring=1';
 
-import { createMaterialReceipts, syncMaterialReceipts, buildMaterials, MATERIAL_GROUPS, brokerMaterialsText, applicantMaterialsText } from './materials.js?v=materials-2';
+import { createMaterialReceipts, syncMaterialReceipts, buildMaterials, MATERIAL_GROUPS, brokerMaterialsText, applicantMaterialsText } from './materials.js?v=materials-3';
 
 import { buildRuleRing, ruleRingText } from './rule-ring.js?v=ring-1';
 
@@ -179,7 +179,7 @@ function renderPresetField(f, id) {
     choices,
     el('small', { class: 'hint preset-help' }, f.key === 'documents'
       ? 'Availability is reported only, not reviewed or verified. Choices add to retained details.'
-      : 'Choices add to retained details below. Unknown does not mean none.'), reviewNote, details);
+      : f.key === 'conduct' ? 'No concerns reported is unverified. Existing concerns and retained details stay included; reconcile any differences. Unknown does not mean none.' : 'Choices add to retained details below. Unknown does not mean none.'), reviewNote, f.key === 'conduct' ? el('p', { id: 'conduct-input-note', class: 'notice info', role: 'status', hidden: true }) : null, details);
 }
 
 function renderIntakeForm() {
@@ -498,7 +498,7 @@ function renderSection(s, report) {
         s.oneLineView ? item(s.oneLineView.kind, el('strong', {}, 'One-line view: '), s.oneLineView.text) : null);
     case 'risks': {
       const full = s.items[0] && s.items[0].mitigant !== undefined;
-      if (!s.items.length) return sectionShell(s, el('p', { class: 'hint' }, 'No risks — select triggers or load a sample.'));
+      if (!s.items.length) return sectionShell(s, el('p', { class: 'hint' }, 'No risk triggers selected. This is not a finding that there are no risks.'));
       return sectionShell(s, el('table', { class: 'grid' },
         el('thead', {}, el('tr', {}, el('th', {}, 'Type'), el('th', {}, 'Risk'), el('th', {}, 'Why it matters'), full ? [el('th', {}, 'Mitigant'), el('th', {}, 'Status')] : null)),
         el('tbody', {}, s.items.map((r) => el('tr', { 'data-kind': r.kind },
@@ -619,7 +619,10 @@ function renderMaterials(model) {
   if (materialReceipts.resetNotice) body.append(el('p', { class: 'notice warn', id: 'materials-reset', role: 'status' }, 'Case inputs changed. Previous receipt notes were cleared; confirm availability again.'));
   if (!model.comprehensive) body.append(el('p', { class: 'notice info', id: 'materials-gate' }, `Simple document preview only. ${model.omittedTriggers ? `${model.omittedTriggers} additional trigger(s) omitted. ` : ''}Full receipt workflow, conditional suggestions and applicant wording are available in Comprehensive.`));
   if (model.unknownCount) body.append(el('p', { class: 'notice warn', id: 'materials-unknown' }, `${model.unknownCount} unrecognised trigger(s) have no document mapping. Review the missing case context.`));
-  if (!model.items.length) body.append(el('p', { class: 'hint', id: 'materials-empty' }, 'No documents mapped yet. This does not mean no documents are needed. Confirm the case details and triggers first.'));
+  if (!model.items.length) body.append(el('p', { class: 'hint', id: 'materials-empty' }, 'No documents mapped yet. This does not mean no documents are needed. Confirm the case details and triggers first.'),
+    el('div', { class: 'notice info', id: 'materials-reported-documents' },
+      el('strong', {}, 'Reported documents (unverified): '), model.reportedDocuments || 'None reported; actual availability unknown.',
+      el('p', {}, 'This is an intake overview, not a required document list. Ask your broker to confirm which materials apply to this case.')));
   if (model.comprehensive) body.append(el('div', { class: 'actions no-print', 'aria-label': 'Materials audience' },
     ['broker', 'applicant'].map(audience => el('button', { type: 'button', class: 'btn btn-secondary', 'data-materials-view': audience,
       'aria-pressed': String(materialsAudience === audience), onclick: () => { materialsAudience = audience; renderOutput(); $(`[data-materials-view="${audience}"]`).focus(); } }, audience === 'broker' ? 'Broker working list' : 'Applicant wording preview'))));
@@ -680,14 +683,18 @@ function renderOutput() {
   const assessment = buildAssessment(state);
   ruleRing = buildRuleRing(assessment, state.tier);
   const report = buildReport(assessment, state.tier);
-  const materials = buildMaterials(assessment, state.tier, state.evidence, materialReceipts.received);
-  basePlainText = `${reportToPlainText(report)}\n\n${brokerMaterialsText(materials)}`;
+  const materials = buildMaterials(assessment, state.tier, state.evidence, materialReceipts.received, state.intake.documents);
+  const conduct = conductReport(presetSelections.get('conduct'), manualDrafts.get('conduct') || '', state.triggers, assessment.triggerCheck.suggested.map(item => item.id), Boolean(state.intake.deferralReason?.trim() || state.intake.deferralCodes?.length));
+  const conductInputNote = $('#conduct-input-note');
+  if (conductInputNote) { conductInputNote.hidden = !conduct; conductInputNote.textContent = conduct?.text || ''; conductInputNote.className = `notice ${conduct?.conflict ? 'warn' : 'info'}`; }
+  basePlainText = `${reportToPlainText(report)}\n\n${brokerMaterialsText(materials)}${conduct ? `\n\nConduct self-report: ${conduct.text}` : ''}`;
 
   $('#out-title').textContent = `2 · ${report.tierName}`;
   $('#out-sub').textContent = `${report.dealName} (${report.dealId}) · ${report.pristine ? `Judgement: ${report.judgementSource}` : 'Custom scenario — rule output only'}`;
 
   const out = $('#report');
   out.replaceChildren();
+  if (conduct) out.append(el('div', { class: `notice ${conduct.conflict ? 'warn' : 'info'}`, id: 'conduct-self-report', role: 'status' }, conduct.text));
   const invalidAmounts = INTAKE_FIELDS.filter((f) => f.money && moneyDrafts.has(f.key) && !moneyDrafts.get(f.key).valid);
   if (invalidAmounts.length) out.append(el('div', { class: 'notice warn', id: 'amount-warning', role: 'status' }, `Check amount inputs: ${invalidAmounts.map((f) => f.label).join(', ')}. Invalid entries are treated as not provided; calculations using them are unavailable.`));
   if (!report.pristine) {

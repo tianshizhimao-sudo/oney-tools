@@ -39,7 +39,7 @@ export function applicantDocument(text) {
   return text.replace(/\bATO\b/g, 'Australian Taxation Office (ATO)').replace(/\bBAS\b/g, 'business activity statement (BAS)')
     .replace(/\bSG\b/g, 'superannuation guarantee (SG)').replace(/\bYTD\b/g, 'year-to-date').replace(/\bP&L\b/g, 'profit and loss');
 }
-export function buildMaterials(assessment, tier, evidence = {}, received = new Set()) {
+export function buildMaterials(assessment, tier, evidence = {}, received = new Set(), reportedDocuments = '') {
   const comprehensive = tier === 'comprehensive';
   const selected = assessment.engine[comprehensive ? 'comprehensive' : 'simple'];
   const byId = new Map(RULES.map(q => [q.id, q]));
@@ -64,7 +64,7 @@ export function buildMaterials(assessment, tier, evidence = {}, received = new S
     gap: materialGap(item.conditional ? 'conditional' : received.has(item.key) ? 'received' : 'needed'),
     receipt: received.has(item.key) && !item.conditional ? 'Receipt recorded; document not verified' : 'Receipt not recorded; availability unknown',
   })).sort((a, b) => priorities[a.priority] - priorities[b.priority] || a.document.localeCompare(b.document));
-  return { comprehensive, scope: assessment.pristine ? `Synthetic example ${assessment.caseId}` : 'Current de-identified custom scenario', items,
+  return { comprehensive, reportedDocuments: String(reportedDocuments).trim(), scope: assessment.pristine ? `Synthetic example ${assessment.caseId}` : 'Current de-identified custom scenario', items,
     unknownCount: selected.unknownTriggers.length, omittedTriggers: assessment.engine.comprehensive.questions.length - selected.questions.length, boundary: MATERIALS_BOUNDARY };
 }
 // Allow-list: no raw scenario, risk, review judgments or trigger IDs.
@@ -94,7 +94,9 @@ export function brokerMaterialsText(model) {
   if (!model.comprehensive) lines.push('Simple: selected-question document preview only. Full workflow and applicant wording require Comprehensive.');
   if (model.omittedTriggers) lines.push(`${model.omittedTriggers} additional trigger(s) omitted by the Simple tier.`);
   if (model.unknownCount) lines.push(`${model.unknownCount} unrecognised trigger(s) have no document mapping; review required.`);
-  if (!model.items.length) lines.push('No documents mapped yet; this does not mean no documents are needed.');
+  if (!model.items.length) lines.push('No documents mapped yet; this does not mean no documents are needed.',
+    `Reported documents (unverified): ${model.reportedDocuments || 'None reported; actual availability unknown.'}`,
+    'This is an intake overview, not a required document list. Ask your broker to confirm which materials apply to this case.');
   for (const [key, title] of Object.entries(MATERIAL_GROUPS)) {
     const items = model.items.filter(item => item.group === key); if (!items.length) continue;
     lines.push('', title);

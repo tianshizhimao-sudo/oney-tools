@@ -761,7 +761,7 @@ export function summarizeSection(s, assessment) {
     case 'rating':
       return { text: `${s.rating.text} · ${s.confidence.value} confidence${s.confidence.watch.length ? ` · ${plural(s.confidence.watch.length, 'watch point')}` : ''}.`, kind: s.rating.kind };
     case 'risks': {
-      if (!s.items.length) return { text: 'No risks identified yet — select triggers.', kind: KIND.RULE };
+      if (!s.items.length) return { text: 'No risk triggers selected. This is not a finding that there are no risks.', kind: KIND.RULE };
       const extra = s.items.length - 1;
       return { text: `Biggest risk: ${s.items[0].risk}${extra > 0 ? ` (+${extra} more)` : ''}.`, kind: s.items[0].kind };
     }
