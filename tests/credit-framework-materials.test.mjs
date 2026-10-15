@@ -70,3 +70,29 @@ test('applicant is allowlisted, de-identified, plain-English and compliance-safe
     assert.equal(lintCompliance(text).ok,true); assert.equal(lintCompliance(brokerMaterialsText(m)).ok,true);
   }
 });
+test('provider guidance is exact-name, general preparation and never a confirmed lender requirement', async () => {
+  const {materialProvider, MATERIAL_REQUIREMENT} = await import('../assets/js/preview/credit-framework/materials.js');
+  assert.match(materialProvider('cash-flow forecast'),/Applicant or accountant/);
+  assert.match(materialProvider('formal valuation'),/before ordering or paying/);
+  assert.match(materialProvider('unmapped confidential item'),/Provider unknown/);
+  assert.match(materialProvider('formal valuation extra words'),/Provider unknown/);
+  const s = initialState('CF-002','comprehensive'); const a=buildAssessment(s); const before=JSON.stringify(a);
+  const model=buildMaterials(a,'comprehensive',Object.fromEntries(s.triggers.map(id=>[id,'supports'])));
+  assert.ok(model.items.every(i=>i.requirement===MATERIAL_REQUIREMENT && /availability is unknown/.test(i.gap)));
+  assert.equal(JSON.stringify(a),before);
+  assert.match(applicantMaterialsText(model),/Possible source \(confirm with broker\)/);
+  assert.match(brokerMaterialsText(model),/no lender-confirmed requirement source supplied/);
+});
+test('guidance distinguishes applicability, absent receipt and unreviewed receipt without changing mapping', () => {
+  const a=assessment(['turnaround_claim']);a.triggerCheck.notSelected=['working_capital_vague'];
+  const original=buildMaterials(a,'comprehensive');
+  const received=buildMaterials(a,'comprehensive',{},new Set(original.items.map(i=>i.key)));
+  assert.deepEqual(received.items.map(i=>i.key),original.items.map(i=>i.key));
+  for(const item of received.items) {
+    assert.match(item.gap,item.conditional ? /Applicability unconfirmed/ : /Document review still needed/);
+    assert.equal(item.requirement,'General preparation only — no lender-confirmed requirement source supplied.');
+  }
+  const simple=buildMaterials(a,'simple');
+  assert.equal(applicantMaterialsText(simple),'');
+  assert.ok(simple.items.every(i=>!i.conditional));
+});

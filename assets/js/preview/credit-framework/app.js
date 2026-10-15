@@ -18,7 +18,7 @@ import { INTAKE_PRESETS, TRIGGER_GROUPS, composeIntakeValue } from './intake-opt
 import { createRiskView, syncRiskInputs, riskViewText, RISK_AREAS, riskAreaState } from './manual-risk-view.js?v=cf-20261014-6';
 import { renderManualRiskView } from './manual-risk-view-ui.js?v=cf-20261014-6&ring=1';
 
-import { createMaterialReceipts, syncMaterialReceipts, buildMaterials, MATERIAL_GROUPS, brokerMaterialsText, applicantMaterialsText } from './materials.js?v=materials-1';
+import { createMaterialReceipts, syncMaterialReceipts, buildMaterials, MATERIAL_GROUPS, brokerMaterialsText, applicantMaterialsText } from './materials.js?v=materials-2';
 
 import { buildRuleRing, ruleRingText } from './rule-ring.js?v=ring-1';
 
@@ -632,6 +632,9 @@ function renderMaterials(model) {
       const card = el('div', { class: 'item rule material-item', 'data-material-key': item.key },
         el('strong', {}, item.document), ' ', el('span', { class: `prio ${item.priority}` }, item.priority),
         el('p', { class: 'hint material-receipt' }, item.receipt),
+        el('p', { class: 'hint material-requirement' }, item.requirement),
+        el('p', { class: 'hint material-provider' }, `Possible source (confirm with broker): ${item.provider}`),
+        el('p', { class: 'hint material-gap' }, `Still to confirm: ${item.gap}`),
         item.links.map(link => el('p', { class: 'hint' }, el('strong', {}, `${link.trigger}${link.conditional ? ' — suggested, unconfirmed' : ''}: `), link.why,
           link.review ? el('span', { class: 'material-review' }, ` · Trigger review: ${link.review}`) : null)));
       if (model.comprehensive && !item.conditional) {

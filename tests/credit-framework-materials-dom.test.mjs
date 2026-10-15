@@ -11,6 +11,9 @@ let JSDOM; try { ({JSDOM} = await import(process.env.CF_JSDOM_MODULE || 'jsdom')
   await import('../assets/js/preview/credit-framework/app.js');
   const $=s=>document.querySelector(s); const click=s=>$(s).click();
   click('[data-toggle="materials"]');
+  assert.match($('.material-requirement').textContent,/General preparation only/);
+  assert.match($('.material-provider').textContent,/confirm with broker/);
+  assert.match($('.material-gap').textContent,/availability is unknown/);
   const rating=$('#rating-pill').textContent, confidence=$('#confidence-pill').textContent;
   const reviews=()=>[...document.querySelectorAll('[data-rerate]')].map(s=>[s.dataset.rerate,s.value]);
   const before=reviews(); const first=$('[data-material-receipt]').dataset.materialReceipt;
@@ -21,6 +24,8 @@ let JSDOM; try { ({JSDOM} = await import(process.env.CF_JSDOM_MODULE || 'jsdom')
   click('[data-materials-view="applicant"]');
   assert.ok($('#materials-applicant').classList.contains('no-print'));
   assert.match($('#materials-applicant-text').value,/Receipt noted/);
+  assert.match($('#materials-applicant-text').value,/Document review still needed/);
+  assert.match($('#materials-applicant-text').value,/no lender-confirmed requirement source supplied/);
   assert.doesNotMatch($('#materials-applicant-text').value,/Critical|Reviewed evidence|confidence|rating|Why it matters/);
   click('#materials-copy-applicant'); assert.match($('#copy-buffer').value,/DOCUMENT PREPARATION LIST/);
   click('#tier-output [data-tier="simple"]');
