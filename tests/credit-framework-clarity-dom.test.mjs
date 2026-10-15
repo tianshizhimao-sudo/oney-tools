@@ -117,6 +117,11 @@ integration('mounted UI: formatted amount entry, paste, edit, clearing, invalid 
       assert.match($('#overview-next-step').textContent, /Do not proceed.*refer or pause/);
       assert.equal($('#overview-question'), null);
       assert.equal($('#overview-deferral-status'), null, 'Black pause suppresses recovery status action');
+      const pauseAction = $('.overview-action').querySelector('button');
+      assert.equal(pauseAction.dataset.openSection, 'rating');
+      pauseAction.click(); assert.equal(document.activeElement.id, 'sec-rating');
+      assert.equal($('#overview-secondary-deferral').open, false);
+      assert.equal($('#overview-exact-doc'), null);
       rating.value = 'Amber — Package Better';
       rating.dispatchEvent(new window.Event('change', { bubbles: true }));
       if (unrelated) click('#t-valuation_sensitive');

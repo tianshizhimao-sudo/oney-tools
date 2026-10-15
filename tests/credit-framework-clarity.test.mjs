@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { initialState, blankState, buildAssessment, buildReport, calculations, CASE_ORDER, EVIDENCE_STATUS, RULES, lintCompliance } from '../assets/js/preview/credit-framework/engine.js';
+import { initialState, blankState, buildAssessment, buildReport, reportToPlainText, calculations, CASE_ORDER, EVIDENCE_STATUS, RULES, lintCompliance } from '../assets/js/preview/credit-framework/engine.js';
 import { parseMoneyInput, formatMoneyEdit, deleteMoneySeparator } from '../assets/js/preview/credit-framework/money-input.js';
 import { buildOverview } from '../assets/js/preview/credit-framework/overview.js';
 const overview = (s) => { const a = buildAssessment(s); return buildOverview(a, buildReport(a, s.tier), s.evidence); };
@@ -166,4 +166,18 @@ test('new modules remain local-only and the overview is inserted before detail s
   assert.match(html, /src="\/assets\/js\/preview\/credit-framework\/app\.js\?v=[a-z0-9-]+"/, 'entry script is versioned for static-host cache refresh');
   const version = html.match(/app\.js\?v=([a-z0-9-]+)/)[1];
   assert.ok(app.includes(`from './overview.js?v=${version}'`), 'changed overview dependency and app entry share release cache version');
+  assert.ok(app.includes(`from './engine.js?v=${version}'`), 'changed report-label module is also versioned');
+  const viewSource = await readFile(new URL('overview.js', dir), 'utf8');
+  assert.ok(viewSource.includes(`from './engine.js?v=${version}'`), 'overview shares the same engine module URL');
+});
+
+test('Banker Review labels and text export omit the personal name while remaining inactive', () => {
+  for (const tier of ['simple', 'comprehensive']) for (const state of [blankState(tier), ...CASE_ORDER.map(id => initialState(id, tier))]) {
+    const report = buildReport(buildAssessment(state), tier);
+    assert.equal(report.sections.find(s => s.id === 'cta').title, tier === 'simple' ? 'Upgrade / Banker Review' : 'Banker Review (add-on)');
+    const text = reportToPlainText(report);
+    assert.doesNotMatch(text, /Banker Review by Dong|Request Dong review/);
+    assert.match(text, /Banker Review/);
+    assert.match(text, /not active in this prototype/);
+  }
 });
