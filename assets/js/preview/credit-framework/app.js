@@ -65,17 +65,24 @@ function resetIntakeUi() {
 function renderCasePicker() {
   const box = $('#case-picker');
   box.replaceChildren();
+  const blank = el('fieldset', { class: 'case-group', id: 'blank-case-group' },
+    el('legend', {}, 'Blank new case'),
+    el('p', { class: 'hint' }, 'Start without sample data. Enter de-identified details only.'),
+    el('button', {
+      class: 'case-btn', type: 'button', 'aria-pressed': state.caseId === null ? 'true' : 'false', 'data-case': 'custom',
+      onclick: () => { state = blankState(state.tier); resetIntakeUi(); renderAll(); },
+    }, el('span', { class: 'dot custom' }), el('span', {}, 'Blank custom scenario (rules only)')));
+  const examples = el('fieldset', { class: 'case-group', id: 'example-case-group' },
+    el('legend', {}, 'CF examples — synthetic'),
+    el('p', { class: 'hint' }, 'Illustrative sample deals, not your client data. Loading a case replaces the current inputs and manual views.'));
   for (const id of CASE_ORDER) {
     const c = CASES[id];
-    box.append(el('button', {
+    examples.append(el('button', {
       class: 'case-btn', type: 'button', 'aria-pressed': state.caseId === id ? 'true' : 'false', 'data-case': id,
       onclick: () => { state = initialState(id, state.tier); resetIntakeUi(); renderAll(); },
     }, el('span', { class: `dot ${c.tone}` }), el('span', {}, c.shortLabel)));
   }
-  box.append(el('button', {
-    class: 'case-btn', type: 'button', 'aria-pressed': state.caseId === null ? 'true' : 'false', 'data-case': 'custom',
-    onclick: () => { state = blankState(state.tier); resetIntakeUi(); renderAll(); },
-  }, el('span', { class: 'dot custom' }), el('span', {}, 'Blank custom scenario (rules only)')));
+  box.append(blank, examples);
 }
 
 function renderTierToggles() {

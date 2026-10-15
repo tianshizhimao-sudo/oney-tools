@@ -53,6 +53,9 @@
     .intake h2,.out-head h2{font-size:19px;margin:0 0 4px;letter-spacing:-.3px}
     .hint{color:var(--muted);font-size:12.5px;margin:0 0 12px}
     .case-picker{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px}
+    .case-group{display:grid;gap:8px;min-width:0;margin:0;padding:10px;border:1px solid var(--line);border-radius:12px}
+    .case-group legend{font-size:13px;font-weight:800;padding:0 5px;color:var(--text)}
+    .case-group .hint{margin:0;font-size:12px}
     .case-btn{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid var(--line);background:var(--card2);border-radius:12px;padding:10px 12px;cursor:pointer;min-height:44px}
     .case-btn[aria-pressed="true"]{border-color:var(--green);box-shadow:0 0 0 2px rgba(46,204,133,.18) inset}
     .dot{width:10px;height:10px;border-radius:50%;flex:0 0 10px}
@@ -373,7 +376,7 @@
       <aside class="card intake no-print" id="intake" aria-label="Deal intake">
         <h2>1 · Intake</h2>
         <p class="hint">Load a synthetic sample, or start blank and enter your own deal <strong>de-identified</strong> (no names, ABNs, addresses or account numbers). Use quick choices, then open the risk categories that apply. Details are optional. Any edit switches to a custom scenario (rule output only).</p>
-        <div class="case-picker" id="case-picker" role="group" aria-label="Sample cases"></div>
+        <div class="case-picker" id="case-picker" role="group" aria-label="Start a blank case or load a synthetic example"></div>
         <a class="btn btn-secondary jump" href="#output" id="jump-output">View output ↓</a>
 
         <div class="field" style="margin:10px 0">
@@ -411,7 +414,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <textarea id="copy-buffer" class="sr-only" aria-hidden="true" tabindex="-1" readonly></textarea>
 
-<script type="module" src="/assets/js/preview/credit-framework/app.js?v=cf-20261014-6&amp;pwa=20261015-1"></script>
+<script type="module" src="/assets/js/preview/credit-framework/app.js?v=cf-20261014-6&amp;pwa=20261015-2"></script>
 <script type="module" src="/assets/js/preview/credit-framework/mobile.js"></script>
 </body>
 </html>
