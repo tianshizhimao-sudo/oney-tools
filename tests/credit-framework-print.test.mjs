@@ -125,22 +125,22 @@ integration('query tier initializes correctly; print uses current selected tier 
     // Print-visible text covers gray drafts, Red with a proposed next step,
     // and stale prior views; long notes must stay outside the unbreakable unit.
     const enter = (selector, value, type = 'input') => { const control = $(selector); control.value = value; control.dispatchEvent(new window.Event(type, { bubbles: true })); };
-    click('[data-edit-risk="purpose"]');
-    enter('#risk-rating-purpose', 'red', 'change');
+    click('[data-edit-risk="risk_transaction"]');
+    enter('#risk-rating-risk_transaction', 'red', 'change');
     const longBasis = 'De-identified test basis. '.repeat(24).trim();
     const longNext = 'Request supporting documents. '.repeat(20).trim();
-    enter('#risk-basis-purpose', longBasis); enter('#risk-next-purpose', longNext);
-    let readout = $('[data-risk-readout="purpose"]');
+    enter('#risk-basis-risk_transaction', longBasis); enter('#risk-next-risk_transaction', longNext);
+    let readout = $('[data-risk-readout="risk_transaction"]');
     assert.match(readout.textContent, /Draft changes — not confirmed/);
     assert.equal(printHidden(readout), false);
-    click('[data-confirm-risk="purpose"]');
-    readout = $('[data-risk-readout="purpose"]');
+    click('[data-confirm-risk="risk_transaction"]');
+    readout = $('[data-risk-readout="risk_transaction"]');
     assert.equal(readout.dataset.status, 'red');
     assert.ok(readout.textContent.includes(longBasis)); assert.ok(readout.textContent.includes(longNext));
     assert.match(readout.textContent, /not verified/);
     assert.equal(readout.closest('.manual-risk-visual'), null);
     enter('#f-loanAmount', '420001');
-    readout = $('[data-risk-readout="purpose"]');
+    readout = $('[data-risk-readout="risk_transaction"]');
     assert.equal(readout.dataset.status, 'not_assessed');
     assert.match(readout.textContent, /Review required — previous Red/);
     assert.match(readout.textContent, /Previous confirmed basis/);

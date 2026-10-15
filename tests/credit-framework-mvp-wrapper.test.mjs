@@ -799,7 +799,7 @@ test('noindex, CSP and no external data calls / network APIs', async () => {
     assert.deepEqual(urls, [], `${f} external URLs`);
     assert.doesNotMatch(src, /<script[^>]+src="(?!\/assets\/js\/preview\/credit-framework\/)/, f);
     for (const match of src.matchAll(/<link[^>]+href="([^"]+)"/g)) {
-      assert.ok(['data:,', '/preview/credit-framework.webmanifest', '/assets/icons/credit-framework/apple-touch-icon.png', '/assets/css/credit-framework-mobile.css', '/assets/css/credit-framework-reading.css?v=reading-2'].includes(match[1]), `${f} unexpected linked resource ${match[1]}`);
+      assert.ok(['data:,', '/preview/credit-framework.webmanifest', '/assets/icons/credit-framework/apple-touch-icon.png', '/assets/css/credit-framework-mobile.css', '/assets/css/credit-framework-reading.css?v=reading-3'].includes(match[1]), `${f} unexpected linked resource ${match[1]}`);
     }
   }
 });

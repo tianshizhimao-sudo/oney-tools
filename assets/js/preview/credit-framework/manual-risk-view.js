@@ -1,13 +1,14 @@
 /* Manual presentation state only. Never an input to the credit engine. */
+// New IDs deliberately avoid carrying old area judgements into a changed taxonomy.
 export const RISK_AREAS = Object.freeze([
-  { id: 'purpose', label: 'Purpose & growth', triggers: ['working_capital_vague', 'contract_growth'] },
-  { id: 'cashflow', label: 'Cash flow & repayments', triggers: ['mca_present', 'high_dti', 'turnaround_claim', 'stale_preapproval'] },
-  { id: 'conduct', label: 'Conduct, tax & super', triggers: ['ato_debt', 'missed_ato_plan', 'sg_unevidenced', 'dishonours_recent', 'supplier_arrears'] },
-  { id: 'security', label: 'Security & structure', triggers: ['high_lvr_second_mortgage', 'valuation_sensitive', 'short_wale', 'zoning_environmental_missing', 'related_party_security'] },
+  { id: 'risk_management', label: 'Management risk', manualScope: 'Who we lend to: borrower/entity, credit history, tax and account behaviour.', scope: 'Who we lend to: mapped conduct, tax and super issues only; no complete credit-history or management-quality assessment.', triggers: ['ato_debt', 'missed_ato_plan', 'sg_unevidenced', 'dishonours_recent', 'supplier_arrears'] },
+  { id: 'risk_transaction', label: 'Transaction risk', manualScope: 'What the funds are for and whether the transaction makes sense.', scope: 'Purpose and rationale: mapped use-of-funds and contract questions only; commercial sense still needs human review.', triggers: ['working_capital_vague', 'contract_growth'] },
+  { id: 'risk_servicing', label: 'Servicing risk / capability', manualScope: 'Ability to repay and the current evidence supporting that view.', scope: 'Repayment evidence: mapped cash-flow, leverage and rental-dependency questions only; not a completed servicing test.', triggers: ['mca_present', 'high_dti', 'stale_preapproval', 'turnaround_claim', 'short_wale'] },
+  { id: 'risk_security', label: 'Security risk', manualScope: 'Property suitability, GSA needs, security ranking and guarantees.', scope: 'Mapped valuation, property and structure questions only. Lender acceptability, GSA needs, ranking and guarantee adequacy are not automatically assessed.', triggers: ['high_lvr_second_mortgage', 'valuation_sensitive', 'zoning_environmental_missing', 'related_party_security'] },
 ]);
 export const RISK_VIEWS = Object.freeze({ not_assessed: 'Not assessed', green: 'Green', amber: 'Amber', red: 'Red' });
 export const RISK_SOURCE = 'Risk view entered by you';
-export const RISK_BOUNDARY = 'Four equal navigation areas, not a complete assessment or a risk score. Colours are your judgement; they do not change the overall rating, confidence or evidence re-rate.';
+export const RISK_BOUNDARY = 'Four equal navigation areas, not a complete assessment or a risk score. Each trigger has one primary area; issues can cross domains. Colours are your judgement; they do not change the overall rating, confidence or evidence re-rate.';
 const blank = () => ({ rating: 'not_assessed', basis: '', nextStep: '' });
 export function createRiskView() {
   return { revision: 0, snapshot: null, openArea: null, entries: Object.fromEntries(RISK_AREAS.map(a => [a.id, { draft: blank(), confirmed: null, error: '' }])) };
@@ -61,5 +62,5 @@ export function riskAreaNotes(view, id) {
 }
 export function riskViewText(view) {
   return ['Manual four-area risk view', RISK_SOURCE, RISK_BOUNDARY,
-    ...RISK_AREAS.flatMap((area, i) => [`${i + 1}. ${area.label}: ${riskAreaState(view, area.id).label}`, ...riskAreaNotes(view, area.id)])].join('\n');
+    ...RISK_AREAS.flatMap((area, i) => [`${i + 1}. ${area.label}: ${riskAreaState(view, area.id).label}`, `Manual review considerations: ${area.manualScope}`, `Mapped coverage: ${area.scope}`, ...riskAreaNotes(view, area.id)])].join('\n');
 }

@@ -17,47 +17,47 @@ test('manual areas cover all existing triggers exactly once; no weights or infer
 
 test('manual colours require trimmed basis and Red proposed next step before confirmation', () => {
   for (const rating of ['green', 'amber', 'red']) {
-    const view = createRiskView(); const entry = view.entries.purpose;
+    const view = createRiskView(); const entry = view.entries.risk_transaction;
     entry.draft.rating = rating; entry.draft.basis = ' \n ';
-    assert.equal(confirmRiskArea(view, 'purpose'), false);
-    assert.equal(riskAreaState(view, 'purpose').colour, 'not_assessed');
+    assert.equal(confirmRiskArea(view, 'risk_transaction'), false);
+    assert.equal(riskAreaState(view, 'risk_transaction').colour, 'not_assessed');
     entry.draft.basis = ' Evidence checked by me. ';
     if (rating === 'red') {
       entry.draft.nextStep = '  ';
-      assert.equal(confirmRiskArea(view, 'purpose'), false);
+      assert.equal(confirmRiskArea(view, 'risk_transaction'), false);
       entry.draft.nextStep = ' Request revised breakdown. ';
     }
-    assert.equal(confirmRiskArea(view, 'purpose'), true);
+    assert.equal(confirmRiskArea(view, 'risk_transaction'), true);
     assert.equal(entry.confirmed.basis, 'Evidence checked by me.');
-    assert.equal(riskAreaState(view, 'purpose').colour, rating);
+    assert.equal(riskAreaState(view, 'risk_transaction').colour, rating);
   }
   assert.match(validateRiskDraft({ rating: 'blue', basis: '', nextStep: '' }), /listed views/);
 });
 
 test('stale revisions remain gray after inputs are reverted and preserve previous notes', () => {
   const view = createRiskView(); syncRiskInputs(view, { amount: 100 });
-  view.entries.cashflow.draft = { rating: 'red', basis: 'Cover not established.', nextStep: 'Request updated servicing.' };
-  confirmRiskArea(view, 'cashflow');
+  view.entries.risk_servicing.draft = { rating: 'red', basis: 'Cover not established.', nextStep: 'Request updated servicing.' };
+  confirmRiskArea(view, 'risk_servicing');
   syncRiskInputs(view, { amount: 101 }); syncRiskInputs(view, { amount: 100 });
-  let area = riskAreaState(view, 'cashflow');
+  let area = riskAreaState(view, 'risk_servicing');
   assert.equal(area.stale, true); assert.equal(area.colour, 'not_assessed');
   assert.match(area.label, /Review required — previous Red/);
   assert.match(riskViewText(view), /Previous confirmed basis: Cover not established/);
   assert.match(riskViewText(view), /Previous confirmed proposed mitigation/);
-  confirmRiskArea(view, 'cashflow'); area = riskAreaState(view, 'cashflow');
+  confirmRiskArea(view, 'risk_servicing'); area = riskAreaState(view, 'risk_servicing');
   assert.equal(area.stale, false); assert.equal(area.colour, 'red');
 });
 
 test('draft edits gray an earlier view; copy distinguishes confirmed and unconfirmed text', () => {
-  const view = createRiskView(); view.entries.security.draft = { rating: 'green', basis: 'Title reviewed.', nextStep: '' };
-  confirmRiskArea(view, 'security'); view.entries.security.draft.basis = 'Rechecking title.';
-  assert.equal(riskAreaState(view, 'security').colour, 'not_assessed');
+  const view = createRiskView(); view.entries.risk_security.draft = { rating: 'green', basis: 'Title reviewed.', nextStep: '' };
+  confirmRiskArea(view, 'risk_security'); view.entries.risk_security.draft.basis = 'Rechecking title.';
+  assert.equal(riskAreaState(view, 'risk_security').colour, 'not_assessed');
   const text = riskViewText(view);
   assert.match(text, /Draft changes — not confirmed/);
   assert.match(text, /Previous confirmed basis: Title reviewed/);
   assert.match(text, /Draft basis: Rechecking title/);
-  clearRiskArea(view, 'security');
-  assert.equal(riskAreaState(view, 'security').label, 'Not assessed');
+  clearRiskArea(view, 'risk_security');
+  assert.equal(riskAreaState(view, 'risk_security').label, 'Not assessed');
   assert.doesNotMatch(riskViewText(view), /Title reviewed|Rechecking title/);
 });
 
@@ -113,42 +113,42 @@ try { ({ JSDOM } = await import(process.env.CF_JSDOM_MODULE || 'jsdom')); } catc
   }
   click('#tier-output [data-tier="comprehensive"]');
   click('[data-toggle="manual"]');
-  segment('purpose').dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
-  assert.equal($('#risk-editor-purpose').open, true); assert.equal(document.activeElement.id, 'risk-rating-purpose');
+  segment('risk_transaction').dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+  assert.equal($('#risk-editor-risk_transaction').open, true); assert.equal(document.activeElement.id, 'risk-rating-risk_transaction');
   const before = core(); const ratingBefore = $('#f-rating').value;
-  input('#risk-rating-purpose', 'green', 'change'); confirm('purpose');
-  assert.match($('#risk-error-purpose').textContent, /brief basis/); assert.equal(document.activeElement.id, 'risk-error-purpose');
-  input('#risk-basis-purpose', 'Purpose supported by reviewed breakdown.');
-  assert.equal(document.activeElement.id, 'risk-basis-purpose');
-  assert.equal(segment('purpose').dataset.colour, 'not_assessed');
-  confirm('purpose'); assert.equal(segment('purpose').dataset.colour, 'green');
+  input('#risk-rating-risk_transaction', 'green', 'change'); confirm('risk_transaction');
+  assert.match($('#risk-error-risk_transaction').textContent, /brief basis/); assert.equal(document.activeElement.id, 'risk-error-risk_transaction');
+  input('#risk-basis-risk_transaction', 'Purpose supported by reviewed breakdown.');
+  assert.equal(document.activeElement.id, 'risk-basis-risk_transaction');
+  assert.equal(segment('risk_transaction').dataset.colour, 'not_assessed');
+  confirm('risk_transaction'); assert.equal(segment('risk_transaction').dataset.colour, 'green');
   assert.equal(core(), before); assert.equal($('#f-rating').value, ratingBefore);
-  click('[data-edit-risk="cashflow"]'); input('#risk-rating-cashflow', 'red', 'change');
-  input('#risk-basis-cashflow', 'Cover needs further work.'); confirm('cashflow');
-  assert.match($('#risk-error-cashflow').textContent, /proposed mitigation/);
-  input('#risk-next-cashflow', 'Request revised servicing.'); confirm('cashflow');
-  assert.equal(segment('cashflow').dataset.colour, 'red');
+  click('[data-edit-risk="risk_servicing"]'); input('#risk-rating-risk_servicing', 'red', 'change');
+  input('#risk-basis-risk_servicing', 'Cover needs further work.'); confirm('risk_servicing');
+  assert.match($('#risk-error-risk_servicing').textContent, /proposed mitigation/);
+  input('#risk-next-risk_servicing', 'Request revised servicing.'); confirm('risk_servicing');
+  assert.equal(segment('risk_servicing').dataset.colour, 'red');
   assert.match(copy(), /Risk view entered by you[\s\S]*Cover needs further work[\s\S]*not verified.*Request revised servicing/);
   // Multiple opened native details must not hide the field being edited.
-  $('#risk-editor-purpose').open = true; $('#risk-editor-cashflow').open = true;
-  $('#risk-editor-cashflow').dispatchEvent(new window.Event('toggle'));
-  input('#risk-basis-purpose', 'Rechecked use of funds.');
-  assert.equal($('#risk-editor-purpose').open, true); assert.equal(document.activeElement.id, 'risk-basis-purpose');
-  assert.equal(segment('purpose').dataset.colour, 'not_assessed');
-  assert.match(readout('purpose').textContent, /Draft changes — not confirmed/); confirm('purpose');
-  const composing = $('#risk-basis-purpose'); composing.focus();
+  $('#risk-editor-risk_transaction').open = true; $('#risk-editor-risk_servicing').open = true;
+  $('#risk-editor-risk_servicing').dispatchEvent(new window.Event('toggle'));
+  input('#risk-basis-risk_transaction', 'Rechecked use of funds.');
+  assert.equal($('#risk-editor-risk_transaction').open, true); assert.equal(document.activeElement.id, 'risk-basis-risk_transaction');
+  assert.equal(segment('risk_transaction').dataset.colour, 'not_assessed');
+  assert.match(readout('risk_transaction').textContent, /Draft changes — not confirmed/); confirm('risk_transaction');
+  const composing = $('#risk-basis-risk_transaction'); composing.focus();
   composing.dispatchEvent(new window.CompositionEvent('compositionstart', { bubbles: true }));
   composing.value = '用途依据';
   composing.dispatchEvent(new window.InputEvent('input', { bubbles: true, inputType: 'insertCompositionText', isComposing: true, data: '据' }));
-  assert.equal($('#risk-basis-purpose'), composing, 'IME target remains the same DOM node');
-  assert.equal(document.activeElement, composing); assert.equal($('#risk-editor-purpose').open, true);
-  assert.equal(segment('purpose').dataset.colour, 'not_assessed');
+  assert.equal($('#risk-basis-risk_transaction'), composing, 'IME target remains the same DOM node');
+  assert.equal(document.activeElement, composing); assert.equal($('#risk-editor-risk_transaction').open, true);
+  assert.equal(segment('risk_transaction').dataset.colour, 'not_assessed');
   composing.dispatchEvent(new window.CompositionEvent('compositionend', { bubbles: true, data: '用途依据' }));
-  assert.equal($('#risk-basis-purpose'), composing);
-  input('#risk-basis-purpose', 'Rechecked use of funds.'); confirm('purpose');
+  assert.equal($('#risk-basis-risk_transaction'), composing);
+  input('#risk-basis-risk_transaction', 'Rechecked use of funds.'); confirm('risk_transaction');
   // Tier-only/navigation changes preserve the manual view, with no premium data.
   click('#tier-output [data-tier="simple"]');
-  assert.equal(segment('purpose').dataset.colour, 'green'); assert.equal(segment('cashflow').dataset.colour, 'red');
+  assert.equal(segment('risk_transaction').dataset.colour, 'green'); assert.equal(segment('risk_servicing').dataset.colour, 'red');
   assert.equal($('.overview-rerate'), null);
   assert.doesNotMatch($('#manual-risk-view').textContent, /Client reply only|Reviewed evidence — supports/);
   assert.match(copy(), /Risk view entered by you/);
@@ -168,22 +168,30 @@ try { ({ JSDOM } = await import(process.env.CF_JSDOM_MODULE || 'jsdom')); } catc
     () => input('#f-rating', 'Black — Do Not Proceed', 'change'),
   ];
   for (const mutate of mutations) {
-    confirm('purpose'); assert.equal(segment('purpose').dataset.colour, 'green');
-    mutate(); assert.equal(segment('purpose').dataset.colour, 'not_assessed');
-    assert.match(readout('purpose').textContent, /Review required — previous Green/);
+    confirm('risk_transaction'); assert.equal(segment('risk_transaction').dataset.colour, 'green');
+    mutate(); assert.equal(segment('risk_transaction').dataset.colour, 'not_assessed');
+    assert.match(readout('risk_transaction').textContent, /Review required — previous Green/);
     assert.match(copy(), /Review required — previous Green[\s\S]*Previous confirmed basis: Rechecked use of funds/);
   }
   assert.equal($('.overview-action').querySelector('button').dataset.openSection, 'rating');
   assert.ok($('#review-overview').compareDocumentPosition($('#manual-risk-view')) & window.Node.DOCUMENT_POSITION_FOLLOWING);
   const textAlternative = $('.risk-readouts');
   assert.equal(textAlternative.closest('.no-print'), null); assert.match(textAlternative.textContent, /Review required/);
-  assert.ok($('#risk-editor-purpose').closest('.no-print'));
-  click('[data-clear-risk="purpose"]'); assert.match(readout('purpose').textContent, /Not assessed/);
-  assert.doesNotMatch(readout('purpose').textContent, /Rechecked use/);
+  assert.ok($('#risk-editor-risk_transaction').closest('.no-print'));
+  click('[data-clear-risk="risk_transaction"]'); assert.match(readout('risk_transaction').textContent, /Not assessed/);
+  assert.doesNotMatch(readout('risk_transaction').textContent, /Rechecked use/);
   for (const id of ['CF-001', 'custom']) {
     click(`#case-picker [data-case="${id}"]`);
     for (const area of RISK_AREAS) assert.equal(segment(area.id).dataset.colour, 'not_assessed');
     assert.doesNotMatch(copy(), /Cover needs further work|Rechecked use of funds/);
   }
   dom.window.close();
+});
+test('new taxonomy uses fresh manual entries and assigns lease dependency primarily to servicing',()=>{
+ const view=createRiskView();
+ assert.deepEqual(Object.keys(view.entries),['risk_management','risk_transaction','risk_servicing','risk_security']);
+ for(const old of ['purpose','cashflow','conduct','security']) assert.equal(view.entries[old],undefined);
+ assert.ok(RISK_AREAS.find(a=>a.id==='risk_servicing').triggers.includes('short_wale'));
+ assert.ok(!RISK_AREAS.find(a=>a.id==='risk_security').triggers.includes('short_wale'));
+ for(const entry of Object.values(view.entries)) assert.equal(entry.confirmed,null);
 });

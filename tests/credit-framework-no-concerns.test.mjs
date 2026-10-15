@@ -27,12 +27,12 @@ let JSDOM;try{({JSDOM}=await import(process.env.CF_JSDOM_MODULE||'jsdom'));}catc
  for(const key of ['window','document','Node','location'])globalThis[key]=window[key];document.execCommand=()=>true;
  await import('../assets/js/preview/credit-framework/app.js');const $=s=>document.querySelector(s),click=s=>$(s).click();
  const change=(s,v,event='input')=>{$(s).value=v;$(s).dispatchEvent(new window.Event(event,{bubbles:true}));};
- click('[data-toggle="manual"]');change('#risk-rating-conduct','green','change');change('#risk-basis-conduct','Synthetic manual basis');click('[data-confirm-risk="conduct"]');
- assert.equal($('[data-risk-segment="conduct"]').dataset.colour,'green');
+ click('[data-toggle="manual"]');change('#risk-rating-risk_management','green','change');change('#risk-basis-risk_management','Synthetic manual basis');click('[data-confirm-risk="risk_management"]');
+ assert.equal($('[data-risk-segment="risk_management"]').dataset.colour,'green');
  click('[data-material-receipt]');const selectedBefore=[...document.querySelectorAll('.risk-groups input:checked')].map(n=>n.id);
  assert.ok(selectedBefore.length>0);const rating=$('#rating-pill').textContent;const beforeReviews=[...document.querySelectorAll('[data-rerate]')].map(n=>[n.dataset.rerate,n.value]);
  const choice='[data-preset-field="conduct"][data-preset="no_concerns"]';click(choice);
- assert.equal($(choice).getAttribute('aria-pressed'),'true');assert.ok($('#conduct-self-report').classList.contains('warn'));assert.ok($('#conduct-input-note').classList.contains('warn'));assert.equal($('#conduct-input-note').hidden,false);assert.equal($('[data-risk-segment="conduct"]').dataset.colour,'not_assessed');assert.match($('#sec-manual [data-summary]').textContent,/Review required/);
+ assert.equal($(choice).getAttribute('aria-pressed'),'true');assert.ok($('#conduct-self-report').classList.contains('warn'));assert.ok($('#conduct-input-note').classList.contains('warn'));assert.equal($('#conduct-input-note').hidden,false);assert.equal($('[data-risk-segment="risk_management"]').dataset.colour,'not_assessed');assert.match($('#sec-manual [data-summary]').textContent,/Review required/);
  assert.deepEqual([...document.querySelectorAll('.risk-groups input:checked')].map(n=>n.id),selectedBefore);assert.equal($('#rating-pill').textContent,rating);assert.deepEqual([...document.querySelectorAll('[data-rerate]')].map(n=>[n.dataset.rerate,n.value]),beforeReviews);
  assert.ok([...document.querySelectorAll('[data-material-receipt]')].every(n=>!n.checked));assert.match($('#f-conduct').value,/dishonour/i);
  click('[data-preset-field="conduct"][data-preset="dishonours"]');assert.equal($(choice).getAttribute('aria-pressed'),'true');assert.ok($('#conduct-self-report'));

@@ -15,12 +15,12 @@ import {
 import { formatMoneyEdit, deleteMoneySeparator } from './money-input.js';
 import { buildOverview } from './overview.js?v=cf-20261014-6';
 import { INTAKE_PRESETS, TRIGGER_GROUPS, composeIntakeValue, conductReport } from './intake-options.js?v=conduct-1';
-import { createRiskView, syncRiskInputs, riskViewText, RISK_AREAS, riskAreaState } from './manual-risk-view.js?v=cf-20261014-6';
-import { renderManualRiskView } from './manual-risk-view-ui.js?v=cf-20261014-6&ring=1';
+import { createRiskView, syncRiskInputs, riskViewText, RISK_AREAS, riskAreaState } from './manual-risk-view.js?v=cf-20261014-6&taxonomy=2';
+import { renderManualRiskView } from './manual-risk-view-ui.js?v=cf-20261014-6&ring=2';
 
 import { createMaterialReceipts, syncMaterialReceipts, buildMaterials, MATERIAL_GROUPS, brokerMaterialsText, applicantMaterialsText } from './materials.js?v=materials-3';
 
-import { buildRuleRing, ruleRingText } from './rule-ring.js?v=ring-1';
+import { buildRuleRing, ruleRingText } from './rule-ring.js?v=ring-2';
 
 const $ = (s, r = document) => r.querySelector(s);
 

@@ -1,4 +1,4 @@
-import { RISK_AREAS, RISK_VIEWS, RISK_SOURCE, RISK_BOUNDARY, riskAreaState, riskAreaNotes, confirmRiskArea, clearRiskArea } from './manual-risk-view.js?v=cf-20261014-6';
+import { RISK_AREAS, RISK_VIEWS, RISK_SOURCE, RISK_BOUNDARY, riskAreaState, riskAreaNotes, confirmRiskArea, clearRiskArea } from './manual-risk-view.js?v=cf-20261014-6&taxonomy=2';
 
 // DOM-only UI; text is always inserted as textContent, never HTML.
 export function renderManualRiskView(view, ruleLabels, onChange, ruleRing = null) {
@@ -35,6 +35,8 @@ export function renderManualRiskView(view, ruleLabels, onChange, ruleRing = null
     if (!inner) return null;
     return node('div', { class: 'rule-ring-reasons' },
       node('p', { class: 'hint' }, `Inner: ${inner.indicator}`),
+      node('p', { class: 'hint area-scope' }, `Manual review considerations: ${area.manualScope}`),
+      node('p', { class: 'hint area-scope' }, `Mapped coverage: ${area.scope}`),
       inner.triggers.map(q => node('p', { class: 'hint' }, `${q.priority}: ${q.label}. ${q.why} Source: ${q.source}${q.reasons.length ? '; ' + q.reasons.join('; ') : ''}.`)),
       inner.unconfirmed.map(q => node('p', { class: 'hint' }, `Unconfirmed suggestion only: ${q.label}; ${q.reasons.join('; ')}.`)));
   };
@@ -61,8 +63,8 @@ export function renderManualRiskView(view, ruleLabels, onChange, ruleRing = null
   };
   const draw = () => {
     const svg = svgNode('svg', { viewBox: '0 0 320 320', class: 'manual-risk-donut', role: 'group', 'aria-labelledby': 'risk-svg-title risk-svg-desc' });
-    svg.append(svgNode('title', { id: 'risk-svg-title' }, 'Inner rule-trigger priorities and outer manual risk view: four equal areas each'),
-      svgNode('desc', { id: 'risk-svg-desc' }, 'Inner segments show existing selected trigger priorities, not risk ratings. Outer segments show your manual views. Each numbered quadrant opens reasons and the manual editor. Equal sizes do not represent proportions. Grey means not assessed, unconfirmed changes, or review required. Text status and notes follow.'));
+    svg.append(svgNode('title', { id: 'risk-svg-title' }, 'Inner review triggers and outer manual risk view: four equal areas each'),
+      svgNode('desc', { id: 'risk-svg-desc' }, 'Inner purple segments show selected review triggers, not risk ratings; priorities are listed in text. Outer segments show your manual views. Each numbered quadrant opens reasons and the manual editor. Equal sizes do not represent proportions. Grey means not assessed, unconfirmed changes, or review required. Text status and notes follow.'));
     for (const [i, area] of RISK_AREAS.entries()) {
       const state = riskAreaState(view, area.id); const start = -90 + i * 90; const end = start + 90;
       const link = svgNode('a', { href: `#risk-editor-${area.id}`, tabindex: '0', 'aria-label': `Outer ${i + 1}. ${area.label}: ${state.label}. Open manual view.`, 'data-risk-segment': area.id, 'data-colour': state.colour });
@@ -124,10 +126,10 @@ export function renderManualRiskView(view, ruleLabels, onChange, ruleRing = null
       });
       editors.append(details);
     }
-    const intro = node('div', { class: 'manual-risk-intro' }, node('h3', { id: 'manual-risk-title' }, 'Inner / outer four-area comparison'), node('p', { class: 'manual-risk-source' }, `Outer: ${RISK_SOURCE}. Inner: selected rule-trigger priorities.`),
+    const intro = node('div', { class: 'manual-risk-intro' }, node('h3', { id: 'manual-risk-title' }, 'Inner / outer four-area comparison'), node('p', { class: 'manual-risk-source' }, `Outer: ${RISK_SOURCE}. Inner: selected review triggers, with priority counts.`),
       node('p', { class: 'hint' }, 'Outer ring only: ' + RISK_BOUNDARY),
       node('p', { class: 'hint' }, 'Grey = not assessed, draft changes, or review required. Changes to deal inputs, triggers or evidence require reconfirmation. Nothing is saved outside this page.'));
-    if (ruleRing) intro.append(node('p', { class: 'print-only ring-print-legend hint' }, `Inner: selected rule priorities — red Critical, amber Important / Helpful, grey no selected trigger shown (not a safe finding). Outer: manual judgement; grey includes unconfirmed or stale. Scope: ${ruleRing.tier}; ${ruleRing.omitted} selected trigger(s) omitted. Equal areas are not proportions or a score.`));
+    if (ruleRing) intro.append(node('p', { class: 'print-only ring-print-legend hint' }, `Inner: purple selected review triggers, priority counts in text (not risk severity); grey no selected trigger shown (not a safe finding). Outer: manual judgement; grey includes unconfirmed or stale. Scope: ${ruleRing.tier}; ${ruleRing.omitted} selected trigger(s) omitted. Equal areas are not proportions or a score.`));
     // One bounded print unit keeps provenance and the legend with the SVG.
     // Notes stay outside it so long bases can flow across pages.
     root.replaceChildren(node('div', { class: 'manual-risk-layout' }, node('div', { class: 'manual-risk-visual' }, intro, svg), readouts), editors);

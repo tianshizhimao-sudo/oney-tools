@@ -21,7 +21,7 @@ let JSDOM;try{({JSDOM}=await import(process.env.CF_JSDOM_MODULE||'jsdom'));}catc
  await import('../assets/js/preview/credit-framework/app.js?reading-test');await import('../assets/js/preview/credit-framework/theme.js');
  const $=s=>document.querySelector(s);const click=s=>$(s).click();
  assert.equal(document.documentElement.dataset.theme,'light');assert.equal($('#body-manual').hidden,true);assert.equal($('#body-materials').hidden,true);assert.equal($('#reading-legend').open,false);
- assert.match($('#sec-manual [data-summary]').textContent,/Purpose & growth|Not assessed/);
+ assert.match($('#sec-manual [data-summary]').textContent,/Transaction risk|Not assessed/);
  assert.equal($('#rerate-evidence-rule').closest('.sec-body'),null);
  click('[data-toggle="materials"]');click('[data-material-receipt]');click('[data-materials-view="applicant"]');
  const draft=$('#materials-applicant-text').value;const rating=$('#rating-pill').textContent;

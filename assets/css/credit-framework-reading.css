@@ -52,7 +52,7 @@ button:focus-visible,summary:focus-visible{outline:3px solid var(--purple-l);out
 }
 /* Same-angle equal areas in both rings; a colour is not a measured proportion. */
 .rule-ring-fill{stroke:var(--card);stroke-width:4;fill:#8a93a2}
-.rule-ring-fill.red{fill:#ed737f}.rule-ring-fill.amber{fill:#e5ad43}
+.rule-ring-fill.selected{fill:#b7a1e8}
 .rule-ring-number{font-size:20px;font-weight:800;fill:#10141b;pointer-events:none}
 .manual-risk-donut [data-rule-segment]:focus .rule-ring-fill,.manual-risk-donut [data-rule-segment]:hover .rule-ring-fill{stroke:var(--purple-l);stroke-width:6}
 .dual-ring-legend{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
