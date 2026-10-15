@@ -1,0 +1,52 @@
+/* Presentation only. Section colors identify topics, never credit outcomes. */
+.theme-switch{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px}
+.theme-switch button{min-height:44px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--text);padding:8px 15px;cursor:pointer;font-weight:700}
+.theme-switch button[aria-pressed="true"]{border:2px solid var(--purple-l);text-decoration:underline;text-underline-offset:4px}
+button:focus-visible,summary:focus-visible{outline:3px solid var(--purple-l);outline-offset:3px}
+.section-topic{font-size:11px;font-weight:750;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:block;margin:0 0 5px}
+.section-alerts{margin-top:8px;font-size:12px;font-weight:650}
+.reading-detail{margin:8px 0;font-size:12px}
+.reading-detail>summary{min-height:40px;cursor:pointer;padding:8px 0;font-weight:700;color:var(--muted)}
+#sec-manual .manual-risk-view{margin:0;border:0;padding:0;background:transparent}
+@media screen{
+  :root[data-theme="light"]{color-scheme:light;--bg:#f3f5f8;--card:#fff;--card2:#f6f7fb;--line:#bdc6d2;--muted:#505d70;--text:#202c3e;--purple-l:#68438e;--green:#08784f;--green2:#0c6848;--k-fact:#245b9c;--k-calc:#116273;--k-assumption:#805610;--k-rule:#086b48;--k-judgement:#68438e;--r-green:#086b48;--r-amber:#855400;--r-red:#b22e43;--r-black:#47536a;--shadow:0 8px 28px rgba(33,49,74,.07)}
+  :root[data-theme="dark"]{color-scheme:dark}
+  #intake{border-top:4px solid #8b9dc3}
+  #review-overview{border-top:4px solid #a091bc}
+  #sec-manual,#sec-rating,#sec-risks,#sec-dimensions{border-left:4px solid #a091bc}
+  #sec-materials,#sec-missing,#sec-questions,#sec-deferral,#sec-rerate{border-left:4px solid #8b9dc3}
+  #sec-nextStep,#sec-packaging,#sec-email{border-left:4px solid #a49eb8}
+  :root[data-theme="light"] body{background:radial-gradient(circle at 0 0,#e9f3ef,transparent 34%),var(--bg)}
+  :root[data-theme="light"] .card{background:var(--card)}
+  :root[data-theme="light"] :is(.control,.preset-choice,pre.email){background:#fff}
+  :root[data-theme="light"] :is(details.sec,.risk-group,.q,.overview-stat,.priority-issue,.manual-risk-view){background:#f6f7fa}
+  :root[data-theme="light"] :is(section.out,.review-overview){background:#fbfcfe}
+  :root[data-theme="light"] :is(#sec-manual,#sec-rating,#sec-risks,#sec-dimensions){background:#f7f4fa}
+  :root[data-theme="light"] :is(#sec-materials,#sec-missing,#sec-questions,#sec-deferral,#sec-rerate){background:#f1f5fa}
+  :root[data-theme="light"] :is(#sec-nextStep,#sec-packaging,#sec-email,.overview-action){background:#f5f3f8}
+  :root[data-theme="light"] :is(.chip,.notice.info,.q .gated,.manual-risk-source,.manual-details>summary,.client-wording summary,.overview-secondary summary,.dstatus.banker_review){color:#593778}
+  :root[data-theme="light"] :is(.notice.warn,.prio.Important,.preset-review-note,.review-status.reply_only,.review-status.outstanding,.dstatus.rework){color:#765000}
+  :root[data-theme="light"] :is(.field-error,.prio.Critical,.lint.bad,.review-status.weak,.dstatus.pause){color:#a62138}
+  :root[data-theme="light"] .prio.Helpful{color:#245b9c}
+  :root[data-theme="light"] :is(.boundary,.boundary strong,.overview-link,.selected-risk-chip,.group-count,.lint.ok,.review-status.supports,.dstatus.resubmit,.trig small.sugg-why,.preset-choice[aria-pressed="true"]){color:#086b48}
+  :root[data-theme="light"] .btn-secondary{background:#e8edf4;border-color:#aebacc;color:var(--text)}
+  :root[data-theme="light"] :is(.btn-primary,.tier-btn[aria-selected="true"],.sugg-chip){color:#fff}
+  :root[data-theme="light"] .tiers{background:#edf0f5}
+  :root[data-theme="light"] .review-status:not(.weak):not(.reply_only):not(.outstanding):not(.supports){color:#505d70}
+  :root[data-theme="light"] .overview-rating.black{color:var(--r-black)}
+  :root[data-theme="light"] .risk-centre{fill:#202c3e}
+  :root[data-theme="light"] .risk-centre-small{fill:#505d70}
+  :root[data-theme="light"] .risk-fill{stroke:#f7f4fa}
+  :root[data-theme="light"] .manual-risk-donut a:focus .risk-fill{stroke:#68438e}
+  :root[data-theme="light"] .watermark-inner span{color:#68438e}
+  :root[data-theme="light"] .mobile-nav{background:#f3f5f8}
+  :root[data-theme="light"] .mobile-nav button[aria-current]{background:#e2eee8;color:#086b48}
+  :root[data-theme="light"] :is(table.grid th,table.grid td,.rr-row,.risk-readouts li,.fb-q,.trig){border-bottom-color:var(--line)}
+}
+@media print{
+  .theme-switch{display:none!important}
+  .section-topic,.section-alerts{color:#222!important}
+  .reading-detail>summary{display:none!important}
+  .reading-detail>:not(summary){display:block!important}
+  #sec-manual .manual-risk-view{border:0!important}
+}

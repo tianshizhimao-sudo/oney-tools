@@ -15,7 +15,7 @@ import {
 import { formatMoneyEdit, deleteMoneySeparator } from './money-input.js';
 import { buildOverview } from './overview.js?v=cf-20261014-6';
 import { INTAKE_PRESETS, TRIGGER_GROUPS, composeIntakeValue } from './intake-options.js';
-import { createRiskView, syncRiskInputs, riskViewText } from './manual-risk-view.js?v=cf-20261014-6';
+import { createRiskView, syncRiskInputs, riskViewText, RISK_AREAS, riskAreaState } from './manual-risk-view.js?v=cf-20261014-6';
 import { renderManualRiskView } from './manual-risk-view-ui.js?v=cf-20261014-6';
 
 import { createMaterialReceipts, syncMaterialReceipts, buildMaterials, MATERIAL_GROUPS, brokerMaterialsText, applicantMaterialsText } from './materials.js?v=materials-1';
@@ -345,6 +345,7 @@ function renderLegend() {
 /* Collapsed-by-default sections: one-line summary + "Details" toggle.
    Open sections are remembered across re-renders (UI state only). */
 const expanded = new Set();
+const SECTION_TOPICS = { snapshot: 'Deal context', rating: 'Assessment context', risks: 'Assessment context', manual: 'Your manual view', dimensions: 'Assessment context', missing: 'Evidence & preparation', materials: 'Evidence & preparation', questions: 'Evidence & preparation', deferral: 'Evidence & preparation', rerate: 'Evidence & preparation', nextStep: 'Next steps & communication', packaging: 'Next steps & communication', email: 'Next steps & communication' };
 
 function watchNote(conf) {
   const shown = conf.watch.slice(0, 3);
@@ -381,12 +382,13 @@ function sectionShell(s, ...body) {
     btn.textContent = now ? 'Hide details ▴' : 'Show details ▾';
     syncExpandAll();
   });
-  return el('section', attrs, el('div', { class: 'sec-intro' }, el('div', { class: 'sec-head' }, title, btn), summaryNode(s)), wrap);
+  return el('section', attrs, el('div', { class: 'sec-intro' }, el('span', { class: 'section-topic' }, SECTION_TOPICS[s.id] || 'Further detail'), el('div', { class: 'sec-head' }, title, btn), summaryNode(s)), wrap);
 }
 
 function syncExpandAll() {
   const toggles = [...document.querySelectorAll('[data-toggle]')];
-  const allOpen = toggles.length > 0 && toggles.every((t) => t.getAttribute('aria-expanded') === 'true');
+  const reading = [...document.querySelectorAll('details.reading-detail:not(.no-print)')];
+  const allOpen = toggles.length > 0 && toggles.every((t) => t.getAttribute('aria-expanded') === 'true') && reading.every(node => node.open);
   const b = $('#expand-all');
   b.textContent = allOpen ? 'Collapse all' : 'Expand all';
   b.dataset.state = allOpen ? 'open' : 'closed';
@@ -436,7 +438,7 @@ function renderOverview(assessment, report) {
         el('ol', { class: 'priority-list' }, v.issues.map((q) => el('li', { class: `priority-issue ${q.status}`, 'data-priority-issue': q.id },
           el('div', { class: 'issue-heading' }, el('span', { class: `prio ${q.priority}` }, q.priority), el('strong', {}, q.trigger)),
           v.comprehensive ? el('span', { class: `review-status ${q.status}` }, EVIDENCE_STATUS[q.status]) : null,
-          el('p', {}, el('span', { class: 'lbl' }, 'Why it matters: '), q.whyItMatters)))),
+          el('details', { class: 'reading-detail' }, el('summary', {}, 'Why it matters'), el('p', {}, q.whyItMatters))))),
         v.remaining ? el('p', { class: 'hint' }, `${v.remaining} more selected issue${v.remaining === 1 ? '' : 's'} need attention; the full workflow is below.`) : null,
         detailButton('All prioritised questions', 'questions')),
       el('div', { class: 'overview-action', 'data-overview-action': v.actionType }, el('h4', {}, 'Next conversation'),
@@ -460,8 +462,8 @@ function renderOverview(assessment, report) {
         ] : v.actionType === 'rerate' ? detailButton('Review re-rate / banker-review context', 'rerate') : v.actionType === 'question' ? [
           el('p', { class: 'overview-question', id: 'overview-question' }, el('span', { class: 'lbl' }, 'Ask: '), first.question),
           first.clientWording ? el('details', { class: 'client-wording' }, el('summary', {}, 'Client-friendly wording'), el('p', {}, first.clientWording)) : null,
-          el('strong', { class: 'evidence-heading' }, 'Evidence to request / review'),
-          el('ul', { class: 'overview-evidence' }, first.evidence.map((text) => el('li', {}, text))),
+          el('details', { class: 'reading-detail' }, el('summary', {}, `Evidence to request / review (${first.evidence.length})`),
+            el('ul', { class: 'overview-evidence' }, first.evidence.map((text) => el('li', {}, text)))),
           first.owner ? el('p', { class: 'hint' }, `Owner: ${first.owner}`) : null,
           detailButton('Full question and context', 'questions'),
         ] : el('button', { type: 'button', class: 'overview-link no-print', onclick: reviewTriggers }, 'Review selected triggers →'))));
@@ -606,7 +608,7 @@ function renderSection(s, report) {
 
 function renderMaterials(model) {
   const box = sectionShell({ id: 'materials', title: 'Case-linked materials', summary: { kind: KIND.RULE,
-    text: `${model.items.length} unique documents / information items from ${model.comprehensive ? 'selected triggers and unconfirmed suggestions' : 'Simple selected questions'}. Receipt is separate from evidence review.` } });
+    text: `${model.items.length} unique documents / information items from ${model.comprehensive ? 'selected triggers and unconfirmed suggestions' : 'Simple selected questions'} (${model.items.filter(item => item.priority === 'Critical').length} Critical; ${model.items.filter(item => item.group === 'received').length} receipt notes; ${model.items.filter(item => item.conditional).length} conditional). Receipt is separate from evidence review.` } });
   const body = box.querySelector('.sec-body');
   body.append(el('p', { class: 'hint' }, model.boundary),
     el('p', { class: 'hint' }, 'Documents or information to arrange with your broker. Some entries are alternatives or broker-prepared work, not separate mandatory documents. No files are uploaded here.'),
@@ -687,13 +689,21 @@ function renderOutput() {
       : 'Custom scenario: no model judgement in this prototype. Risks and missing evidence below are rule-derived; rating is your own current view.'));
   }
   out.append(renderOverview(assessment, report));
-  out.append(renderManualRiskView(manualRiskView, Object.fromEntries(RULES.map(r => [r.id, r.triggerLabel])), refreshManualRiskOutput));
+  out.append(sectionShell({ id: 'manual', title: 'Manual four-area risk view', summary: { kind: KIND.ASSUMPTION, text: manualSummary() } },
+    renderManualRiskView(manualRiskView, Object.fromEntries(RULES.map(r => [r.id, r.triggerLabel])), refreshManualRiskOutput)));
   out.append(renderMaterials(materials));
   for (const s of report.sections) {
     const node = renderSection(s, report);
     if (node) out.append(node);
   }
 
+  // Safety notices stay visible even while explanatory detail is folded.
+  for (const section of out.querySelectorAll('section.out')) {
+    const body = section.querySelector(':scope > .sec-body');
+    if (!body) continue;
+    const alerts = [...body.querySelectorAll(':scope > .notice.warn, :scope > #rerate-guardrail, :scope > #materials-gate')];
+    if (alerts.length) section.insertBefore(el('div', { class: 'section-alerts' }, alerts), body);
+  }
   syncExpandAll();
   refreshManualRiskOutput();
   document.body.dataset.tier = state.tier;
@@ -709,7 +719,13 @@ function renderOutput() {
     el('div', { class: 'boundary', style: 'margin:8px 0' }, BOUNDARY_TEXT));
 }
 
+function manualSummary() {
+  return RISK_AREAS.map(area => `${area.label}: ${riskAreaState(manualRiskView, area.id).label}`).join(' · ');
+}
+
 function refreshManualRiskOutput() {
+  const summary = $('#sec-manual [data-summary="manual"] span:last-child');
+  if (summary) summary.textContent = manualSummary();
   lastPlainText = `${basePlainText}\n\n${riskViewText(manualRiskView)}`;
   const renderedText = `${$('#report').textContent}\n${lastPlainText}`;
   const lint = lintCompliance(renderedText);
@@ -767,11 +783,15 @@ async function copyText(text, okMsg) {
   return ok;
 }
 
+document.addEventListener('toggle', event => {
+  if (event.target.matches?.('details.reading-detail:not(.no-print)')) syncExpandAll();
+}, true);
 $('#expand-all').addEventListener('click', () => {
   const open = $('#expand-all').dataset.state !== 'open';
   for (const t of document.querySelectorAll('[data-toggle]')) {
     if ((t.getAttribute('aria-expanded') === 'true') !== open) t.click();
   }
+  for (const node of document.querySelectorAll('details.reading-detail:not(.no-print)')) node.open = open;
   syncExpandAll();
 });
 $('#copy-btn').addEventListener('click', () => copyText(lastPlainText, `${state.tier === 'simple' ? 'Simple' : 'Comprehensive'} report copied`));

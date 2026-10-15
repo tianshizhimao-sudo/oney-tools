@@ -82,7 +82,7 @@ test('manual chart source remains local-only and has SVG labels, text alternativ
   assert.match(html, /manual-risk-buttons button,.risk-readouts button\{min-height:44px/);
   assert.match(html, /@media print[\s\S]*manual-risk-view[\s\S]*risk-readouts/);
   const app = await readFile(new URL('app.js', dir), 'utf8');
-  assert.ok(app.indexOf('out.append(renderOverview') < app.indexOf('out.append(renderManualRiskView'));
+  assert.ok(app.indexOf('out.append(renderOverview') < app.indexOf('renderManualRiskView(manualRiskView'));
   const version = html.match(/app\.js\?v=([a-z0-9-]+)/)[1];
   for (const module of ['manual-risk-view', 'manual-risk-view-ui']) assert.ok(app.includes(`./${module}.js?v=${version}`));
   assert.ok(ui.includes(`./manual-risk-view.js?v=${version}`));
@@ -102,7 +102,7 @@ try { ({ JSDOM } = await import(process.env.CF_JSDOM_MODULE || 'jsdom')); } catc
   const readout = id => $(`[data-risk-readout="${id}"]`);
   const segment = id => $(`[data-risk-segment="${id}"]`);
   const confirm = id => click(`[data-confirm-risk="${id}"]`);
-  const core = () => [...document.querySelectorAll('#report > section.out')].map(s => s.textContent).join('\n');
+  const core = () => [...document.querySelectorAll('#report > section.out:not(#sec-manual)')].map(s => s.textContent).join('\n');
   const copy = () => { click('#copy-btn'); return $('#copy-buffer').value; };
   assert.equal(document.querySelectorAll('[data-risk-segment]').length, 4);
   assert.equal(new Set([...document.querySelectorAll('.risk-fill')].map(p => p.getAttribute('d'))).size, 4);
@@ -112,6 +112,7 @@ try { ({ JSDOM } = await import(process.env.CF_JSDOM_MODULE || 'jsdom')); } catc
     for (const area of RISK_AREAS) assert.equal(segment(area.id).dataset.colour, 'not_assessed');
   }
   click('#tier-output [data-tier="comprehensive"]');
+  click('[data-toggle="manual"]');
   segment('purpose').dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
   assert.equal($('#risk-editor-purpose').open, true); assert.equal(document.activeElement.id, 'risk-rating-purpose');
   const before = core(); const ratingBefore = $('#f-rating').value;
