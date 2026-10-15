@@ -18,6 +18,8 @@ import { INTAKE_PRESETS, TRIGGER_GROUPS, composeIntakeValue } from './intake-opt
 import { createRiskView, syncRiskInputs, riskViewText } from './manual-risk-view.js?v=cf-20261014-6';
 import { renderManualRiskView } from './manual-risk-view-ui.js?v=cf-20261014-6';
 
+import { createMaterialReceipts, syncMaterialReceipts, buildMaterials, MATERIAL_GROUPS, brokerMaterialsText, applicantMaterialsText } from './materials.js?v=materials-1';
+
 const $ = (s, r = document) => r.querySelector(s);
 
 /** Safe element builder: strings become text nodes, never HTML. */
@@ -49,6 +51,8 @@ let state = initialState(startCase, startTier);
 let lastPlainText = '';
 let basePlainText = '';
 let manualRiskView = createRiskView();
+let materialReceipts = createMaterialReceipts();
+let materialsAudience = 'broker';
 // UI-only drafts retain invalid text and decimal precision across tier switches.
 const moneyDrafts = new Map();
 const manualDrafts = new Map();
@@ -58,6 +62,8 @@ const triggerGroupsExpanded = new Set();
 function resetIntakeUi() {
   moneyDrafts.clear(); manualDrafts.clear(); presetSelections.clear(); manualExpanded.clear(); triggerGroupsExpanded.clear();
   manualRiskView = createRiskView();
+  materialReceipts = createMaterialReceipts();
+  materialsAudience = 'broker';
 }
 
 /* ------------------------------ intake ------------------------------ */
@@ -598,7 +604,64 @@ function renderSection(s, report) {
   }
 }
 
+function renderMaterials(model) {
+  const box = sectionShell({ id: 'materials', title: 'Case-linked materials', summary: { kind: KIND.RULE,
+    text: `${model.items.length} unique documents / information items from ${model.comprehensive ? 'selected triggers and unconfirmed suggestions' : 'Simple selected questions'}. Receipt is separate from evidence review.` } });
+  const body = box.querySelector('.sec-body');
+  body.append(el('p', { class: 'hint' }, model.boundary),
+    el('p', { class: 'hint' }, 'Documents or information to arrange with your broker. Some entries are alternatives or broker-prepared work, not separate mandatory documents. No files are uploaded here.'),
+    el('p', { class: 'hint' }, 'Receipt checkboxes are session-only notes. They never update the Re-rate tracker or any readiness, rating or confidence result. Intake changes clear them. Trigger review is not document-level verification.'));
+  if (materialReceipts.resetNotice) body.append(el('p', { class: 'notice warn', id: 'materials-reset', role: 'status' }, 'Case inputs changed. Previous receipt notes were cleared; confirm availability again.'));
+  if (!model.comprehensive) body.append(el('p', { class: 'notice info', id: 'materials-gate' }, `Simple document preview only. ${model.omittedTriggers ? `${model.omittedTriggers} additional trigger(s) omitted. ` : ''}Full receipt workflow, conditional suggestions and applicant wording are available in Comprehensive.`));
+  if (model.unknownCount) body.append(el('p', { class: 'notice warn', id: 'materials-unknown' }, `${model.unknownCount} unrecognised trigger(s) have no document mapping. Review the missing case context.`));
+  if (!model.items.length) body.append(el('p', { class: 'hint', id: 'materials-empty' }, 'No documents mapped yet. This does not mean no documents are needed. Confirm the case details and triggers first.'));
+  if (model.comprehensive) body.append(el('div', { class: 'actions no-print', 'aria-label': 'Materials audience' },
+    ['broker', 'applicant'].map(audience => el('button', { type: 'button', class: 'btn btn-secondary', 'data-materials-view': audience,
+      'aria-pressed': String(materialsAudience === audience), onclick: () => { materialsAudience = audience; renderOutput(); $(`[data-materials-view="${audience}"]`).focus(); } }, audience === 'broker' ? 'Broker working list' : 'Applicant wording preview'))));
+  // Broker list is always the report/print version. Applicant text is isolated, explicitly copied.
+  const broker = el('div', { class: materialsAudience === 'applicant' && model.comprehensive ? 'materials-broker materials-print-only' : 'materials-broker' });
+  for (const [key, title] of Object.entries(MATERIAL_GROUPS)) {
+    const items = model.items.filter(item => item.group === key);
+    if (!items.length) continue;
+    broker.append(el('h4', {}, `${title} (${items.length})`), ...items.map((item, index) => {
+      const card = el('div', { class: 'item rule material-item', 'data-material-key': item.key },
+        el('strong', {}, item.document), ' ', el('span', { class: `prio ${item.priority}` }, item.priority),
+        el('p', { class: 'hint material-receipt' }, item.receipt),
+        item.links.map(link => el('p', { class: 'hint' }, el('strong', {}, `${link.trigger}${link.conditional ? ' — suggested, unconfirmed' : ''}: `), link.why,
+          link.review ? el('span', { class: 'material-review' }, ` · Trigger review: ${link.review}`) : null)));
+      if (model.comprehensive && !item.conditional) {
+        const id = `material-receipt-${key}-${index}`;
+        const cb = el('input', { id, type: 'checkbox', checked: item.group === 'received', 'data-material-receipt': item.key });
+        cb.addEventListener('change', () => {
+          if (cb.checked) materialReceipts.received.add(item.key); else materialReceipts.received.delete(item.key);
+          materialReceipts.resetNotice = false;
+          renderOutput();
+          [...document.querySelectorAll('[data-material-receipt]')].find(node => node.dataset.materialReceipt === item.key)?.focus();
+        });
+        card.append(el('label', { class: 'trig no-print', for: id }, cb, 'Record receipt only (not reviewed)'));
+      }
+      return card;
+    }));
+  }
+  body.append(broker);
+  if (model.comprehensive && materialsAudience === 'applicant') {
+    const text = applicantMaterialsText(model);
+    const preview = el('textarea', { id: 'materials-applicant-text', class: 'control', rows: '14', readonly: true, 'aria-label': 'Applicant document request draft' });
+    preview.value = text;
+    body.append(el('div', { class: 'no-print', id: 'materials-applicant' },
+      el('p', { class: 'notice info' }, 'Applicant wording only for this checklist. The rest of this page and Copy report / Print remain the broker report. Review before sharing; nothing is sent automatically.'),
+      preview, el('button', { class: 'btn btn-secondary', type: 'button', id: 'materials-copy-applicant', onclick: () => copyText(text, 'Applicant draft copied') }, 'Copy applicant list')));
+  }
+  return box;
+}
+
 function renderOutput() {
+  $('#copy-buffer').value = ''; // Discard stale draft text when case or tier changes.
+  syncMaterialReceipts(materialReceipts, {
+    intake: state.intake, triggers: [...state.triggers].sort(), rating: state.rating,
+    moneyDrafts: [...moneyDrafts].map(([key, value]) => [key, value.text]).sort(),
+    presets: [...presetSelections].map(([key, values]) => [key, [...values].sort()]).sort(),
+  });
   syncRiskInputs(manualRiskView, {
     intake: state.intake, triggers: [...state.triggers].sort(),
     evidence: Object.entries(state.evidence).sort(), rating: state.rating,
@@ -608,7 +671,8 @@ function renderOutput() {
   renderSuggestions();
   const assessment = buildAssessment(state);
   const report = buildReport(assessment, state.tier);
-  basePlainText = reportToPlainText(report);
+  const materials = buildMaterials(assessment, state.tier, state.evidence, materialReceipts.received);
+  basePlainText = `${reportToPlainText(report)}\n\n${brokerMaterialsText(materials)}`;
 
   $('#out-title').textContent = `2 · ${report.tierName}`;
   $('#out-sub').textContent = `${report.dealName} (${report.dealId}) · ${report.pristine ? `Judgement: ${report.judgementSource}` : 'Custom scenario — rule output only'}`;
@@ -624,6 +688,7 @@ function renderOutput() {
   }
   out.append(renderOverview(assessment, report));
   out.append(renderManualRiskView(manualRiskView, Object.fromEntries(RULES.map(r => [r.id, r.triggerLabel])), refreshManualRiskOutput));
+  out.append(renderMaterials(materials));
   for (const s of report.sections) {
     const node = renderSection(s, report);
     if (node) out.append(node);
