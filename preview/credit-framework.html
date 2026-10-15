@@ -327,6 +327,9 @@
       /* Keep short safety notices intact; hidden selects must not reserve a print column. */
       #rerate-guardrail,#rerate-evidence-rule,#rerate-custom-guardrail,.rr-row{break-inside:avoid;page-break-inside:avoid}
       .rr-row{display:block;padding:4px 0}
+      /* Avoid stacking grid gaps with item margins in the final print summary. */
+      .rr-out{gap:0}
+      .rr-out>.item{margin:2px 0}
       /* Dimension names wrap at word boundaries instead of splitting Management. */
       #sec-dimensions table.grid th:nth-child(2),#sec-dimensions table.grid td:nth-child(2){width:8em;overflow-wrap:normal;word-break:normal}
       /* Keep the final privacy footer with closing content, without hiding it. */

@@ -30,6 +30,20 @@ test('Comprehensive print keeps review notices intact, uses full-width tracker r
   assert.match(print, /\.footer\{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid;padding:4px 0 0/);
 });
 
+test('closing summary print spacing removes duplicated gaps without shrinking or hiding content', () => {
+  assert.match(print, /\.rr-out\{gap:0\}/);
+  assert.match(print, /\.rr-out>\.item\{margin:2px 0\}/);
+  const summaryRules = [...print.matchAll(/(\.rr-out(?:>\.item)?)\{([^}]*)\}/g)];
+  assert.equal(summaryRules.length, 2);
+  for (const [, , declarations] of summaryRules) assert.doesNotMatch(declarations, /font|line-height|padding|height|overflow|display|visibility/);
+  const screen = html.slice(0, html.indexOf('@media print'));
+  assert.match(screen, /\.rr-out\{[^}]*gap:4px/);
+  assert.match(screen, /\.item\{[^}]*margin:6px 0/);
+  // Seven items: 6 grid gaps (4px) + 14 margins reduced by 4px = 80px.
+  // This checks the intended spacing budget, not actual browser pagination.
+  assert.equal(6 * 4 + 14 * (6 - 2), 80);
+});
+
 integration('query tier initializes correctly; print uses current selected tier and preserves active content', async () => {
   for (const tier of ['simple', 'comprehensive']) {
     const dom = new JSDOM(html, { url: `https://example.test/preview/credit-framework.html?tier=${tier}&release=cf-20261014-6`, pretendToBeVisual: true });
@@ -76,6 +90,7 @@ integration('query tier initializes correctly; print uses current selected tier 
       } else {
         assert.ok(document.querySelector('[data-gated="ifStrong"]')); assert.ok(document.querySelector('[data-rerate]'));
         const rerate = report.sections.find(s => s.id === 'rerate');
+        assert.equal(document.querySelectorAll('#rerate-out > .item').length, 7, 'sample closing-spacing budget uses seven intact summary items');
         assert.equal($('#rerate-guardrail').textContent, rerate.rerate.guardrail);
         assert.equal($('#rerate-evidence-rule').textContent, `Reviewed evidence only: ${rerate.rerate.evidenceRule}`);
         assert.equal(printHidden($('#rerate-evidence-rule')), false);
