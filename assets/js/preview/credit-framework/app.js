@@ -16,9 +16,11 @@ import { formatMoneyEdit, deleteMoneySeparator } from './money-input.js';
 import { buildOverview } from './overview.js?v=cf-20261014-6';
 import { INTAKE_PRESETS, TRIGGER_GROUPS, composeIntakeValue } from './intake-options.js';
 import { createRiskView, syncRiskInputs, riskViewText, RISK_AREAS, riskAreaState } from './manual-risk-view.js?v=cf-20261014-6';
-import { renderManualRiskView } from './manual-risk-view-ui.js?v=cf-20261014-6';
+import { renderManualRiskView } from './manual-risk-view-ui.js?v=cf-20261014-6&ring=1';
 
 import { createMaterialReceipts, syncMaterialReceipts, buildMaterials, MATERIAL_GROUPS, brokerMaterialsText, applicantMaterialsText } from './materials.js?v=materials-1';
+
+import { buildRuleRing, ruleRingText } from './rule-ring.js?v=ring-1';
 
 const $ = (s, r = document) => r.querySelector(s);
 
@@ -53,6 +55,7 @@ let basePlainText = '';
 let manualRiskView = createRiskView();
 let materialReceipts = createMaterialReceipts();
 let materialsAudience = 'broker';
+let ruleRing = null;
 // UI-only drafts retain invalid text and decimal precision across tier switches.
 const moneyDrafts = new Map();
 const manualDrafts = new Map();
@@ -672,6 +675,7 @@ function renderOutput() {
   });
   renderSuggestions();
   const assessment = buildAssessment(state);
+  ruleRing = buildRuleRing(assessment, state.tier);
   const report = buildReport(assessment, state.tier);
   const materials = buildMaterials(assessment, state.tier, state.evidence, materialReceipts.received);
   basePlainText = `${reportToPlainText(report)}\n\n${brokerMaterialsText(materials)}`;
@@ -689,8 +693,14 @@ function renderOutput() {
       : 'Custom scenario: no model judgement in this prototype. Risks and missing evidence below are rule-derived; rating is your own current view.'));
   }
   out.append(renderOverview(assessment, report));
-  out.append(sectionShell({ id: 'manual', title: 'Manual four-area risk view', summary: { kind: KIND.ASSUMPTION, text: manualSummary() } },
-    renderManualRiskView(manualRiskView, Object.fromEntries(RULES.map(r => [r.id, r.triggerLabel])), refreshManualRiskOutput)));
+  const comparison = sectionShell({ id: 'manual', title: 'Inner / outer review comparison', summary: { kind: KIND.ASSUMPTION, text: manualSummary() } },
+    renderManualRiskView(manualRiskView, Object.fromEntries(RULES.map(r => [r.id, r.triggerLabel])), refreshManualRiskOutput, ruleRing));
+  comparison.insertBefore(el('div', { class: 'dual-ring-legend', id: 'dual-ring-legend' },
+    el('p', { class: 'hint' }, ruleRing.legend), el('p', { class: 'hint' }, ruleRing.caveat),
+    el('p', { class: 'hint' }, `Scope: ${state.tier}; ${ruleRing.omitted} selected trigger(s) omitted by this tier.`),
+    ruleRing.pause ? el('p', { class: 'notice warn', id: 'ring-pause' }, `OVERALL PAUSE: ${ruleRing.pauseText} The rings do not override this.`) : null,
+    ruleRing.unknownCount ? el('p', { class: 'notice warn', id: 'ring-unknown' }, `${ruleRing.unknownCount} unrecognised trigger(s) have no ring mapping; review required.`) : null), comparison.querySelector('.sec-body'));
+  out.append(comparison);
   out.append(renderMaterials(materials));
   for (const s of report.sections) {
     const node = renderSection(s, report);
@@ -720,13 +730,13 @@ function renderOutput() {
 }
 
 function manualSummary() {
-  return RISK_AREAS.map(area => `${area.label}: ${riskAreaState(manualRiskView, area.id).label}`).join(' · ');
+  return RISK_AREAS.map(area => `${area.label} — inner: ${ruleRing?.areas.find(a => a.id === area.id)?.indicator || 'Not assessed'}; outer: ${riskAreaState(manualRiskView, area.id).label}`).join(' · ');
 }
 
 function refreshManualRiskOutput() {
   const summary = $('#sec-manual [data-summary="manual"] span:last-child');
   if (summary) summary.textContent = manualSummary();
-  lastPlainText = `${basePlainText}\n\n${riskViewText(manualRiskView)}`;
+  lastPlainText = `${basePlainText}\n\n${ruleRingText(ruleRing)}\n\n${riskViewText(manualRiskView)}`;
   const renderedText = `${$('#report').textContent}\n${lastPlainText}`;
   const lint = lintCompliance(renderedText);
   const badge = $('#lint-badge');
