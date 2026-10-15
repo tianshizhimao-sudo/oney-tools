@@ -22,6 +22,8 @@ import { createMaterialReceipts, syncMaterialReceipts, buildMaterials, MATERIAL_
 
 import { buildRuleRing, ruleRingText } from './rule-ring.js?v=ring-2';
 
+import { createLiveTracker, updateLiveTracker, renderLiveDesktop } from './live-desktop.js?v=live-1';
+
 const $ = (s, r = document) => r.querySelector(s);
 
 /** Safe element builder: strings become text nodes, never HTML. */
@@ -56,6 +58,8 @@ let manualRiskView = createRiskView();
 let materialReceipts = createMaterialReceipts();
 let materialsAudience = 'broker';
 let ruleRing = null;
+let liveTracker = createLiveTracker();
+let liveContext = null;
 // UI-only drafts retain invalid text and decimal precision across tier switches.
 const moneyDrafts = new Map();
 const manualDrafts = new Map();
@@ -63,6 +67,7 @@ const presetSelections = new Map();
 const manualExpanded = new Set();
 const triggerGroupsExpanded = new Set();
 function resetIntakeUi() {
+  liveTracker = createLiveTracker(); liveContext = null;
   moneyDrafts.clear(); manualDrafts.clear(); presetSelections.clear(); manualExpanded.clear(); triggerGroupsExpanded.clear();
   manualRiskView = createRiskView();
   materialReceipts = createMaterialReceipts();
@@ -682,6 +687,7 @@ function renderOutput() {
   renderSuggestions();
   const assessment = buildAssessment(state);
   ruleRing = buildRuleRing(assessment, state.tier);
+  liveContext = { inputKey: JSON.stringify({intake:state.intake,triggers:state.triggers,rating:state.rating,moneyDrafts:[...moneyDrafts],presets:[...presetSelections]}), tier:state.tier, rating:state.rating, ring:ruleRing, manual:manualRiskView, evidence:state.evidence };
   const report = buildReport(assessment, state.tier);
   const materials = buildMaterials(assessment, state.tier, state.evidence, materialReceipts.received, state.intake.documents);
   const conduct = conductReport(presetSelections.get('conduct'), manualDrafts.get('conduct') || '', state.triggers, assessment.triggerCheck.suggested.map(item => item.id), Boolean(state.intake.deferralReason?.trim() || state.intake.deferralCodes?.length));
@@ -744,6 +750,11 @@ function manualSummary() {
 }
 
 function refreshManualRiskOutput() {
+  if (liveContext) renderLiveDesktop(updateLiveTracker(liveTracker, liveContext), id => {
+    revealSection('manual');
+    document.querySelector(`[data-edit-risk="${id}"]`)?.click();
+    document.querySelector(`#risk-editor-${id}`)?.scrollIntoView({block:'nearest'});
+  });
   const summary = $('#sec-manual [data-summary="manual"] span:last-child');
   if (summary) summary.textContent = manualSummary();
   lastPlainText = `${basePlainText}\n\n${ruleRingText(ruleRing)}\n\n${riskViewText(manualRiskView)}`;
