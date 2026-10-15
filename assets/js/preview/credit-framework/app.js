@@ -270,6 +270,7 @@ function renderIntakeForm() {
       el('div', { class: 'selected-risk-summary', id: 'selected-risk-summary', 'aria-live': 'polite' }),
       el('div', { class: 'risk-groups' }, groups),
       el('div', { class: 'field' }, el('label', { for: 'f-rating' }, 'Current readiness rating'), ratingSel))));
+  document.dispatchEvent(new window.Event('credit:intake-rendered'));
 }
 
 /* ------------------------------ output ------------------------------ */
@@ -392,6 +393,7 @@ function renderOverview(assessment, report) {
   const v = buildOverview(assessment, report, state.evidence);
   const detailButton = (text, target) => el('button', { type: 'button', class: 'overview-link no-print', 'data-open-section': target, onclick: () => revealSection(target) }, text, ' →');
   const reviewTriggers = () => {
+    document.dispatchEvent(new window.Event('credit:review-triggers'));
     const panel = $('#sugg-panel');
     panel.closest('details').open = true;
     panel.setAttribute('tabindex', '-1');

@@ -163,7 +163,7 @@ test('new modules remain local-only and the overview is inserted before detail s
   assert.match(app, /type: 'text', inputmode: 'decimal'/);
   assert.match(app, /Invalid entries are treated as not provided/);
   const html = await readFile(new URL('../preview/credit-framework.html', import.meta.url), 'utf8');
-  assert.match(html, /src="\/assets\/js\/preview\/credit-framework\/app\.js\?v=[a-z0-9-]+"/, 'entry script is versioned for static-host cache refresh');
+  assert.match(html, /src="\/assets\/js\/preview\/credit-framework\/app\.js\?v=[a-z0-9-]+(?:&amp;pwa=[a-z0-9-]+)?"/, 'entry script is versioned for static-host cache refresh');
   const version = html.match(/app\.js\?v=([a-z0-9-]+)/)[1];
   assert.ok(app.includes(`from './overview.js?v=${version}'`), 'changed overview dependency and app entry share release cache version');
   assert.ok(app.includes(`from './engine.js?v=${version}'`), 'changed report-label module is also versioned');

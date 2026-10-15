@@ -1,0 +1,33 @@
+/* Phone presentation only. The report and print layout retain their original DOM. */
+.mobile-nav,.mobile-stepper,.mobile-install{display:none}
+@media screen and (max-width:640px){
+  body{padding-bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .wrap{width:calc(100% - 24px)}
+  .topbar{padding-top:max(12px,env(safe-area-inset-top,0px))}
+  .layout{display:block;padding-bottom:12px}
+  .intake{position:static;max-height:none;overflow:visible;padding:14px}
+  .output{padding:14px}
+  .control,.manual-details .control{font-size:16px;min-height:44px}
+  button,.preset-choice,.selected-risk-chip,details.sec>summary{min-height:44px}
+  .mobile-stepper{display:block;position:sticky;top:env(safe-area-inset-top,0px);z-index:3;background:var(--card);padding:10px 0;border-bottom:1px solid var(--line);margin-bottom:12px}
+  .mobile-stepper p{font-size:13px;margin:0 0 8px;font-weight:700}
+  .mobile-step-actions{display:flex;gap:8px}
+  .mobile-step-actions button{flex:1}
+  .mobile-step-actions button:disabled{opacity:.45;cursor:default}
+  .mobile-nav{display:flex;position:fixed;z-index:20;bottom:0;left:0;right:0;gap:6px;padding:8px max(12px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px));background:#151525;border-top:1px solid var(--line)}
+  .mobile-nav button{flex:1;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text);font-weight:700;min-height:48px;font-size:13px}
+  .mobile-nav button[aria-current]{border-color:var(--green);color:#c9efdd;background:#193b31}
+  .mobile-nav button:focus-visible,.mobile-stepper button:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+  body[data-mobile-view] .mobile-inactive-step{display:none}
+  body[data-mobile-view="inputs"] #output,body[data-mobile-view="results"] #intake,
+  body[data-mobile-view="install"] #intake,body[data-mobile-view="install"] #output{display:none}
+  body[data-mobile-view="install"] .mobile-install{display:block;padding:18px;margin-bottom:16px}
+  body[data-mobile-view] .jump{display:none}
+  .mobile-install h2{font-size:21px;line-height:1.25}
+  .mobile-install p{overflow-wrap:anywhere}
+  #output,.mobile-stepper,.mobile-install{scroll-margin-top:calc(12px + env(safe-area-inset-top,0px))}
+  .toast{bottom:calc(90px + env(safe-area-inset-bottom,0px))}
+}
+@media print{
+  .mobile-nav,.mobile-stepper,.mobile-install{display:none!important}
+}

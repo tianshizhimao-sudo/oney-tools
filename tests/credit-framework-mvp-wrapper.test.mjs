@@ -798,7 +798,9 @@ test('noindex, CSP and no external data calls / network APIs', async () => {
     const urls = [...src.matchAll(/https?:\/\/[^\s"'<>)]+/g)].map((m) => m[0]).filter((u) => !u.startsWith('http://www.w3.org/'));
     assert.deepEqual(urls, [], `${f} external URLs`);
     assert.doesNotMatch(src, /<script[^>]+src="(?!\/assets\/js\/preview\/credit-framework\/)/, f);
-    assert.doesNotMatch(src, /<link[^>]+href="(?!data:)/, f);
+    for (const match of src.matchAll(/<link[^>]+href="([^"]+)"/g)) {
+      assert.ok(['data:,', '/preview/credit-framework.webmanifest', '/assets/icons/credit-framework/apple-touch-icon.png', '/assets/css/credit-framework-mobile.css'].includes(match[1]), `${f} unexpected linked resource ${match[1]}`);
+    }
   }
 });
 
@@ -816,7 +818,7 @@ test('prototype is not linked from production navigation, sitemap or registries'
 
 test('responsive and print CSS present (browser smoke verifies behaviour)', async () => {
   const html = await read(PAGE);
-  assert.match(html, /<meta name="viewport" content="width=device-width,initial-scale=1">/);
+  assert.match(html, /<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">/);
   assert.match(html, /@media \(max-width:620px\)/);
   assert.match(html, /@media \(max-width:1100px\)/);
   const print = html.slice(html.indexOf('@media print'));
@@ -989,7 +991,7 @@ test('broker feedback checklist: spec §14 questions verbatim, bar of 3 yes, cop
 
 test('beta data notice: de-identified real deals only, nothing leaves the browser', async () => {
   const html = await read('preview/credit-framework.html');
-  assert.match(html, /id="data-notice"[^>]*>Private beta: everything runs in your browser\. Nothing is uploaded, saved, emailed or submitted/);
+  assert.match(html, /id="data-notice"[^>]*>Private beta: everything runs in your browser\. Case inputs are held only in this open page and are not uploaded or saved by the app/);
   assert.match(html, /only de-identified<\/strong>: no client names, ABNs\/ACNs, addresses, dates of birth or account numbers/);
   assert.doesNotMatch(html, /INTERNAL PROTOTYPE|Use synthetic data only/);
   assert.match(reportFor('CF-001', 'simple').text, /^Oney & Co — Oney Credit Framework \(beta · sample cases are synthetic · generated in the browser\)/);

@@ -2,14 +2,18 @@
 <html lang="en-AU">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
   <meta name="googlebot" content="noindex,nofollow,noarchive,nosnippet">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'; object-src 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'none'; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
   <meta name="theme-color" content="#1A1A2E">
   <title>Oney Credit Framework — MVP Wrapper (Internal Prototype)</title>
   <link rel="icon" href="data:,">
+  <link rel="manifest" href="/preview/credit-framework.webmanifest">
+  <link rel="apple-touch-icon" href="/assets/icons/credit-framework/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Oney Credit">
   <style>
     :root{
       --green:#2ECC85;--green2:#1FAD73;--purple:#6B4C9A;--purple-l:#9B59B6;
@@ -338,6 +342,7 @@
       a{color:#111}
     }
   </style>
+  <link rel="stylesheet" href="/assets/css/credit-framework-mobile.css">
 </head>
 <body>
   <div class="watermark" aria-hidden="true" id="watermark">
@@ -361,7 +366,7 @@
       <h1>Deal review wrapper</h1>
       <p>Intake → scenario tags → readiness rating + confidence → Deferral Follow-Up Engine → Simple or Comprehensive output → re-rate loop. Rules run in your browser; judgement shown is a pre-generated, banker-calibrated sample.</p>
       <div class="boundary" id="boundary-top"><strong>Boundary:</strong> <span data-boundary>This is a lender-readiness and deal-packaging review. It does not approve credit, predict lender acceptance, or replace licensed credit assessment.</span></div>
-      <div class="privacy" id="data-notice">Private beta: everything runs in your browser. Nothing is uploaded, saved, emailed or submitted, and network access is blocked by this page’s security policy. The three sample cases are synthetic. You can enter a real deal <strong>only de-identified</strong>: no client names, ABNs/ACNs, addresses, dates of birth or account numbers.</div>
+      <div class="privacy" id="data-notice">Private beta: everything runs in your browser. Case inputs are held only in this open page and are not uploaded or saved by the app. Reloading or closing can lose your work. App files and the install manifest load from this site; case-data network requests are blocked by this page’s security policy. The three sample cases are synthetic. You can enter a real deal <strong>only de-identified</strong>: no client names, ABNs/ACNs, addresses, dates of birth or account numbers.</div>
     </section>
 
     <div class="layout">
@@ -406,6 +411,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <textarea id="copy-buffer" class="sr-only" aria-hidden="true" tabindex="-1" readonly></textarea>
 
-<script type="module" src="/assets/js/preview/credit-framework/app.js?v=cf-20261014-6"></script>
+<script type="module" src="/assets/js/preview/credit-framework/app.js?v=cf-20261014-6&amp;pwa=20261015-1"></script>
+<script type="module" src="/assets/js/preview/credit-framework/mobile.js"></script>
 </body>
 </html>
