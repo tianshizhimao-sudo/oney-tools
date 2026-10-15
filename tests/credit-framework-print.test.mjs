@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { initialState, buildAssessment, buildReport } from '../assets/js/preview/credit-framework/engine.js';
+import { initialState, buildAssessment, buildReport, EVIDENCE_STATUS } from '../assets/js/preview/credit-framework/engine.js';
 let JSDOM;
 try { ({ JSDOM } = await import(process.env.CF_JSDOM_MODULE || 'jsdom')); } catch {}
 const integration = JSDOM ? test : test.skip;
@@ -19,6 +19,15 @@ test('print CSS keeps bounded context units together and does not force page bre
   assert.match(print, /#report>section\[data-locked="true"\],#sec-cta\{display:none!important/);
   assert.doesNotMatch(print, /break-before:(?:page|always)|break-after:(?:page|always)|overflow:hidden|max-height:/);
   assert.doesNotMatch(print, /\.manual-risk-view\{[^}]*break-inside:avoid/);
+});
+
+test('Comprehensive print keeps review notices intact, uses full-width tracker rows and avoids orphan footer', () => {
+  assert.match(print, /#rerate-guardrail,#rerate-evidence-rule,#rerate-custom-guardrail,\.rr-row\{break-inside:avoid;page-break-inside:avoid/);
+  assert.match(print, /\.rr-row\{display:block;padding:4px 0/);
+  assert.match(print, /#sec-dimensions table\.grid th:nth-child\(2\),#sec-dimensions table\.grid td:nth-child\(2\)\{width:8em;overflow-wrap:normal;word-break:normal/);
+  assert.match(print, /#boundary-bottom\{[^}]*break-after:avoid/);
+  assert.match(print, /\.layout\{[^}]*break-after:avoid/);
+  assert.match(print, /\.footer\{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid;padding:4px 0 0/);
 });
 
 integration('query tier initializes correctly; print uses current selected tier and preserves active content', async () => {
@@ -54,6 +63,8 @@ integration('query tier initializes correctly; print uses current selected tier 
       rows.forEach((row, i) => { assert.equal(row.children.length, 2); assert.ok(row.firstElementChild.textContent.includes(snapshot.facts[i].label)); assert.equal(row.lastElementChild.textContent, snapshot.facts[i].value); });
       assert.ok($('#overview-title').closest('.overview-intro').querySelector('.overview-stats'));
       for (const section of document.querySelectorAll('section.out[data-locked="false"]')) if (section.id !== 'sec-cta') assert.ok(section.querySelector('.sec-intro h3'));
+      assert.equal(printHidden($('.footer')), false); assert.match($('.footer').textContent, /Sample cases are synthetic; entered deals never leave your browser/);
+      assert.equal(printHidden($('#boundary-bottom')), false);
       assert.equal(printHidden($('#print-head')), false); assert.match($('#print-head').textContent, /does not approve credit/);
       if (selected === 'simple') {
         assert.match($('#simple-expanded').textContent, /6 Critical/);
@@ -64,6 +75,28 @@ integration('query tier initializes correctly; print uses current selected tier 
         assert.equal(document.querySelector('[data-rerate]'), null);
       } else {
         assert.ok(document.querySelector('[data-gated="ifStrong"]')); assert.ok(document.querySelector('[data-rerate]'));
+        const rerate = report.sections.find(s => s.id === 'rerate');
+        assert.equal($('#rerate-guardrail').textContent, rerate.rerate.guardrail);
+        assert.equal($('#rerate-evidence-rule').textContent, `Reviewed evidence only: ${rerate.rerate.evidenceRule}`);
+        assert.equal(printHidden($('#rerate-evidence-rule')), false);
+        for (const row of document.querySelectorAll('.rr-row')) {
+          assert.equal(printHidden(row), false);
+          const label = row.querySelector('.print-only');
+          assert.ok(label); assert.equal(printHidden(label), false);
+          assert.equal(label.textContent, ` — ${EVIDENCE_STATUS.outstanding}`);
+        }
+        const questionId = document.querySelector('[data-rerate]').dataset.rerate;
+        for (const status of ['reply_only', 'supports', 'weak', 'outstanding']) {
+          const select = $(`[data-rerate="${questionId}"]`); select.value = status;
+          select.dispatchEvent(new window.Event('change', { bubbles: true }));
+          const label = $(`[data-rerate="${questionId}"]`).closest('.rr-row').querySelector('.print-only');
+          assert.equal(label.textContent, ` — ${EVIDENCE_STATUS[status]}`);
+          assert.equal(printHidden(label), false);
+        }
+        const dimensions = report.sections.find(s => s.id === 'dimensions');
+        assert.deepEqual([...document.querySelectorAll('#sec-dimensions tbody tr')].map(row => row.cells[1].textContent), dimensions.items.map(d => d.dimension));
+        assert.ok([...document.querySelectorAll('#sec-dimensions tbody tr')].some(row => row.cells[1].textContent === 'Management'));
+
       }
       const visual = $('.manual-risk-visual');
       for (const selector of ['#manual-risk-title', '.manual-risk-source', '#risk-svg-title', '#risk-svg-desc', '.manual-risk-donut']) assert.ok(visual.querySelector(selector));

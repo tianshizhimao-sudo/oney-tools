@@ -303,7 +303,7 @@
       .notice,.q .gated{color:#222!important}
       .notice{background:transparent!important;border-color:#888!important}
       .priority-issue,.overview-action,.overview-stat{break-inside:avoid;page-break-inside:avoid}
-      .layout{display:block;padding:0}
+      .layout{display:block;padding:0;break-after:avoid;page-break-after:avoid}
       .card,section.out,.q,pre.email{background:transparent!important;box-shadow:none!important;border-color:#bbb!important;color:#111!important}
       .output{padding:0;border:0}
       .wrap{width:100%;max-width:none}
@@ -324,6 +324,14 @@
       .watermark-inner span{color:#1A1A2E;font-size:22px}
       section.out{break-inside:auto;page-break-inside:auto}
       .q,.item,tr{break-inside:avoid;page-break-inside:avoid}
+      /* Keep short safety notices intact; hidden selects must not reserve a print column. */
+      #rerate-guardrail,#rerate-evidence-rule,#rerate-custom-guardrail,.rr-row{break-inside:avoid;page-break-inside:avoid}
+      .rr-row{display:block;padding:4px 0}
+      /* Dimension names wrap at word boundaries instead of splitting Management. */
+      #sec-dimensions table.grid th:nth-child(2),#sec-dimensions table.grid td:nth-child(2){width:8em;overflow-wrap:normal;word-break:normal}
+      /* Keep the final privacy footer with closing content, without hiding it. */
+      #boundary-bottom{break-inside:avoid;page-break-inside:avoid;break-after:avoid;page-break-after:avoid}
+      .footer{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid;padding:4px 0 0;line-height:1.35}
       a{color:#111}
     }
   </style>
