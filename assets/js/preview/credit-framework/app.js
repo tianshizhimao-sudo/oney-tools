@@ -11,7 +11,7 @@ import {
   suggestTriggers, compareTriggers, triggerCheckText,
   DEFERRAL_REASONS, DEFERRAL_LIBRARY_VERSION, DEFERRAL_STATUS,
   FEEDBACK_QUESTIONS, FEEDBACK_ANSWERS, scoreFeedback, feedbackText,
-} from './engine.js?v=cf-20261014-6&vanilla=1';
+} from './engine.js?v=cf-examples-icr-1&vanilla=1';
 import { formatMoneyEdit, deleteMoneySeparator } from './money-input.js';
 import { buildOverview } from './overview.js?v=cf-20261014-6';
 import { INTAKE_PRESETS, TRIGGER_GROUPS, composeIntakeValue, conductReport } from './intake-options.js?v=conduct-1';
@@ -25,6 +25,9 @@ import { buildRuleRing, ruleRingText } from './rule-ring.js?v=ring-2';
 import { createLiveTracker, updateLiveTracker, renderLiveDesktop } from './live-desktop.js?v=live-2';
 
 import { glossaryHelp, contextualReferences, mountReferenceLibrary, mountGettingStarted, FIELD_TERMS } from './reference-library.js?v=reference-3';
+
+import { EXAMPLE_ORDER } from './cases.js?v=examples-icr-1';
+import { isInvestment, changeDealType, investmentICR, investmentICRText, ICR_ASSUMPTIONS, ICR_BOUNDARY } from './investment-icr.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 
@@ -51,9 +54,10 @@ const item = (kind, ...children) => el('div', { class: `item ${kind}`, 'data-kin
 /* ------------------------------ state ------------------------------ */
 
 const params = new URLSearchParams(location.search);
-const startCase = CASE_ORDER.includes(params.get('case')) ? params.get('case') : 'CF-002';
+const startCase = EXAMPLE_ORDER.includes(params.get('case')) ? params.get('case') : 'CF-002';
 const startTier = params.get('tier') === 'comprehensive' ? 'comprehensive' : 'simple';
 let state = initialState(startCase, startTier);
+let exampleLibraryOpen = false;
 let lastPlainText = '';
 let basePlainText = '';
 let manualRiskView = createRiskView();
@@ -88,16 +92,22 @@ function renderCasePicker() {
       class: 'case-btn', type: 'button', 'aria-pressed': state.caseId === null ? 'true' : 'false', 'data-case': 'custom',
       onclick: () => { state = blankState(state.tier); resetIntakeUi(); renderAll(); },
     }, el('span', { class: 'dot custom' }), el('span', {}, 'Blank custom scenario (rules only)')));
-  const examples = el('fieldset', { class: 'case-group', id: 'example-case-group' },
-    el('legend', {}, 'CF examples — synthetic'),
-    el('p', { class: 'hint' }, 'Illustrative sample deals, not your client data. Loading a case replaces the current inputs and manual views.'));
-  for (const id of CASE_ORDER) {
-    const c = CASES[id];
-    examples.append(el('button', {
-      class: 'case-btn', type: 'button', 'aria-pressed': state.caseId === id ? 'true' : 'false', 'data-case': id,
-      onclick: () => { state = initialState(id, state.tier); resetIntakeUi(); renderAll(); },
-    }, el('span', { class: `dot ${c.tone}` }), el('span', {}, c.shortLabel)));
+  const examples = el('details', { class: 'case-group', id: 'example-case-group', open: exampleLibraryOpen ? true : null },
+    el('summary', {}, `Example Library · ${EXAMPLE_ORDER.length} synthetic cases`),
+    el('p', { class: 'hint' }, 'Fictional teaching scenarios only. Loading an example replaces inputs, evidence, materials and manual views. Original examples include pre-generated judgement; new exercises use rules only.'));
+  examples.addEventListener('toggle', () => { if(examples.isConnected)exampleLibraryOpen = examples.open; });
+  for (const [label,ids] of [['Original guided examples', CASE_ORDER], ['Investment and equipment exercises', EXAMPLE_ORDER.filter(id=>!CASE_ORDER.includes(id))]]) {
+    const group=el('fieldset',{class:'case-group'},el('legend',{},label));
+    for (const id of ids) {
+      const c = CASES[id];
+      group.append(el('button', {
+        class: 'case-btn', type: 'button', 'aria-pressed': state.caseId === id ? 'true' : 'false', 'data-case': id,
+        onclick: () => { state = initialState(id, state.tier); resetIntakeUi(); exampleLibraryOpen=false; renderAll(); $('#example-case-group > summary').focus(); },
+      }, el('span', { class: `dot ${c.tone}` }), el('span', {}, c.shortLabel)));
+    }
+    examples.append(group);
   }
+
   box.append(blank, examples);
 }
 
@@ -189,6 +199,22 @@ function renderPresetField(f, id) {
       : f.key === 'conduct' ? 'No concerns reported is unverified. Existing concerns and retained details stay included; reconcile any differences. Unknown does not mean none.' : 'Choices add to retained details below. Unknown does not mean none.'), glossaryHelp([config.label,FIELD_TERMS[f.key]||'',...config.options.map(option=>option.label)].join(' ')), reviewNote, f.key === 'conduct' ? el('p', { id: 'conduct-input-note', class: 'notice info', role: 'status', hidden: true }) : null, details);
 }
 
+function renderICRInputs() {
+  const root=$('#investment-icr-inputs');if(!root)return;
+  root.replaceChildren();root.hidden=!isInvestment(state.intake.dealType);if(root.hidden)return;
+  const fields=el('fieldset',{class:'case-group'},el('legend',{},'Investment ICR inputs'),
+    el('p',{class:'hint'},ICR_ASSUMPTIONS),el('p',{class:'hint'},'Changing transaction type clears these inputs. Zero is different from missing. Inputs are unverified.'));
+  for(const [key,label] of [['icrPeriod','Common period for both amounts'],['icrNOI','Net operating income (AUD, before interest and tax)'],['icrInterest','Interest expense (AUD, same scope and period)']]) {
+    const id='f-'+key;
+    const control=key==='icrPeriod'?el('select',{id,class:'control','aria-describedby':id+'-error'},[['','Choose period'],['annual','Annual (12 months)'],['monthly','Monthly (×12 annualization)']].map(([value,text])=>el('option',{value},text)))
+      :el('input',{id,class:'control',type:'text',inputmode:'decimal',maxlength:'24','aria-describedby':id+'-error'});
+    control.value=state.intake[key]??'';
+    control.addEventListener('input',()=>{state.intake[key]=control.value;state.edited=true;renderOutput();});
+    fields.append(el('div',{class:'field'},el('label',{for:id},label),control,el('small',{id:id+'-error',class:'field-error'})));
+  }
+  root.append(fields);
+}
+
 function renderIntakeForm() {
   const form = $('#intake-form');
   form.replaceChildren();
@@ -248,7 +274,8 @@ function renderIntakeForm() {
         control.value = state.intake[f.key] ?? '';
       }
       if (!f.money) control.addEventListener('input', () => {
-        state.intake[f.key] = control.value;
+        if(f.key==='dealType'){changeDealType(state.intake,control.value); state.edited=true; renderICRInputs();}
+        else state.intake[f.key] = control.value;
         renderOutput();
       });
       const field = el('div', { class: 'field' }, el('label', { for: id }, f.label), control,
@@ -261,6 +288,9 @@ function renderIntakeForm() {
     const hasDeferral = section === 'Deferral / concern reason' && (state.intake.deferralCodes || []).length > 0;
     form.append(el('details', { class: 'sec', open: (!narrow && i < 2) || hasDeferral ? true : null }, el('summary', {}, section), el('div', { class: 'fields' }, fields)));
   });
+
+  $('#f-income').closest('.fields').append(el('div',{id:'investment-icr-inputs'}));
+  renderICRInputs();
 
   const ratingSel = el('select', { class: 'control', id: 'f-rating', name: 'rating' },
     [...new Set([state.rating, ...RATING_OPTIONS])].map((r) => el('option', { value: r, selected: r === state.rating }, r)));
@@ -355,7 +385,7 @@ function renderLegend() {
 /* Collapsed-by-default sections: one-line summary + "Details" toggle.
    Open sections are remembered across re-renders (UI state only). */
 const expanded = new Set();
-const SECTION_TOPICS = { snapshot: 'Deal context', rating: 'Assessment context', risks: 'Assessment context', manual: 'Your manual view', dimensions: 'Assessment context', missing: 'Evidence & preparation', materials: 'Evidence & preparation', questions: 'Evidence & preparation', deferral: 'Evidence & preparation', rerate: 'Evidence & preparation', nextStep: 'Next steps & communication', packaging: 'Next steps & communication', email: 'Next steps & communication' };
+const SECTION_TOPICS = { 'investment-icr': 'Investment calculation', snapshot: 'Deal context', rating: 'Assessment context', risks: 'Assessment context', manual: 'Your manual view', dimensions: 'Assessment context', missing: 'Evidence & preparation', materials: 'Evidence & preparation', questions: 'Evidence & preparation', deferral: 'Evidence & preparation', rerate: 'Evidence & preparation', nextStep: 'Next steps & communication', packaging: 'Next steps & communication', email: 'Next steps & communication' };
 
 function watchNote(conf) {
   const shown = conf.watch.slice(0, 3);
@@ -696,7 +726,10 @@ function renderOutput() {
   const conduct = conductReport(presetSelections.get('conduct'), manualDrafts.get('conduct') || '', state.triggers, assessment.triggerCheck.suggested.map(item => item.id), Boolean(state.intake.deferralReason?.trim() || state.intake.deferralCodes?.length));
   const conductInputNote = $('#conduct-input-note');
   if (conductInputNote) { conductInputNote.hidden = !conduct; conductInputNote.textContent = conduct?.text || ''; conductInputNote.className = `notice ${conduct?.conflict ? 'warn' : 'info'}`; }
-  basePlainText = `${reportToPlainText(report)}\n\n${brokerMaterialsText(materials)}${conduct ? `\n\nConduct self-report: ${conduct.text}` : ''}`;
+  const icr=investmentICR(state.intake);
+  const icrText=investmentICRText(icr);
+  for(const key of ['icrNOI','icrInterest','icrPeriod']){const input=$('#f-'+key),error=$('#f-'+key+'-error');if(input){input.setAttribute('aria-invalid',String(Boolean(icr.errors?.[key])));if(error)error.textContent=icr.errors?.[key]||'';}}
+  basePlainText = `${reportToPlainText(report)}${icrText ? `\n\n${icrText}` : ''}\n\n${brokerMaterialsText(materials)}${conduct ? `\n\nConduct self-report: ${conduct.text}` : ''}`;
 
   $('#out-title').textContent = `2 · ${report.tierName}`;
   $('#out-sub').textContent = `${report.dealName} (${report.dealId}) · ${report.pristine ? `Judgement: ${report.judgementSource}` : 'Custom scenario — rule output only'}`;
@@ -707,11 +740,14 @@ function renderOutput() {
   const invalidAmounts = INTAKE_FIELDS.filter((f) => f.money && moneyDrafts.has(f.key) && !moneyDrafts.get(f.key).valid);
   if (invalidAmounts.length) out.append(el('div', { class: 'notice warn', id: 'amount-warning', role: 'status' }, `Check amount inputs: ${invalidAmounts.map((f) => f.label).join(', ')}. Invalid entries are treated as not provided; calculations using them are unavailable.`));
   if (!report.pristine) {
-    out.append(el('div', { class: 'notice warn', id: 'custom-notice' }, state.caseId
+    out.append(el('div', { class: 'notice warn', id: 'custom-notice' }, state.caseId && !CASES[state.caseId]?.judgement
+      ? `Synthetic exercise ${state.caseId}: rule output only, with an illustrative starting rating. No calibrated model judgement or automatic rating improvement is available.`
+      : state.caseId
       ? `Edited from ${state.caseId}: model judgement withdrawn (it only applies to the untouched sample). Risks and missing evidence below are rule-derived. Reload ${state.caseId} to restore.`
       : 'Custom scenario: no model judgement in this prototype. Risks and missing evidence below are rule-derived; rating is your own current view.'));
   }
   out.append(renderOverview(assessment, report));
+  if(icr.applicable)out.append(sectionShell({id:'investment-icr',title:'Investment interest coverage (ICR)',summary:{kind:KIND.CALC,text:icr.valid?`${icr.ratio.toFixed(2)}x · calculation only, no pass/fail threshold`:'Unavailable — check inputs'}},el('p',{class:'notice info'},ICR_BOUNDARY),...icrText.split('\n').slice(1).filter(text=>text!==ICR_BOUNDARY).map(text=>el('p',{},text))));
   const comparison = sectionShell({ id: 'manual', title: 'Inner / outer review comparison', summary: { kind: KIND.ASSUMPTION, text: manualSummary() } },
     renderManualRiskView(manualRiskView, Object.fromEntries(RULES.map(r => [r.id, r.triggerLabel])), refreshManualRiskOutput, ruleRing));
   comparison.insertBefore(el('div', { class: 'dual-ring-legend', id: 'dual-ring-legend' },

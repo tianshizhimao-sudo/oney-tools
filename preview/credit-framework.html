@@ -54,6 +54,9 @@
     .hint{color:var(--muted);font-size:12.5px;margin:0 0 12px}
     .case-picker{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:12px}
     .case-group{display:grid;gap:8px;min-width:0;margin:0;padding:10px;border:1px solid var(--line);border-radius:12px}
+    .case-group>summary{cursor:pointer;min-height:44px;align-content:center;font-weight:800;overflow-wrap:anywhere}
+    #investment-icr-inputs{grid-column:1/-1;min-width:0}
+    #investment-icr-inputs .control{width:100%;min-width:0}
     .case-group legend{font-size:13px;font-weight:800;padding:0 5px;color:var(--text)}
     .case-group .hint{margin:0;font-size:12px}
     .case-btn{display:flex;align-items:center;gap:10px;text-align:left;border:1px solid var(--line);background:var(--card2);border-radius:12px;padding:10px 12px;cursor:pointer;min-height:44px}
@@ -297,6 +300,7 @@
       .no-print,.intake,.actions,.topbar,.hero,.toast,.rr-row select,#report>section[data-locked="true"],#sec-cta{display:none!important}
       .print-only{display:block!important}
       .sec-body[hidden]{display:block!important}
+      #sec-investment-icr{break-inside:avoid;page-break-inside:avoid}
       .sec-toggle{display:none!important}
       .review-overview,.overview-stat,.overview-action,.priority-issue{background:transparent!important;box-shadow:none!important;border-color:#aaa!important;color:#111!important}
       .manual-risk-view{background:transparent!important;color:#111!important;border-color:#aaa!important;break-inside:auto}
@@ -383,7 +387,7 @@
       </ol><p class="hint">Inputs stay in this open page. Reloading or closing can lose work; copy the appropriate output before leaving. Use the glossary for unfamiliar terms and Policy Radar for external research.</p></details>
       <div class="policy-radar-shortcut no-print" id="policy-radar-shortcut"></div>
       <div class="boundary" id="boundary-top"><strong>Boundary:</strong> <span data-boundary>This is a lender-readiness and deal-packaging review. It does not approve credit, predict lender acceptance, or replace licensed credit assessment.</span></div>
-      <div class="privacy" id="data-notice">Private beta: everything runs in your browser. Case inputs are held only in this open page and are not uploaded or saved by the app. Reloading or closing can lose your work. App files and the install manifest load from this site; case-data network requests are blocked by this page’s security policy. The three sample cases are synthetic. You can enter a real deal <strong>only de-identified</strong>: no client names, ABNs/ACNs, addresses, dates of birth or account numbers.</div>
+      <div class="privacy" id="data-notice">Private beta: everything runs in your browser. Case inputs are held only in this open page and are not uploaded or saved by the app. Reloading or closing can lose your work. App files and the install manifest load from this site; case-data network requests are blocked by this page’s security policy. All six library examples are synthetic. You can enter a real deal <strong>only de-identified</strong>: no client names, ABNs/ACNs, addresses, dates of birth or account numbers.</div>
     </section>
 
     <details class="card reference-library no-print" id="reference-library"><summary>Glossary &amp; external references</summary><div id="reference-content"></div></details>
@@ -436,7 +440,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <textarea id="copy-buffer" class="sr-only" aria-hidden="true" tabindex="-1" readonly></textarea>
 
-<script type="module" src="/assets/js/preview/credit-framework/app.js?v=cf-20261014-6&amp;pwa=20261016-13-policy-reference"></script>
+<script type="module" src="/assets/js/preview/credit-framework/app.js?v=cf-20261014-6&amp;pwa=20261016-14-examples-icr"></script>
 <script type="module" src="/assets/js/preview/credit-framework/theme.js?v=reading-1"></script>
 <script type="module" src="/assets/js/preview/credit-framework/mobile.js"></script>
 </body>

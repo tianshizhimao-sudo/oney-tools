@@ -58,6 +58,57 @@ const results = { browser: `chromium ${browser.version()}`, origin: ORIGIN, view
 async function runViewport(name, contextOpts) {
   const ctx = await browser.newContext({ ...contextOpts, permissions: ['clipboard-read', 'clipboard-write'] });
   const page = await ctx.newPage();
+  // Follow the phone's visible Inputs / Results tabs and intake step controls.
+  const rawClick = page.click.bind(page);
+  async function showPhoneView(view) {
+    // The body mirrors data-mobile-view; always target the navigation button.
+    const selections = () => page.locator('#intake-form input[type="checkbox"]:checked').evaluateAll(nodes => nodes.map(node => node.id).sort());
+    const before = await selections();
+    await rawClick(`button[data-mobile-view="${view}"]`);
+    assert.deepEqual(await selections(), before, 'phone navigation must not change selected triggers or deferrals');
+  }
+  async function revealPhoneTarget(selector) {
+    if (contextOpts.viewport.width > 640) return;
+    const target = page.locator(selector).first();
+    if (!await target.count()) return;
+    const where = await target.evaluate(node => ({
+      intake: Boolean(node.closest('#intake')), output: Boolean(node.closest('#output')),
+      step: [...document.querySelectorAll('#intake-form > details.sec')].indexOf(node.closest('details.sec')),
+    }));
+    if (where.output) await showPhoneView('results');
+    if (where.intake) {
+      await showPhoneView('inputs');
+      if (where.step >= 0) {
+        for (let attempts = 0; attempts < 9; attempts++) {
+          const current = await page.evaluate(() => [...document.querySelectorAll('#intake-form > details.sec')].findIndex(n => !n.classList.contains('mobile-inactive-step')));
+          if (current === where.step) break;
+          await rawClick(`.mobile-step-actions button:${current < where.step ? 'last' : 'first'}-child`);
+        }
+      }
+    }
+  }
+  for (const method of ['click', 'fill', 'check', 'selectOption']) {
+    const original = page[method].bind(page);
+    page[method] = async (selector, ...args) => {
+      await revealPhoneTarget(selector);
+      const target = page.locator(selector).first();
+      if (await target.count() && await target.evaluate(node => Boolean(node.closest('details#example-case-group') && node.matches('[data-case]')))) {
+        if (!await page.locator('#example-case-group').evaluate(node => node.open)) await rawClick('#example-case-group > summary');
+      }
+      // Optional narrative fields may be folded after tier/case rerenders.
+      if (await target.count()) {
+        for (const parent of await target.locator('xpath=ancestor::details').all()) {
+          if (await target.evaluate((node, parent) => node.tagName === 'SUMMARY' && node.parentElement === parent, await parent.elementHandle())) continue;
+          if (!await parent.evaluate(node => node.open)) await parent.locator(':scope > summary').click();
+        }
+      }
+      const copies = method === 'click' && ['#copy-btn', '#fb-copy'].includes(selector);
+      if (copies) await page.evaluate(() => { delete document.body.dataset.copyStatus; });
+      const result = await original(selector, ...args);
+      if (copies) await page.waitForFunction(() => document.body.dataset.copyStatus);
+      return result;
+    };
+  }
   const consoleErrors = [];
   const external = [];
   const nonGet = [];
@@ -73,6 +124,7 @@ async function runViewport(name, contextOpts) {
   await page.route('**/*', (route) => (route.request().url().startsWith(ORIGIN) ? route.continue() : route.abort()));
 
   await page.goto(URL_PAGE, { waitUntil: 'load' });
+  if (contextOpts.viewport.width <= 640) await showPhoneView('results');
   await page.waitForSelector('#sec-questions');
   const v = { viewport: contextOpts.viewport, cases: {} };
 
@@ -318,6 +370,7 @@ async function runViewport(name, contextOpts) {
   await page.click('#case-picker [data-case="CF-004"]');
   await page.click('details.sec >> summary:has-text("Purpose and amount")');
   await page.fill('#f-loanAmount', '1400000');
+  if (contextOpts.viewport.width <= 640) await showPhoneView('results');
   v.editNotice = await page.locator('#custom-notice').isVisible();
   assert.equal(v.editNotice, true);
   assert.equal(await page.getAttribute('body', 'data-pristine'), 'false');
@@ -328,6 +381,7 @@ async function runViewport(name, contextOpts) {
   await page.click('#tier-output [data-tier="simple"]');
   await page.click('details.sec >> summary:has-text("Deferral / concern reason")');
   await page.check('#d-valuation_shortfall');
+  if (contextOpts.viewport.width <= 640) await showPhoneView('results');
   v.deferral = { simpleUpsell: await page.locator('#deferral-upsell').isVisible(), simplePlans: await page.locator('[data-deferral]').count() };
   await page.click('#tier-output [data-tier="comprehensive"]');
   v.deferral.plans = await page.locator('[data-deferral]').count();
@@ -340,7 +394,9 @@ async function runViewport(name, contextOpts) {
   assert.deepEqual([v.deferral.simpleUpsell, v.deferral.simplePlans, v.deferral.plans, v.deferral.status, v.deferral.statusAfterWeak], [true, 0, 1, 'rework', 'pause']);
   assert.equal(await page.getAttribute('body', 'data-lint'), 'pass');
 
-  // Broker feedback checklist (spec §14)
+  // Broker feedback checklist (spec §14): open the visible disclosure first.
+  const feedbackDisclosure = page.locator('details').filter({ has: page.locator('#feedback') });
+  if (!await feedbackDisclosure.evaluate(node => node.open)) await feedbackDisclosure.locator(':scope > summary').click();
   v.feedback = { questions: await page.locator('#feedback [data-fb]').count() };
   for (const q of ['blocking', 'time', 'questions']) await page.check(`#fb-${q}-yes`);
   await page.check('#fb-pay-no');
@@ -358,6 +414,7 @@ async function runViewport(name, contextOpts) {
   await page.click('#risk-group-tax > summary');
   await page.click('#risk-group-conduct > summary');
   await page.fill('#f-conduct', '3 dishonours in last 6 months; ATO debt $80k on payment plan');
+  await revealPhoneTarget('#apply-suggestions');
   v.suggest = {
     chips: await page.locator('[data-sugg-chip]:visible').count(),
     ticked: await page.locator('#t-dishonours_recent').isChecked(),
@@ -373,6 +430,7 @@ async function runViewport(name, contextOpts) {
   await page.click('#case-picker [data-case="CF-002"]');
 
   // Layout
+  if (contextOpts.viewport.width <= 640) await showPhoneView('results');
   v.layout = await page.evaluate(() => {
     const vw = document.documentElement.clientWidth;
     const offenders = [...document.querySelectorAll('body *')].filter((n) => {
@@ -399,7 +457,7 @@ async function runViewport(name, contextOpts) {
     actions: getComputedStyle(document.querySelector('.out-head .actions')).display,
     watermark: getComputedStyle(document.querySelector('#watermark')).display,
     printHead: getComputedStyle(document.querySelector('#print-head')).display,
-    feedbackPrinted: getComputedStyle(document.querySelector('#feedback')).display,
+    feedbackPrinted: document.querySelector('#feedback').checkVisibility() ? 'visible' : 'none',
     hiddenBodiesPrinted: [...document.querySelectorAll('.sec-body')].every((b) => getComputedStyle(b).display !== 'none'),
     printHeadText: document.querySelector('#print-head').innerText.slice(0, 120),
     bodyBg: getComputedStyle(document.body).backgroundColor,

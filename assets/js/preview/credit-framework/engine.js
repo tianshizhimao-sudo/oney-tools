@@ -19,7 +19,7 @@
    ========================================================= */
 
 import { RULES, RULE_LIBRARY } from './rules.js';
-import { CASES, CASE_ORDER } from './cases.js';
+import { CASES, CASE_ORDER } from './cases.js?v=examples-icr-1';
 import { DEFERRAL_REASONS, DEFERRAL_LIBRARY_VERSION, EXACT_DOCUMENT_RULE } from './deferral-reasons.js';
 
 export { RULES, RULE_LIBRARY, CASES, CASE_ORDER, DEFERRAL_REASONS, DEFERRAL_LIBRARY_VERSION, EXACT_DOCUMENT_RULE };
@@ -62,12 +62,13 @@ export const TIERS = Object.freeze({
 
 export const DEAL_TYPES = Object.freeze({
   sme: 'SME',
-  commercial_property: 'Commercial property',
+  commercial_property: 'Commercial property (owner-occupied / other)',
+  commercial_investment: 'Commercial property investment',
   ato_debt: 'ATO debt',
   refinance: 'Refinance',
   working_capital: 'Working capital',
   equipment: 'Equipment',
-  resi_investor_complex: 'Residential-investor complex',
+  resi_investor_complex: 'Residential investment (complex)',
 });
 
 export const BORROWER_TYPES = Object.freeze({
@@ -226,7 +227,7 @@ export function classifyScenario(intake, triggers) {
     tags.get(tag).push(because);
   };
   for (const t of triggers) if (TRIGGER_TAG_MAP[t]) add(TRIGGER_TAG_MAP[t], `trigger ${t}`);
-  if (intake.dealType === 'commercial_property') add('commercial_property', 'deal type = commercial property');
+  if (['commercial_property', 'commercial_investment'].includes(intake.dealType)) add('commercial_property', 'deal type = commercial property');
   if (intake.dealType === 'ato_debt') add('ato_debt_restructure', 'deal type = ATO debt');
   if (intake.dealType === 'resi_investor_complex' && triggers.includes('high_dti')) add('high_dti_resi_investor', 'deal type = residential-investor complex');
   if ((intake.deferralReason || '').trim()) add('deferral_recovery', 'lender deferral / concern reason entered');
@@ -288,7 +289,7 @@ export function suggestTriggers(intake) {
   const lvr = lvrCalc ? lvrCalc.numeric : null;
   const docs = f('documents');
   const missingDocs = (docs.match(/missing[^)]*|not (yet )?(provided|available)[^)]*/i) || [''])[0];
-  const commercial = intake.dealType === 'commercial_property' || /\b(warehouse|industrial|commercial property|retail shop|office)\b/i.test(f('security') + ' ' + f('purpose'));
+  const commercial = ['commercial_property', 'commercial_investment'].includes(intake.dealType) || /\b(warehouse|industrial|commercial property|retail shop|office)\b/i.test(f('security') + ' ' + f('purpose'));
   const out = [];
   const add = (id, ...reasons) => out.push({ id, reasons: reasons.filter(Boolean), kind: KIND.RULE });
   let m;
@@ -437,6 +438,7 @@ export function blankState(tier = 'simple') {
 export function isPristine(state) {
   if (!state.caseId || state.edited) return false;
   const c = CASES[state.caseId];
+  if (!c?.judgement) return false;
   if (state.rating !== c.followUpCase.currentRating) return false;
   // Deferral codes are an overlay: the sample judgement still applies (the plan notes it predates the deferral).
   const norm = (a) => JSON.stringify([...a].sort());

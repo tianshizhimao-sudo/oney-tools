@@ -16,7 +16,10 @@
                     mvp-wrapper-spec §3 wording table (see audit §3).
    ========================================================= */
 
+import { EXTRA_EXAMPLES } from './extra-examples.js';
+
 export const CASES = Object.freeze({
+  ...EXTRA_EXAMPLES,
   'CF-001': {
     id: 'CF-001',
     tone: 'green',
@@ -274,3 +277,6 @@ export const CASES = Object.freeze({
 });
 
 export const CASE_ORDER = Object.freeze(['CF-001', 'CF-002', 'CF-004']);
+
+// Keep the original calibrated-fixture order stable; the library also includes rule-only exercises.
+export const EXAMPLE_ORDER = Object.freeze([...CASE_ORDER, ...Object.keys(EXTRA_EXAMPLES)]);

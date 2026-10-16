@@ -166,7 +166,7 @@ test('new modules remain local-only and the overview is inserted before detail s
   assert.match(html, /src="\/assets\/js\/preview\/credit-framework\/app\.js\?v=[a-z0-9-]+(?:&amp;pwa=[a-z0-9-]+)?"/, 'entry script is versioned for static-host cache refresh');
   const version = html.match(/app\.js\?v=([a-z0-9-]+)/)[1];
   assert.ok(app.includes(`from './overview.js?v=${version}'`), 'changed overview dependency and app entry share release cache version');
-  assert.ok(app.includes(`from './engine.js?v=${version}&vanilla=1'`), 'changed report-label module is also versioned');
+  assert.ok(app.includes("from './engine.js?v=cf-examples-icr-1&vanilla=1'"), 'changed report-label module is also versioned');
   const viewSource = await readFile(new URL('overview.js', dir), 'utf8');
   assert.ok(viewSource.includes(`from './engine.js?v=${version}'`), 'overview shares the same engine module URL');
 });

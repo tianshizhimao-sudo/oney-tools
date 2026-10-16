@@ -46,9 +46,9 @@ integration('phone navigation preserves inputs and report; rerenders, risk links
   const click = selector => $(selector).click();
   const activeSteps = () => [...document.querySelectorAll('#intake-form > details.sec:not(.mobile-inactive-step)')];
   assert.equal(document.querySelectorAll('#blank-case-group [data-case]').length, 1);
-  assert.equal(document.querySelectorAll('#example-case-group [data-case]').length, 3);
+  assert.equal(document.querySelectorAll('#example-case-group [data-case]').length, 6);
   assert.equal($('#blank-case-group [data-case]').dataset.case, 'custom');
-  assert.match($('#example-case-group legend').textContent, /synthetic/);
+  assert.match($('#example-case-group > summary').textContent, /synthetic/);
   assert.ok($('#blank-case-group').compareDocumentPosition($('#example-case-group')) & window.Node.DOCUMENT_POSITION_FOLLOWING);
   assert.equal(document.body.dataset.mobileView, 'inputs');
   assert.equal(activeSteps().length, 1);
