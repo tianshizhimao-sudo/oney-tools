@@ -24,7 +24,7 @@ import { buildRuleRing, ruleRingText } from './rule-ring.js?v=ring-2';
 
 import { createLiveTracker, updateLiveTracker, renderLiveDesktop } from './live-desktop.js?v=live-2';
 
-import { glossaryHelp, contextualReferences, mountReferenceLibrary, mountGettingStarted, FIELD_TERMS } from './reference-library.js?v=reference-2';
+import { glossaryHelp, contextualReferences, mountReferenceLibrary, mountGettingStarted, FIELD_TERMS } from './reference-library.js?v=reference-3';
 
 const $ = (s, r = document) => r.querySelector(s);
 

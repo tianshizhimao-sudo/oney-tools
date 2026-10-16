@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
-import {GLOSSARY,POLICY_REFERENCES,findTerms,searchTerms,referencesFor} from '../assets/js/preview/credit-framework/reference-library.js';
+import {GLOSSARY,POLICY_REFERENCES,findTerms,searchTerms,referencesFor,supplementaryReferencesFor} from '../assets/js/preview/credit-framework/reference-library.js';
 import {RULES} from '../assets/js/preview/credit-framework/rules.js';
 import {RISK_AREAS} from '../assets/js/preview/credit-framework/manual-risk-view.js';
 test('glossary matches actual terms and aliases without substring false positives',()=>{
@@ -11,12 +11,16 @@ test('glossary matches actual terms and aliases without substring false positive
 });
 test('curated references have explicit scope and provenance with no residential trigger mapping',()=>{
  assert.ok(POLICY_REFERENCES.length>=2);assert.equal(new Set(POLICY_REFERENCES.map(r=>r.id)).size,POLICY_REFERENCES.length);
- for(const r of POLICY_REFERENCES){const u=new URL(r.url);assert.equal(u.protocol,'https:');assert.ok(!u.username&&!u.password);assert.ok(r.title&&r.sourceType&&r.publisher&&r.scope&&r.summary);assert.equal(r.checkedOn,'2026-10-16');assert.ok('sourceDate' in r);assert.ok(r.domainIds.every(id=>RISK_AREAS.some(a=>a.id===id)));assert.ok(r.triggerIds.every(id=>RULES.some(rule=>rule.id===id)));if(/^(Primarily residential|Residential$)/.test(r.scope)){assert.equal(r.domainIds.length,0);assert.equal(r.triggerIds.length,0);}}
+ for(const r of POLICY_REFERENCES){const u=new URL(r.url);assert.equal(u.protocol,'https:');assert.ok(!u.username&&!u.password);assert.ok(r.title&&r.sourceType&&r.publisher&&r.scope&&r.summary);assert.ok(r.checkedOn===null||r.checkedOn==='2026-10-16');assert.ok('sourceDate' in r);assert.ok(r.domainIds.every(id=>RISK_AREAS.some(a=>a.id===id)));assert.ok(r.triggerIds.every(id=>RULES.some(rule=>rule.id===id)));if(/^(Primarily residential|Residential$)/.test(r.scope)){assert.equal(r.domainIds.length,0);assert.equal(r.triggerIds.length,0);}}
  assert.deepEqual(referencesFor({triggerId:'unknown-trigger'}),[]);
 });
 let JSDOM;try{({JSDOM}=await import(process.env.CF_JSDOM_MODULE||'jsdom'));}catch{}
 (JSDOM?test:test.skip)('reference UI is searchable, safe, opt-in and separate from tiered requests and exports',async()=>{
  const html=await readFile(new URL('../preview/credit-framework.html',import.meta.url),'utf8');const dom=new JSDOM(html,{url:'https://example.test/preview/credit-framework.html?tier=comprehensive',pretendToBeVisual:true});const {window}=dom;window.matchMedia=()=>({matches:false});window.HTMLElement.prototype.scrollIntoView=function(){};for(const k of ['window','document','Node','location'])globalThis[k]=window[k];document.execCommand=()=>true;await import('../assets/js/preview/credit-framework/app.js');const $=s=>document.querySelector(s);
+ assert.match(document.querySelector('.domain-reference-links').textContent,/Full-page policy verification date: Unknown/);
+ for(const area of RISK_AREAS)assert.equal(document.querySelectorAll('.domain-reference-links [data-reference="policy_radar_'+area.id.replace('risk_','')+'"]').length,1);
+ for(const detail of document.querySelectorAll('.supplementary-references,.reference-provenance'))assert.equal(detail.open,false);
+ for(const ref of POLICY_REFERENCES.filter(r=>r.supplementary)){const a=document.querySelector('[data-reference="'+ref.id+'"] a');assert.equal(a.getAttribute('href'),ref.url);assert.equal(a.href,ref.url);}
  assert.equal($('#reference-library').open,false);assert.ok($('#reference-library').classList.contains('no-print'));assert.equal(document.querySelectorAll('label .term-help,summary .term-help').length,0);
  assert.ok(document.querySelectorAll('.term-help').length>4);const helper=document.querySelector('.term-help');assert.equal(helper.open,false);helper.querySelector('summary').click();assert.equal(helper.open,true);
  const search=$('#glossary-search');search.value='merchant cash';search.dispatchEvent(new window.Event('input',{bubbles:true}));assert.equal($('#glossary-results').children.length,1);assert.match($('#glossary-results').textContent,/Merchant Cash Advance/);
@@ -38,9 +42,20 @@ let JSDOM;try{({JSDOM}=await import(process.env.CF_JSDOM_MODULE||'jsdom'));}catc
  button.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));assert.equal(panel.hidden,true);assert.equal(document.activeElement,button);assert.equal(button.getAttribute('aria-expanded'),'false');
  button.click();assert.equal(panel.hidden,false);button.click();assert.equal(panel.hidden,true);button.click();panel.querySelector('button').click();assert.equal(panel.hidden,true);
  document.getElementById('outside').focus();button.focus();assert.equal(panel.hidden,false);document.getElementById('outside').focus();assert.equal(panel.hidden,true);
- const link=document.querySelector('#policy-radar-shortcut a');assert.equal(link.href,'https://tools.oneyco.com.au/policy-radar.html');assert.equal(link.rel,'noopener noreferrer');assert.equal(link.getAttribute('referrerpolicy'),'no-referrer');assert.match(link.parentElement.textContent,/Select Commercial/);
+ const link=document.querySelector('#policy-radar-shortcut a');assert.equal(link.href,'https://policy.oneyco.com.au/');assert.equal(link.rel,'noopener noreferrer');assert.equal(link.getAttribute('referrerpolicy'),'no-referrer');assert.doesNotMatch(link.parentElement.textContent,/Select Commercial/);assert.match(link.parentElement.textContent,/Reviewed and published by Oney/);
  assert.match(document.querySelector('#ring-quick-help').textContent,/gray means unassessed/);assert.match(document.querySelector('#evidence-quick-help').textContent,/still needs review/);
  const html=await readFile(new URL('../preview/credit-framework.html',import.meta.url),'utf8');assert.doesNotMatch(html,/[\u3400-\u9fff]/u);assert.match(html,/How to use this tool · 5 steps/);assert.match(html,/empty checklist does not confirm completeness/);assert.doesNotMatch(html,/<details[^>]*class="getting-started[^>]*open/);
  for(const file of ['reference-library.js','reference-data.js'])assert.doesNotMatch(await readFile(new URL('../assets/js/preview/credit-framework/'+file,import.meta.url),'utf8'),/[\u3400-\u9fff]/u);
  dom.window.close();
+});
+
+test('published Policy Radar sources preserve scope, observation and historical verification',()=>{
+ const refs=POLICY_REFERENCES.filter(r=>r.id.startsWith('policy_radar_'));
+ assert.equal(refs.length,6);
+ for(const ref of refs){assert.equal(new URL(ref.url).hostname,'policy.oneyco.com.au');assert.equal(ref.observedOn,'2026-10-16');assert.equal(ref.checkedOn,null);assert.equal(ref.sourceDate,null);assert.deepEqual(ref.triggerIds,[]);assert.doesNotMatch(JSON.stringify(ref),/select Commercial|tools\.oneyco/i);}
+ for(const area of RISK_AREAS){const guides=supplementaryReferencesFor({domainId:area.id});assert.equal(guides.length,1);assert.equal(guides[0].supplementary,true);assert.deepEqual(guides[0].domainIds,[]);assert.ok(guides[0].url.includes('+'));assert.equal(guides[0].readingDomainIds.length,1);}
+ for(const rule of RULES)assert.ok(referencesFor({triggerId:rule.id}).every(r=>!r.id.startsWith('policy_radar_')));
+ const commercial=refs.find(r=>r.id==='policy_radar_thinktank');assert.equal(commercial.sourceVerifiedOn,'2026-04-08');assert.match(commercial.sourceNote,/medium confidence/);assert.ok(!commercial.domainIds.includes('risk_management'));
+ assert.match(refs.find(r=>r.id==='policy_radar_library').scope,/Primarily residential/);
+ assert.match(refs.find(r=>r.id==='policy_radar_security').sourceNote,/not a full-page verification/);
 });

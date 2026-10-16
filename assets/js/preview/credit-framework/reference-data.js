@@ -205,34 +205,110 @@ export const GLOSSARY=[
 ];
 export const POLICY_REFERENCES=[
   {
-    "id": "policy_radar_search",
-    "title": "Policy Radar Search — select Commercial",
-    "url": "https://tools.oneyco.com.au/policy-radar.html",
-    "sourceType": "Oney editorial tool",
+    "id": "policy_radar_library",
+    "title": "Policy Radar — authoritative published library",
+    "url": "https://policy.oneyco.com.au/",
+    "sourceType": "Oney editorial reference · Obsidian Publish",
     "publisher": "Oney & Co",
-    "scope": "Mixed residential/commercial; select the Commercial tab",
-    "summary": "Oney’s commercial policy-navigation view. Opens on Residential by default; select Commercial. Dates and source coverage vary by lender. Confirm current criteria directly with the lender; this is not an eligibility result.",
-    "checkedOn": "2026-10-16",
+    "scope": "Primarily residential; supplementary reading only",
+    "summary": "The authoritative published Policy Radar knowledge and glossary library for Australian residential lending. Reviewed and published by Oney. Residential guidance must not be applied to SME/commercial cases.",
+    "checkedOn": null,
     "sourceDate": null,
+    "domainIds": [],
+    "triggerIds": [],
+    "observedOn": "2026-10-16"
+  },
+  {
+    "id": "policy_radar_management",
+    "title": "Policy Radar: Credit impairment",
+    "url": "https://policy.oneyco.com.au/60-Policy-Publish/Glossary/Credit+Impairment",
+    "sourceType": "Oney editorial summary",
+    "publisher": "Oney & Co",
+    "scope": "General concept with predominantly residential lender examples. Does not establish commercial conduct, ATO, SG or management requirements.",
+    "summary": "Explains common adverse credit-file events and their relevance to reviewing credit history.",
+    "checkedOn": null,
+    "sourceDate": null,
+    "domainIds": [],
+    "triggerIds": [],
+    "observedOn": "2026-10-16",
+    "readingDomainIds": [
+      "risk_management"
+    ],
+    "supplementary": true
+  },
+  {
+    "id": "policy_radar_transaction",
+    "title": "Policy Radar: Loan purpose guide",
+    "url": "https://policy.oneyco.com.au/60-Policy-Publish/Topics/Loan+Purpose+Guide",
+    "sourceType": "Oney editorial summary",
+    "publisher": "Oney & Co",
+    "scope": "Primarily residential, with some business-purpose discussion; not a commercial acceptance matrix.",
+    "summary": "Introduces loan-purpose categories and questions lenders may ask about intended use of funds.",
+    "checkedOn": null,
+    "sourceDate": null,
+    "domainIds": [],
+    "triggerIds": [],
+    "observedOn": "2026-10-16",
+    "readingDomainIds": [
+      "risk_transaction"
+    ],
+    "supplementary": true
+  },
+  {
+    "id": "policy_radar_servicing",
+    "title": "Policy Radar: Serviceability comparison",
+    "url": "https://policy.oneyco.com.au/60-Policy-Publish/Topics/Serviceability+Comparison",
+    "sourceType": "Oney editorial summary",
+    "publisher": "Oney & Co",
+    "scope": "Residential only; not SME cash-flow or commercial servicing rules.",
+    "summary": "Explains residential serviceability considerations involving assessment rates, expenses, existing debts and rental income.",
+    "checkedOn": null,
+    "sourceDate": null,
+    "domainIds": [],
+    "triggerIds": [],
+    "observedOn": "2026-10-16",
+    "readingDomainIds": [
+      "risk_servicing"
+    ],
+    "supplementary": true
+  },
+  {
+    "id": "policy_radar_security",
+    "title": "Policy Radar: Security type guide",
+    "url": "https://policy.oneyco.com.au/60-Policy-Publish/Topics/Security+Type+Guide",
+    "sourceType": "Oney editorial summary",
+    "publisher": "Oney & Co",
+    "scope": "Primarily residential; does not establish commercial GSA, ranking or guarantee adequacy.",
+    "summary": "Introduces property characteristics and title-related issues that may affect a lender's security review.",
+    "checkedOn": null,
+    "sourceDate": null,
+    "domainIds": [],
+    "triggerIds": [],
+    "observedOn": "2026-10-16",
+    "readingDomainIds": [
+      "risk_security"
+    ],
+    "supplementary": true,
+    "sourceNote": "A Bankwest construction correction is dated 2026-10-01; this is not a full-page verification date."
+  },
+  {
+    "id": "policy_radar_thinktank",
+    "title": "Thinktank — dated commercial research",
+    "url": "https://policy.oneyco.com.au/60-Policy-Publish/Lenders/Thinktank",
+    "sourceType": "Oney editorial lender overview",
+    "publisher": "Oney & Co",
+    "scope": "Mixed residential/commercial; distinguish the relevant sections. Commercial and SMSF specialist overview.",
+    "summary": "Oney's overview of Thinktank covers documentation, servicing and property-security topics. It is dated research, not confirmation of current lender appetite.",
+    "observedOn": "2026-10-16",
+    "checkedOn": null,
+    "sourceDate": null,
+    "sourceVerifiedOn": "2026-04-08",
+    "sourceNote": "Oney reports medium confidence. No linked primary source was observed; confirm current criteria directly with the lender.",
     "domainIds": [
-      "risk_management",
       "risk_transaction",
       "risk_servicing",
       "risk_security"
     ],
-    "triggerIds": []
-  },
-  {
-    "id": "policy_radar_library",
-    "title": "Policy Radar knowledge library",
-    "url": "https://policy.oneyco.com.au/",
-    "sourceType": "Oney editorial reference",
-    "publisher": "Oney & Co",
-    "scope": "Primarily residential; some mixed-scope lender records",
-    "summary": "Oney’s published topic and glossary library. Residential guidance must not be applied to SME/commercial cases. Its index says most lender records were verified in March–April 2026, with selected later checks; check each source’s date.",
-    "checkedOn": "2026-10-16",
-    "sourceDate": "Index marked last updated 2026-09-26; selected note dated 2026-10-01",
-    "domainIds": [],
     "triggerIds": []
   },
   {

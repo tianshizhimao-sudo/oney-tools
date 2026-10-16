@@ -1,5 +1,7 @@
 # Glossary and external-reference preview
 
+Historical implementation record: the Policy Radar URL, Commercial-tab instructions and source-date handling below are superseded by [Policy Radar authority review](2026-10-16-policy-authority-review.md).
+
 ## Scope
 
 20 manually curated abbreviations, English expansions and plain-English beginner explanations. Search matches abbreviations, aliases, full names and English explanations. Context definitions use only static field/rule metadata, never arbitrary rewriting of user-entered text. Native disclosures work by click, tap or keyboard and sit outside labels. Existing fields and review rules are unchanged.
