@@ -2,7 +2,7 @@ import test from 'node:test';import assert from 'node:assert/strict';import {rea
 import {blankState,initialState,buildAssessment,buildReport} from '../assets/js/preview/credit-framework/engine.js';
 import {buildRuleRing} from '../assets/js/preview/credit-framework/rule-ring.js';
 import {createRiskView,syncRiskInputs,confirmRiskArea} from '../assets/js/preview/credit-framework/manual-risk-view.js';
-import {createLiveTracker,updateLiveTracker} from '../assets/js/preview/credit-framework/live-desktop.js';
+import {createLiveTracker,updateLiveTracker,renderLiveDesktop} from '../assets/js/preview/credit-framework/live-desktop.js';
 const context=(s,manual=createRiskView())=>({inputKey:JSON.stringify(s.intake),tier:s.tier,rating:s.rating,ring:buildRuleRing(buildAssessment(s),s.tier),manual,evidence:s.evidence});
 test('live projection separates suggested from selected and unmapped input from risk changes',()=>{
  const s=blankState('comprehensive'),tracker=createLiveTracker();let m=updateLiveTracker(tracker,context(s));assert.match(m.message,/baseline/);
@@ -26,7 +26,8 @@ let JSDOM;try{({JSDOM}=await import(process.env.CF_JSDOM_MODULE||'jsdom'));}catc
 (JSDOM?test:test.skip)('desktop mounted live updates, single editor, unique IDs, focus, reset, tier and source-only print boundaries',async()=>{
  const html=await readFile(new URL('../preview/credit-framework.html',import.meta.url),'utf8');const dom=new JSDOM(html,{url:'https://example.test/preview/credit-framework.html?tier=comprehensive',pretendToBeVisual:true});const {window}=dom;window.matchMedia=()=>({matches:false});window.HTMLElement.prototype.scrollIntoView=function(){};for(const k of ['window','document','Node','location'])globalThis[k]=window[k];document.execCommand=()=>true;
  await import('../assets/js/preview/credit-framework/app.js');const $=s=>document.querySelector(s),click=s=>$(s).click(),change=(s,v,event='input')=>{$(s).focus();$(s).value=v;$(s).dispatchEvent(new window.Event(event,{bubbles:true}));};
- assert.equal(document.querySelectorAll('[data-live-domain]').length,4);assert.equal(document.querySelectorAll('[id^="risk-rating-"]').length,4);assert.ok($('#live-impact').classList.contains('no-print'));assert.ok($('#live-domain-rail').classList.contains('no-print'));
+ assert.equal($('#live-domain-rail').getAttribute('tabindex'),'0');assert.equal(document.querySelectorAll('[data-live-domain]').length,4);assert.equal(document.querySelectorAll('[id^="risk-rating-"]').length,4);assert.ok($('#live-impact').classList.contains('no-print'));assert.ok($('#live-domain-rail').classList.contains('no-print'));
+ click('.medium-overview-link');assert.equal(document.activeElement.id,'risk-rating-risk_management');
  click('[data-live-domain="risk_management"]');assert.equal($('#sec-manual .sec-body').hidden,false);assert.equal(document.activeElement.id,'risk-rating-risk_management');
  change('#risk-rating-risk_management','green','change');change('#risk-basis-risk_management','Synthetic basis');click('[data-confirm-risk="risk_management"]');assert.ok($('[data-live-outer="risk_management"]').classList.contains('green'));
  change('#f-conduct','Recent dishonours; ATO debt');assert.equal(document.activeElement.id,'f-conduct');assert.ok($('[data-live-outer="risk_management"]').classList.contains('not_assessed'));assert.match($('#live-impact').textContent,/Manual view status changed/);
@@ -45,4 +46,17 @@ test('overall pause and unknown entries stay explicit without implying domain ri
  s.rating='Black — Do Not Proceed';let m=updateLiveTracker(tracker,context(s));assert.match(m.message,/Overall pause status changed/);assert.equal(m.pause,true);assert.ok(m.rows.every(r=>r.inner==='not_assessed'));
  s.rating='Amber — Package Better';updateLiveTracker(tracker,context(s));s.rating='Green — Package Ready';m=updateLiveTracker(tracker,context(s));assert.match(m.message,/rating input changed/);assert.ok(m.rows.every(r=>r.inner==='not_assessed'));
  s.triggers=['unknown-entry'];m=updateLiveTracker(tracker,context(s));assert.match(m.message,/no domain mapping/);assert.equal(m.unknown,1);
+});
+
+(JSDOM?test:test.skip)('optional warning nodes never become null text and real warnings remain visible',()=>{
+ const dom=new JSDOM('<section id="live-impact"></section><aside id="live-domain-rail"></aside>');for(const k of ['window','document','Node'])globalThis[k]=dom.window[k];
+ for(const pause of [false,true])for(const unknown of [0,1]){
+  const m=updateLiveTracker(createLiveTracker(),context(blankState('comprehensive')));Object.assign(m,{pause,unknown,pauseText:'Synthetic overall stop warning'});renderLiveDesktop(m,()=>{});
+  for(const selector of ['#live-impact','#live-domain-rail']){const node=document.querySelector(selector);assert.doesNotMatch(node.textContent,/null|undefined/);assert.equal(node.querySelectorAll('.notice.warn').length,Number(pause)+unknown);if(pause)assert.match(node.textContent,/OVERALL PAUSE: Synthetic/);if(unknown)assert.match(node.textContent,/no domain mapping/);assert.ok([...node.childNodes].every(n=>n.nodeType!==3||!n.textContent.trim()));}
+  assert.equal(document.querySelectorAll('.live-ring-pinned .live-ring').length,1);assert.equal(document.querySelectorAll('.live-domain-details [data-live-domain]').length,4);assert.equal(document.querySelector('.live-domain-details').getAttribute('tabindex'),'0');
+ }dom.window.close();
+});
+test('sticky CSS keeps viewport ancestry and allows short-window natural scrolling',async()=>{
+ const css=await readFile(new URL('../assets/css/credit-framework-reading.css',import.meta.url),'utf8');
+ assert.match(css,/html,body\{overflow-x:visible;overflow-x:clip;overflow-y:visible\}/);assert.match(css,/#live-domain-rail\{display:flex;flex-direction:column;align-self:start;position:sticky/);assert.match(css,/max-height:calc\(100vh - 24px\);overflow:auto;padding:12px/);assert.match(css,/\.live-domain-details\{min-height:64px;overflow:auto/);assert.match(css,/@media screen and \(min-width:1101px\) and \(max-height:599px\)/);assert.match(css,/#live-domain-rail\{position:static;max-height:none;overflow:visible\}/);
 });

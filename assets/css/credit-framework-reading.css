@@ -63,6 +63,8 @@ button:focus-visible,summary:focus-visible{outline:3px solid var(--purple-l);out
 /* Desktop-only projection; canonical report/editor and mobile flow are unchanged. */
 .desktop-live{display:none}
 @media screen and (min-width:1101px){
+  /* hidden on either axis creates a scrolling ancestor that defeats viewport sticky. */
+  html,body{overflow-x:visible;overflow-x:clip;overflow-y:visible}
   #live-impact{display:block;border:1px solid var(--line);border-radius:12px;padding:12px;margin:0 0 16px;background:var(--card)}
   #live-impact h3,#live-domain-rail h3{font-size:16px;margin:0 0 8px}
   .live-change{border-left:3px solid var(--purple-l);padding-left:10px;margin-top:12px}
@@ -70,14 +72,27 @@ button:focus-visible,summary:focus-visible{outline:3px solid var(--purple-l);out
 }
 @media screen and (min-width:1450px){
   .wrap{width:min(1840px,calc(100% - 40px))}
-  .layout{grid-template-columns:minmax(300px,360px) minmax(480px,1fr) minmax(280px,320px);gap:16px}
-  #live-domain-rail{display:block;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;padding:14px;scrollbar-gutter:stable}
+  #live-domain-rail{display:flex;flex-direction:column;align-self:start;position:sticky;top:12px;max-height:calc(100vh - 24px);overflow:auto;padding:12px}
+  #live-domain-rail:focus-visible{outline:2px solid var(--purple-l);outline-offset:2px}
+  .live-ring-pinned{flex:none}
+  .live-domain-key{font-size:11px;display:grid;grid-template-columns:1fr 1fr;gap:2px;margin:4px 0 8px}
+  .medium-overview-link{display:none}
+  .live-ring-pinned .hint{margin-bottom:6px}
+  .live-domain-details{min-height:64px;overflow:auto;scrollbar-gutter:stable;padding:2px 4px 4px}
+  .live-domain-details:focus-visible{outline:2px solid var(--purple-l);outline-offset:2px}
   .live-outer-fill{stroke:var(--card);stroke-width:4;fill:#8a93a2}
   .live-outer-fill.green{fill:#2ecc85}.live-outer-fill.amber{fill:#e5ad43}.live-outer-fill.red{fill:#ed737f}
-  .live-ring{display:block;width:100%;max-width:260px;margin:auto}
+  .live-ring{display:block;width:100%;max-width:min(230px,28vh);margin:auto}
   .live-domain-button{display:grid;gap:5px;width:100%;text-align:left;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:10px;margin-top:8px;font:inherit;font-size:12px;min-height:44px;overflow-wrap:anywhere}
   .live-domain-button[data-changed="true"]{border:2px dashed var(--purple-l)}
   .live-domain-button:focus-visible{outline:3px solid var(--purple-l);outline-offset:2px}
   .live-domain-button .hint{margin:0}
+}
+@media screen and (min-width:1450px){
+  .layout{grid-template-columns:minmax(300px,360px) minmax(480px,1fr) minmax(280px,320px);gap:16px}
+}
+@media screen and (min-width:1101px) and (max-height:599px){
+  #live-domain-rail{position:static;max-height:none;overflow:visible}
+  .live-domain-details{overflow:visible}
 }
 @media print{.desktop-live{display:none!important}}

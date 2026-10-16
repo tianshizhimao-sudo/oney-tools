@@ -22,7 +22,7 @@ import { createMaterialReceipts, syncMaterialReceipts, buildMaterials, MATERIAL_
 
 import { buildRuleRing, ruleRingText } from './rule-ring.js?v=ring-2';
 
-import { createLiveTracker, updateLiveTracker, renderLiveDesktop } from './live-desktop.js?v=live-1';
+import { createLiveTracker, updateLiveTracker, renderLiveDesktop } from './live-desktop.js?v=live-2';
 
 const $ = (s, r = document) => r.querySelector(s);
 

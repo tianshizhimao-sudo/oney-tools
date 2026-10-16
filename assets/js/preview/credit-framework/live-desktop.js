@@ -41,15 +41,18 @@ export function updateLiveTracker(tracker, { inputKey, tier, ring, manual, evide
 }
 const el=(tag,attrs={},...children)=>{const n=document.createElement(tag);for(const [k,v]of Object.entries(attrs))n.setAttribute(k,v);for(const c of children.flat(Infinity))if(c!==null)n.append(c instanceof Node?c:document.createTextNode(String(c)));return n;};
 const svgNode=(tag,attrs,text)=>{const n=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const[k,v]of Object.entries(attrs))n.setAttribute(k,v);if(text!==undefined)n.textContent=text;return n;};
+// DOM replaceChildren stringifies null; optional warning nodes must be omitted.
+const replaceOptionalChildren=(target,...children)=>target.replaceChildren(...children.filter(child=>child!=null));
 const rendered = new WeakMap();
 export function renderLiveDesktop(model, openArea) {
   const panel=document.querySelector('#live-impact');const rail=document.querySelector('#live-domain-rail');if(!panel||!rail)return;
   const signature=JSON.stringify(model);if(rendered.get(panel)===signature)return;rendered.set(panel,signature);
   const changed=model.rows.filter(row=>row.changes.length);
-  panel.replaceChildren(el('h3',{},'Current-change explanation'),el('p',{class:'hint'},model.message),
+  const overviewLink=el('button',{type:'button',class:'medium-overview-link btn btn-secondary'},'Open four-domain overview and review');overviewLink.addEventListener('click',()=>openArea(model.rows[0].id));
+  replaceOptionalChildren(panel,el('h3',{},'Current-change explanation'),el('p',{class:'hint'},model.message),
     model.pause?el('p',{class:'notice warn'},`OVERALL PAUSE: ${model.pauseText}`):null,
     model.unknown?el('p',{class:'notice warn'},`${model.unknown} unrecognised trigger(s); no domain mapping.`):null,el('p',{class:'hint'},LIVE_BOUNDARY),
-    ...changed.map(row=>el('div',{class:'live-change','data-live-change':row.id},el('strong',{},row.label),el('p',{},row.changes.join(' · ')),
+    overviewLink,...changed.map(row=>el('div',{class:'live-change','data-live-change':row.id},el('strong',{},row.label),el('p',{},row.changes.join(' · ')),
       el('p',{class:'hint'},row.indicator),
       ...row.selected.map(q=>el('p',{class:'hint'},`${q.label}: ${q.why}${q.reasons.length ? ' Input rule: '+q.reasons.join('; ') : ''}`)),
       row.suggested.length ? el('p',{class:'hint'},`${row.suggested.length} unconfirmed input suggestion(s); confirm applicability in Inputs. They do not colour the inner ring.`):null,
@@ -60,10 +63,11 @@ export function renderLiveDesktop(model, openArea) {
   const arc=(outer,inner,start,end)=>`M ${point(outer,start).join(' ')} A ${outer} ${outer} 0 0 1 ${point(outer,end).join(' ')} L ${point(inner,end).join(' ')} A ${inner} ${inner} 0 0 0 ${point(inner,start).join(' ')} Z`;
   model.rows.forEach((row,i)=>{const start=-90+i*90,end=start+90;svg.append(svgNode('path',{d:arc(140,98,start,end),class:`live-outer-fill ${row.outerColour}`,'data-live-outer':row.id}),svgNode('path',{d:arc(86,48,start,end),class:`rule-ring-fill ${row.inner}`,'data-live-inner':row.id}));const [x,y]=point(119,start+45);svg.append(svgNode('text',{x,y,'text-anchor':'middle','dominant-baseline':'central',class:'risk-quadrant-number'},String(i+1)));});
   svg.append(svgNode('text',{x:'160',y:'163','text-anchor':'middle',class:'risk-centre'},'Sources'));
-  rail.replaceChildren(el('h3',{},'Four-domain overview'),
-    el('p',{class:'hint'},`Scope: ${model.tier}. Inner: purple selected review triggers, grey unassessed. Outer: manual judgement; grey includes draft or stale.`),
+  replaceOptionalChildren(rail,el('div',{class:'live-ring-pinned'},el('h3',{},'Four-domain overview'),
+    svg,el('div',{class:'live-domain-key'},...model.rows.map((row,i)=>el('span',{},`${i+1}. ${row.label}`))),el('p',{class:'hint'},`Scope: ${model.tier}. Inner: selected triggers / unassessed. Outer: manual judgement / draft or stale.`),
     model.pause?el('p',{class:'notice warn'},`OVERALL PAUSE: ${model.pauseText}`):null,
     model.unknown?el('p',{class:'notice warn'},`${model.unknown} unrecognised trigger(s); no domain mapping.`):null,
-    svg,el('p',{class:'hint'},'Equal areas are not proportions or a score. Counts are review priorities, not risk severity.'),
-    ...model.rows.map((row,i)=>{const button=el('button',{type:'button',class:'live-domain-button','data-live-domain':row.id,'data-changed':String(row.changes.length>0)},el('strong',{},`${i+1}. ${row.label}`),el('span',{},`Inner: ${row.indicator}`),el('span',{},`Outer: ${row.outer}`),el('span',{class:'hint'},row.changes.length?'Display changed · Open review':'Open review'));button.addEventListener('click',()=>openArea(row.id));return button;}));
+    el('p',{class:'hint'},'Equal areas are not a risk score. Purple: selected triggers; grey: unassessed.')),
+    el('div',{class:'live-domain-details',tabindex:'0',role:'region','aria-label':'Domain review links'},
+    ...model.rows.map((row,i)=>{const button=el('button',{type:'button',class:'live-domain-button','data-live-domain':row.id,'data-changed':String(row.changes.length>0)},el('strong',{},`${i+1}. ${row.label}`),el('span',{},`Inner: ${row.indicator}`),el('span',{},`Outer: ${row.outer}`),el('span',{class:'hint'},row.changes.length?'Display changed · Open review':'Open review'));button.addEventListener('click',()=>openArea(row.id));return button;})));
 }
