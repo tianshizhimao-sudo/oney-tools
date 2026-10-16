@@ -24,6 +24,8 @@ import { buildRuleRing, ruleRingText } from './rule-ring.js?v=ring-2';
 
 import { createLiveTracker, updateLiveTracker, renderLiveDesktop } from './live-desktop.js?v=live-2';
 
+import { glossaryHelp, contextualReferences, mountReferenceLibrary, FIELD_TERMS } from './reference-library.js?v=reference-1';
+
 const $ = (s, r = document) => r.querySelector(s);
 
 /** Safe element builder: strings become text nodes, never HTML. */
@@ -184,7 +186,7 @@ function renderPresetField(f, id) {
     choices,
     el('small', { class: 'hint preset-help' }, f.key === 'documents'
       ? 'Availability is reported only, not reviewed or verified. Choices add to retained details.'
-      : f.key === 'conduct' ? 'No concerns reported is unverified. Existing concerns and retained details stay included; reconcile any differences. Unknown does not mean none.' : 'Choices add to retained details below. Unknown does not mean none.'), reviewNote, f.key === 'conduct' ? el('p', { id: 'conduct-input-note', class: 'notice info', role: 'status', hidden: true }) : null, details);
+      : f.key === 'conduct' ? 'No concerns reported is unverified. Existing concerns and retained details stay included; reconcile any differences. Unknown does not mean none.' : 'Choices add to retained details below. Unknown does not mean none.'), glossaryHelp([config.label,FIELD_TERMS[f.key]||'',...config.options.map(option=>option.label)].join(' ')), reviewNote, f.key === 'conduct' ? el('p', { id: 'conduct-input-note', class: 'notice info', role: 'status', hidden: true }) : null, details);
 }
 
 function renderIntakeForm() {
@@ -250,7 +252,7 @@ function renderIntakeForm() {
         renderOutput();
       });
       const field = el('div', { class: 'field' }, el('label', { for: id }, f.label), control,
-        f.money ? el('small', { class: 'hint money-help', id: `${id}-help` }, 'AUD · e.g. 1,250,000.50 · blank means not provided') : null, error);
+        f.money ? el('small', { class: 'hint money-help', id: `${id}-help` }, 'AUD · e.g. 1,250,000.50 · blank means not provided') : null, error, glossaryHelp([f.label,FIELD_TERMS[f.key]||'',f.money?'AUD':'',...Object.values(f.options||{})].join(' ')));
       const optionalLabels = { scenario: 'Scenario context (optional)', borrower: 'Structure details (optional)', deferralReason: 'Exact lender wording (optional)' };
       return optionalLabels[f.key] ? el('details', { class: 'manual-details' }, el('summary', {}, optionalLabels[f.key]), field) : field;
     });
@@ -278,7 +280,7 @@ function renderIntakeForm() {
   const groups = TRIGGER_GROUPS.map((group) => {
     const box = el('details', { class: 'risk-group', id: `risk-group-${group.id}`, open: triggerGroupsExpanded.has(group.id) ? true : null },
       el('summary', {}, el('span', {}, el('strong', {}, group.label), el('small', {}, group.hint)), el('span', { class: 'group-count', 'data-group-count': group.id })),
-      el('div', { class: 'risk-group-body' }, group.rules.map((id) => trigNodes[id])));
+      el('div', { class: 'risk-group-body' }, group.rules.map((id) => trigNodes[id]), glossaryHelp(group.rules.map(id=>RULES.find(rule=>rule.id===id).triggerLabel).join(' '))));
     box.addEventListener('toggle', () => { if (box.open) triggerGroupsExpanded.add(group.id); else triggerGroupsExpanded.delete(group.id); });
     return box;
   });
@@ -533,6 +535,7 @@ function renderSection(s, report) {
           el('h4', {}, `${i + 1}. ${q.trigger}`, el('span', { class: `prio ${q.priority}` }, q.priority), kindBadge(q.kind)),
           el('p', {}, el('span', { class: 'lbl' }, 'Question: '), q.question),
           el('p', {}, el('span', { class: 'lbl' }, 'Why it matters: '), q.whyItMatters),
+          glossaryHelp([q.trigger,q.question,...q.evidence].join(' ')), contextualReferences({triggerId:q.id}),
           el('div', {}, el('span', { class: 'lbl' }, 'Evidence to request:'), el('ul', {}, q.evidence.map((e) => el('li', {}, e)))),
           q.ifStrong ? [
             el('p', { class: 'gated', 'data-gated': 'ifStrong' }, el('span', { class: 'lbl' }, 'If strong: '), q.ifStrong),
@@ -716,6 +719,7 @@ function renderOutput() {
     el('p', { class: 'hint' }, `Scope: ${state.tier}; ${ruleRing.omitted} selected trigger(s) omitted by this tier.`),
     ruleRing.pause ? el('p', { class: 'notice warn', id: 'ring-pause' }, `OVERALL PAUSE: ${ruleRing.pauseText} The rings do not override this.`) : null,
     ruleRing.unknownCount ? el('p', { class: 'notice warn', id: 'ring-unknown' }, `${ruleRing.unknownCount} unrecognised trigger(s) have no ring mapping; review required.`) : null), comparison.querySelector('.sec-body'));
+  comparison.querySelector('.sec-body').append(el('div',{class:'domain-reference-links no-print'},el('p',{class:'hint'},'General domain reading, not a finding that an issue applies to this case. Confirm source scope before relying on it.'),RISK_AREAS.map(area=>el('div',{},el('h4',{},area.label),glossaryHelp(area.manualScope),contextualReferences({domainId:area.id})))));
   out.append(comparison);
   out.append(renderMaterials(materials));
   for (const s of report.sections) {
@@ -865,3 +869,4 @@ function renderFeedback() {
 
 renderAll();
 renderFeedback();
+mountReferenceLibrary(document.querySelector('#reference-content'));

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 const html=await readFile(new URL('../preview/credit-framework.html',import.meta.url),'utf8');
 const css=await readFile(new URL('../assets/css/credit-framework-reading.css',import.meta.url),'utf8');
-const polish=css.split('/* Readability polish:')[1];
+const polish=css.split('/* Readability polish:')[1].split('/* Reference helpers')[0];
 test('readability changes are screen-only with wrapping and mobile sizing, preserving sticky and print rules',()=>{
  assert.ok(polish);assert.match(polish,/@media screen\{/);assert.doesNotMatch(polish,/@media print|position:fixed|overflow:hidden|display:none/);
  assert.match(polish,/font-size:17px;line-height:1.5;min-height:48px/);assert.match(polish,/\.money-control\{font-size:18px/);

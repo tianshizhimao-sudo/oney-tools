@@ -777,6 +777,32 @@ test('edited or custom input withdraws model judgement (rules still run)', () =>
 
 /* ------------------------------ static / safety scans ------------------------------ */
 
+const CURATED_REFERENCE_URLS = [
+  "https://business.gov.au/finance/financial-tools-and-templates/key-financial-terms",
+  "https://business.gov.au/finance/funding/apply-for-a-business-loan",
+  "https://moneysmart.gov.au/glossary/loan-to-value-ratio-lvr",
+  "https://moneysmart.gov.au/how-super-works/self-managed-super-fund-smsf",
+  "https://policy.oneyco.com.au/",
+  "https://tools.oneyco.com.au/policy-radar.html",
+  "https://www.abr.gov.au/business-super-funds-charities/applying-abn",
+  "https://www.adobe.com/acrobat/about-adobe-pdf.html",
+  "https://www.anz.com.au/business/loans-finance/online-business-lending/",
+  "https://www.apra.gov.au/sites/default/files/2025-06/Reporting%20Standard%20ARS%20223.0%20Residential%20Mortgage%20Lending%20-%20Clean.pdf",
+  "https://www.asic.gov.au/about-asic/corporate-publications/newsletters/asic-corporate-finance-update/corporate-finance-update-issue-23",
+  "https://www.ato.gov.au/about-ato/research-and-statistics/in-detail/research-for-individuals-and-families/tax-and-individuals-not-in-business",
+  "https://www.ato.gov.au/businesses-and-organisations/preparing-lodging-and-paying/business-activity-statements-bas",
+  "https://www.ato.gov.au/businesses-and-organisations/super-for-employers/paying-super-contributions/how-to-pay-super/small-business-superannuation-clearing-house",
+  "https://www.ato.gov.au/tax-rates-and-codes/key-superannuation-rates-and-thresholds/super-guarantee",
+  "https://www.charterhall.com.au/future-planning",
+  "https://www.cotality.com/au/products/avm",
+  "https://www.nab.com.au/business/small-business/moments/starting-out/buy-business/apply-finance",
+  "https://www.prospa.com/types-of-business-loans",
+  "https://www.rba.gov.au/education/resources/explainers/drivers-of-the-aud-exchange-rate.html",
+  "https://www.rba.gov.au/publications/bulletin/2018/sep/access-to-small-business-finance.html",
+  "https://www.westpac.com.au/bank-accounts/finlit/compound-interest",
+  "https://www.xero.com/au/glossary/ebitda/",
+  "https://www.xero.com/us/guides/ytd-meaning/"
+];
 const PAGE = 'preview/credit-framework.html';
 const MODULE_DIR = 'assets/js/preview/credit-framework/';
 const shipped = async () => {
@@ -796,17 +822,21 @@ test('noindex, CSP and no external data calls / network APIs', async () => {
     assert.doesNotMatch(src, /\bfetch\s*\(|XMLHttpRequest|WebSocket|EventSource|sendBeacon|import\s*\(\s*['"]https?:/, f);
     assert.doesNotMatch(src, /localStorage|sessionStorage|indexedDB|document\.cookie/, f);
     const urls = [...src.matchAll(/https?:\/\/[^\s"'<>)]+/g)].map((m) => m[0]).filter((u) => !u.startsWith('http://www.w3.org/'));
-    assert.deepEqual(urls, [], `${f} external URLs`);
+    assert.deepEqual([...new Set(urls)].sort(), f === MODULE_DIR + 'reference-data.js' ? CURATED_REFERENCE_URLS : [], `${f} external URLs must match the reviewed static reference allowlist`);
     assert.doesNotMatch(src, /<script[^>]+src="(?!\/assets\/js\/preview\/credit-framework\/)/, f);
     for (const match of src.matchAll(/<link[^>]+href="([^"]+)"/g)) {
-      assert.ok(['data:,', '/preview/credit-framework.webmanifest', '/assets/icons/credit-framework/apple-touch-icon.png', '/assets/css/credit-framework-mobile.css', '/assets/css/credit-framework-reading.css?v=reading-6'].includes(match[1]), `${f} unexpected linked resource ${match[1]}`);
+      assert.ok(['data:,', '/preview/credit-framework.webmanifest', '/assets/icons/credit-framework/apple-touch-icon.png', '/assets/css/credit-framework-mobile.css', '/assets/css/credit-framework-reading.css?v=reading-7'].includes(match[1]), `${f} unexpected linked resource ${match[1]}`);
     }
   }
 });
 
 test('no secrets, credentials or production endpoints in shipped files', async () => {
   const patterns = [/sk-[A-Za-z0-9]{16,}/, /eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/, /\bre_[A-Za-z0-9]{16,}/, /AKIA[0-9A-Z]{16}/, /gh[pous]_[A-Za-z0-9]{20,}/, /supabase/i, /service_role/i, /api[_-]?key/i, /password/i, /bearer\s/i, /resend/i, /@oneyco\.com\.au/i, /\b04\d{2}\s?\d{3}\s?\d{3}\b/];
-  for (const { f, src } of await shipped()) for (const p of patterns) assert.doesNotMatch(src, p, `${f} ${p}`);
+  for (const { f, src } of await shipped()) {
+    // This single URL-parser property checks for embedded credentials; it is not a credential value.
+    const scanned = f === MODULE_DIR + 'reference-library.js' ? src.replace('parsed.password', 'URL_CREDENTIAL_COMPONENT') : src;
+    for (const p of patterns) assert.doesNotMatch(scanned, p, `${f} ${p}`);
+  }
 });
 
 test('prototype is not linked from production navigation, sitemap or registries', async () => {

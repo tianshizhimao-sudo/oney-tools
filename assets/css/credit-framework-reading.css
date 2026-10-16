@@ -148,3 +148,25 @@ button:focus-visible,summary:focus-visible{outline:3px solid var(--purple-l);out
   #intake .control,#intake .manual-details .control{font-size:17px}
   #intake .money-control{font-size:18px}
 }
+
+/* Reference helpers are opt-in educational UI, separate from report exports. */
+.reference-library{margin:16px 0;padding:14px 18px;overflow-wrap:anywhere}
+.reference-library>summary{cursor:pointer;font-size:16px;font-weight:750;min-height:44px;padding:9px 0}
+#reference-content{padding-top:12px;max-width:100%}
+#reference-content>label{font-size:15px;font-weight:700;display:block;margin-bottom:8px}
+#glossary-search{max-width:560px}
+#glossary-results{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:14px;margin:12px 0 22px}
+#glossary-results>div{border:1px solid var(--line);border-radius:10px;padding:12px;min-width:0}
+.reference-library dt,.term-help dt{font-weight:750;font-size:15px;line-height:1.5}
+.reference-library dd,.term-help dd{margin:5px 0 12px;line-height:1.65;font-size:14px}
+.term-help,.context-references{margin:10px 0;border-top:1px dashed var(--line);padding-top:4px;overflow-wrap:anywhere}
+.term-help>summary,.context-references>summary,.reference-sources>summary{font-size:14px;line-height:1.5;cursor:pointer;min-height:44px;padding:10px 0;font-weight:700}
+.term-help dl{margin:8px 0;padding:0 4px}
+.reference-card{border-left:3px solid var(--line);padding:6px 12px;margin:12px 0;min-width:0}
+.reference-card h4{font-size:15px;line-height:1.5;margin:0 0 6px}
+.reference-card p{font-size:14px;line-height:1.6;margin:6px 0}
+.reference-card .hint{font-size:12px}
+.reference-source{font-weight:700}
+.reference-library a,.term-help a,.context-references a{color:var(--text);text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.reference-library a:focus-visible,.term-help a:focus-visible,.context-references a:focus-visible{outline:3px solid var(--purple-l);outline-offset:3px}
+@media print{.reference-library,.term-help,.context-references,.domain-reference-links{display:none!important}}
