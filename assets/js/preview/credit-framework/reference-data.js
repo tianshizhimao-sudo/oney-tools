@@ -3,7 +3,7 @@ export const GLOSSARY=[
   {
     "term": "ATO",
     "full": "Australian Taxation Office",
-    "zh": "澳大利亚税务局，负责管理联邦税务和相关养老金事务。",
+    "explanation": "Australia's tax authority, which administers federal taxes and parts of the superannuation system.",
     "source": "https://www.ato.gov.au/about-ato/research-and-statistics/in-detail/research-for-individuals-and-families/tax-and-individuals-not-in-business",
     "aliases": [
       "ATO"
@@ -13,7 +13,7 @@ export const GLOSSARY=[
   {
     "term": "SG",
     "full": "Superannuation Guarantee",
-    "zh": "雇主为符合条件的员工缴纳的法定养老金供款；这里的“保证”指养老金缴款制度。",
+    "explanation": "Compulsory employer contributions to eligible employees' retirement savings. 'Guarantee' refers to this contribution system.",
     "source": "https://www.ato.gov.au/tax-rates-and-codes/key-superannuation-rates-and-thresholds/super-guarantee",
     "aliases": [
       "SG"
@@ -23,7 +23,7 @@ export const GLOSSARY=[
   {
     "term": "LVR",
     "full": "Loan-to-Value Ratio",
-    "zh": "贷款或债务金额与相关资产价值的比例，通常用百分比表示；需核对债务和估值口径。",
+    "explanation": "The loan or debt amount divided by the value of the related asset, usually expressed as a percentage. Check which debt amount and valuation are used.",
     "source": "https://moneysmart.gov.au/glossary/loan-to-value-ratio-lvr",
     "aliases": [
       "LVR"
@@ -33,7 +33,7 @@ export const GLOSSARY=[
   {
     "term": "MCA",
     "full": "Merchant Cash Advance",
-    "zh": "商户预支融资：先取得一笔资金，再按合同约定从未来销售收入中支付相应款项。",
+    "explanation": "Finance that provides a lump sum in return for payments from future business sales, under the provider's contract.",
     "source": "https://www.prospa.com/types-of-business-loans",
     "aliases": [
       "MCA"
@@ -43,7 +43,7 @@ export const GLOSSARY=[
   {
     "term": "DTI",
     "full": "Debt-to-Income Ratio",
-    "zh": "债务与收入的比例；债务、收入及时间口径须另行确认，不应直接当成月还款占收入比。本工具不会仅凭缩写计算还款能力。",
+    "explanation": "Total debt compared with income. Check which debt, income and reporting period are included; this is not a monthly repayment-to-income ratio. The term alone does not assess repayment capacity, and residential DTI thresholds must not be applied to SME/commercial cases.",
     "source": "https://www.apra.gov.au/sites/default/files/2025-06/Reporting%20Standard%20ARS%20223.0%20Residential%20Mortgage%20Lending%20-%20Clean.pdf",
     "aliases": [
       "DTI"
@@ -53,7 +53,7 @@ export const GLOSSARY=[
   {
     "term": "WALE",
     "full": "Weighted Average Lease Expiry",
-    "zh": "加权平均剩余租期：将各份租约距离到期的时间，按租金收入或面积等权重计算平均值；权重口径可能不同。",
+    "explanation": "The average time remaining until leases expire, weighted by factors such as rental income or floor area. Check which weighting method is used.",
     "source": "https://www.charterhall.com.au/future-planning",
     "aliases": [
       "WALE"
@@ -63,7 +63,7 @@ export const GLOSSARY=[
   {
     "term": "BAS",
     "full": "Business Activity Statement",
-    "zh": "企业活动报表，用来向澳大利亚税务局申报和缴付相关税项，例如商品及服务税。",
+    "explanation": "A form businesses use to report and pay relevant taxes to the ATO, such as goods and services tax.",
     "source": "https://www.ato.gov.au/businesses-and-organisations/preparing-lodging-and-paying/business-activity-statements-bas",
     "aliases": [
       "BAS"
@@ -73,7 +73,7 @@ export const GLOSSARY=[
   {
     "term": "YTD",
     "full": "Year to Date",
-    "zh": "从所用年度的起点累计到报表截止日的数据；需结合报表日期判断是财年还是自然年。",
+    "explanation": "Figures accumulated from the start of the reporting year to the report date. Check whether the report uses a financial year or a calendar year.",
     "source": "https://www.xero.com/us/guides/ytd-meaning/",
     "aliases": [
       "YTD"
@@ -83,7 +83,7 @@ export const GLOSSARY=[
   {
     "term": "FY",
     "full": "Financial Year",
-    "zh": "财年，用于财务报告的一年。FY24、FY25通常表示截至2024、2025年的财年；具体起止日期以报表为准。",
+    "explanation": "A 12-month financial reporting period. FY24 and FY25 usually mean financial years ending in 2024 and 2025; confirm the dates in the statements.",
     "source": "https://business.gov.au/finance/financial-tools-and-templates/key-financial-terms",
     "aliases": [
       "FY",
@@ -95,7 +95,7 @@ export const GLOSSARY=[
   {
     "term": "SME",
     "full": "Small and Medium-sized Enterprise",
-    "zh": "中小企业的统称；不同机构对企业规模的分类口径可能不同。",
+    "explanation": "A small or medium-sized business. Organisations may use different measures to define these size categories.",
     "source": "https://www.rba.gov.au/publications/bulletin/2018/sep/access-to-small-business-finance.html",
     "aliases": [
       "SME"
@@ -105,7 +105,7 @@ export const GLOSSARY=[
   {
     "term": "SMSF",
     "full": "Self-managed Superannuation Fund",
-    "zh": "自主管理养老金基金，由成员以受托人或公司受托人董事等身份参与管理退休储蓄。",
+    "explanation": "A retirement savings fund managed by its members as trustees or directors of a corporate trustee.",
     "source": "https://moneysmart.gov.au/how-super-works/self-managed-super-fund-smsf",
     "aliases": [
       "SMSF"
@@ -115,7 +115,7 @@ export const GLOSSARY=[
   {
     "term": "AVM",
     "full": "Automated Valuation Model",
-    "zh": "自动估值模型，利用房产数据和模型估算价值；不等同于每次均进行现场检查或正式估值。",
+    "explanation": "A model that estimates property value using property data. It does not necessarily involve a physical inspection or replace a formal valuation.",
     "source": "https://www.cotality.com/au/products/avm",
     "aliases": [
       "AVM"
@@ -125,7 +125,7 @@ export const GLOSSARY=[
   {
     "term": "NPAT",
     "full": "Net Profit After Tax",
-    "zh": "税后净利润，即扣除相关费用和所得税后剩余的利润；“调整后”等修饰词须另看定义。",
+    "explanation": "Profit remaining after relevant expenses and income tax. Check separate definitions for labels such as 'adjusted NPAT'.",
     "source": "https://www.asic.gov.au/about-asic/corporate-publications/newsletters/asic-corporate-finance-update/corporate-finance-update-issue-23",
     "aliases": [
       "NPAT"
@@ -135,7 +135,7 @@ export const GLOSSARY=[
   {
     "term": "EBITDA",
     "full": "Earnings Before Interest, Taxes, Depreciation and Amortisation",
-    "zh": "息税折旧摊销前利润：在扣除利息、所得税、折旧和摊销之前观察的盈利指标；不等同于现金流。",
+    "explanation": "A measure of earnings before deducting interest, income tax, depreciation and amortisation. It is not the same as cash flow.",
     "source": "https://www.xero.com/au/glossary/ebitda/",
     "aliases": [
       "EBITDA"
@@ -145,7 +145,7 @@ export const GLOSSARY=[
   {
     "term": "GSA",
     "full": "General Security Agreement",
-    "zh": "一般担保协议，用来约定贷款方对企业相关资产享有的担保权益；涵盖哪些资产取决于协议。",
+    "explanation": "An agreement giving a lender security rights over specified business assets. The agreement determines which assets are covered; the term alone does not show whether security is adequate.",
     "source": "https://www.anz.com.au/business/loans-finance/online-business-lending/",
     "aliases": [
       "GSA"
@@ -155,7 +155,7 @@ export const GLOSSARY=[
   {
     "term": "ABN",
     "full": "Australian Business Number",
-    "zh": "澳大利亚商业号码，用来识别企业或组织的11位号码。请勿在本工具输入真实ABN。",
+    "explanation": "An 11-digit number that identifies an Australian business or organisation. Do not enter a real ABN in this tool.",
     "source": "https://www.abr.gov.au/business-super-funds-charities/applying-abn",
     "aliases": [
       "ABN"
@@ -165,7 +165,7 @@ export const GLOSSARY=[
   {
     "term": "AUD",
     "full": "Australian Dollar",
-    "zh": "澳大利亚元，常称澳元；AUD是其货币代码。",
+    "explanation": "The currency code for the Australian dollar.",
     "source": "https://www.rba.gov.au/education/resources/explainers/drivers-of-the-aud-exchange-rate.html",
     "aliases": [
       "AUD"
@@ -175,7 +175,7 @@ export const GLOSSARY=[
   {
     "term": "SBSCH",
     "full": "Small Business Superannuation Clearing House",
-    "zh": "小企业养老金清算服务，曾由ATO提供。该服务已于2026年7月1日永久关闭；此处仅用于识别历史缴款记录，并非目前可使用的服务或通用材料要求。",
+    "explanation": "A former ATO service for small-business superannuation payments. It closed permanently on 1 July 2026. This term helps identify historical payment records; it is not an available service or a general document requirement.",
     "source": "https://www.ato.gov.au/businesses-and-organisations/super-for-employers/paying-super-contributions/how-to-pay-super/small-business-superannuation-clearing-house",
     "aliases": [
       "SBSCH"
@@ -185,7 +185,7 @@ export const GLOSSARY=[
   {
     "term": "p.a.",
     "full": "Per Annum",
-    "zh": "每年。利率或金额按年度表述，实际计息及付款方式须看相应条款。",
+    "explanation": "Per year. An interest rate or amount is expressed annually; the relevant terms determine how interest is calculated and payments are made.",
     "source": "https://www.westpac.com.au/bank-accounts/finlit/compound-interest",
     "aliases": [
       "p.a."
@@ -195,7 +195,7 @@ export const GLOSSARY=[
   {
     "term": "PDF",
     "full": "Portable Document Format",
-    "zh": "便携式文档格式，便于在不同设备上保留文档版式的文件格式。",
+    "explanation": "A file format designed to preserve a document's layout across different devices.",
     "source": "https://www.adobe.com/acrobat/about-adobe-pdf.html",
     "aliases": [
       "PDF"

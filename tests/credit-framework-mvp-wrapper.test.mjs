@@ -825,7 +825,7 @@ test('noindex, CSP and no external data calls / network APIs', async () => {
     assert.deepEqual([...new Set(urls)].sort(), f === MODULE_DIR + 'reference-data.js' ? CURATED_REFERENCE_URLS : [], `${f} external URLs must match the reviewed static reference allowlist`);
     assert.doesNotMatch(src, /<script[^>]+src="(?!\/assets\/js\/preview\/credit-framework\/)/, f);
     for (const match of src.matchAll(/<link[^>]+href="([^"]+)"/g)) {
-      assert.ok(['data:,', '/preview/credit-framework.webmanifest', '/assets/icons/credit-framework/apple-touch-icon.png', '/assets/css/credit-framework-mobile.css', '/assets/css/credit-framework-reading.css?v=reading-7'].includes(match[1]), `${f} unexpected linked resource ${match[1]}`);
+      assert.ok(['data:,', '/preview/credit-framework.webmanifest', '/assets/icons/credit-framework/apple-touch-icon.png', '/assets/css/credit-framework-mobile.css', '/assets/css/credit-framework-reading.css?v=reading-8'].includes(match[1]), `${f} unexpected linked resource ${match[1]}`);
     }
   }
 });

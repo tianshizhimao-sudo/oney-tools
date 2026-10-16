@@ -24,7 +24,7 @@ import { buildRuleRing, ruleRingText } from './rule-ring.js?v=ring-2';
 
 import { createLiveTracker, updateLiveTracker, renderLiveDesktop } from './live-desktop.js?v=live-2';
 
-import { glossaryHelp, contextualReferences, mountReferenceLibrary, FIELD_TERMS } from './reference-library.js?v=reference-1';
+import { glossaryHelp, contextualReferences, mountReferenceLibrary, mountGettingStarted, FIELD_TERMS } from './reference-library.js?v=reference-2';
 
 const $ = (s, r = document) => r.querySelector(s);
 
@@ -870,3 +870,5 @@ function renderFeedback() {
 renderAll();
 renderFeedback();
 mountReferenceLibrary(document.querySelector('#reference-content'));
+
+mountGettingStarted();
