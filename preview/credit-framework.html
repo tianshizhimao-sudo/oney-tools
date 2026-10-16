@@ -350,7 +350,7 @@
     }
   </style>
   <link rel="stylesheet" href="/assets/css/credit-framework-mobile.css">
-  <link rel="stylesheet" href="/assets/css/credit-framework-reading.css?v=reading-5">
+  <link rel="stylesheet" href="/assets/css/credit-framework-reading.css?v=reading-6">
 </head>
 <body>
   <div class="watermark" aria-hidden="true" id="watermark">
@@ -381,12 +381,14 @@
     <div class="layout">
       <aside class="card intake no-print" id="intake" aria-label="Deal intake">
         <h2>1 · Intake</h2>
-        <p class="hint">Load a synthetic sample, or start blank and enter your own deal <strong>de-identified</strong> (no names, ABNs, addresses or account numbers). Use quick choices, then open the risk categories that apply. Details are optional. Any edit switches to a custom scenario (rule output only).</p>
+        <p class="intake-intro">Start blank or try a synthetic sample. Enter <strong>de-identified details only</strong>: no names, ABNs, addresses or account numbers.</p>
+        <details class="intake-guide"><summary>How to fill this in</summary><p>Use quick choices, then open the risk categories that apply. Additional details are optional.</p></details>
+        <p class="hint">Any edit switches to a custom scenario (rule output only).</p>
         <div class="case-picker" id="case-picker" role="group" aria-label="Start a blank case or load a synthetic example"></div>
         <a class="btn btn-secondary jump" href="#output" id="jump-output">View output ↓</a>
 
         <div class="field" style="margin:10px 0">
-          <span class="lbl" style="font-size:12.5px">Output tier</span>
+          <span class="lbl tier-label">Output tier</span>
           <div class="tiers" role="tablist" aria-label="Output tier" id="tier-intake"></div>
         </div>
 

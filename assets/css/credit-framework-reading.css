@@ -96,3 +96,55 @@ button:focus-visible,summary:focus-visible{outline:3px solid var(--purple-l);out
   .live-domain-details{overflow:visible}
 }
 @media print{.desktop-live{display:none!important}}
+
+/* Readability polish: screen only; preserve report print sizing and sticky geometry. */
+@media screen{
+  #intake h2,.out-head h2{font-size:22px;line-height:1.25;margin-bottom:10px}
+  .intake-intro{font-size:14px;line-height:1.6;margin:0 0 12px;color:var(--muted)}
+  .intake-intro strong{color:var(--text)}
+  .intake-guide{margin:10px 0 16px;font-size:14px}
+  .intake-guide>summary{min-height:44px;cursor:pointer;font-weight:700;padding:10px 0;color:var(--text)}
+  .intake-guide p{margin:0 0 10px;line-height:1.6;color:var(--muted)}
+  #intake .case-group{padding:12px;gap:10px}
+  #intake .case-group legend{font-size:15px}
+  #intake .case-btn{font-size:15px;line-height:1.45;padding:12px;min-height:48px}
+  #intake .tier-label{font-size:15px;font-weight:700}
+  #intake details.sec{margin:14px 0}
+  #intake details.sec>summary{font-size:16px;line-height:1.4;padding:14px;min-height:52px;gap:12px}
+  #intake .fields{gap:20px;padding:4px 14px 16px}
+  #intake .field{gap:8px;min-width:0}
+  #intake :is(.field label,.preset-label){font-size:15px;font-weight:750;line-height:1.45}
+  .control,.manual-details .control{font-size:17px;line-height:1.5;min-height:48px;padding:12px;max-width:100%;min-width:0}
+  #intake .money-control{font-size:18px;letter-spacing:.01em}
+  textarea.control{min-height:96px}
+  .control::placeholder{color:var(--muted);opacity:1}
+  #intake :is(.hint,.money-help,.preset-help,.preset-field>.hint,.preset-review-note,.field-error){font-size:13px;line-height:1.55}
+  #intake .preset-options{gap:8px}
+  #intake .preset-choice{font-size:15px;line-height:1.45;padding:11px 12px;min-height:48px;max-width:100%;overflow-wrap:anywhere}
+  #intake .manual-details{font-size:14px;margin-top:10px}
+  #intake .manual-details>summary{font-size:14px;line-height:1.45;padding:12px 0;min-height:44px}
+  #intake .selected-risk-summary{font-size:14px;line-height:1.5}
+  #intake .selected-risk-chip{font-size:13px;min-height:44px;padding:9px 10px;max-width:100%;overflow-wrap:anywhere}
+  #intake .risk-group summary strong{font-size:15px;line-height:1.4}
+  #intake .risk-group summary small,#intake .trig small{font-size:13px;line-height:1.5}
+  #intake .group-count{font-size:12px;flex-basis:80px;white-space:normal}
+  #intake .trig{font-size:15px;line-height:1.5;padding:10px 2px}
+  #intake .trig>span{min-width:0;overflow-wrap:anywhere}
+  #intake .prio{font-size:11px;white-space:normal;display:inline-block}
+  #intake .tier-btn{font-size:15px;line-height:1.35;padding:12px 8px}
+  #intake .tier-btn small{font-size:12px;margin-top:4px}
+  #jump-output{font-size:16px;min-height:48px;padding:12px 16px;width:100%;justify-content:center;margin:12px 0}
+  #report{font-size:16px;line-height:1.6}
+  #report section.out h3{font-size:18px;line-height:1.35}
+  #report .sec-body>p,#report .item{line-height:1.6}
+  #report :is(.reading-detail,.hint,.section-alerts){font-size:13px;line-height:1.55}
+  #report .reading-detail>summary{font-size:14px;min-height:44px;padding:10px 0}
+  #output .actions{gap:8px}
+  #output .actions .btn{font-size:14px;min-height:44px;white-space:normal}
+}
+@media screen and (max-width:640px){
+  #intake .fields{padding:4px 10px 14px;gap:18px}
+  #intake details.sec>summary{padding:12px 10px}
+  #intake .control,#intake .manual-details .control{font-size:17px}
+  #intake .money-control{font-size:18px}
+}
