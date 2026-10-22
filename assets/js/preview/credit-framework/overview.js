@@ -1,6 +1,6 @@
 /* A presentation view of the existing assessment. No scoring, risk inference,
    rating changes or evidence verification happens here. Tier gating is retained. */
-import { EVIDENCE_STATUS } from './engine.js?v=cf-20261014-6';
+import { EVIDENCE_STATUS } from './engine.js?v=cf-20261022-bs1';
 
 export function buildOverview(assessment, report, evidence = {}) {
   const comprehensive = report.tier === 'comprehensive';
