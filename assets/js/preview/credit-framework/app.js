@@ -13,10 +13,10 @@ import {
   FEEDBACK_QUESTIONS, FEEDBACK_ANSWERS, scoreFeedback, feedbackText,
 } from './engine.js?v=cf-examples-icr-1&vanilla=1';
 import { formatMoneyEdit, deleteMoneySeparator } from './money-input.js';
-import { buildOverview } from './overview.js?v=cf-20261014-6';
+import { buildOverview } from './overview.js?v=cf-20261022-bs1';
 import { INTAKE_PRESETS, TRIGGER_GROUPS, composeIntakeValue, conductReport } from './intake-options.js?v=conduct-1';
-import { createRiskView, syncRiskInputs, riskViewText, RISK_AREAS, riskAreaState } from './manual-risk-view.js?v=cf-20261014-6&taxonomy=2';
-import { renderManualRiskView } from './manual-risk-view-ui.js?v=cf-20261014-6&ring=2';
+import { createRiskView, syncRiskInputs, riskViewText, RISK_AREAS, riskAreaState } from './manual-risk-view.js?v=cf-20261022-bs1&taxonomy=2';
+import { renderManualRiskView } from './manual-risk-view-ui.js?v=cf-20261022-bs1&ring=2';
 
 import { createMaterialReceipts, syncMaterialReceipts, buildMaterials, MATERIAL_GROUPS, brokerMaterialsText, applicantMaterialsText } from './materials.js?v=materials-3';
 
@@ -28,6 +28,7 @@ import { glossaryHelp, contextualReferences, mountReferenceLibrary, mountGetting
 
 import { EXAMPLE_ORDER } from './cases.js?v=examples-icr-1';
 import { isInvestment, changeDealType, investmentICR, investmentICRText, ICR_ASSUMPTIONS, ICR_BOUNDARY } from './investment-icr.js';
+import { BUILD_LINE } from './build-info.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 
@@ -797,7 +798,7 @@ function refreshManualRiskOutput() {
   });
   const summary = $('#sec-manual [data-summary="manual"] span:last-child');
   if (summary) summary.textContent = manualSummary();
-  lastPlainText = `${basePlainText}\n\n${ruleRingText(ruleRing)}\n\n${riskViewText(manualRiskView)}`;
+  lastPlainText = `${basePlainText}\n\n${ruleRingText(ruleRing)}\n\n${riskViewText(manualRiskView)}\n\n${BUILD_LINE}`;
   const renderedText = `${$('#report').textContent}\n${lastPlainText}`;
   const lint = lintCompliance(renderedText);
   const badge = $('#lint-badge');

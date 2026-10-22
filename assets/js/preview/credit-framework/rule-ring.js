@@ -1,6 +1,6 @@
 // Presentation of existing selected rule priorities; not a credit-risk model.
-import { RISK_AREAS } from './manual-risk-view.js?v=cf-20261014-6&taxonomy=2';
-import { RULES } from './engine.js?v=cf-20261014-6';
+import { RISK_AREAS } from './manual-risk-view.js?v=cf-20261022-bs1&taxonomy=2';
+import { RULES } from './engine.js?v=cf-20261022-bs1';
 export const RING_LEGEND = 'Inner ring: selected review triggers, not automatic risk ratings. Purple = selected trigger(s); priority counts describe review order, not risk severity. Grey = no selected trigger shown in this tier, not a safe finding. Outer ring: your confirmed manual risk judgement; grey also means unconfirmed or stale. Each ring has four equal areas, not proportions, probabilities or a score. One primary area per trigger; issues may cross domains.';
 export const RING_CAVEAT = 'Typing may suggest a trigger but does not select it. Confirm applicable triggers in Inputs; unconfirmed suggestions do not colour the inner ring. Reported inputs are unverified. Receipt notes, supporting evidence marks and proposed mitigation never remove selected triggers from the inner ring. Neither ring changes overall rating, confidence or re-rate.';
 export function buildRuleRing(assessment, tier) {

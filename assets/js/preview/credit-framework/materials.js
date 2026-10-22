@@ -1,5 +1,5 @@
 /* Presentation only. Never writes engine evidence or assesses documents. */
-import { RULES, EVIDENCE_STATUS } from './engine.js?v=cf-20261014-6';
+import { RULES, EVIDENCE_STATUS } from './engine.js?v=cf-20261022-bs1';
 export const MATERIALS_BOUNDARY = 'Preparation guide for this SME / commercial case only. Requirements vary by lender and case; this is not a complete or lender-verified document list. Ask your broker to review the list and confirm exact documents, alternatives, periods and applicability. Some entries are information or work your broker prepares; confirm who should supply each item. Receiving a document does not verify it or determine a lending outcome.';
 export const MATERIAL_GROUPS = Object.freeze({ needed: 'Needed now — request / confirm availability', received: 'Received — awaiting document review', conditional: 'Conditional — confirm applicability first' });
 export const materialKey = text => text.trim().replace(/\s+/g, ' ').toLowerCase();

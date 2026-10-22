@@ -1,4 +1,4 @@
-import { RISK_AREAS, RISK_VIEWS, RISK_SOURCE, RISK_BOUNDARY, riskAreaState, riskAreaNotes, confirmRiskArea, clearRiskArea } from './manual-risk-view.js?v=cf-20261014-6&taxonomy=2';
+import { RISK_AREAS, RISK_VIEWS, RISK_SOURCE, RISK_BOUNDARY, riskAreaState, riskAreaNotes, confirmRiskArea, clearRiskArea } from './manual-risk-view.js?v=cf-20261022-bs1&taxonomy=2';
 
 // DOM-only UI; text is always inserted as textContent, never HTML.
 export function renderManualRiskView(view, ruleLabels, onChange, ruleRing = null) {

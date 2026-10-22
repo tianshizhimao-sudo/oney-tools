@@ -1,5 +1,5 @@
 // Derived desktop presentation only. No case history, storage or rating writes.
-import { riskAreaState } from './manual-risk-view.js?v=cf-20261014-6&taxonomy=2';
+import { riskAreaState } from './manual-risk-view.js?v=cf-20261022-bs1&taxonomy=2';
 export const LIVE_BOUNDARY = 'Changes below describe existing rule displays and your entries, not automatic changes to risk ratings. Unconfirmed suggestions are not selected triggers. Unmapped information still needs review.';
 export function createLiveTracker() { return { previous: null, model: null }; }
 export function updateLiveTracker(tracker, { inputKey, tier, ring, manual, evidence = {}, rating = '' }) {
