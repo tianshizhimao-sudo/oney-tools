@@ -809,8 +809,8 @@ test('no secrets, credentials or production endpoints in shipped files', async (
   for (const { f, src } of await shipped()) for (const p of patterns) assert.doesNotMatch(src, p, `${f} ${p}`);
 });
 
-test('prototype is not linked from production navigation, sitemap or registries', async () => {
-  for (const f of ['sitemap.xml', 'index.html', 'tools.html', 'robots.txt', 'data/tools-registry.json', 'assets/js/app/tool-registry.js']) {
+test('discoverable Beta stays out of sitemap and unrelated legacy registries', async () => {
+  for (const f of ['sitemap.xml', 'tools.html', 'robots.txt', 'data/tools-registry.json']) {
     const src = await read(f);
     assert.doesNotMatch(src, /credit-framework/i, f);
   }
@@ -991,7 +991,7 @@ test('broker feedback checklist: spec §14 questions verbatim, bar of 3 yes, cop
 
 test('beta data notice: de-identified real deals only, nothing leaves the browser', async () => {
   const html = await read('preview/credit-framework.html');
-  assert.match(html, /id="data-notice"[^>]*>Private beta: everything runs in your browser\. Case inputs are held only in this open page and are not uploaded or saved by the app/);
+  assert.match(html, /id="data-notice"[^>]*>Beta: case review runs in your browser\. Case inputs are held only in this open page and are not uploaded or saved by the app/);
   assert.match(html, /only de-identified<\/strong>: no client names, ABNs\/ACNs, addresses, dates of birth or account numbers/);
   assert.doesNotMatch(html, /INTERNAL PROTOTYPE|Use synthetic data only/);
   assert.match(reportFor('CF-001', 'simple').text, /^Oney & Co — Oney Credit Framework \(beta · sample cases are synthetic · generated in the browser\)/);

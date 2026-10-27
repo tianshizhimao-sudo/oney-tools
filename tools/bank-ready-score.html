@@ -43,6 +43,7 @@
   </footer>
 
   <script type="module">
+    import { getToolById, resolveToolHref } from '/assets/js/app/tool-registry.js';
     import { mountToolPage } from '/assets/js/ui/shell.js';
     import { initAll } from '/assets/js/ui/motion.js';
     import { bankReadyScoreConfig } from '/assets/js/tools/bank-ready-score.config.js';
@@ -50,6 +51,10 @@
     mountToolPage({
       config: bankReadyScoreConfig,
       assistCards: [
+        {
+          title: 'Further SME evidence review',
+          bodyHtml: `<p>Use Credit Framework Beta to review de-identified SME evidence and remaining gaps. Human review required; not credit approval. Your BRS answers are not automatically transferred.</p><a href="${resolveToolHref(getToolById('credit-framework'))}">Open Credit Framework · Beta →</a>`,
+        },
         {
           title: 'How the score works',
           body: 'Start with a six-question Document Integrity Check, then score eight weighted dimensions: trading history, ATO standing, industry risk and director credit carry the most weight.',
