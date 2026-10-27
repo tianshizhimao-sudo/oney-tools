@@ -17,6 +17,8 @@ import { buildOverview } from './overview.js?v=cf-20261014-6';
 import { INTAKE_PRESETS, TRIGGER_GROUPS, composeIntakeValue } from './intake-options.js';
 import { createRiskView, syncRiskInputs, riskViewText } from './manual-risk-view.js?v=cf-20261014-6';
 import { renderManualRiskView } from './manual-risk-view-ui.js?v=cf-20261014-6';
+import { PARTIAL_LABEL, PARTIAL_BADGE, REVIEW_BOUNDARY, SOURCE_NOT_OPENED, MATERIAL_CLASSIFICATION, WEAK_RETAINED, STALE_TEXT, SOURCE_STALE_TEXT, SOURCE_KEYS, citationOf, FIELD_LABELS, PENDING_TEXT, dirtyFields, CONFLICT_ACTIVE_TEXT, conflictHistoricalText,
+  createReviewRecords, syncReviewInputs, ensureEntry, confirmPartial, clearPartial, reviewState, noteEngineStatus, noteDraftEdit, partialCounts, reviewRecordsText } from './evidence-review.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 
@@ -49,6 +51,13 @@ let state = initialState(startCase, startTier);
 let lastPlainText = '';
 let basePlainText = '';
 let manualRiskView = createRiskView();
+let reviewRecords = createReviewRecords();
+let questionById = {};
+let unsupportedEvidenceStatuses = [];
+// Last valid four-state value seen per trigger (fail-closed guard for unknown values) and the
+// triggers currently held under an unsupported-status notice until the reviewer picks a status.
+let lastValidEvidence = {};
+const evidenceHold = new Map();
 // UI-only drafts retain invalid text and decimal precision across tier switches.
 const moneyDrafts = new Map();
 const manualDrafts = new Map();
@@ -58,6 +67,9 @@ const triggerGroupsExpanded = new Set();
 function resetIntakeUi() {
   moneyDrafts.clear(); manualDrafts.clear(); presetSelections.clear(); manualExpanded.clear(); triggerGroupsExpanded.clear();
   manualRiskView = createRiskView();
+  reviewRecords = createReviewRecords();
+  unsupportedEvidenceStatuses = [];
+  lastValidEvidence = {}; evidenceHold.clear();
 }
 
 /* ------------------------------ intake ------------------------------ */
@@ -396,6 +408,111 @@ function revealSection(id) {
   section.scrollIntoView({ block: 'start' });
 }
 
+function unsupportedStatusText() {
+  return `Unsupported review status ignored for ${unsupportedEvidenceStatuses.map((x) => `${questionById[x.id]?.triggerLabel || x.id} ("${x.status}" → ${x.retained ? 'recorded weak/contradicts retained' : 'not yet reviewed'})`).join(', ')}. Never treated as supporting evidence. Choose a status in the Re-rate tracker to clear this notice.`;
+}
+
+/* ------------------------- partial-support review records ------------------------- */
+/* Display/audit layer only. `state.evidence` (four-state) is what the engine reads and is left as
+   the reviewer set it; a partial record never replaces it. */
+
+function reviewBadge(id) {
+  const s = reviewState(reviewRecords, id, state.evidence[id]);
+  if (!s.exists) return null;
+  return el('span', { class: `review-badge ${s.validity}`, 'data-review-badge': id, 'data-validity': s.validity }, s.label);
+}
+
+function reviewDetails(id, { open = false } = {}) {
+  const s = reviewState(reviewRecords, id, state.evidence[id]);
+  if (!s.exists) return null;
+  const rec = s.confirmed || s.draft;
+  const q = questionById[id];
+  const row = (label, value) => el('p', {}, el('span', { class: 'lbl' }, `${label}: `), value || '—');
+  const d = el('details', { class: 'review-record', 'data-review-record': id, 'data-validity': s.validity, open: open ? true : null },
+    el('summary', {}, `${q?.triggerLabel || id} — ${PARTIAL_LABEL}`, ' ', reviewBadge(id)),
+    el('p', { class: 'notice info' }, REVIEW_BOUNDARY),
+    s.validity === 'conflict' ? el('p', { class: 'notice warn', 'data-conflict': id, 'data-conflict-kind': s.conflictActive ? 'active' : 'historical' }, s.conflictActive ? CONFLICT_ACTIVE_TEXT : conflictHistoricalText(EVIDENCE_STATUS[state.evidence[id] || 'outstanding'])) : null,
+    s.sourceStale ? el('p', { class: 'notice warn', 'data-source-stale': id }, SOURCE_STALE_TEXT) : null,
+    s.inputStale ? el('p', { class: 'notice warn', 'data-stale': id }, STALE_TEXT) : null,
+    s.weakRetained ? el('p', { class: 'notice warn', 'data-weak-retained': id }, WEAK_RETAINED) : null,
+    q ? row('Original gap', q.question) : null,
+    row('Engine status (unchanged)', EVIDENCE_STATUS[state.evidence[id] || 'outstanding']),
+    s.sourceStale ? [row('Confirmed citation', citationOf(s.confirmed)), row('Draft citation (not confirmed)', citationOf(s.draft))] : row('Source', citationOf(rec)),
+    el('p', { class: 'hint' }, `${rec.classification || MATERIAL_CLASSIFICATION}. ${SOURCE_NOT_OPENED}`),
+    row('Supports', rec.supportedScope), row('Still unproven', rec.remainingGap),
+    rec.note ? row('Reviewer note', rec.note) : null,
+    row('Reviewer', rec.reviewerLabel), row('Owner review date', rec.ownerReviewDate || 'not provided'),
+    row('Recorded', s.confirmed ? s.confirmed.recordedAt : 'not confirmed'),
+    s.pending && s.confirmed ? el('div', { class: 'notice info', 'data-pending-drafts': id }, el('strong', {}, 'Unconfirmed draft edits pending (not applied): '),
+      el('ul', {}, dirtyFields(s).map((f) => el('li', {}, `${f.label}: "${f.draft}" (confirmed: "${f.confirmed}")`))), el('p', { class: 'hint' }, PENDING_TEXT)) : null,
+    el('p', { class: 'hint' }, s.conflictActive ? 'Engine currently treats this item as supported under its existing rule; this partial record does not count and must be re-reviewed.'
+      : s.validity === 'conflict' ? 'Gap remains unresolved for the engine under its current status; this partial record does not count until re-reviewed.'
+      : 'Gap remains unresolved; Critical count unchanged.'));
+  return d;
+}
+
+function renderReviewRecordsSection() {
+  const ids = Object.keys(reviewRecords.entries);
+  const counts = partialCounts(reviewRecords, (id) => state.evidence[id]);
+  const summary = ids.length
+    ? `${counts.current} current · ${counts.stale} stale · ${counts.conflict} conflict · ${counts.draft} draft — none counted as resolved`
+    : 'No partial-support records for this case';
+  return sectionShell({ id: 'evidence-review', title: 'Manual evidence review — partial support', summary: { kind: KIND.ASSUMPTION, text: summary } },
+    el('p', { class: 'hint' }, REVIEW_BOUNDARY),
+    ids.length ? null : el('p', { class: 'hint' }, state.tier === 'comprehensive'
+      ? 'Record partial support from the Re-rate tracker row of a trigger ("Partial support…").'
+      : 'Records are shown in both tiers. To record or edit one, switch to Comprehensive (Re-rate tracker).'),
+    ids.map((id) => reviewDetails(id, { open: state.tier === 'comprehensive' })),
+    ids.length && state.tier !== 'comprehensive' ? el('p', { class: 'hint no-print' }, 'Editing is in Comprehensive → Re-rate tracker. Switching tier keeps these records.') : null);
+}
+
+function renderReviewEditor(q) {
+  const entry = ensureEntry(reviewRecords, q.id);
+  const s = reviewState(reviewRecords, q.id, state.evidence[q.id]);
+  const field = (key, label, { textarea = false, placeholder = '' } = {}) => {
+    const id = `review-${key}-${q.id}`;
+    const control = textarea
+      ? el('textarea', { class: 'control', id, rows: '2', maxlength: '600', placeholder })
+      : el('input', { class: 'control', id, type: 'text', maxlength: '200', placeholder });
+    control.value = entry.draft[key] || '';
+    const dirty = Boolean(entry.confirmed) && String(entry.draft[key] ?? '') !== String(entry.confirmed[key] ?? '');
+    if (dirty) control.setAttribute('aria-describedby', `${id}-draft-note`);
+    // Every edit is reflected immediately (badge, record block, copy/print text) while keeping the caret:
+    // the report re-renders and focus/selection are restored on the re-created control.
+    control.addEventListener('input', () => {
+      noteDraftEdit(reviewRecords, q.id, key, control.value);
+      const pos = [control.selectionStart, control.selectionEnd]; renderOutput();
+      const again = document.querySelector(`#${id}`); if (again) { again.focus({ preventScroll: true }); try { again.setSelectionRange(...pos); } catch {} }
+    });
+    return el('label', { class: `review-field${dirty ? ' draft-dirty' : ''}`, for: id, 'data-draft-dirty': dirty ? key : null }, el('span', { class: 'lbl' }, label, dirty ? el('span', { class: 'review-draft-flag' }, ' · Unconfirmed draft') : null), control,
+      dirty && !SOURCE_KEYS.includes(key) ? el('small', { class: 'hint', id: `${id}-draft-note` }, `Confirmed value: "${entry.confirmed[key] || '—'}" — not changed until you confirm.`) : null);
+  };
+  const box = el('div', { class: 'review-editor no-print', id: `review-editor-${q.id}`, 'data-review-editor': q.id },
+    el('p', { class: 'hint' }, `${PARTIAL_LABEL}. Engine status for this item stays "${EVIDENCE_STATUS[state.evidence[q.id] || 'outstanding']}" — change it in the dropdown only after your own re-review.`),
+    s.weakRetained ? el('p', { class: 'notice warn' }, WEAK_RETAINED) : null,
+    s.validity === 'conflict' ? el('p', { class: 'notice warn' }, s.conflictActive ? CONFLICT_ACTIVE_TEXT : conflictHistoricalText(EVIDENCE_STATUS[state.evidence[q.id] || 'outstanding'])) : null,
+    s.sourceStale ? el('p', { class: 'notice warn' }, SOURCE_STALE_TEXT) : null,
+    s.inputStale ? el('p', { class: 'notice warn' }, STALE_TEXT) : null,
+    field('sourceId', 'Source ID *', { placeholder: 'e.g. F-SG-01-CF002-20261023' }),
+    field('sourceVersion', 'Source version / date'), field('sourceLocator', 'Page / section / line'),
+    field('supportedScope', 'What the material supports *', { textarea: true }),
+    field('remainingGap', 'What is still unproven *', { textarea: true }),
+    field('note', 'Reviewer note (verbatim judgement)', { textarea: true }),
+    field('reviewerLabel', 'Reviewer label (non-sensitive)'), field('ownerReviewDate', 'Owner review date (as given)'),
+    el('p', { class: 'hint' }, `${MATERIAL_CLASSIFICATION}. ${SOURCE_NOT_OPENED}`),
+    el('p', { class: 'review-error', role: 'alert', id: `review-error-${q.id}` }, entry.error),
+    el('div', { class: 'actions' },
+      el('button', { class: 'btn btn-secondary', type: 'button', 'data-confirm-review': q.id, onclick: () => {
+        const ok = confirmPartial(reviewRecords, q.id, state.evidence[q.id]);
+        if (ok) entry.open = false;
+        renderOutput();
+        if (!ok) document.querySelector(`#review-error-${q.id}`)?.focus();
+      } }, s.confirmed ? 'Re-review and confirm (manual)' : 'Confirm partial support (manual review)'),
+      el('button', { class: 'btn btn-secondary', type: 'button', 'data-cancel-review': q.id, onclick: () => { entry.open = false; if (!entry.confirmed) clearPartial(reviewRecords, q.id); renderOutput(); } }, 'Close'),
+      s.confirmed ? el('button', { class: 'btn btn-secondary', type: 'button', 'data-clear-review': q.id, onclick: () => { clearPartial(reviewRecords, q.id); renderOutput(); } }, 'Remove record') : null));
+  return box;
+}
+
 function renderOverview(assessment, report) {
   const v = buildOverview(assessment, report, state.evidence);
   const detailButton = (text, target) => el('button', { type: 'button', class: 'overview-link no-print', 'data-open-section': target, onclick: () => revealSection(target) }, text, ' →');
@@ -514,7 +631,7 @@ function renderSection(s, report) {
         s.expansionNote ? el('div', { class: 'notice warn', id: 'simple-expanded', 'data-kind': KIND.RULE }, el('strong', {}, 'Simple expanded: '), s.expansionNote) : null,
         s.items.length ? null : el('p', { class: 'hint' }, 'No triggers selected.'),
         s.items.map((q, i) => el('div', { class: 'q', 'data-question': q.id },
-          el('h4', {}, `${i + 1}. ${q.trigger}`, el('span', { class: `prio ${q.priority}` }, q.priority), kindBadge(q.kind)),
+          el('h4', {}, `${i + 1}. ${q.trigger}`, el('span', { class: `prio ${q.priority}` }, q.priority), kindBadge(q.kind), reviewBadge(q.id)),
           el('p', {}, el('span', { class: 'lbl' }, 'Question: '), q.question),
           el('p', {}, el('span', { class: 'lbl' }, 'Why it matters: '), q.whyItMatters),
           el('div', {}, el('span', { class: 'lbl' }, 'Evidence to request:'), el('ul', {}, q.evidence.map((e) => el('li', {}, e)))),
@@ -570,11 +687,16 @@ function renderSection(s, report) {
             Object.entries(EVIDENCE_STATUS).map(([v, label]) => el('option', { value: v, selected: (state.evidence[q.id] || 'outstanding') === v }, label)));
           sel.addEventListener('change', () => {
             state.evidence[q.id] = sel.value;
+            if (Object.hasOwn(EVIDENCE_STATUS, sel.value)) evidenceHold.delete(q.id); // explicit manual choice clears the hold
             renderOutput();
             document.querySelector(`[data-rerate="${q.id}"]`)?.focus({ preventScroll: true });
           });
-          return el('div', { class: 'rr-row' }, el('span', {}, el('span', { class: `prio ${q.priority}` }, q.priority), ' ', q.trigger,
-            el('span', { class: 'print-only' }, ` — ${EVIDENCE_STATUS[state.evidence[q.id] || 'outstanding']}`)), sel);
+          const entry = reviewRecords.entries[q.id];
+          const openBtn = el('button', { class: 'overview-link no-print', type: 'button', 'data-open-review': q.id, onclick: () => { ensureEntry(reviewRecords, q.id).open = true; renderOutput(); document.querySelector(`#review-sourceId-${q.id}`)?.focus({ preventScroll: true }); } },
+            entry?.confirmed ? 'Edit partial support…' : 'Partial support…');
+          return [el('div', { class: 'rr-row', 'data-rerate-row': q.id }, el('span', {}, el('span', { class: `prio ${q.priority}` }, q.priority), ' ', q.trigger,
+            el('span', { class: 'print-only' }, ` — ${EVIDENCE_STATUS[state.evidence[q.id] || 'outstanding']}`), ' ', reviewBadge(q.id), ' ', openBtn), sel),
+            entry?.open ? renderReviewEditor(q) : null];
         }),
         el('div', { class: 'rr-out', id: 'rerate-out' },
           item(r.kind, el('strong', {}, 'Rating movement: '), el('span', { id: 'rerate-movement' }, `${r.from ?? '—'} → ${r.to ?? '—'} (${r.movement})`), ` · ${r.ratingText ?? ''}`),
@@ -599,14 +721,39 @@ function renderSection(s, report) {
 }
 
 function renderOutput() {
+  $('#copy-buffer').value = ''; // Discard stale copied text when case, tier or inputs change (reset hook for review records).
   syncRiskInputs(manualRiskView, {
     intake: state.intake, triggers: [...state.triggers].sort(),
     evidence: Object.entries(state.evidence).sort(), rating: state.rating,
     moneyDrafts: [...moneyDrafts].map(([key, value]) => [key, value.text]).sort(),
     presets: [...presetSelections].map(([key, values]) => [key, [...values].sort()]).sort(),
   });
+  // Partial-support records go stale on deal-input change only (not on tier switch, not on another
+  // trigger's engine status). Same snapshot shape as the manual risk view minus `evidence`.
+  syncReviewInputs(reviewRecords, {
+    caseId: state.caseId, intake: state.intake, triggers: [...state.triggers].sort(), rating: state.rating,
+    moneyDrafts: [...moneyDrafts].map(([key, value]) => [key, value.text]).sort(),
+    presets: [...presetSelections].map(([key, values]) => [key, [...values].sort()]).sort(),
+  });
+  // Guard: the engine only understands the four EVIDENCE_STATUS keys. Any other value (e.g. a stray
+  // 'partial' string) is reset to not-yet-reviewed and surfaced, never passed through as if reviewed.
+  // Fail-closed: an unknown value never passes through. If the last valid status for that trigger was
+  // the recorded counterevidence (weak), weak is RETAINED so no downgrade or Low confidence is erased;
+  // any other prior status falls back to not-yet-reviewed (never to supports). The notice stays until
+  // the reviewer makes an explicit choice in the tracker.
+  for (const [id, status] of Object.entries(state.evidence)) {
+    if (!Object.hasOwn(EVIDENCE_STATUS, status)) {
+      const retained = lastValidEvidence[id] === 'weak' ? 'weak' : null;
+      evidenceHold.set(id, { status, retained });
+      if (retained) state.evidence[id] = retained; else delete state.evidence[id];
+    }
+  }
+  unsupportedEvidenceStatuses = [...evidenceHold].map(([id, h]) => ({ id, ...h }));
+  lastValidEvidence = Object.fromEntries(Object.entries(state.evidence).filter(([, v]) => Object.hasOwn(EVIDENCE_STATUS, v)));
+  for (const id of Object.keys(reviewRecords.entries)) noteEngineStatus(reviewRecords, id, state.evidence[id] || 'outstanding');
   renderSuggestions();
   const assessment = buildAssessment(state);
+  questionById = Object.fromEntries(assessment.engine.comprehensive.questions.map((q) => [q.id, q]));
   const report = buildReport(assessment, state.tier);
   basePlainText = reportToPlainText(report);
 
@@ -622,7 +769,9 @@ function renderOutput() {
       ? `Edited from ${state.caseId}: model judgement withdrawn (it only applies to the untouched sample). Risks and missing evidence below are rule-derived. Reload ${state.caseId} to restore.`
       : 'Custom scenario: no model judgement in this prototype. Risks and missing evidence below are rule-derived; rating is your own current view.'));
   }
+  if (unsupportedEvidenceStatuses.length) out.append(el('div', { class: 'notice warn', id: 'evidence-status-unsupported', role: 'status' }, unsupportedStatusText()));
   out.append(renderOverview(assessment, report));
+  out.append(renderReviewRecordsSection());
   out.append(renderManualRiskView(manualRiskView, Object.fromEntries(RULES.map(r => [r.id, r.triggerLabel])), refreshManualRiskOutput));
   for (const s of report.sections) {
     const node = renderSection(s, report);
@@ -645,7 +794,13 @@ function renderOutput() {
 }
 
 function refreshManualRiskOutput() {
-  lastPlainText = `${basePlainText}\n\n${riskViewText(manualRiskView)}`;
+  const reviewText = reviewRecordsText(reviewRecords, {
+    labelOf: (id) => questionById[id]?.triggerLabel || RULES.find((r) => r.id === id)?.triggerLabel || id,
+    gapOf: (id) => questionById[id]?.question || '',
+    engineStatusLabel: (id) => EVIDENCE_STATUS[state.evidence[id] || 'outstanding'],
+    engineStatusOf: (id) => state.evidence[id] || 'outstanding',
+  });
+  lastPlainText = `${basePlainText}\n\n${riskViewText(manualRiskView)}${reviewText ? `\n\n${reviewText}` : ''}${unsupportedEvidenceStatuses.length ? `\n\n${unsupportedStatusText()}` : ''}`;
   const renderedText = `${$('#report').textContent}\n${lastPlainText}`;
   const lint = lintCompliance(renderedText);
   const badge = $('#lint-badge');
