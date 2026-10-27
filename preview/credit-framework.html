@@ -162,6 +162,18 @@
     .locked p{color:var(--muted);margin:0 0 8px;font-size:13px}
     pre.email{white-space:pre-wrap;overflow-wrap:anywhere;background:#151525;border:1px solid var(--line);border-radius:10px;padding:12px;font-size:13px;font-family:inherit;margin:8px 0}
     .rr-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,230px);gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px}
+    .review-badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;border:1px solid rgba(242,184,75,.55);color:#f5d9a2;background:rgba(242,184,75,.1);white-space:normal;margin-left:6px}
+    .review-badge.stale,.review-badge.conflict{border-color:rgba(239,106,106,.55);color:#ffc0c0;background:rgba(239,106,106,.1)}
+    .review-badge.draft{border-style:dashed;opacity:.85}
+    .review-record{border:1px solid var(--line);border-radius:10px;padding:8px 12px;margin:8px 0}
+    .review-record summary{cursor:pointer;font-weight:600}
+    .review-record p{margin:6px 0}
+    .review-editor{border:1px dashed rgba(242,184,75,.55);border-radius:10px;padding:10px 12px;margin:6px 0 10px;display:grid;gap:8px}
+    .review-field{display:grid;gap:4px;font-size:13px}
+    .review-field.draft-dirty .control{border-color:rgba(242,184,75,.7);border-style:dashed}
+    .review-draft-flag{color:#f5d9a2;font-weight:700}
+    .review-error{color:#ffc0c0;min-height:1em;margin:0}
+    .review-error:empty{display:none}
     .rr-out{margin-top:10px;display:grid;gap:4px;font-size:13.5px}
     .sugg-panel{border:1px dashed rgba(46,204,133,.45);background:rgba(46,204,133,.06);border-radius:10px;padding:10px 12px;display:grid;gap:8px}
     .sugg-chip{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#06140d;background:var(--green);border-radius:999px;padding:2px 7px;margin-left:4px}
@@ -342,6 +354,7 @@
       /* Keep the final privacy footer with closing content, without hiding it. */
       #boundary-bottom{break-inside:avoid;page-break-inside:avoid;break-after:avoid;page-break-after:avoid}
       .footer{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid;padding:4px 0 0;line-height:1.35}
+      .review-record{break-inside:avoid;page-break-inside:avoid;display:block}.review-record:not([open])>*:not(summary){display:block}
       a{color:#111}
     }
   </style>
