@@ -91,4 +91,11 @@ export function renderHomeHeroTools(container) {
   container.innerHTML = heroes.map(renderToolCard).join('');
 }
 
+export function renderHomeProfessionalTools(container) {
+  if (!container) return;
+  container.innerHTML = getToolsByGroup('analyse')
+    .filter((tool) => tool.id === 'credit-framework')
+    .map(renderToolCard).join('');
+}
+
 export { TOOL_REGISTRY, GROUPS };

@@ -86,6 +86,14 @@
       <div class="tool-grid" id="home-hero-tools"></div>
     </section>
 
+    <section aria-label="Professional evidence review">
+      <div class="section-label neutral fade-up">
+        <span>Professional tools — SME evidence review</span>
+        <small>Beta · Human review required</small>
+      </div>
+      <div class="tool-grid" id="home-professional-tools"></div>
+    </section>
+
     <section>
       <div class="section-label neutral fade-up">
         <span>Pick a path</span>
@@ -137,12 +145,13 @@
   </footer>
 
   <script type="module">
-    import { renderHomeQuickStart, renderHomeHeroTools } from './assets/js/app/route-map.js';
+    import { renderHomeQuickStart, renderHomeHeroTools, renderHomeProfessionalTools } from './assets/js/app/route-map.js';
     import { getToolsByGroup } from './assets/js/app/tool-registry.js';
     import { initAll } from './assets/js/ui/motion.js';
 
     renderHomeHeroTools(document.getElementById('home-hero-tools'));
     renderHomeQuickStart(document.getElementById('home-quick-start'));
+    renderHomeProfessionalTools(document.getElementById('home-professional-tools'));
 
     document.getElementById('m-assess').textContent = getToolsByGroup('assess').length;
     document.getElementById('m-calc').textContent = getToolsByGroup('calculate').length;

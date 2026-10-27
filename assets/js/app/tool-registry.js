@@ -229,6 +229,20 @@ export const TOOL_REGISTRY = [
 
   /* ---------- Analyse ---------- */
   {
+    id: 'credit-framework',
+    title: 'Credit Framework · Beta',
+    description: 'Professional SME evidence and readiness review. Identify remaining gaps for human review — not credit approval. No automatic transfer of client data.',
+    group: 'analyse',
+    tier: 'free',
+    priority: 'hero',
+    icon: 'chart',
+    slug: '/preview/credit-framework.html',
+    legacySlug: '/preview/credit-framework.html',
+    migrated: true,
+    inputs: ['deIdentifiedScenario'],
+    outputs: ['evidenceGaps', 'reviewNotes'],
+  },
+  {
     id: 'investment-yield',
     title: 'Investment Yield',
     description: 'Gross and net rental yields with detailed cash-flow breakdowns.',
