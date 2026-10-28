@@ -38,3 +38,11 @@ test('Beta retains noindex, non-approval boundary and return navigation',()=>{
  assert.match(s,/href="\/analyse\/"/);assert.match(s,/href="\/"/);
  assert.ok(existsSync(new URL('analyse/index.html',root)));
 });
+
+test('public Beta footer requires human review without denying navigation links',()=>{
+ const s=read('preview/credit-framework.html');
+ assert.doesNotMatch(s,/not linked from site navigation/i);
+ const footer=new JSDOM(s).window.document.querySelector('footer.footer');
+ assert.ok(footer);
+ assert.match(footer.textContent,/Human review required/);
+});
