@@ -82,7 +82,7 @@ h2{font-size:1.6rem;font-weight:700;margin-bottom:4px}
       <h3>⚙️ Newsletter Setup</h3>
       <div class="field"><label>Month / Year</label><input type="month" id="nMonth" oninput="gen()"></div>
       <div class="field"><label>Broker Name</label><input type="text" id="nBroker" value="Oney & Co" oninput="gen()"></div>
-      <div class="field"><label>Current Cash Rate (%)</label><input type="number" id="nRate" value="4.35" step="0.25" oninput="gen()"></div>
+      <div class="field"><label>Current Cash Rate (%)</label><input type="number" id="nRate" value="4.60" step="0.25" oninput="gen()"></div>
       <div class="field"><label>Rate Direction</label>
         <select id="nDirection" onchange="gen()"><option value="hold">On Hold</option><option value="cut">Rate Cut</option><option value="rise">Rate Rise</option></select>
       </div>
@@ -109,7 +109,7 @@ function gen(){
   let monthName='This Month',year=new Date().getFullYear();
   if(monthVal){const[y,m]=monthVal.split('-');year=y;monthName=MONTHS[parseInt(m)-1]+' '+y;}
   const broker=document.getElementById('nBroker').value||'Your Broker';
-  const rate=document.getElementById('nRate').value||'4.35';
+  const rate=document.getElementById('nRate').value||'4.60';
   const dir=document.getElementById('nDirection').value;
   const highlight=document.getElementById('nHighlight').value||'The Australian property market continues to evolve with regional variations in growth and demand.';
   const tip=document.getElementById('nTip').value||'Review your home loan annually to ensure you\'re still getting a competitive rate.';
