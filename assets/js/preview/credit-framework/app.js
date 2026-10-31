@@ -18,7 +18,7 @@ import { INTAKE_PRESETS, TRIGGER_GROUPS, composeIntakeValue } from './intake-opt
 import { createRiskView, syncRiskInputs, riskViewText } from './manual-risk-view.js?v=cf-20261014-6';
 import { renderManualRiskView } from './manual-risk-view-ui.js?v=cf-20261014-6';
 import { PARTIAL_LABEL, PARTIAL_BADGE, REVIEW_BOUNDARY, SOURCE_NOT_OPENED, MATERIAL_CLASSIFICATION, WEAK_RETAINED, STALE_TEXT, SOURCE_STALE_TEXT, SOURCE_KEYS, citationOf, FIELD_LABELS, PENDING_TEXT, dirtyFields, CONFLICT_ACTIVE_TEXT, conflictHistoricalText,
-  createReviewRecords, syncReviewInputs, ensureEntry, confirmPartial, clearPartial, reviewState, noteEngineStatus, noteDraftEdit, partialCounts, reviewRecordsText } from './evidence-review.js';
+  provenanceText, ACCESS_RESULTS, ACCESS_BOUNDARY, recordAccessObservation, accessObservationText, createReviewRecords, syncReviewInputs, ensureEntry, confirmPartial, clearPartial, reviewState, noteEngineStatus, noteDraftEdit, partialCounts, reviewRecordsText } from './evidence-review.js';
 
 const $ = (s, r = document) => r.querySelector(s);
 
@@ -438,10 +438,14 @@ function reviewDetails(id, { open = false } = {}) {
     q ? row('Original gap', q.question) : null,
     row('Engine status (unchanged)', EVIDENCE_STATUS[state.evidence[id] || 'outstanding']),
     s.sourceStale ? [row('Confirmed citation', citationOf(s.confirmed)), row('Draft citation (not confirmed)', citationOf(s.draft))] : row('Source', citationOf(rec)),
-    el('p', { class: 'hint' }, `${rec.classification || MATERIAL_CLASSIFICATION}. ${SOURCE_NOT_OPENED}`),
+    el('p', { class: 'hint' }, rec.classification || MATERIAL_CLASSIFICATION),
+    el('p', { class: 'notice info', 'data-provenance': id }, provenanceText(rec)),
+    s.sourceStale ? row('Draft provenance', provenanceText(s.draft)) : null,
+    el('p', { class: 'hint', 'data-access-observations': id, style: 'white-space:pre-wrap' }, accessObservationText(reviewRecords.entries[id])),
+    el('p', { class: 'hint' }, ACCESS_BOUNDARY),
     row('Supports', rec.supportedScope), row('Still unproven', rec.remainingGap),
     rec.note ? row('Reviewer note', rec.note) : null,
-    row('Reviewer', rec.reviewerLabel), row('Owner review date', rec.ownerReviewDate || 'not provided'),
+    row('Reviewer', rec.reviewerLabel), row('Historical owner review date (as supplied, not system verified)', rec.ownerReviewDate || 'not provided'),
     row('Recorded', s.confirmed ? s.confirmed.recordedAt : 'not confirmed'),
     s.pending && s.confirmed ? el('div', { class: 'notice info', 'data-pending-drafts': id }, el('strong', {}, 'Unconfirmed draft edits pending (not applied): '),
       el('ul', {}, dirtyFields(s).map((f) => el('li', {}, `${f.label}: "${f.draft}" (confirmed: "${f.confirmed}")`))), el('p', { class: 'hint' }, PENDING_TEXT)) : null,
@@ -464,6 +468,30 @@ function renderReviewRecordsSection() {
       : 'Records are shown in both tiers. To record or edit one, switch to Comprehensive (Re-rate tracker).'),
     ids.map((id) => reviewDetails(id, { open: state.tier === 'comprehensive' })),
     ids.length && state.tier !== 'comprehensive' ? el('p', { class: 'hint no-print' }, 'Editing is in Comprehensive → Re-rate tracker. Switching tier keeps these records.') : null);
+}
+
+function renderAccessEditor(id) {
+  const entry = ensureEntry(reviewRecords, id);
+  const draft = entry.accessDraft ||= { result: '', observedAt: '', note: '' };
+  const result = el('select', { class: 'control', id: `access-result-${id}`, onchange: (e) => { draft.result = e.target.value; } },
+    el('option', { value: '' }, 'Choose an observation'), Object.entries(ACCESS_RESULTS).map(([value, label]) => el('option', { value }, label)));
+  result.value = draft.result;
+  const input = (key, label) => {
+    const control = el('input', { class: 'control', id: `access-${key}-${id}`, type: 'text', maxlength: '300', oninput: (e) => { draft[key] = e.target.value; } });
+    control.value = draft[key];
+    return el('label', { for: `access-${key}-${id}` }, label, control);
+  };
+  return el('fieldset', { 'data-access-editor': id }, el('legend', {}, 'Separate access observation (optional)'),
+    el('p', { class: 'hint' }, ACCESS_BOUNDARY),
+    el('label', { for: `access-result-${id}` }, 'Result observed by reviewer', result),
+    input('observedAt', 'When observed (as given) *'), input('note', 'Access note (optional)'),
+    el('p', { role: 'alert' }, entry.accessError || ''),
+    el('button', { type: 'button', class: 'btn btn-secondary', 'data-record-access': id, onclick: () => {
+      const ok = recordAccessObservation(reviewRecords, id, draft);
+      entry.accessError = ok ? '' : 'Select an access result and supply its observation date and source ID. No source was opened by this page.';
+      if (ok) entry.accessDraft = { result: '', observedAt: '', note: '' };
+      renderOutput();
+    } }, 'Record access observation (manual)'));
 }
 
 function renderReviewEditor(q) {
@@ -495,10 +523,11 @@ function renderReviewEditor(q) {
     s.inputStale ? el('p', { class: 'notice warn' }, STALE_TEXT) : null,
     field('sourceId', 'Source ID *', { placeholder: 'e.g. F-SG-01-CF002-20261023' }),
     field('sourceVersion', 'Source version / date'), field('sourceLocator', 'Page / section / line'),
+    el('p', { class: 'notice info', 'data-draft-provenance': q.id }, provenanceText(entry.draft)),
     field('supportedScope', 'What the material supports *', { textarea: true }),
     field('remainingGap', 'What is still unproven *', { textarea: true }),
     field('note', 'Reviewer note (verbatim judgement)', { textarea: true }),
-    field('reviewerLabel', 'Reviewer label (non-sensitive)'), field('ownerReviewDate', 'Owner review date (as given)'),
+    field('reviewerLabel', 'Reviewer label (non-sensitive)'), field('ownerReviewDate', 'Historical owner review date (as given; not a current access check)'),
     el('p', { class: 'hint' }, `${MATERIAL_CLASSIFICATION}. ${SOURCE_NOT_OPENED}`),
     el('p', { class: 'review-error', role: 'alert', id: `review-error-${q.id}` }, entry.error),
     el('div', { class: 'actions' },
@@ -508,8 +537,9 @@ function renderReviewEditor(q) {
         renderOutput();
         if (!ok) document.querySelector(`#review-error-${q.id}`)?.focus();
       } }, s.confirmed ? 'Re-review and confirm (manual)' : 'Confirm partial support (manual review)'),
-      el('button', { class: 'btn btn-secondary', type: 'button', 'data-cancel-review': q.id, onclick: () => { entry.open = false; if (!entry.confirmed) clearPartial(reviewRecords, q.id); renderOutput(); } }, 'Close'),
-      s.confirmed ? el('button', { class: 'btn btn-secondary', type: 'button', 'data-clear-review': q.id, onclick: () => { clearPartial(reviewRecords, q.id); renderOutput(); } }, 'Remove record') : null));
+      el('button', { class: 'btn btn-secondary', type: 'button', 'data-cancel-review': q.id, onclick: () => { entry.open = false; if (!entry.confirmed && !entry.accessObservations?.length) clearPartial(reviewRecords, q.id); renderOutput(); } }, 'Close'),
+      s.confirmed ? el('button', { class: 'btn btn-secondary', type: 'button', 'data-clear-review': q.id, onclick: () => { clearPartial(reviewRecords, q.id); renderOutput(); } }, 'Remove record') : null),
+    renderAccessEditor(q.id));
   return box;
 }
 
@@ -543,6 +573,7 @@ function renderOverview(assessment, report) {
     el('div', { class: 'overview-work' },
       el('div', { class: 'overview-issues' },
         el('h4', {}, 'Potential blockers / priority issues'),
+        el('p', { class: 'hint' }, 'All unresolved selected Critical issues are listed here; each remains a separate review. Suggested actions are advisory.'),
         v.empty || !v.issues.length ? el('p', { class: 'notice info', id: 'overview-empty' }, v.emptyText) : null,
         el('ol', { class: 'priority-list' }, v.issues.map((q) => el('li', { class: `priority-issue ${q.status}`, 'data-priority-issue': q.id },
           el('div', { class: 'issue-heading' }, el('span', { class: `prio ${q.priority}` }, q.priority), el('strong', {}, q.trigger)),

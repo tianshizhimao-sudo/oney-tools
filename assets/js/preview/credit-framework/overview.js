@@ -16,6 +16,8 @@ export function buildOverview(assessment, report, evidence = {}) {
   });
   const critical = rows.filter((q) => q.priority === 'Critical');
   const first = ordered[0] || null;
+  // Always include all open Critical risks; only lower-priority rows may be abbreviated.
+  const issues = ordered.slice(0, Math.max(3, ordered.filter((q) => q.priority === 'Critical').length));
   const reRate = comprehensive ? assessment.rerate : null;
   const deferralCount = report.deferralCount;
   // Use only the existing recovery plan, and never expose it through Simple.
@@ -44,8 +46,8 @@ export function buildOverview(assessment, report, evidence = {}) {
     criticalOpen: critical.filter((q) => q.status !== 'supports').length,
     reviewCounts: Object.fromEntries(Object.keys(EVIDENCE_STATUS).map((status) => [status, rows.filter((q) => q.status === status).length])),
     suggestions: assessment.triggerCheck.notSelected,
-    issues: ordered.slice(0, 3),
-    remaining: Math.max(0, ordered.length - 3),
+    issues,
+    remaining: ordered.length - issues.length,
     empty: rows.length === 0,
     emptyText: rows.length === 0
       ? deferralCount

@@ -10,6 +10,29 @@ export const PARTIAL_LABEL = 'Reviewed — partially supports; gap remains';
 export const PARTIAL_BADGE = 'Partial support · gap remains';
 export const REVIEW_BOUNDARY = 'Manual evidence-review record, marked by the reviewer. Not a system check of the source, not a lender decision, not "supports": the original gap stays unresolved for the engine and the Critical count.';
 export const SOURCE_NOT_OPENED = 'Source is a reference only; it was not opened or checked by this page.';
+/** Completeness is about traceability only; it never verifies a source. */
+export function provenanceText(rec = {}) {
+  const missing = SOURCE_KEYS.filter((key) => !String(rec[key] || '').trim()).map((key) => FIELD_LABELS[key]);
+  return missing.length
+    ? `Incomplete provenance — missing ${missing.join(', ')}. A source ID is not verification.`
+    : 'Citation fields supplied; source identity, contents and authenticity are not verified by this page.';
+}
+export const ACCESS_RESULTS = Object.freeze({ opened: 'Opened (reviewer reported)', unavailable: 'Could not open (reviewer reported)' });
+export const ACCESS_BOUNDARY = 'Access observations are manually reported, not network checks. Opening a source does not verify its contents; inability to open it does not erase historical review evidence.';
+export function recordAccessObservation(records, id, { result, observedAt, note = '' }, recordedAt = new Date().toISOString()) {
+  const entry = ensureEntry(records, id);
+  if (!ACCESS_RESULTS[result] || !String(observedAt || '').trim() || !entry.draft.sourceId.trim()) return false;
+  // Capture the exact reference observed. Never mutate a confirmed review or engine state.
+  (entry.accessObservations ||= []).push({ result, observedAt: String(observedAt).trim(), note: String(note).trim(), recordedAt,
+    citation: Object.fromEntries(SOURCE_KEYS.map((key) => [key, entry.draft[key] || ''])) });
+  return true;
+}
+export function accessObservationText(entry) {
+  const observations = entry?.accessObservations || [];
+  if (!observations.length) return `Current access: not checked. ${SOURCE_NOT_OPENED}`;
+  const currentReferenceChanged = SOURCE_KEYS.some((key) => (observations.at(-1).citation[key] || '') !== (entry.draft[key] || ''));
+  return (currentReferenceChanged ? 'Current draft reference: not checked; the observations below refer to earlier citations.\n' : '') + observations.map((o, i) => `${i === observations.length - 1 ? 'Latest reported access' : 'Prior reported access'}: ${ACCESS_RESULTS[o.result]} · Observed: ${o.observedAt} · Recorded: ${o.recordedAt} · Citation at observation: ${citationOf(o.citation)}${o.note ? ` · Note: ${o.note}` : ''}`).join('\n');
+}
 export const MATERIAL_CLASSIFICATION = 'SYNTHETIC TEST FIXTURE — not an ATO document, not a received client response';
 export const WEAK_RETAINED = 'Counterevidence recorded (weak/contradicts) is retained and still drives the engine; this partial record does not release it.';
 export const SUPPORTS_CONFLICT = 'The engine status for this item is "supports". Partial support cannot sit beside "supports" — re-review and change the engine status (manual step) before recording partial support.';
@@ -140,11 +163,14 @@ export function reviewRecordsText(records, { labelOf, gapOf, engineStatusLabel, 
     L.push(`  Engine status (unchanged): ${engineStatusLabel(id)}`);
     if (s.sourceStale) { L.push(`  Confirmed citation: ${citationOf(s.confirmed)} · ${s.confirmed.classification || MATERIAL_CLASSIFICATION}`); L.push(`  Draft citation: ${citationOf(s.draft)} (not confirmed)`); }
     else L.push(`  Source: ${citationOf(rec)} · ${rec.classification || MATERIAL_CLASSIFICATION}`);
-    L.push(`  ${SOURCE_NOT_OPENED}`);
+    L.push(`  ${provenanceText(rec)}`);
+    if (s.sourceStale) L.push(`  Draft: ${provenanceText(s.draft)}`);
+    L.push(`  ${accessObservationText(records.entries[id])}`);
+    L.push(`  ${ACCESS_BOUNDARY}`);
     L.push(`  Supports: ${rec.supportedScope || '—'}`);
     L.push(`  Still unproven: ${rec.remainingGap || '—'}`);
     if (rec.note) L.push(`  Reviewer note: ${rec.note}`);
-    L.push(`  Reviewer: ${rec.reviewerLabel || '—'} · Owner review date: ${rec.ownerReviewDate || 'not provided'} · Recorded: ${s.confirmed ? s.confirmed.recordedAt : 'not confirmed'}`);
+    L.push(`  Reviewer: ${rec.reviewerLabel || '—'} · Historical owner review date (as supplied, not system verified): ${rec.ownerReviewDate || 'not provided'} · Recorded: ${s.confirmed ? s.confirmed.recordedAt : 'not confirmed'}`);
     for (const f of dirtyFields(s)) L.push(`  Unconfirmed draft edit (not applied) — ${f.label}: "${f.draft}" (confirmed: "${f.confirmed}")`);
     if (s.pending && s.confirmed) L.push(`  ${PENDING_TEXT}`);
     if (s.weakRetained) L.push(`  ${WEAK_RETAINED}`);
