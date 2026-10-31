@@ -123,7 +123,7 @@ test('A10 — copy text distinguishes current / draft / stale and carries gap, s
   assert.match(text, /mca_present — .* \[STALE — inputs changed; re-review required\]/);
   assert.match(text, /Original gap: gap sg_unevidenced/); assert.match(text, /Source: F-SG-01-CF002-20261023 · 2026-10-23 · F06–F10; F11–F13 · SYNTHETIC TEST FIXTURE/);
   assert.match(text, /Still unproven: Per-period SG liability/); assert.match(text, /Source is a reference only; it was not opened or checked by this page/);
-  assert.doesNotMatch(text, /verified|BUILD_LINE|Build cf-/);
+  assert.doesNotMatch(text, /(?:source|document) (?:is |was )?verified|BUILD_LINE|Build cf-/);
 });
 
 let JSDOM; try { ({ JSDOM } = await import(process.env.CF_JSDOM_MODULE || 'jsdom')); } catch {}
@@ -163,7 +163,8 @@ let JSDOM; try { ({ JSDOM } = await import(process.env.CF_JSDOM_MODULE || 'jsdom
   assert.equal($('[data-rerate="sg_unevidenced"]').value, 'outstanding', 'engine status untouched');
   const rec = $('[data-review-record="sg_unevidenced"]');
   assert.match(rec.textContent, /Original gap:/); assert.match(rec.textContent, /F-SG-01-CF002-20261023/); assert.match(rec.textContent, /Still unproven: Per-period SG liability/); assert.match(rec.textContent, /SYNTHETIC TEST FIXTURE/);
-  assert.doesNotMatch(rec.textContent, /\bverified\b/i);
+  assert.match(rec.textContent, /not verified by this page/);
+  assert.doesNotMatch(rec.textContent, /(?:source|document) (?:is |was )?verified/i);
   // A13 / A03: nothing else moved.
   assert.deepEqual(snapshot(), before, 'confirming partial changed rating/confidence/triggers/manual/baseline');
   assert.equal(document.body.dataset.lint, 'pass');
