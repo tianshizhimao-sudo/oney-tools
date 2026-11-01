@@ -896,6 +896,19 @@ $('#expand-all').addEventListener('click', () => {
   syncExpandAll();
 });
 $('#copy-btn').addEventListener('click', () => copyText(lastPlainText, `${state.tier === 'simple' ? 'Simple' : 'Comprehensive'} report copied`));
+// Closed <details> content can be omitted by the browser print pipeline even when
+// CSS sets its children to display:block. Expand audit records only for printing,
+// then restore their screen disclosure state (also after cancelling the dialog).
+let printClosedReviews = [];
+window.addEventListener('beforeprint', () => {
+  if (printClosedReviews.length) return;
+  printClosedReviews = [...document.querySelectorAll('.review-record:not([open])')];
+  printClosedReviews.forEach((record) => { record.open = true; });
+});
+window.addEventListener('afterprint', () => {
+  printClosedReviews.forEach((record) => { record.open = false; });
+  printClosedReviews = [];
+});
 $('#print-btn').addEventListener('click', () => window.print());
 
 /* ------------------------------ broker feedback (spec §14) ------------------------------ */
