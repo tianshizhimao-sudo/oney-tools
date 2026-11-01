@@ -26,7 +26,8 @@ test('Comprehensive print keeps review notices intact, uses full-width tracker r
   assert.match(print, /\.rr-row\{display:block;padding:4px 0/);
   assert.match(print, /#sec-dimensions table\.grid th:nth-child\(2\),#sec-dimensions table\.grid td:nth-child\(2\)\{width:8em;overflow-wrap:normal;word-break:normal/);
   assert.match(print, /#boundary-bottom\{[^}]*break-after:avoid/);
-  assert.match(print, /\.layout\{[^}]*break-after:avoid/);
+  assert.match(print, /\.layout\{display:contents/);
+  assert.match(print, /\.output\{[^}]*display:contents/);
   assert.match(print, /\.footer\{break-before:avoid;page-break-before:avoid;break-inside:avoid;page-break-inside:avoid;padding:4px 0 0/);
 });
 
@@ -148,4 +149,31 @@ integration('query tier initializes correctly; print uses current selected tier 
     assert.equal($('#print-tier').dataset.tier, 'simple');
     dom.window.close();
   }
+});
+
+integration('printing expands closed audit records and restores screen state without changing review or engine values', async () => {
+  const dom = new JSDOM(html, { url: 'https://example.test/preview/credit-framework.html?tier=comprehensive', pretendToBeVisual: true });
+  const { window } = dom; window.matchMedia = () => ({ matches: false }); window.HTMLElement.prototype.scrollIntoView = function () {};
+  for (const key of ['window', 'document', 'Node', 'location']) globalThis[key] = window[key];
+  await import('../assets/js/preview/credit-framework/app.js?print-audit-restoration');
+  const $ = s => document.querySelector(s);
+  $('[data-open-review="sg_unevidenced"]').click();
+  for (const [key,value] of Object.entries({sourceId:'SYNTHETIC-PRINT',supportedScope:'Limited finding',remainingGap:'Unverified payment timing',ownerReviewDate:'2026-10-23'})) {
+    const c=$(`#review-${key}-sg_unevidenced`);c.value=value;c.dispatchEvent(new window.Event('input',{bubbles:true}));
+  }
+  $('[data-confirm-review="sg_unevidenced"]').click();
+  const baseline = () => [$('#overview-critical-count').textContent,$('#rerate-movement').textContent,$('[data-review-record="sg_unevidenced"]').textContent];
+  const expected=baseline();
+  const record=$('[data-review-record="sg_unevidenced"]'); record.open=false;
+  window.dispatchEvent(new window.Event('beforeprint'));
+  window.dispatchEvent(new window.Event('beforeprint'));
+  assert.equal(record.open,true);assert.deepEqual(baseline(),expected);
+  window.dispatchEvent(new window.Event('afterprint'));
+  assert.equal(record.open,false);assert.deepEqual(baseline(),expected);
+  record.open=true;
+  window.dispatchEvent(new window.Event('beforeprint'));window.dispatchEvent(new window.Event('afterprint'));
+  assert.equal(record.open,true,'already-open records remain open');
+  assert.match(print,/\.review-record\{[^}]*break-inside:auto[^}]*overflow-wrap:anywhere/);
+  assert.match(print,/\.review-badge,\.prio,\.kind[^}]*color:#333!important/);
+  dom.window.close();
 });
