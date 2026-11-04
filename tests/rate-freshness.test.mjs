@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+const html=fs.readFileSync(new URL('../rate-tracker-competitor.html',import.meta.url),'utf8');
+const find=vm.runInNewContext('('+html.match(/function findBestRate\([\s\S]*?\n}\n/)[0]+')');
+const rate={lendingRateType:'VARIABLE',repaymentType:'PRINCIPAL_AND_INTEREST',loanPurpose:'OWNER_OCCUPIED',lvrMin:60.01,lvrMax:70,ratePercent:6.2};
+const lookup=(rates,lvr)=>find(rates,lvr,'VARIABLE','PRINCIPAL_AND_INTEREST','OWNER_OCCUPIED');
+test('LVR matches both boundaries, never an ineligible fallback',()=>{assert.equal(lookup([rate],60),null);assert.equal(lookup([rate],60.01),6.2);assert.equal(lookup([rate],70),6.2);assert.equal(lookup([rate],70.01),null)});
+test('unknown purpose, eligibility and ambiguous pricing remain unverified',()=>{assert.equal(lookup([{...rate,loanPurpose:null}],65),null);assert.equal(lookup([{...rate,lvrMin:null}],65),null);assert.equal(lookup([rate,{...rate,ratePercent:6.4}],65),null)});
+const script=fs.readFileSync(new URL('../scripts/fetch-rates.js',import.meta.url),'utf8');
+const extract=vm.runInNewContext('('+script.match(/function extractLendingRates\([\s\S]*?\n}\n/)[0]+')');
+test('CDR fraction LVR becomes percent and raw eligibility tiers survive',()=>{const tiers=[{name:'LVR',unitOfMeasure:'PERCENT',minimumValue:0.6001,maximumValue:0.7}];const result=extract({lendingRates:[{rate:'0.0629',tiers}]})[0];assert.equal(result.lvrMin,60.01);assert.equal(result.lvrMax,70);assert.equal(result.ratePercent,6.29);assert.equal(result.tiers,tiers)});

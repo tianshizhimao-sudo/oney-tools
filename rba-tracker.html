@@ -6,8 +6,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#1A1A2E">
-  <title>RBA Rate Tracker 2026 | Live Cash Rate History | Oney & Co</title>
-  <meta name="description" content="Track the RBA cash rate live. See every rate decision since 2022, forecast next move, and understand what it means for your mortgage. Updated after every RBA meeting.">
+  <title>RBA Rate Tracker 2026 | Cash Rate Snapshot | Oney & Co</title>
+  <meta name="description" content="Dated RBA cash rate snapshot and illustrative repayment comparison. Verify current lender rates independently.">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><linearGradient id='fg' x1='0%25' y1='100%25' x2='0%25' y2='0%25'><stop offset='0%25' stop-color='%231FAD73'/><stop offset='60%25' stop-color='%232ECC85'/><stop offset='60%25' stop-color='transparent'/><stop offset='100%25' stop-color='transparent'/></linearGradient><linearGradient id='sg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' stop-color='%232ECC85'/><stop offset='100%25' stop-color='%231FAD73'/></linearGradient></defs><g transform='translate(50,50)'><circle r='38' fill='none' stroke='url(%23sg)' stroke-width='10' stroke-linecap='round'/><circle r='28' fill='url(%23fg)'/></g></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>/* embed-mode-css */
@@ -544,16 +544,17 @@
       </div>
     </div>
     
-    <!-- Current Rates -->
+    <p class="fineprint" role="note">RBA decision 3 November 2026: cash rate target increased from 4.60% to 4.85%, effective 4 November 2026. Source checked 3 November 2026. Lenders set product rates independently; verify the product, eligibility and effective date. <a href="https://www.rba.gov.au/media-releases/2026/mr-26-30.html">RBA decision</a></p>
+<!-- Current Rates -->
     <div class="rate-cards">
       <div class="rate-card rba">
         <h3>🏦 <span data-en="RBA Cash Rate">RBA Cash Rate</span></h3>
-        <div class="rate-value">4.10%</div>
+        <div class="rate-value">4.85%</div>
         <span class="rate-change up">▲ +0.25%</span>
-        <p class="rate-date" data-en="Effective: 27 Mar 2026">Effective: 27 Mar 2026</p>
+        <p class="rate-date" data-en="Effective: 4 Nov 2026">Effective: 4 Nov 2026</p>
       </div>
       <div class="rate-card cpi">
-        <h3>📊 <span data-en="CPI Inflation">CPI Inflation</span></h3>
+        <h3>📊 <span data-en="CPI Inflation (historical, pending verification)">CPI Inflation (historical, pending verification)</span></h3>
         <div class="rate-value">3.3%</div>
         <span class="rate-change down">▼ <span data-en="-0.2% from peak">-0.2% from peak</span></span>
         <p class="rate-date" data-en="Data: December 2025">Data: December 2025</p>
@@ -562,8 +563,8 @@
     
     <!-- Impact Calculator -->
     <div class="section">
-      <h2 class="section-title">💰 <span data-en="Impact on Your Mortgage">Impact on Your Mortgage</span></h2>
-      <p class="section-desc" data-en="Enter your loan details to see how rate changes affect you">Enter your loan details to see how rate changes affect you</p>
+      <h2 class="section-title">💰 <span data-en="Illustrative Repayment Comparison">Illustrative Repayment Comparison</span></h2>
+      <p class="section-desc" data-en="Illustration using cash rates, not a mortgage quote or a prediction of lender repricing">Illustration using cash rates, not a mortgage quote or a prediction of lender repricing</p>
       
       <div class="input-row">
         <div class="input-field">
@@ -580,12 +581,12 @@
       
       <div class="impact-results">
         <div class="impact-item">
-          <div class="label" data-en="Current Monthly Payment">Current Monthly Payment</div>
+          <div class="label" data-en="Illustrative Monthly Payment">Illustrative Monthly Payment</div>
           <div class="value" id="currentPayment">$2,347</div>
-          <div class="sub" data-en="Based on 4.10%">Based on 4.10%</div>
+          <div class="sub" data-en="Illustration at 4.85% cash rate">Illustration at 4.85% cash rate</div>
         </div>
         <div class="impact-item">
-          <div class="label" data-en="This Rate Rise">This Rate Rise</div>
+          <div class="label" data-en="Illustrated 0.25 pp Change">Illustrated 0.25 pp Change</div>
           <div class="value negative" id="rateImpact">+$76/mo</div>
           <div class="sub" data-en="vs. before rise">vs. before rise</div>
         </div>
@@ -612,7 +613,7 @@
         </div>
         <div class="awareness-item">
           <h4>⏰ <span data-en="Rate Pass-through">Rate Pass-through</span></h4>
-          <p data-en="After RBA changes rates, banks typically adjust mortgage rates within 1-2 weeks. Variable rates are directly affected.">After RBA changes rates, banks typically adjust mortgage rates within 1-2 weeks. Variable rates are directly affected.</p>
+          <p data-en="Lenders decide whether, when and how much to change product rates. Verify lender notices and your loan terms.">Lenders decide whether, when and how much to change product rates. Verify lender notices and your loan terms.</p>
         </div>
         <div class="awareness-item">
           <h4>💡 <span data-en="3% Buffer Rule">3% Buffer Rule</span></h4>
@@ -627,8 +628,8 @@
     
     <!-- Timeline -->
     <div class="section">
-      <h2 class="section-title">📅 <span data-en="Recent Rate Changes">Recent Rate Changes</span></h2>
-      <div class="timeline">
+      <h2 class="section-title">📅 <span data-en="Selected Historical Rate Changes">Selected Historical Rate Changes</span></h2>
+      <div class="timeline"><div class="timeline-item up"><div class="timeline-date">4 Nov 2026 (effective)</div><div class="timeline-content"><span class="timeline-rate">4.85%</span><span class="timeline-change up">+0.25 percentage points</span></div></div>
         <div class="timeline-item up">
           <div class="timeline-date">4 Feb 2026</div>
           <div class="timeline-content">
@@ -719,8 +720,8 @@
       const principal = parseFloat(document.getElementById('loanAmount').value) || 500000;
       const years = parseFloat(document.getElementById('loanTerm').value) || 30;
       
-      const currentRate = 4.10;
-      const previousRate = 3.60;
+      const currentRate = 4.85;
+      const previousRate = 4.60;
       const lowRate = 0.10;
       
       const currentPayment = calculatePayment(principal, currentRate, years);

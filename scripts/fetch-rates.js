@@ -139,14 +139,14 @@ function extractLendingRates(productData) {
   return rates.map(r => {
     // Extract LVR tier info
     const lvrTier = (r.tiers || []).find(t => 
-      t.name && t.name.toUpperCase().includes('LVR')
+      t.name && /LVR|loan.to.value/i.test(t.name)
     );
 
     // Parse fixed period (e.g., "P1Y" -> 1, "P2Y" -> 2, "P3Y" -> 3)
     let fixedYears = null;
     if (r.additionalValue) {
-      const match = r.additionalValue.match(/P(\d+)Y/);
-      if (match) fixedYears = parseInt(match[1]);
+      const match = /^P(?:(\d+)Y)?(?:(\d+)M)?$/.exec(r.additionalValue);
+      if (match && (match[1] || match[2])) fixedYears = (Number(match[1] || 0) * 12 + Number(match[2] || 0)) / 12;
     }
 
     return {
@@ -158,8 +158,9 @@ function extractLendingRates(productData) {
       repaymentType: r.repaymentType || null,             // PRINCIPAL_AND_INTEREST, INTEREST_ONLY
       loanPurpose: r.loanPurpose || null,                 // OWNER_OCCUPIED, INVESTMENT
       fixedYears: fixedYears,
-      lvrMin: lvrTier ? lvrTier.minimumValue : null,
-      lvrMax: lvrTier ? lvrTier.maximumValue : null,
+      lvrMin: lvrTier && lvrTier.minimumValue != null ? Number(lvrTier.minimumValue) * (lvrTier.unitOfMeasure === 'PERCENT' ? 100 : 1) : null,
+      lvrMax: lvrTier && lvrTier.maximumValue != null ? Number(lvrTier.maximumValue) * (lvrTier.unitOfMeasure === 'PERCENT' ? 100 : 1) : null,
+      tiers: r.tiers || [],
       additionalInfo: r.additionalInfo || null,
       additionalInfoUri: r.additionalInfoUri || null,
     };
@@ -169,8 +170,9 @@ function extractLendingRates(productData) {
 // ── Fetch a single product's rates ──
 async function fetchProductRates(baseUrl, productId) {
   const url = `${baseUrl}/banking/products/${encodeURIComponent(productId)}`;
-  // Westpac requires x-v: 5 since ~Feb 2026
-  const version = baseUrl.includes('westpac') ? '5' : '4';
+  // Product Detail v7 is binding from 13 July 2026; older versions are retired.
+  // https://consumerdatastandardsaustralia.github.io/standards/includes/endpoint-version-schedule/
+  const version = '7';
   const headers = {
     'x-v': version,
     'Accept': 'application/json',
@@ -185,6 +187,13 @@ async function fetchProductRates(baseUrl, productId) {
     description: product.description || null,
     lastUpdated: product.lastUpdated || null,
     rates: extractLendingRates(product),
+    rawProduct: product,
+    fetchedAt: new Date().toISOString(),
+    sourceUrl: url,
+    eligibility: product.eligibility || [],
+    constraints: product.constraints || [],
+    fees: product.fees || [],
+    additionalInformation: product.additionalInformation || {},
   };
 }
 
@@ -238,6 +247,7 @@ async function main() {
   console.log('================================\n');
 
   const result = {
+    schemaVersion: 2,
     fetchedAt: new Date().toISOString(),
     fetchedAtAEST: new Date().toLocaleString('en-AU', { timeZone: 'Australia/Sydney' }),
     banks: {},
@@ -273,7 +283,7 @@ async function main() {
         
         bankResult.products[productName] = {
           ...productData,
-          summary: summarizeRates(productData.rates),
+          // Product-specific rows and raw conditions replace lossy bank-wide summaries.
         };
 
         const rateCount = productData.rates.length;
@@ -310,6 +320,8 @@ async function main() {
     // Brief delay between banks to be polite
     await sleep(DELAY_BETWEEN_BANKS_MS);
   }
+
+  if (result.stats.successProducts === 0) throw new Error('No products fetched; preserving the previous snapshot');
 
   // ── Write output ──
   // Resolve output relative to the script's parent directory (oney-tools/)

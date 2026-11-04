@@ -1133,6 +1133,16 @@
   <meta property="og:url" content="https://tools.oneyco.com.au/rate-tracker-competitor.html">
   <meta property="og:type" content="website">
   <link rel="canonical" href="https://tools.oneyco.com.au/rate-tracker-competitor.html">
+<style>
+#officialProductSources {margin:24px 0;padding:20px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;line-height:1.6;overflow-wrap:anywhere;}
+#officialProductSources select {max-width:100%;padding:10px;color:var(--text);background:var(--bg3);border:1px solid var(--border);border-radius:6px;}
+#officialProductSources h2,#officialProductSources h3,#officialProductSources p {margin:12px 0;}
+#officialProductSources details {padding:8px 0;} #officialProductSources summary {cursor:pointer;font-weight:600;}
+#officialProductSources dt {font-weight:600;} #officialProductSources dd {margin:0 0 8px 12px;} #officialProductSources li {margin-left:18px;}
+.source-table-scroll {overflow-x:auto;}
+@media(max-width:600px){.header-back{white-space:normal!important;font-size:12px!important;flex-shrink:1;} .header{gap:10px!important;} #officialProductSources{padding:14px;}} #officialProductSources table {min-width:720px;width:100%;table-layout:fixed;} #officialProductSources td,#officialProductSources th {white-space:normal;vertical-align:top;padding:12px;} #officialProductSources th:last-child {width:45%;}
+</style>
+<script src="assets/js/rate-source-catalog.js"></script>
 </head>
 <body>
 
@@ -1187,6 +1197,8 @@
   </div>
 
   <!-- ══ RESIDENTIAL SECTION ══ -->
+  <section id="officialProductSources" aria-label="Published lender products"><p>Loading source snapshot…</p></section>
+  <p>Manual comparison grid below: user-entered assumptions only. Older automatic imports remain saved in your browser but are not displayed as verified quotes. Use the named product records above for published rates and conditions.</p>
   <div id="residentialSection">
 
     <!-- RBA Decision Day -->
@@ -1324,16 +1336,7 @@ initTheme();
 // ══════════════════════════════════════
 // ── RBA Decision Day ──
 // ══════════════════════════════════════
-const RBA_DATES_2026 = [
-  new Date(2026, 1, 18),
-  new Date(2026, 3, 1),
-  new Date(2026, 4, 20),
-  new Date(2026, 6, 1),
-  new Date(2026, 7, 12),
-  new Date(2026, 8, 23),
-  new Date(2026, 10, 4),
-  new Date(2026, 11, 9),
-];
+const RBA_DATES_2026 = [new Date('2026-12-08T14:30:00+11:00')]; // RBA calendar checked 3 Nov 2026; never guess future dates.
 
 function updateRBACountdown() {
   const now = new Date();
@@ -1347,12 +1350,12 @@ function updateRBACountdown() {
   const countdownEl = document.getElementById('rbaCountdown');
 
   if (!nextDate) {
-    dateEl.textContent = 'No more meetings in 2026';
-    countdownEl.innerHTML = '<span class="rba-past">All 2026 RBA meetings have passed</span>';
+    dateEl.textContent = 'Schedule needs verification';
+    countdownEl.innerHTML = '<span class="rba-past">Check the official RBA calendar for the next decision</span>';
     return;
   }
 
-  const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+  const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Australia/Sydney' };
   dateEl.textContent = nextDate.toLocaleDateString('en-AU', options);
 
   const diff = nextDate - now;
@@ -1512,7 +1515,7 @@ function makeKey(cat, bank, product, lvr) {
 
 function getRate(cat, bank, product, lvr) {
   const key = makeKey(cat, bank, product, lvr);
-  return rateData[key] || null;
+  return rateData[key]?.source === 'cdr' ? null : rateData[key] || null;
 }
 
 function setRate(cat, bank, product, lvr, value) {
@@ -2171,20 +2174,6 @@ const CDR_PRIMARY_PRODUCTS = {
   Bendigo: { variable: 'Easy Home Loan' },
 };
 
-// Commercial CDR product mapping (Westpac only)
-const CDR_COMMERCIAL_PRODUCTS = {
-  Westpac: {
-    'secured_business_loan': 'Secured Business Loan',
-    'business_overdraft': 'Business Overdraft',
-    'unsecured_business_overdraft': 'Unsecured Business Overdraft',
-    'unsecured_business_loan': 'Unsecured Business Loan',
-    'bbsy_business_loan': 'Bank Bill Business Loan',
-    // LOC uses same rates as OD (similar products)
-    'business_loc_secured': 'Business Overdraft',
-    'unsecured_business_loc': 'Unsecured Business Overdraft',
-  }
-};
-
 let cdrData = null;
 
 function getRatesJsonUrl() {
@@ -2199,133 +2188,20 @@ async function fetchRatesJson() {
 }
 
 function findBestRate(rates, lvrMax, rateType, repayment, purpose) {
-  if (!rates || !Array.isArray(rates)) return null;
-
-  let candidates = rates.filter(r => {
+  if (!Array.isArray(rates) || !Number.isFinite(Number(lvrMax))) return null;
+  const requestedLvr = Number(lvrMax);
+  const candidates = rates.filter(r => {
     if (rateType && r.lendingRateType !== rateType) return false;
     if (repayment && r.repaymentType !== repayment) return false;
-    if (purpose && r.loanPurpose && r.loanPurpose !== purpose) return false;
-    return true;
+    if (purpose && r.loanPurpose !== purpose) return false;
+    // Unknown LVR eligibility is not a match; never fall back to another tier.
+    if (r.lvrMin == null || r.lvrMax == null) return false;
+    return requestedLvr >= Number(r.lvrMin) && requestedLvr <= Number(r.lvrMax)
+      && Number.isFinite(r.ratePercent);
   });
-
-  if (candidates.length === 0) return null;
-
-  let lvrMatch = null;
-  if (lvrMax) {
-    const numLvr = parseInt(lvrMax);
-    lvrMatch = candidates.filter(r => {
-      if (r.lvrMax === null && r.lvrMin === null) return true;
-      if (r.lvrMax && numLvr <= r.lvrMax) return true;
-      return false;
-    });
-    lvrMatch.sort((a, b) => {
-      const aMax = a.lvrMax || 999;
-      const bMax = b.lvrMax || 999;
-      return aMax - bMax;
-    });
-  }
-
-  const best = (lvrMatch && lvrMatch.length > 0) ? lvrMatch[0] : candidates[0];
-  return best ? best.ratePercent : null;
-}
-
-function mapCDRToTracker(data) {
-  const cat = 'residential';
-  let populated = 0;
-
-  for (const [cdrBank, displayBank] of Object.entries(CDR_BANK_MAP)) {
-    const bankData = data.banks[cdrBank];
-    if (!bankData || !bankData.success) continue;
-
-    const primary = CDR_PRIMARY_PRODUCTS[cdrBank];
-    if (!primary) continue;
-
-    if (primary.variable) {
-      const product = bankData.products[primary.variable];
-      if (product && product.rates) {
-        for (const lvr of LVRS) {
-          const lvrNum = lvr.key === '80+' ? 90 : parseInt(lvr.key);
-          const rate = findBestRate(product.rates, lvrNum, 'VARIABLE', 'PRINCIPAL_AND_INTEREST', 'OWNER_OCCUPIED');
-          if (rate) {
-            const key = makeKey(cat, displayBank, 'variable', lvr.key);
-            if (!rateData[key] || rateData[key].source !== 'manual') {
-              rateData[key] = {
-                value: rate,
-                prev: rateData[key] ? rateData[key].value : null,
-                updated: data.fetchedAt,
-                source: 'cdr',
-              };
-              populated++;
-            }
-          }
-        }
-      }
-    }
-
-    const fixedProduct = primary.fixed;
-    if (fixedProduct && bankData.products[fixedProduct]) {
-      const product = bankData.products[fixedProduct];
-      if (product && product.rates) {
-        const fixedMap = { 1: 'fixed1', 2: 'fixed2', 3: 'fixed3' };
-        for (const [years, productKey] of Object.entries(fixedMap)) {
-          for (const lvr of LVRS) {
-            const lvrNum = lvr.key === '80+' ? 90 : parseInt(lvr.key);
-            const fixedRates = product.rates.filter(r =>
-              r.lendingRateType === 'FIXED' && r.fixedYears === parseInt(years)
-            );
-            const rate = findBestRate(fixedRates, lvrNum, null, 'PRINCIPAL_AND_INTEREST', 'OWNER_OCCUPIED');
-            if (rate) {
-              const key = makeKey(cat, displayBank, productKey, lvr.key);
-              if (!rateData[key] || rateData[key].source !== 'manual') {
-                rateData[key] = {
-                  value: rate,
-                  prev: rateData[key] ? rateData[key].value : null,
-                  updated: data.fetchedAt,
-                  source: 'cdr',
-                };
-                populated++;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  return populated;
-}
-
-// ── Map CDR data to commercial rates ──
-function mapCDRToCommercial(data) {
-  // Reset commercial rates
-  commercialRates = {};
-
-  // Initialize all banks with empty data
-  for (const bank of COMM_BANKS) {
-    commercialRates[bank.name] = {};
-  }
-
-  // Only Westpac has CDR commercial data
-  const westpacData = data.banks.Westpac;
-  if (!westpacData || !westpacData.success) return;
-
-  const productMapping = CDR_COMMERCIAL_PRODUCTS.Westpac;
-
-  for (const [commKey, cdrProductName] of Object.entries(productMapping)) {
-    const product = westpacData.products[cdrProductName];
-    if (!product || !product.rates || product.rates.length === 0) continue;
-
-    // Find the VARIABLE rate
-    const variableRate = product.rates.find(r => r.lendingRateType === 'VARIABLE');
-    if (variableRate) {
-      commercialRates['Westpac'][commKey] = {
-        rate: variableRate.ratePercent,
-        note: variableRate.additionalInfo || null,
-        additionalInfo: variableRate.additionalInfo || null,
-        source: 'cdr',
-      };
-    }
-  }
+  // Multiple eligible rates may have additional conditions this UI cannot express.
+  const values = [...new Set(candidates.map(r => r.ratePercent))];
+  return values.length === 1 ? values[0] : null;
 }
 
 function updateCDRStatus(data) {
@@ -2347,12 +2223,15 @@ async function loadRatesFromCDR(showToastMsg = true) {
     if (btn) { btn.disabled = true; btn.textContent = '⏳ Loading...'; }
 
     const data = await fetchRatesJson();
+    const fetched = Date.parse(data.fetchedAt);
+    if (!Number.isFinite(fetched) || Date.now() - fetched > 7 * 86400000) {
+      throw new Error('Rate snapshot is over 7 days old or undated; verify lender sources');
+    }
     cdrData = data;
 
-    const count = mapCDRToTracker(data);
-    mapCDRToCommercial(data);
-    saveData();
-    renderTables();
+    if (data.schemaVersion !== 2 || !OneyRateSources.productEntries(data).length) throw new Error('Snapshot lacks product terms');
+    OneyRateSources.mount(document.getElementById('officialProductSources'), data);
+    const count = OneyRateSources.productEntries(data).length;
     updateCDRStatus(data);
 
     // Re-render commercial if active
@@ -2361,18 +2240,21 @@ async function loadRatesFromCDR(showToastMsg = true) {
     }
 
     if (showToastMsg && count > 0) {
-      showToast(`CDR rates loaded: ${count} rate entries from ${data.stats.successBanks} banks`, '🤖');
+      showToast(`Published source snapshot loaded: ${count} products from ${data.stats.successBanks} banks`, '🤖');
     }
 
     if (btn) { btn.disabled = false; btn.textContent = '🔄 Refresh Rates'; }
     return true;
   } catch (err) {
     console.warn('Could not load rates.json:', err.message);
+    document.getElementById('officialProductSources').textContent = 'Published product snapshot unavailable, stale or missing conditions. Verify the lender source before relying on any rate.';
+    const status = document.getElementById('lastUpdatedGlobal');
+    if (status) status.textContent = 'Pending verification: CDR data unavailable or older than 7 days. Saved/manual rates are not verified current quotes.';
     const btn = document.getElementById('refreshBtn');
     if (btn) { btn.disabled = false; btn.textContent = '🔄 Refresh Rates'; }
 
     if (showToastMsg) {
-      showToast('CDR rates unavailable — using manual data', '⚠️');
+      showToast('CDR rates unavailable or stale — saved/manual rates require lender verification', '⚠️');
     }
     return false;
   }

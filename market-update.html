@@ -79,22 +79,23 @@ h2{font-size:1.6rem;font-weight:700;margin-bottom:4px}
   <h2>📊 Market Update Generator</h2>
   <p class="subtitle">Create client-ready market updates with current rate and property data</p>
 
-  <div class="grid">
+  <p class="fineprint" role="note">RBA decision 3 November 2026: cash rate target increased from 4.60% to 4.85%, effective 4 November 2026. Source checked 3 November 2026. Lenders set product rates independently; verify the product, eligibility and effective date. <a href="https://www.rba.gov.au/media-releases/2026/mr-26-30.html">RBA decision</a></p>
+<div class="grid">
     <div class="card">
       <h3>📝 Input Data</h3>
       <div class="field"><label>Date</label><input type="date" id="mDate" oninput="gen()"></div>
       <div class="row2">
-        <div class="field"><label>Cash Rate (%)</label><input type="number" id="mRate" value="4.60" step="0.25" oninput="gen()"></div>
-        <div class="field"><label>Previous Rate (%)</label><input type="number" id="mPrevRate" value="4.35" step="0.25" oninput="gen()"></div>
+        <div class="field"><label>Cash Rate (%)</label><input type="number" id="mRate" value="4.85" step="0.25" oninput="gen()"></div>
+        <div class="field"><label>Previous Rate (%)</label><input type="number" id="mPrevRate" value="4.60" step="0.25" oninput="gen()"></div>
       </div>
       <div class="row2">
-        <div class="field"><label>Avg Variable Rate (%)</label><input type="number" id="mAvgVar" value="6.20" step="0.01" oninput="gen()"></div>
-        <div class="field"><label>Avg Fixed 2yr (%)</label><input type="number" id="mAvgFixed" value="5.89" step="0.01" oninput="gen()"></div>
+        <div class="field"><label>Avg Variable Rate (%)</label><input type="number" id="mAvgVar" value="" placeholder="Pending verification" step="0.01" oninput="gen()"></div>
+        <div class="field"><label>Avg Fixed 2yr (%)</label><input type="number" id="mAvgFixed" value="" placeholder="Pending verification" step="0.01" oninput="gen()"></div>
       </div>
-      <div class="field"><label>Median House Price ($)</label><input type="number" id="mMedian" value="1150000" oninput="gen()"></div>
+      <div class="field"><label>Median House Price ($)</label><input type="number" id="mMedian" value="" placeholder="Pending verification" oninput="gen()"></div>
       <div class="row2">
-        <div class="field"><label>Quarterly Growth (%)</label><input type="number" id="mGrowth" value="1.8" step="0.1" oninput="gen()"></div>
-        <div class="field"><label>Auction Clearance (%)</label><input type="number" id="mAuction" value="68" step="1" oninput="gen()"></div>
+        <div class="field"><label>Quarterly Growth (%)</label><input type="number" id="mGrowth" value="" placeholder="Pending verification" step="0.1" oninput="gen()"></div>
+        <div class="field"><label>Auction Clearance (%)</label><input type="number" id="mAuction" value="" placeholder="Pending verification" step="1" oninput="gen()"></div>
       </div>
       <div class="field"><label>Key Takeaway</label><textarea id="mTakeaway" rows="3" placeholder="e.g. Market stabilising with steady demand from owner-occupiers" oninput="gen()"></textarea></div>
       <div class="field"><label>Audience</label>
@@ -128,7 +129,7 @@ function gen(){
   const prevRate=document.getElementById('mPrevRate').value;
   const avgVar=document.getElementById('mAvgVar').value;
   const avgFixed=document.getElementById('mAvgFixed').value;
-  const median=+document.getElementById('mMedian').value||0;
+  const median=document.getElementById('mMedian').value;
   const growth=document.getElementById('mGrowth').value;
   const auction=document.getElementById('mAuction').value;
   const takeaway=document.getElementById('mTakeaway').value||'The market continues to evolve — staying informed is key to making smart property decisions.';
@@ -138,8 +139,8 @@ function gen(){
   const rateText=rateChange===0?'held steady at':rateChange>0?'increased to':'decreased to';
 
   document.getElementById('sRate').textContent=rate+'%';
-  document.getElementById('sMedian').textContent=fmt(median);
-  document.getElementById('sGrowth').textContent=growth+'%';
+  document.getElementById('sMedian').textContent=median?fmt(median):'Pending verification';
+  document.getElementById('sGrowth').textContent=growth?growth+'%':'Pending verification';
 
   const audienceIntro={
     general:`Whether you're a homeowner, looking to buy, or an investor`,
@@ -150,30 +151,34 @@ function gen(){
   const text=`📊 MARKET UPDATE — ${date}
 
 🏛️ INTEREST RATES
-The RBA has ${rateText} ${rate}%${rateChange!==0?' (previously '+prevRate+'%)':''}.
+The RBA cash rate target has ${rateText} ${rate}%${rateChange!==0?' (previously '+prevRate+'%)':''}.
 
-Current average rates:
-• Variable home loan: ${avgVar}%
-• 2-year fixed rate: ${avgFixed}%
-${rateChange<0?'\n💡 If your lender hasn\'t passed on the cut, now is a great time to negotiate or explore refinancing options.':rateChange>0?'\n⚠️ If you\'re feeling the squeeze, let\'s review your loan structure to find ways to manage the increase.':'\n✅ Rates remain stable — a good time to review your position and plan ahead.'}
+Lender rates require separate verification; the RBA decision does not set them.
+Latest verified RBA decision: 3 November 2026; 4.60% to 4.85%, effective 4 November 2026.
+Source: https://www.rba.gov.au/media-releases/2026/mr-26-30.html
+
+User-supplied average rates (verify source, date and eligibility):
+• Variable home loan: ${avgVar ? avgVar+'%' : 'Pending verification'}
+• 2-year fixed rate: ${avgFixed ? avgFixed+'%' : 'Pending verification'}
+${rateChange<0?'\n💡 If your lender hasn\'t passed on the cut, now is a great time to negotiate or explore refinancing options.':rateChange>0?'\n⚠️ If you\'re feeling the squeeze, let\'s review your loan structure to find ways to manage the increase.':'\nConfirm lender rates separately, even when the cash rate is unchanged.'}
 
 🏠 PROPERTY MARKET
-• Median house price: ${fmt(median)}
-• Quarterly price growth: ${growth}%
-• Auction clearance rate: ${auction}%
+• Median house price: ${median ? fmt(median) : 'Pending verification'}
+• Quarterly price growth: ${growth ? growth+'%' : 'Pending verification'}
+• Auction clearance rate: ${auction ? auction+'%' : 'Pending verification'}
 
 ${audienceIntro}, here's what this means: ${takeaway}
 
 📋 ACTION ITEMS
 ${audience==='investor'?`1. Review your portfolio's loan-to-value ratios
-2. Check if current yields still stack up at ${avgVar}% variable
+2. Check yields using a separately verified variable loan rate
 3. Consider fixing a portion if rates suit your strategy
 4. Ensure your interest-only periods haven't expired`
 :audience==='fhb'?`1. Check your borrowing power at current rates
 2. Explore First Home Guarantee (5% deposit, no LMI)
 3. Research stamp duty concessions in your state
 4. Get pre-approved to act quickly when you find the right property`
-:`1. Compare your current rate against ${avgVar}% (avg variable)
+:`1. Compare your current loan rate with separately verified eligible products
 2. Check if your fixed rate is expiring soon
 3. Consider extra repayments if you have surplus cash
 4. Book an annual loan health check`}

@@ -77,14 +77,15 @@ h2{font-size:1.6rem;font-weight:700;margin-bottom:4px}
   <h2>📰 Client Newsletter Template</h2>
   <p class="subtitle">Generate monthly market update newsletters for your clients</p>
 
-  <div class="grid">
+  <p class="fineprint" role="note">RBA decision 3 November 2026: cash rate target increased from 4.60% to 4.85%, effective 4 November 2026. Source checked 3 November 2026. Lenders set product rates independently; verify the product, eligibility and effective date. <a href="https://www.rba.gov.au/media-releases/2026/mr-26-30.html">RBA decision</a></p>
+<div class="grid">
     <div class="card">
       <h3>⚙️ Newsletter Setup</h3>
       <div class="field"><label>Month / Year</label><input type="month" id="nMonth" oninput="gen()"></div>
       <div class="field"><label>Broker Name</label><input type="text" id="nBroker" value="Oney & Co" oninput="gen()"></div>
-      <div class="field"><label>Current Cash Rate (%)</label><input type="number" id="nRate" value="4.60" step="0.25" oninput="gen()"></div>
+      <div class="field"><label>Announced Cash Rate (%)</label><input type="number" id="nRate" value="4.85" step="0.25" oninput="gen()"></div>
       <div class="field"><label>Rate Direction</label>
-        <select id="nDirection" onchange="gen()"><option value="hold">On Hold</option><option value="cut">Rate Cut</option><option value="rise">Rate Rise</option></select>
+        <select id="nDirection" onchange="gen()"><option value="hold">On Hold</option><option value="cut">Rate Cut</option><option value="rise" selected>Rate Rise</option></select>
       </div>
       <div class="field"><label>Market Highlight</label><textarea id="nHighlight" rows="3" placeholder="e.g. Property prices up 2.1% in Sydney this quarter" oninput="gen()"></textarea></div>
       <div class="field"><label>Tip of the Month</label><textarea id="nTip" rows="3" placeholder="e.g. Consider making extra repayments during tax refund season" oninput="gen()"></textarea></div>
@@ -109,7 +110,7 @@ function gen(){
   let monthName='This Month',year=new Date().getFullYear();
   if(monthVal){const[y,m]=monthVal.split('-');year=y;monthName=MONTHS[parseInt(m)-1]+' '+y;}
   const broker=document.getElementById('nBroker').value||'Your Broker';
-  const rate=document.getElementById('nRate').value||'4.60';
+  const rate=document.getElementById('nRate').value||'4.85';
   const dir=document.getElementById('nDirection').value;
   const highlight=document.getElementById('nHighlight').value||'The Australian property market continues to evolve with regional variations in growth and demand.';
   const tip=document.getElementById('nTip').value||'Review your home loan annually to ensure you\'re still getting a competitive rate.';
@@ -126,7 +127,8 @@ function gen(){
     <h2>🏛️ Interest Rates</h2>
     <div class="highlight-box">
       <strong>Cash Rate: ${rate}%</strong><br>
-      ${dirText} at ${rate}%. ${dir==='hold'?'This means your variable rate should remain unchanged for now.':dir==='cut'?'Contact your lender to ensure the rate cut is passed on to you.':'Check if your lender has passed on the full increase.'}
+      ${dirText} ${dir==='hold'?'at':'to'} ${rate}%. Lenders set home loan rates independently; confirm any product rate change and its effective date with your lender.<br>
+      Latest verified decision: 3 November 2026, 4.60% to 4.85%, effective 4 November 2026. <a href="https://www.rba.gov.au/media-releases/2026/mr-26-30.html">RBA source</a>. Figures entered above are editable; verify them for the newsletter period.
     </div>
 
     <h2>📊 Market Snapshot</h2>
