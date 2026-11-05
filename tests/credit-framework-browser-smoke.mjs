@@ -5,6 +5,7 @@
 //
 // Run: node tests/credit-framework-browser-smoke.mjs
 //   PLAYWRIGHT_MODULE=/path/to/playwright/index.mjs  (optional explicit module path)
+//   CF_SMOKE_VIEWPORT=desktop|mobile                  (optional; default: both)
 //   CF_SMOKE_OUT=/some/dir                            (screenshots + PDF; default: OS temp dir)
 import http from 'node:http';
 import { readFile, mkdir, writeFile } from 'node:fs/promises';
@@ -72,9 +73,55 @@ async function runViewport(name, contextOpts) {
   // Belt and braces: anything off-origin is aborted and recorded.
   await page.route('**/*', (route) => (route.request().url().startsWith(ORIGIN) ? route.continue() : route.abort()));
 
+  // Drive the phone's real Inputs/Results navigation and intake stepper.
+  // Never force clicks or alter hidden styles to make a test pass.
+  const phone = contextOpts.viewport.width <= 640;
+  const showResults = async () => {
+    if (phone && await page.getAttribute('body', 'data-mobile-view') !== 'results') await page.click('[data-mobile-view="results"]');
+  };
+  async function prepare(selector) {
+    const target = page.locator(selector).first();
+    if (!phone) return;
+    const location = await target.evaluate(n => ({
+      input: !!n.closest('#intake'), output: !!n.closest('#output'),
+      step: [...document.querySelectorAll('#intake-form > details.sec')].indexOf(n.closest('#intake-form > details.sec')),
+    }));
+    if (location.output) await showResults();
+    if (location.input) {
+      if (await page.getAttribute('body', 'data-mobile-view') !== 'inputs') await page.click('[data-mobile-view="inputs"]');
+      if (location.step >= 0) {
+        const active = () => page.locator('#intake-form > details.sec').evaluateAll(nodes => nodes.findIndex(n => !n.classList.contains('mobile-inactive-step')));
+        let current = await active();
+        while (current !== location.step) {
+          await page.getByRole('button', { name: current < location.step ? 'Next' : 'Previous', exact: true }).click();
+          const next = await active();
+          assert.notEqual(next, current, 'phone stepper advances'); current = next;
+        }
+      }
+    }
+  }
+  async function click(selector) {
+    await prepare(selector);
+    await page.click(selector);
+    if (selector.startsWith('#case-picker')) await showResults();
+  }
+  async function openInput(selector) {
+    await prepare(selector);
+    const ancestors = await page.locator(selector).locator('xpath=ancestor::details').all();
+    for (const ancestor of ancestors) {
+      if (!(await ancestor.evaluate(n => n.open))) await ancestor.locator(':scope > summary').click();
+    }
+  }
+  async function fill(selector, value) { await openInput(selector); await page.fill(selector, value); }
+  async function check(selector) { await openInput(selector); await page.check(selector); }
+  async function selectOption(selector, value) { await openInput(selector); await page.selectOption(selector, value); }
+
   await page.goto(URL_PAGE, { waitUntil: 'load' });
+  await page.waitForSelector('#sec-questions', { state: 'attached' });
+  await showResults();
   await page.waitForSelector('#sec-questions');
   const v = { viewport: contextOpts.viewport, cases: {} };
+  results.viewports[name] = v;
 
   // noindex effective in the served DOM
   v.robots = await page.getAttribute('meta[name="robots"]', 'content');
@@ -86,13 +133,13 @@ async function runViewport(name, contextOpts) {
 
   v.initialVisibleBodies = await page.locator('.sec-body:visible').count();
   assert.equal(v.initialVisibleBodies, 0, 'sections start collapsed');
-  await page.click('#sec-questions [data-toggle]');
+  await click('#sec-questions [data-toggle]');
   assert.equal(await page.locator('#body-questions').isVisible(), true, 'single section expands');
-  await page.click('#sec-questions [data-toggle]');
+  await click('#sec-questions [data-toggle]');
   for (const id of ['CF-001', 'CF-002', 'CF-004']) {
     const c = {};
-    await page.click(`#case-picker [data-case="${id}"]`);
-    await page.click('#tier-output [data-tier="simple"]');
+    await click(`#case-picker [data-case="${id}"]`);
+    await click('#tier-output [data-tier="simple"]');
     c.summariesVisible = await page.locator('[data-summary]:visible').count();
     c.bodiesVisibleCollapsed = await page.locator('.sec-body:visible').count();
     assert.ok(c.summariesVisible >= 7, `${name} ${id} summaries visible`);
@@ -112,7 +159,7 @@ async function runViewport(name, contextOpts) {
     assert.equal(c.simpleExpandedNote, id === 'CF-002' ? 1 : 0, `${name} ${id} Simple expansion note only on Critical overflow`);
     if (id === 'CF-002') {
       // RT-02: the SG Critical item is visibly part of Simple.
-      await page.click('#sec-questions [data-toggle]');
+      await click('#sec-questions [data-toggle]');
       c.sgVisibleInSimple = await page.locator('[data-question="sg_unevidenced"]').isVisible();
       c.sgHeading = (await page.textContent('[data-question="sg_unevidenced"] h4')).trim();
       c.simpleExpandedText = (await page.textContent('#simple-expanded')).trim();
@@ -123,18 +170,18 @@ async function runViewport(name, contextOpts) {
       assert.match(c.hiddenNote, /^1 further question/);
       await page.screenshot({ path: join(OUT, `${name}-cf002-simple-sg-critical.png`), fullPage: false });
       await page.locator('#simple-expanded').screenshot({ path: join(OUT, `${name}-cf002-simple-expanded-note.png`) });
-      await page.click('#sec-questions [data-toggle]');
+      await click('#sec-questions [data-toggle]');
     }
 
     // copy (Simple) — clipboard read-back
-    await page.click('#copy-btn');
+    await click('#copy-btn');
     await page.waitForFunction(() => document.body.dataset.copyStatus);
     const simpleClip = await page.evaluate(() => navigator.clipboard.readText());
     assert.ok(simpleClip.includes(BOUNDARY), 'copied text has boundary');
     assert.ok(!simpleClip.includes('If strong:'), 'Simple copy excludes gated content');
     c.simpleCopyChars = simpleClip.length;
 
-    await page.click('#tier-output [data-tier="comprehensive"]');
+    await click('#tier-output [data-tier="comprehensive"]');
     c.compQuestions = await page.locator('[data-question]').count();
     c.compGatedFields = await page.locator('[data-gated]').count();
     c.compEmail = await page.locator('#email-draft').count();
@@ -144,7 +191,7 @@ async function runViewport(name, contextOpts) {
     assert.equal(c.compEmail, 1);
     assert.equal(c.rerateSelects, EXPECT_Q[id].comprehensive);
     assert.equal(await page.getAttribute('body', 'data-lint'), 'pass', `${name} ${id} comprehensive lint`);
-    await page.click('#copy-btn');
+    await click('#copy-btn');
     const compClip = await page.evaluate(() => navigator.clipboard.readText());
     assert.ok(compClip.includes('If strong:') && compClip.includes(BOUNDARY));
     c.compCopyChars = compClip.length;
@@ -155,9 +202,9 @@ async function runViewport(name, contextOpts) {
   }
 
   // Re-rate loop in the UI (CF-002, Comprehensive)
-  await page.click('#case-picker [data-case="CF-002"]');
-  await page.click('#tier-output [data-tier="comprehensive"]');
-  if ((await page.getAttribute('#expand-all', 'data-state')) !== 'open') await page.click('#expand-all');
+  await click('#case-picker [data-case="CF-002"]');
+  await click('#tier-output [data-tier="comprehensive"]');
+  if ((await page.getAttribute('#expand-all', 'data-state')) !== 'open') await click('#expand-all');
   v.expandAll = { bodies: await page.locator('.sec-body').count(), visible: await page.locator('.sec-body:visible').count() };
   assert.equal(v.expandAll.visible, v.expandAll.bodies, 'expand all opens every section');
   const selects = await page.locator('[data-rerate]').all();
@@ -173,16 +220,16 @@ async function runViewport(name, contextOpts) {
   // RT-03 + RT-04: reviewed-evidence wording and the full re-rate matrix, driven through the UI.
   v.rerateMatrix = {};
   for (const [id, spec] of Object.entries(MATRIX.cases)) {
-    await page.click(`#case-picker [data-case="${id}"]`);
-    await page.click('#tier-output [data-tier="comprehensive"]');
-    if ((await page.getAttribute('#expand-all', 'data-state')) !== 'open') await page.click('#expand-all');
+    await click(`#case-picker [data-case="${id}"]`);
+    await click('#tier-output [data-tier="comprehensive"]');
+    if ((await page.getAttribute('#expand-all', 'data-state')) !== 'open') await click('#expand-all');
     const labels = await page.locator(`[data-rerate="${spec.questions[0].id}"] option`).allTextContents();
     assert.deepEqual(labels, Object.values(EVIDENCE_STATUS), `${name} ${id} reviewed-evidence labels`);
     assert.equal(await page.locator('#rerate-evidence-rule').isVisible(), true, `${name} ${id} evidence rule visible`);
     assert.match(await page.textContent('#rerate-guardrail'), /Improve only if reviewed evidence proves/);
     const rows = [];
     for (const row of spec.rows) {
-      for (const [qid, st] of Object.entries(row.evidence)) await page.selectOption(`[data-rerate="${qid}"]`, st);
+      for (const [qid, st] of Object.entries(row.evidence)) await selectOption(`[data-rerate="${qid}"]`, st);
       const movement = (await page.textContent('#rerate-movement')).trim();
       const confidence = (await page.textContent('#rerate-confidence')).trim();
       const e = row.expect;
@@ -195,7 +242,7 @@ async function runViewport(name, contextOpts) {
     v.rerateMatrix[id] = rows;
     assert.equal(await page.locator('#rerate-confidence-cap').isVisible(), true, `${name} ${id} confidence cap shown`);
     assert.equal(await page.locator('#rerate-custom-guardrail').count(), 0, `${name} ${id} calibrated sample has no custom guardrail`);
-    await page.click(`#case-picker [data-case="${id}"]`); // reset evidence
+    await click(`#case-picker [data-case="${id}"]`); // reset evidence
   }
 
   // Calibration 2026-09-27: explicit pins (also rows of the shared matrix above).
@@ -211,21 +258,20 @@ async function runViewport(name, contextOpts) {
 
   // Task-06: custom scenarios typed through the form never re-rate upward; downgrades still apply.
   async function loadCustom(ac) {
-    await page.click('#case-picker [data-case="custom"]');
-    await page.evaluate(() => document.querySelectorAll('#intake-form details').forEach((d) => { d.open = true; }));
+    await click('#case-picker [data-case="custom"]');
     for (const [k, val] of Object.entries(ac.intake)) {
-      if (k === 'dealType' || k === 'borrowerType') await page.selectOption(`#f-${k}`, String(val));
-      else await page.fill(`#f-${k}`, String(val));
+      if (k === 'dealType' || k === 'borrowerType') await selectOption(`#f-${k}`, String(val));
+      else await fill(`#f-${k}`, String(val));
     }
-    if (await page.locator('#apply-suggestions').count()) await page.click('#apply-suggestions');
-    await page.selectOption('#f-rating', ac.rating);
+    if (await page.locator('#apply-suggestions').count()) await click('#apply-suggestions');
+    await selectOption('#f-rating', ac.rating);
     return page.evaluate(() => [...document.querySelectorAll('#intake-form input[type=checkbox][id^="t-"]:checked')].map((c) => c.value).sort());
   }
   async function setEvidence(statusFor) {
-    await page.click('#tier-output [data-tier="comprehensive"]');
-    if ((await page.getAttribute('#expand-all', 'data-state')) !== 'open') await page.click('#expand-all');
+    await click('#tier-output [data-tier="comprehensive"]');
+    if ((await page.getAttribute('#expand-all', 'data-state')) !== 'open') await click('#expand-all');
     const rows = await page.evaluate(() => [...document.querySelectorAll('[data-rerate]')].map((s) => ({ id: s.dataset.rerate, priority: s.closest('.rr-row').querySelector('.prio').textContent })));
-    for (const r of rows) await page.selectOption(`[data-rerate="${r.id}"]`, statusFor(r));
+    for (const r of rows) await selectOption(`[data-rerate="${r.id}"]`, statusFor(r));
     return { movement: (await page.textContent('#rerate-movement')).trim(), confidence: (await page.textContent('#rerate-confidence')).trim() };
   }
   const critOnly = (r) => (r.priority === 'Critical' ? 'supports' : 'outstanding');
@@ -234,7 +280,7 @@ async function runViewport(name, contextOpts) {
     const triggers = await loadCustom(ADV[id]);
     assert.deepEqual(triggers, ADV[id].expectedTriggers, `${name} ${id} triggers from the form`);
     assert.equal(await page.getAttribute('body', 'data-pristine'), 'false');
-    await page.click('#tier-output [data-tier="simple"]');
+    await click('#tier-output [data-tier="simple"]');
     const simpleCritical = await page.evaluate(() => [...document.querySelectorAll('[data-question]')].filter((q) => q.querySelector('.prio')?.textContent === 'Critical').length);
     const simpleGuardrail = await page.locator('#rerate-custom-guardrail').count();
     const held = await setEvidence(critOnly);
@@ -254,7 +300,7 @@ async function runViewport(name, contextOpts) {
     assert.equal(await page.getAttribute('body', 'data-lint'), 'pass', `${name} ${id} lint`);
     if (id === 'AC-02') {
       await setEvidence(critOnly);
-      await page.click('#copy-btn');
+      await click('#copy-btn');
       await page.waitForFunction(() => document.body.dataset.copyStatus);
       const clip = await page.evaluate(() => navigator.clipboard.readText());
       c.copiedGuardrail = clip.includes('Custom-scenario guardrail: Custom or edited scenario: material dimensions') && clip.includes('upgrade held for banker review');
@@ -265,8 +311,7 @@ async function runViewport(name, contextOpts) {
   }
   // Task-06 follow-up: deferral status for custom vs calibrated, all four evidence states.
   async function tickDeferral(code) {
-    await page.evaluate(() => document.querySelectorAll('#intake-form details').forEach((d) => { d.open = true; }));
-    await page.check(`#d-${code}`);
+    await check(`#d-${code}`);
   }
   const DEFERRAL_STATES = [
     ['weak', (r) => (r.id === 'mca_present' ? 'weak' : 'supports')],
@@ -279,6 +324,7 @@ async function runViewport(name, contextOpts) {
     for (const [label, fn] of DEFERRAL_STATES) {
       await setEvidence(fn);
       out[label] = {
+        evidence: await page.locator('[data-rerate]').evaluateAll(ns => ns.map(n => ({id:n.dataset.rerate, value:n.value}))),
         status: await page.getAttribute('[data-deferral="conduct_explanation"]', 'data-status'),
         chip: (await page.textContent('[data-deferral="conduct_explanation"] .dstatus')).trim(),
         readyToResubmitOnPage: await page.evaluate(() => /ready to resubmit/i.test(document.body.innerText)),
@@ -288,76 +334,84 @@ async function runViewport(name, contextOpts) {
     return out;
   };
   await loadCustom(ADV['AC-03']);
+  assert.deepEqual(await page.locator('#intake-form input[id^="t-"]:checked').evaluateAll(ns => ns.map(n => n.value).sort()), ADV['AC-03'].expectedTriggers, 'deferral fixture triggers before navigation');
   await tickDeferral('conduct_explanation');
+  assert.deepEqual(await page.locator('#intake-form input[id^="t-"]:checked').evaluateAll(ns => ns.map(n => n.value).sort()), ADV['AC-03'].expectedTriggers, 'deferral fixture triggers after navigation');
   v.deferralCustom = await deferralRun();
   assert.deepEqual(Object.values(v.deferralCustom).map((x) => x.status), ['pause', 'rework', 'rework', 'banker_review'], `${name} custom deferral states`);
   assert.equal(v.deferralCustom.all_supported.chip.toLowerCase(), 'evidence ready for banker review');
   assert.ok(Object.values(v.deferralCustom).every((x) => !x.readyToResubmitOnPage && x.lint === 'pass'), `${name} custom never shows Ready to resubmit`);
-  await page.click('#copy-btn');
+  await click('#copy-btn');
   await page.waitForFunction(() => document.body.dataset.copyStatus);
   const dClip = await page.evaluate(() => navigator.clipboard.readText());
   v.deferralCustomCopy = { banker: dClip.includes('overall: Evidence ready for banker review — do not resubmit automatically'), readyToResubmit: /ready to resubmit/i.test(dClip) };
   assert.deepEqual(v.deferralCustomCopy, { banker: true, readyToResubmit: false });
   await page.locator('#sec-deferral').screenshot({ path: join(OUT, `${name}-ac03-custom-deferral-banker-review.png`) });
   // Calibrated sample unchanged (CF-002 conduct_explanation).
-  await page.click('#case-picker [data-case="CF-002"]');
+  await click('#case-picker [data-case="CF-002"]');
   await tickDeferral('conduct_explanation');
   v.deferralCalibrated = await deferralRun();
   assert.deepEqual(Object.values(v.deferralCalibrated).map((x) => x.status), ['pause', 'rework', 'rework', 'resubmit'], `${name} calibrated deferral states`);
   assert.equal(v.deferralCalibrated.all_supported.readyToResubmitOnPage, true);
-  await page.click('#case-picker [data-case="CF-002"]');
+  await click('#case-picker [data-case="CF-002"]');
 
   // Custom Green + Important weak still becomes Amber.
   await loadCustom({ ...ADV['AC-01'], rating: 'Green — Package Ready' });
   const greenWeak = await setEvidence((r) => (r.id === 'working_capital_vague' ? 'weak' : 'supports'));
   v.custom.greenImportantWeak = `${greenWeak.movement} · ${greenWeak.confidence}`;
   assert.equal(v.custom.greenImportantWeak, 'green → amber (down) · Medium');
-  await page.click('#case-picker [data-case="CF-004"]');
+  await click('#case-picker [data-case="CF-004"]');
 
   // Edit -> judgement withdrawn
-  await page.click('#case-picker [data-case="CF-004"]');
-  await page.click('details.sec >> summary:has-text("Purpose and amount")');
-  await page.fill('#f-loanAmount', '1400000');
+  await click('#case-picker [data-case="CF-004"]');
+  if (phone) await prepare('#f-loanAmount');
+  else await click('details.sec >> summary:has-text("Purpose and amount")');
+  await fill('#f-loanAmount', '1400000');
+  await showResults();
   v.editNotice = await page.locator('#custom-notice').isVisible();
   assert.equal(v.editNotice, true);
   assert.equal(await page.getAttribute('body', 'data-pristine'), 'false');
-  await page.click('#case-picker [data-case="CF-004"]');
+  await click('#case-picker [data-case="CF-004"]');
 
   // Deferral recovery mode (CF-004): gated in Simple, plan in Comprehensive
-  await page.click('#case-picker [data-case="CF-004"]');
-  await page.click('#tier-output [data-tier="simple"]');
-  await page.click('details.sec >> summary:has-text("Deferral / concern reason")');
-  await page.check('#d-valuation_shortfall');
+  await click('#case-picker [data-case="CF-004"]');
+  await click('#tier-output [data-tier="simple"]');
+  if (phone) await prepare('#d-valuation_shortfall');
+  else await click('details.sec >> summary:has-text("Deferral / concern reason")');
+  await check('#d-valuation_shortfall');
+  await showResults();
   v.deferral = { simpleUpsell: await page.locator('#deferral-upsell').isVisible(), simplePlans: await page.locator('[data-deferral]').count() };
-  await page.click('#tier-output [data-tier="comprehensive"]');
+  await click('#tier-output [data-tier="comprehensive"]');
   v.deferral.plans = await page.locator('[data-deferral]').count();
   v.deferral.exactDocRule = await page.locator('#exact-doc-rule').count();
   assert.equal(v.deferral.exactDocRule, 1, 'exact-document rule shown');
   v.deferral.status = await page.getAttribute('[data-deferral="valuation_shortfall"]', 'data-status');
-  if ((await page.getAttribute('#expand-all', 'data-state')) !== 'open') await page.click('#expand-all');
-  await page.selectOption('[data-rerate="valuation_sensitive"]', 'weak');
+  if ((await page.getAttribute('#expand-all', 'data-state')) !== 'open') await click('#expand-all');
+  await selectOption('[data-rerate="valuation_sensitive"]', 'weak');
   v.deferral.statusAfterWeak = await page.getAttribute('[data-deferral="valuation_sensitive"], [data-deferral="valuation_shortfall"]', 'data-status');
   assert.deepEqual([v.deferral.simpleUpsell, v.deferral.simplePlans, v.deferral.plans, v.deferral.status, v.deferral.statusAfterWeak], [true, 0, 1, 'rework', 'pause']);
   assert.equal(await page.getAttribute('body', 'data-lint'), 'pass');
 
   // Broker feedback checklist (spec §14)
   v.feedback = { questions: await page.locator('#feedback [data-fb]').count() };
-  for (const q of ['blocking', 'time', 'questions']) await page.check(`#fb-${q}-yes`);
-  await page.check('#fb-pay-no');
+  for (const q of ['blocking', 'time', 'questions']) await check(`#fb-${q}-yes`);
+  await check('#fb-pay-no');
   v.feedback.meetsBar = await page.getAttribute('#fb-result', 'data-meets-bar');
-  await page.fill('#fb-comment', 'Deferral plan is the useful bit');
-  await page.click('#fb-copy');
+  await fill('#fb-comment', 'Deferral plan is the useful bit');
+  await click('#fb-copy');
   const fbClip = await page.evaluate(() => navigator.clipboard.readText());
   v.feedback.copied = /Result: 3\/6 yes — meets the spec §14 bar/.test(fbClip) && fbClip.includes('Comment: Deferral plan');
   assert.deepEqual([v.feedback.questions, v.feedback.meetsBar, v.feedback.copied], [6, 'true', true]);
 
   // Trigger suggestions on a blank custom scenario: suggested, not auto-ticked, then applied
-  await page.click('#case-picker [data-case="custom"]');
-  await page.click('details.sec >> summary:has-text("Conduct / compliance")');
-  await page.click('[data-structured-field="conduct"] .manual-details > summary');
-  await page.click('#risk-group-tax > summary');
-  await page.click('#risk-group-conduct > summary');
-  await page.fill('#f-conduct', '3 dishonours in last 6 months; ATO debt $80k on payment plan');
+  await click('#case-picker [data-case="custom"]');
+  if (phone) await prepare('#f-conduct');
+  else await click('details.sec >> summary:has-text("Conduct / compliance")');
+  await click('[data-structured-field="conduct"] .manual-details > summary');
+  await click('#risk-group-tax > summary');
+  await click('#risk-group-conduct > summary');
+  await fill('#f-conduct', '3 dishonours in last 6 months; ATO debt $80k on payment plan');
+  await prepare('#apply-suggestions');
   v.suggest = {
     chips: await page.locator('[data-sugg-chip]:visible').count(),
     ticked: await page.locator('#t-dishonours_recent').isChecked(),
@@ -365,12 +419,12 @@ async function runViewport(name, contextOpts) {
   };
   assert.equal(v.suggest.chips, 2, 'dishonours + ATO suggested');
   assert.equal(v.suggest.ticked, false, 'suggestions are not auto-applied');
-  await page.click('#apply-suggestions');
+  await click('#apply-suggestions');
   v.suggest.afterApply = { ticked: await page.locator('#t-dishonours_recent').isChecked() && await page.locator('#t-ato_debt').isChecked(), questions: await page.locator('[data-question]').count() };
   assert.equal(v.suggest.afterApply.ticked, true);
   assert.equal(v.suggest.afterApply.questions, 2);
   assert.equal(await page.getAttribute('body', 'data-lint'), 'pass');
-  await page.click('#case-picker [data-case="CF-002"]');
+  await click('#case-picker [data-case="CF-002"]');
 
   // Layout
   v.layout = await page.evaluate(() => {
@@ -387,12 +441,12 @@ async function runViewport(name, contextOpts) {
   assert.ok(v.layout.tierButtonHeight >= 40);
   assert.ok(v.layout.brandVisible);
   await page.screenshot({ path: join(OUT, `${name}-cf004-simple-top.png`) });
-  await page.click('#case-picker [data-case="CF-002"]');
-  await page.click('#tier-output [data-tier="comprehensive"]');
+  await click('#case-picker [data-case="CF-002"]');
+  await click('#tier-output [data-tier="comprehensive"]');
   await page.screenshot({ path: join(OUT, `${name}-cf002-comprehensive-full.png`), fullPage: true });
 
   // Print / PDF
-  if ((await page.getAttribute('#expand-all', 'data-state')) === 'open') await page.click('#expand-all');
+  if ((await page.getAttribute('#expand-all', 'data-state')) === 'open') await click('#expand-all');
   await page.emulateMedia({ media: 'print' });
   v.print = await page.evaluate(() => ({
     intake: getComputedStyle(document.querySelector('#intake')).display,
@@ -434,8 +488,8 @@ async function runViewport(name, contextOpts) {
 }
 
 try {
-  await runViewport('desktop', { viewport: { width: 1440, height: 900 } });
-  await runViewport('mobile-390', { viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
+  if (process.env.CF_SMOKE_VIEWPORT !== 'mobile') await runViewport('desktop', { viewport: { width: 1440, height: 900 } });
+  if (process.env.CF_SMOKE_VIEWPORT !== 'desktop') await runViewport('mobile-390', { viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
   results.pass = true;
 } catch (err) {
   results.pass = false;

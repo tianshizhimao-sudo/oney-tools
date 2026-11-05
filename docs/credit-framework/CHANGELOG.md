@@ -1,5 +1,13 @@
 # Local Credit Framework change log
 
+## 2026-11-05 - discussion summary integration
+
+- Add existing rule questions and expandable evidence requests beside each priority issue; questions are adaptable and potential issues require confirmation.
+- Preserve all open Critical rows directly in the overview, provenance/access observations, and audit-print restoration from the latest main. No rating or calculation changes.
+- Repair legacy smoke-test navigation to use actual phone steps and disclosures; add discussion-card regression at desktop and 390px.
+- Pre-release validation: 125 Node tests passed, zero failures/skips; full desktop/mobile smoke and targeted summary tests passed; nine A4 PDFs (104 pages) passed content/bounds checks with key contact sheets reviewed.
+- Synthetic technical checks only; real Safari, broker usability and time savings remain unverified.
+
 ## 2026-11-01 — print/PDF acceptance (local candidate, not published)
 
 - Preserve closed review records in PDF and restore screen disclosure after printing.
